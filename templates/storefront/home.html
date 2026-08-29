@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <h1>{{ tenant.config.brand_name|default:tenant.name }}</h1>
+  {% if tenant.config.tagline %}<p class="hero-sub">{{ tenant.config.tagline }}</p>{% endif %}
+  <a class="btn btn-primary" href="{% url 'storefront:menu' %}">See today’s menu</a>
+</section>
+
+{% for b in banners %}
+<div class="banner">
+  <strong>{{ b.title }}</strong>
+  {% if b.subtitle %}<span>{{ b.subtitle }}</span>{% endif %}
+  {% if b.link %}<a href="{{ b.link }}">More</a>{% endif %}
+</div>
+{% endfor %}
+
+{% if highlights %}
+<section>
+  <h2>On the menu today</h2>
+  <div class="slot-cards">
+    {% for h in highlights %}
+    <article class="slot-card">
+      <header>
+        <h3>{{ h.slot.label }}</h3>
+        {% if h.open %}
+          <span class="pill pill-open">Ordering until {{ h.slot.order_cutoff|time:"g:i A" }}</span>
+        {% else %}
+          <span class="pill pill-shut">Closed for today</span>
+        {% endif %}
+      </header>
+      <ul class="dish-list">
+        {% for e in h.entries %}
+        <li>
+          <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}" aria-hidden="true"></span>
+          {{ e.item.name }}<em>₹{{ e.price|floatformat:0 }}</em>
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}">View {{ h.slot.label|lower }} →</a>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<p class="empty">Today’s menu isn’t up yet. Please check back shortly.</p>
+{% endif %}
+
+{% endblock %}

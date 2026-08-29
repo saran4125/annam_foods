@@ -1,0 +1,63 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ tenant.config.brand_name|default:tenant.name }}{% endblock %}</title>
+{% if page.seo_description %}<meta name="description" content="{{ page.seo_description }}">{% endif %}
+<link rel="stylesheet" href="{% static 'css/storefront.css' %}">
+<style>
+  :root{
+    --brand:{{ tenant.config.theme.brand|default:"#C2410C" }};
+    --brand-dark:{{ tenant.config.theme.brand_dark|default:"#9A3412" }};
+    --accent:{{ tenant.config.theme.accent|default:"#15803D" }};
+  }
+</style>
+</head>
+<body>
+
+{% if not tenant.can_take_orders %}
+<div class="strip strip-quiet">
+  This kitchen isn’t accepting online orders at the moment.
+  {% if tenant.config.support_phone %}Please call {{ tenant.config.support_phone }}.{% endif %}
+</div>
+{% endif %}
+
+<header class="site-head">
+  <div class="wrap head-inner">
+    <a class="brand" href="{% url 'storefront:home' %}">
+      {{ tenant.config.brand_name|default:tenant.name }}
+      {% if tenant.config.tagline %}<span>{{ tenant.config.tagline }}</span>{% endif %}
+    </a>
+    <nav class="site-nav">
+      <a href="{% url 'storefront:menu' %}">Menu</a>
+      {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
+      <a class="cart-link" href="{% url 'storefront:cart' %}">
+        Cart{% if cart.count %} <b>{{ cart.count }}</b>{% endif %}
+      </a>
+    </nav>
+  </div>
+</header>
+
+{% if messages %}
+<div class="wrap">
+  {% for m in messages %}<div class="flash flash-{{ m.tags }}">{{ m }}</div>{% endfor %}
+</div>
+{% endif %}
+
+<main class="wrap">{% block content %}{% endblock %}</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-inner">
+    <div>
+      <strong>{{ tenant.config.brand_name|default:tenant.name }}</strong>
+      {% if tenant.config.support_phone %}<br>{{ tenant.config.support_phone }}{% endif %}
+    </div>
+    <div class="foot-links">
+      {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

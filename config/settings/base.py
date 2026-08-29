@@ -13,6 +13,8 @@ INSTALLED_APPS = [
     "apps.tenancy",
     "apps.catalog",
     "apps.delivery",
+    "apps.content",
+    "apps.storefront",
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load storefront_extras %}
+{% block title %}Menu · {{ tenant.config.brand_name|default:tenant.name }}{% endblock %}
+{% block content %}
+
+<h1>Menu</h1>
+
+{% if not slots %}
+  <p class="empty">This kitchen hasn’t set up its meal times yet.</p>
+{% else %}
+
+<div class="tabs">
+  {% for d, label in dates %}
+    <a class="tab{% if d == chosen_date %} on{% endif %}"
+       href="?date={{ d|date:'Y-m-d' }}&slot={{ chosen_slot.key }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="tabs tabs-slot">
+  {% for s in slots %}
+    <a class="tab{% if s.key == chosen_slot.key %} on{% endif %}"
+       href="?date={{ chosen_date|date:'Y-m-d' }}&slot={{ s.key }}">
+      {{ s.label }}{% if not slot_states|dictkey:s.key %} <small>closed</small>{% endif %}
+    </a>
+  {% endfor %}
+</div>
+
+{% if not slot_open %}
+  <div class="strip strip-quiet">
+    Ordering for {{ chosen_slot.label|lower }} closed at {{ chosen_slot.order_cutoff|time:"g:i A" }}.
+    {% if chosen_date == dates.0.0 %}Try tomorrow, or another meal.{% endif %}
+  </div>
+{% endif %}
+
+{% if entries %}
+<ul class="dishes">
+  {% for e in entries %}
+  <li class="dish">
+    <div class="dish-main">
+      <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}" aria-hidden="true"></span>
+      <div>
+        <h3>{{ e.item.name }}</h3>
+        {% if e.item.description %}<p>{{ e.item.description }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="dish-buy">
+      <span class="price">₹{{ e.price|floatformat:0 }}</span>
+      {% if slot_open and tenant.can_take_orders %}
+        {% with qty=cart_quantities|dictkey:e.item.id %}
+        <form method="post" action="{% url 'storefront:cart_add' %}">
+          {% csrf_token %}
+          <input type="hidden" name="item_id" value="{{ e.item.id }}">
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="btn btn-add" name="delta" value="1">
+            {% if qty %}Add ({{ qty }}){% else %}Add{% endif %}
+          </button>
+        </form>
+        {% endwith %}
+      {% endif %}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p class="empty">Nothing on the {{ chosen_slot.label|lower }} menu for this day.</p>
+{% endif %}
+
+{% if cart.count %}
+<div class="cart-bar">
+  <span>{{ cart.count }} item{{ cart.count|pluralize }} in your cart</span>
+  <a class="btn btn-primary" href="{% url 'storefront:cart' %}">View cart</a>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}
