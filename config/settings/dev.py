@@ -7,6 +7,13 @@ DEBUG = True
 SECRET_KEY = "dev-only-not-a-secret-change-in-production"
 ALLOWED_HOSTS = ["*"]
 
+# Encrypts TenantSecrets. This throwaway value is fine for development and for
+# tests; production settings must require a real key from the environment and
+# refuse to start without one.
+SECRETS_KEY = os.environ.get(
+    "SECRETS_KEY", "8ZQ1kCq0nTQ0Y1nZ5vX2wJ7bF3sD9gH6kL0pR4tU8yM="
+)
+
 # The dev database deliberately lives OUTSIDE the project directory.
 # The project folder is a synced/mounted volume and SQLite's file locking is
 # unreliable there -- you get "disk I/O error" on the first write. Postgres

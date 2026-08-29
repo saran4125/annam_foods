@@ -113,6 +113,14 @@ live menu on each render; do the same anywhere else a price appears.
 No SPA. This is deliberate — local SEO matters to a restaurant, and a second
 frontend codebase is a second thing to maintain per client.
 
+**Messages go through `apps.messaging`, never straight to a provider.**
+Build a payload with `messaging.payloads`, queue it with
+`messaging.services.queue()`. The app owns content, validation, retries and
+the record of what happened; the sender is a swappable driver chosen per
+tenant (`TenantSecrets.wa_provider`). See `docs/adr/0001-messaging-architecture.md`.
+Meta's limits — 20-character `cta_url` label, 3 buttons, 10 list rows — are
+enforced in `payloads.py` and nowhere else.
+
 **Customisation is configuration.** Anything that differs between kitchens goes
 in `TenantConfig` (a field, or a key in `features`). If a client asks for
 something new, it becomes a flag every client can use. Never fork per client.
@@ -132,6 +140,7 @@ apps/catalog/          slots, categories, items, MenuSchedule, menu resolution
 apps/delivery/         zones, pincode serviceability
 apps/content/          owner-written pages and banners
 apps/storefront/       public site: home, menu, cart
+apps/messaging/        outbound message queue, payload builders, senders
 templates/             base.html + per-app directories
 static/css/            storefront.css — colours come from TenantConfig.theme
 docs/                  phase specs; work them in order
@@ -149,6 +158,8 @@ docs/                  phase specs; work them in order
   from the portal's point of view.
 - An invoice number allocated outside a transaction with a row lock.
 - A price read from a form, a session, or a WhatsApp payload.
+- A provider API called from anywhere but a sender in `apps/messaging/senders/`.
+- A decrypted tenant secret in a response body, a log line, or the repo.
 - A migration that isn't checked in alongside the model change.
 
 ---
@@ -165,4 +176,4 @@ docs/                  phase specs; work them in order
 | 6 | Super admin and subscription billing | `docs/phase-6-super-admin-billing.md` |
 | 7 | Postgres and production deploy | `docs/phase-7-production.md` |
 
-62 tests green as of the end of Phase 2. Keep them that way.
+107 tests green as of the messaging spine landing. Keep them that way.

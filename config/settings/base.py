@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     "apps.delivery",
     "apps.content",
     "apps.storefront",
+    "apps.messaging",
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,10 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Django 6 will default URLField to https; opt in now so the behaviour
+# doesn't change under us at upgrade time.
+FORMS_URLFIELD_ASSUME_HTTPS = True
 
 # Host that serves the SEER super-admin, not any tenant storefront.
 PLATFORM_HOST = "admin.localhost"

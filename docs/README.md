@@ -20,6 +20,11 @@ Phases 4 and 5 can swap if you'd rather prove the WhatsApp story first. Nothing
 else can move: 3 depends on 2, 5 depends on 3, 6 depends on nothing but is
 pointless before there are clients to bill.
 
+## Decisions already made
+
+- `adr/0001-messaging-architecture.md` — the app owns messages; n8n, if used at
+  all, is a per-tenant delivery driver behind one interface
+
 ## Definition of done, every phase
 
 - `uv run pytest -q` green, including every behaviour listed in the phase doc

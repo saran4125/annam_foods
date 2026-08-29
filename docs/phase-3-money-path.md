@@ -142,8 +142,10 @@ def advance_status(order, to_status, actor) -> Order    # writes an OrderEvent
 
 ## Razorpay — `apps/payments/`
 
-Keys are **per tenant**, from `tenant_secrets` (create this model here if Phase
-6 hasn't yet — see AGENTS.md; encrypted at rest, never returned to a browser).
+Keys are **per tenant**, already available on `tenant.secrets`
+(`razorpay_key_id`, `razorpay_secret`, `razorpay_webhook_secret`,
+`razorpay_live_mode`) — encrypted at rest and never returned to a browser.
+`TenantSecrets` is built; do not create another credentials model.
 
 ```python
 def create_payment_order(order) -> dict        # website: inline checkout
@@ -163,7 +165,9 @@ delivery that burns a second invoice number breaks your client's invoice series.
 4. inside transaction.atomic():
      write Payment, set order.payment_status=paid, append OrderEvent
      allocate invoice number, create Invoice row
-5. queue: render PDF, send to customer, alert owner
+5. queue: render PDF, then `messaging.services.queue(...)` for the customer's
+   confirmation and invoice and the owner's alert, each with a `dedupe_key`
+   derived from the event id so a redelivery cannot send twice
 6. return 200
 ```
 

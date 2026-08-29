@@ -160,3 +160,92 @@ class TenantUser(TenantOwnedModel):
 
     def __str__(self):
         return f"{self.user} @ {self.tenant.name} ({self.role})"
+
+
+class MessageProvider(models.TextChoices):
+    """How a tenant's WhatsApp messages physically leave the building.
+
+    The app always owns the message -- its content, validation, queueing and
+    retries. This only chooses the driver for the final hop.
+    """
+
+    META_CLOUD = "meta_cloud", "Meta Cloud API (direct)"
+    N8N = "n8n", "Via n8n webhook"
+    CONSOLE = "console", "Console (development)"
+
+
+class TenantSecrets(models.Model):
+    """Per-tenant credentials, encrypted at rest.
+
+    Exempt from tenant scoping: reached only as `tenant.secrets`, and read by
+    platform code that already knows which tenant it is acting for.
+
+    Nothing here is ever returned to a browser. The portal shows a masked
+    value and can only overwrite it -- a compromised owner login must not be
+    able to walk away with keys that move the client's money.
+    """
+
+    tenant_scoping_exempt = "one-to-one with Tenant; server-side reads only"
+
+    tenant = models.OneToOneField(Tenant, on_delete=models.CASCADE, related_name="secrets")
+
+    # WhatsApp
+    wa_provider = models.CharField(
+        max_length=20, choices=MessageProvider.choices, default=MessageProvider.CONSOLE
+    )
+    wa_phone_number_id = models.CharField(max_length=40, blank=True)
+    wa_waba_id = models.CharField(max_length=40, blank=True)
+    wa_verify_token = models.CharField(max_length=80, blank=True)
+    _wa_token = models.TextField(blank=True, db_column="wa_token_enc")
+    _wa_app_secret = models.TextField(blank=True, db_column="wa_app_secret_enc")
+
+    # Where to POST when wa_provider is 'n8n'
+    n8n_send_url = models.URLField(blank=True)
+    _n8n_auth_token = models.TextField(blank=True, db_column="n8n_auth_token_enc")
+
+    # Razorpay
+    razorpay_key_id = models.CharField(max_length=60, blank=True)
+    _razorpay_secret = models.TextField(blank=True, db_column="razorpay_secret_enc")
+    _razorpay_webhook_secret = models.TextField(blank=True, db_column="rzp_webhook_secret_enc")
+    razorpay_live_mode = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = "tenant secrets"
+
+    def __str__(self):
+        return f"Secrets for {self.tenant.name}"
+
+    # Encrypted fields are read and written through properties so callers
+    # never see the ciphertext and never forget to encrypt.
+    def _get(self, field):
+        from .crypto import decrypt
+
+        return decrypt(getattr(self, field))
+
+    def _set(self, field, value):
+        from .crypto import encrypt
+
+        setattr(self, field, encrypt(value or ""))
+
+    wa_token = property(lambda s: s._get("_wa_token"),
+                        lambda s, v: s._set("_wa_token", v))
+    wa_app_secret = property(lambda s: s._get("_wa_app_secret"),
+                             lambda s, v: s._set("_wa_app_secret", v))
+    n8n_auth_token = property(lambda s: s._get("_n8n_auth_token"),
+                              lambda s, v: s._set("_n8n_auth_token", v))
+    razorpay_secret = property(lambda s: s._get("_razorpay_secret"),
+                               lambda s, v: s._set("_razorpay_secret", v))
+    razorpay_webhook_secret = property(lambda s: s._get("_razorpay_webhook_secret"),
+                                       lambda s, v: s._set("_razorpay_webhook_secret", v))
+
+    @property
+    def whatsapp_is_configured(self) -> bool:
+        if self.wa_provider == MessageProvider.CONSOLE:
+            return True
+        if self.wa_provider == MessageProvider.N8N:
+            return bool(self.n8n_send_url)
+        return bool(self.wa_phone_number_id and self._wa_token)
+
+    @property
+    def razorpay_is_configured(self) -> bool:
+        return bool(self.razorpay_key_id and self._razorpay_secret)

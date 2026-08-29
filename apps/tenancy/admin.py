@@ -2,7 +2,15 @@
 from django.contrib import admin
 
 from .adminbase import UnscopedAdmin
-from .models import Tenant, TenantConfig, TenantDomain, TenantStatus, TenantUser
+from .forms import TenantSecretsForm
+from .models import (
+    Tenant,
+    TenantConfig,
+    TenantDomain,
+    TenantSecrets,
+    TenantStatus,
+    TenantUser,
+)
 
 
 class TenantDomainInline(admin.TabularInline):
@@ -46,3 +54,20 @@ class TenantUserAdmin(UnscopedAdmin):
     list_display = ("user", "tenant", "role", "created_at")
     list_filter = ("role", "tenant")
     search_fields = ("user__username", "user__email")
+
+
+@admin.register(TenantSecrets)
+class TenantSecretsAdmin(admin.ModelAdmin):
+    """Credentials are write-only here. See TenantSecretsForm for why."""
+
+    form = TenantSecretsForm
+    list_display = ("tenant", "wa_provider", "whatsapp_ready", "razorpay_ready")
+    list_filter = ("wa_provider", "razorpay_live_mode")
+
+    @admin.display(boolean=True, description="WhatsApp ready")
+    def whatsapp_ready(self, obj):
+        return obj.whatsapp_is_configured
+
+    @admin.display(boolean=True, description="Razorpay ready")
+    def razorpay_ready(self, obj):
+        return obj.razorpay_is_configured

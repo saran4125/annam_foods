@@ -8,19 +8,21 @@ difference.
 
 ## Architecture decision, already made
 
-**No n8n.** Meta posts webhooks directly to Django. The conversation state
-machine is Python, with tests.
+**All logic is in the app. n8n, if a tenant uses it at all, only performs the
+final send.** See `docs/adr/0001-messaging-architecture.md`.
 
-The earlier plan had a thin n8n relay. It was dropped because it is one view
-and a helper function in Python, costs ~700 MB of RAM on a shared box, adds a
-second place to debug, and makes every new client a workflow import instead of
-a database row. n8n stays in production for the older AVR / DHC / TailorsKart
-builds; it is not part of this product.
+The outbound half is **already built** — `apps/messaging/` landed with the
+`OutboundMessage` queue, payload builders that enforce Meta's limits, retries
+with backoff, `dedupe_key` idempotency, and three interchangeable senders
+(`meta_cloud`, `n8n`, `console`) chosen per tenant by
+`TenantSecrets.wa_provider`. Do not write another way to send a message.
 
-The lesson driving this: Annam's n8n Discovery flow reached 110 nodes, the same
-`node hasn't been executed` bug was fixed three separate times, and six weeks
-of changes sat un-imported. That is what business logic in a per-client JSON
-file costs.
+This phase adds the **inbound** half and the conversation itself.
+
+The lesson driving all of it: Annam's n8n Discovery flow reached 110 nodes, the
+same `node hasn't been executed` bug was fixed three separate times, and six
+weeks of changes sat un-imported. That is what business logic in a per-client
+JSON file costs.
 
 ---
 
@@ -36,21 +38,21 @@ unique_together: (tenant, phone)
 ```
 Conversation state lives here, in the database, not in a workflow engine.
 
-### `WaMessage`
+### `WaInboundMessage`
 ```
 phone           CharField(20), indexed
-direction       CharField  in | out
-type            CharField  text | interactive | template | document
+kind            CharField  text | button | list | location | order
 body            TextField
-wa_message_id   CharField(80), blank, indexed
-status          CharField  queued sent delivered read failed
-error           TextField, blank
+raw             JSONField
+wa_message_id   CharField(80), unique per tenant, indexed
 at              DateTimeField
 ```
-The inbound log doubles as the idempotency guard — Meta redelivers.
+Inbound only. Outbound already lives in `messaging.OutboundMessage` — do not
+duplicate it. The unique `wa_message_id` is the idempotency guard; Meta
+redelivers.
 
-Add to `tenant_secrets`: `wa_phone_number_id`, `wa_token_enc`, `wa_waba_id`,
-`wa_app_secret_enc`, `wa_verify_token`.
+`TenantSecrets` already carries `wa_phone_number_id`, `wa_waba_id`,
+`wa_verify_token`, `wa_token` and `wa_app_secret`. Nothing to add.
 
 ---
 
@@ -114,24 +116,25 @@ WhatsApp and the website ever disagree about a price, this is why.
 - Normalise pincodes through `delivery.services.normalise_pincode`; customers
   type "600 106".
 
-## Sending — `apps/whatsapp/client.py`
+## Sending — already done, just use it
 
 ```python
-def send_text(tenant, phone, body) -> str
-def send_buttons(tenant, phone, body, buttons)      # max 3
-def send_list(tenant, phone, body, sections)        # max 10 rows
-def send_cta_url(tenant, phone, body, url, label)   # label <= 20 chars
-def send_document(tenant, phone, url, filename)     # invoices
-def send_template(tenant, phone, name, params)      # outside the 24h window
+from apps.messaging import payloads as p
+from apps.messaging.services import queue
+
+queue(tenant, phone, p.buttons("Which meal?", [("lunch", "Lunch"), ("dinner", "Dinner")]),
+      purpose="slot_prompt")
 ```
 
-**Meta's limits, each of which cost Annam a live outage:**
-- `cta_url` button text is **20 characters maximum**. A 26-character label
-  silently failed every "Place Order" tap for days. Validate in code and test
-  the boundary.
-- Only one URL per message. Interactive list and button payloads cannot carry
-  a link at all.
-- Button messages cap at 3 buttons; lists at 10 rows.
+Available builders: `text`, `buttons`, `cta_url`, `list_message`, `document`,
+`template`. Each validates Meta's limits at build time and raises
+`PayloadError` — the 20-character `cta_url` label, 3 buttons, 10 list rows.
+Those rules are tested in `apps/messaging/tests/test_payloads.py`; do not
+re-check them in the flow code.
+
+Use `queue()` on the webhook path so Meta gets its 200 immediately, and let
+`send_pending_messages` deliver. `send_now()` exists for a request that can
+afford to wait.
 
 ## The 24-hour window
 
@@ -142,8 +145,9 @@ Get four utility templates approved during onboarding, and treat approval as a
 **provisioning step**, not an afterthought:
 `order_confirmed`, `payment_received`, `out_for_delivery`, `delivered`.
 
-Helper: `send_or_template(tenant, phone, free_form, template_name, params)` —
-picks based on the last inbound `WaMessage` timestamp.
+Add `messaging.services.send_or_template(tenant, phone, free_form_payload,
+template_name, params)` — picks based on the newest `WaInboundMessage` for that
+phone. This is the one piece of the messaging spine Phase 5 still has to add.
 
 ## Transactional messages go straight from Django
 
@@ -157,7 +161,8 @@ handler. An invoice must never fail to send because a conversation turn errored.
 
 **Webhook**
 - an invalid signature is rejected and changes nothing
-- the same `wa_message_id` twice produces one `WaMessage` and one reply set
+- the same `wa_message_id` twice produces one `WaInboundMessage` and one
+  queued reply — not two
 - an unknown tenant slug 404s
 - the GET challenge returns `hub.challenge` when the verify token matches
 
@@ -176,8 +181,9 @@ handler. An invoice must never fail to send because a conversation turn errored.
 - prices come from `resolve_menu`, never from the session payload
 
 **Message construction**
-- every `cta_url` label is ≤ 20 characters — assert the boundary
-- button messages never exceed 3 buttons, lists never exceed 10 rows
+- already covered by `apps/messaging/tests/test_payloads.py`. What this phase
+  must add: every payload the flow produces is built through
+  `messaging.payloads`, never as a raw dict — so the limits actually apply
 
 ---
 

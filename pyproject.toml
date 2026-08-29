@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Multi-tenant ordering platform for cloud kitchens"
 requires-python = ">=3.10"
 dependencies = [
+    "cryptography>=50.0.1",
     "django>=5.0,<6.0",
     "markdown>=3.10.3",
     "pillow>=12.3.0",

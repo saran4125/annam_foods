@@ -64,21 +64,17 @@ payment_link  URLField, blank
 status        CharField  open paid overdue void
 ```
 
-### `TenantSecrets`
-If Phase 3 or 5 hasn't created it, do it here.
-```
-tenant                    OneToOne Tenant
-wa_phone_number_id        CharField, blank
-wa_token_enc              BinaryField / encrypted TextField
-wa_app_secret_enc         encrypted
-wa_verify_token           CharField, blank
-razorpay_key_id           CharField, blank
-razorpay_secret_enc       encrypted
-razorpay_webhook_secret_enc  encrypted
-```
-Encrypt at rest with a key from the environment (`cryptography.fernet` is
-enough). **Never return a decrypted secret to any browser** — the portal shows
-a masked value and can only overwrite it. Never log one. Never commit one.
+### `TenantSecrets` — already built
+
+Lives in `apps.tenancy`, encrypted with Fernet using `settings.SECRETS_KEY`.
+Secrets are read and written through properties, so callers never touch
+ciphertext and never forget to encrypt. `TenantSecretsForm` gives the
+write-only portal pattern: a masked display of what is stored, a blank input
+that keeps it, a filled input that replaces it, and no reveal toggle.
+
+What Phase 6 adds: surfacing it in the owner's own backend (Phase 4 covers the
+UI), key rotation tooling, and `SECRETS_KEY` required from the environment in
+production settings.
 
 ---
 
