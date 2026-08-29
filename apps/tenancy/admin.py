@@ -1,16 +1,8 @@
 """Super admin. Every ModelAdmin here reads across tenants deliberately."""
 from django.contrib import admin
 
-from .context import all_tenants
+from .adminbase import UnscopedAdmin
 from .models import Tenant, TenantConfig, TenantDomain, TenantStatus, TenantUser
-
-
-class UnscopedAdmin(admin.ModelAdmin):
-    """Platform staff work across every kitchen, so opt out of scoping here."""
-
-    def get_queryset(self, request):
-        with all_tenants():
-            return super().get_queryset(request)
 
 
 class TenantDomainInline(admin.TabularInline):
