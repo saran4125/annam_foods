@@ -1,0 +1,19 @@
+[project]
+name = "seerkitchen"
+version = "0.1.0"
+description = "Multi-tenant ordering platform for cloud kitchens"
+requires-python = ">=3.10"
+dependencies = [
+    "django>=5.0,<6.0",
+    "python-dotenv>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["test_*.py", "tests.py"]
