@@ -81,9 +81,15 @@ apps/tenancy/      tenants, domains, config, scoping, middleware
 
 ## Where this is going
 
-1. Foundation — tenancy, scoping, admin ✅
-2. Menu and storefront — catalog, slots, zones, cart, CMS pages
-3. The money path — checkout, Razorpay, invoices
-4. WhatsApp — conversation state machine, Meta webhook
-5. Super admin and billing — subscriptions, suspension ladder
-6. Reports, offers, onboarding docs
+See `AGENTS.md` for conventions and `docs/` for the phase specs.
+
+1. Foundation — tenancy, scoping, hostname routing ✅
+2. Catalog, scheduling, zones, storefront, CMS pages ✅
+3. Orders, Razorpay, invoices — `docs/phase-3-money-path.md`
+4. Owner backend — `docs/phase-4-owner-backend.md`
+5. WhatsApp — `docs/phase-5-whatsapp.md`
+6. Super admin and subscription billing — `docs/phase-6-super-admin-billing.md`
+7. Postgres and production — `docs/phase-7-production.md`
+
+**Start Phase 3 by doing section 7a (the Postgres swap).** Invoice numbering
+needs row locking that SQLite cannot provide.
