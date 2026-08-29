@@ -7,3 +7,5 @@ media/
 staticfiles/
 .DS_Store
 .pytest_cache/
+db.sqlite3-journal
+*.sqlite3*
