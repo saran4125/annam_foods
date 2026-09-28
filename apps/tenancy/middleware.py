@@ -23,6 +23,7 @@ class TenantMiddleware:
         platform_host = getattr(settings, "PLATFORM_HOST", "").lower()
         request.tenant = None
         token = None
+        previous_timezone = timezone.get_current_timezone()
 
         if host != platform_host:
             domain = (
@@ -49,7 +50,7 @@ class TenantMiddleware:
         finally:
             if token is not None:
                 reset_current_tenant(token)
-            timezone.deactivate()
+            timezone.activate(previous_timezone)
         return response
 
 

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schemas.wp.org/wp/6.8/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "useRootPaddingAwareAlignments": true,
+    "layout": { "contentSize": "1280px", "wideSize": "1440px" },
+    "color": { "palette": [
+      { "slug": "brand", "name": "Brand", "color": "#f58220" },
+      { "slug": "dark", "name": "Dark", "color": "#20221d" },
+      { "slug": "cream", "name": "Cream", "color": "#fffaf0" },
+      { "slug": "white", "name": "White", "color": "#ffffff" },
+      { "slug": "muted", "name": "Muted", "color": "#6b6d63" },
+      { "slug": "green", "name": "Leaf", "color": "#385b3e" }
+    ] },
+    "typography": {
+      "fluid": true,
+      "fontFamilies": [{ "slug": "body", "name": "Store sans", "fontFamily": "'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }],
+      "fontSizes": [
+        { "slug": "small", "name": "Small", "size": "0.875rem" },
+        { "slug": "medium", "name": "Body", "size": "1rem" },
+        { "slug": "large", "name": "Heading", "size": "2rem" },
+        { "slug": "x-large", "name": "Display", "size": "3rem" }
+      ]
+    },
+    "spacing": { "units": ["px", "rem", "%", "vw"], "blockGap": "24px" }
+  },
+  "styles": {
+    "color": { "background": "var:preset|color|cream", "text": "var:preset|color|dark" },
+    "typography": { "fontFamily": "var:preset|font-family|body", "fontSize": "1rem", "lineHeight": "1.6" },
+    "spacing": { "padding": { "left": "24px", "right": "24px" } },
+    "elements": {
+      "heading": { "typography": { "fontWeight": "650", "lineHeight": "1.18", "letterSpacing": "-0.025em" } },
+      "link": { "color": { "text": "var:preset|color|dark" }, "typography": { "textDecoration": "none" } },
+      "button": { "color": { "background": "var:preset|color|brand", "text": "var:preset|color|dark" }, "border": { "radius": "6px" }, "typography": { "fontWeight": "650" }, "spacing": { "padding": { "top": "12px", "bottom": "12px", "left": "22px", "right": "22px" } } }
+    },
+    "blocks": {
+      "core/navigation": { "typography": { "fontWeight": "600", "fontSize": "0.95rem" } },
+      "core/post-title": { "typography": { "fontSize": "2.5rem" } }
+    }
+  },
+  "templateParts": [ { "name": "header", "title": "Header", "area": "header" }, { "name": "footer", "title": "Footer", "area": "footer" } ],
+  "customTemplates": [{ "name": "wide-page", "title": "Full width page", "postTypes": ["page"] }]
+}

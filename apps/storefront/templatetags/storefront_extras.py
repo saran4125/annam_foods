@@ -32,8 +32,8 @@ def money(value):
         amount = Decimal(value)
     except (InvalidOperation, TypeError):
         return value
-    text = f"{amount:.2f}".rstrip("0").rstrip(".")
-    return text
+    text = f"{amount:.2f}"
+    return text[:-3] if text.endswith(".00") else text
 
 
 @register.filter

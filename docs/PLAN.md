@@ -151,8 +151,9 @@ changed without a developer.
 
 ## 4. Where the code is today
 
-Repository: `~/Desktop/SEER/CloudKitchen` · Django 5.2 · **164 tests green** ·
-last commit `804fa0f`.
+Repository: `~/Desktop/SEER/CloudKitchen` · Django 5.2 · **Phase A implemented locally**.
+The pre-Phase-A baseline was 164 green tests. The PostgreSQL suite now has
+189 green tests, including the Phase A foundation checks below.
 
 | Area | State |
 |---|---|
@@ -166,7 +167,7 @@ last commit `804fa0f`.
 | Messaging spine: `OutboundMessage` queue, retries, dedupe keys, Meta-limit validation, senders `meta_cloud` / `n8n` / `console` | **built** |
 | `import_menu_images` command | **built** |
 | Orders: customers, addresses, orders (snapshotted lines), status flow, event trail | **built** |
-| PostgreSQL, background worker, scheduler | not built |
+| PostgreSQL, background worker, scheduler | **built in Phase A** |
 | Invoicing | not built |
 | Payments | not built |
 | WhatsApp inbound, conversation, catalog orders | not built |
@@ -180,10 +181,22 @@ last commit `804fa0f`.
 
 | Ref | Defect | Fix in |
 |---|---|---|
-| D1 | Tenant timezone is stored but never activated per request; cutoffs silently use the server zone | Phase A |
-| D2 | Prices render with `floatformat:0`, which rounds ₹120.50 to ₹121 | Phase A |
-| D3 | Tests that derive times from the wall clock fail after 21:00 IST (one fixed; rule in §18) | Phase A |
-| D4 | Dev database lives in two places (`db.sqlite3` in the repo and `~/.seerkitchen/`) | Phase A (Postgres removes it) |
+| D1 | Tenant timezone is stored but never activated per request; cutoffs silently use the server zone | The existing middleware already activated it; Phase A now restores a prior active timezone too |
+| D2 | Prices render with `floatformat:0`, which rounds ₹120.50 to ₹121 | Fixed in Phase A with the money filter |
+| D3 | Tests that derive times from the wall clock fail after 21:00 IST (one fixed; rule in §18) | Fixed the remaining shared-browser case in Phase A |
+| D4 | Dev database lives in two places (`db.sqlite3` in the repo and `~/.seerkitchen/`) | PostgreSQL is now authoritative; the populated SQLite file remains an untouched backup |
+
+### 4.2 Parallel storefront preview
+
+A separate WordPress Multisite/WooCommerce storefront prototype was built for
+the Sweet Karam Coffee visual comparison and Annam catalog review. It serves
+`annam.localhost:8090` with product photography and a native owner editor;
+`demo.localhost:8090` demonstrates another brand and separate account. Its
+catalog and carts are not connected to the Django order book, and checkout is
+disabled. This is an architectural difference from §5, not a production
+cutover. Decide whether to adopt WordPress or continue the Django storefront
+before connecting any checkout or WhatsApp order flow; do not create two
+authoritative order systems.
 | D5 | Logo and showcase images load from Annam's old CDN; they disappear when the old site does | Phase E |
 | D6 | Moving the project folder breaks `.venv` console scripts; use `uv run python -m pytest` | documented in AGENTS.md |
 
@@ -1421,6 +1434,18 @@ owner can use. Estimates assume evenings and weekends.
 **Done when:** the suite runs on PostgreSQL; a concurrency test proves
 `select_for_update` holds; a preset provisions a kitchen into an empty
 database.
+
+**Local completion, 28 September 2026:** All 189 tests pass on PostgreSQL 17;
+PostgreSQL and Redis 7 are running
+through Compose. The Django suite ran on PostgreSQL with a two-thread
+`select_for_update` test, the no-slug guard, both states for every registered
+flag, and clean provisioning for both presets. The Huey consumer started with
+two workers and its minute scheduler; message dispatch executes per tenant,
+and the 04:00 local-day handoff records one durable row per kitchen/day. The
+current Annam SQLite records were copied into PostgreSQL without changing the
+original file. Exact copy/template-pack values from presets are stored in
+`TenantConfig.preset_data` until the Phase C copy/template models exist. The
+new courier fields are schema groundwork; courier checkout is not enabled.
 
 ### Phase B — Bills (≈2 weeks) · first release to Annam
 

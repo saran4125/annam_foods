@@ -6,10 +6,14 @@ many kitchens — each on its own domain, differing only by configuration.
 ## Running it
 
 ```bash
+cp .env.example .env                  # replace the example secrets
+docker compose up -d postgres redis
 uv sync
 uv run python manage.py migrate
 uv run python manage.py createsuperuser     # your SEER platform login
-uv run python manage.py runserver 8000
+uv run python manage.py runserver 127.0.0.1:8000
+# in another terminal:
+uv run python manage.py run_huey
 ```
 
 Then add to `/etc/hosts`:
@@ -26,10 +30,10 @@ Then add to `/etc/hosts`:
 
 ```bash
 uv run python manage.py provision_tenant \
-  --slug annam --name "Annam Foods" \
-  --domain annam.localhost \
-  --owner-email owner@annamfood.in \
-  --menu-mode daily
+  --slug example-kitchen --name "Example Kitchen" \
+  --domain example.localhost \
+  --owner-email owner@example.test \
+  --preset daily-meals
 ```
 
 Onboarding a client should never be more than this plus pasting their
@@ -68,9 +72,13 @@ model with a `tenant` field skips this. A model may opt out only by declaring
 
 ## Database
 
-Dev uses SQLite, stored at `~/.seerkitchen/dev.sqlite3` — outside the project
-folder on purpose, because SQLite's locking is unreliable on synced volumes.
-Moves to Postgres before Phase 3, where invoice numbering needs real row locks.
+Dev and production now use PostgreSQL. Docker Compose exposes development
+PostgreSQL only on `127.0.0.1:5439` and Redis only on `127.0.0.1:6389`.
+`scripts/migrate_local_data.sh` copies any existing
+`~/.seerkitchen/dev.sqlite3` into the empty PostgreSQL database after taking
+a temporary SQLite backup; it never edits or deletes the source file.
+Run `uv run python -m pytest -q` and `uv run python manage.py check` after
+changes. The suite uses PostgreSQL and includes a real row-lock test.
 
 ## Layout
 
@@ -86,9 +94,9 @@ truth. `AGENTS.md` carries the coding conventions.
 
 Built: tenancy and fail-closed scoping, catalog and daily/weekly menus,
 delivery zones, content pages, storefront and cart, the messaging spine,
-orders. Next, in order (PLAN.md §17):
+orders, and Phase A's PostgreSQL foundation. Next, in order (PLAN.md §17):
 
-- **A. Foundation** — PostgreSQL, worker and scheduler, feature flags, presets
+- **A. Foundation** — complete
 - **B. Bills** — billing engine, bills on WhatsApp, bill on request, catalog
   orders, owner backend v0 · *first release to Annam*
 - **C. WhatsApp assistant** — the full bot in the app, parity with Annam's
@@ -98,3 +106,8 @@ orders. Next, in order (PLAN.md §17):
 - **F. Owner backend** — menus, zones, content, connections, reports
 - **G. Platform** — provisioning in under an hour, subscriptions, extensions
 - **H. Annam cutover**
+
+An image-led WordPress/WooCommerce storefront prototype is running separately
+on `http://annam.localhost:8090/`, with its owner editor at `/wp-admin/` and
+local credentials in the ignored `wordpress/.env`. It is a review prototype;
+the master plan's Django order/billing architecture does not use its catalog.

@@ -1,9 +1,11 @@
 """Settings shared by every environment."""
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 INSTALLED_APPS = [
+    "huey.contrib.djhuey",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -17,6 +19,7 @@ INSTALLED_APPS = [
     "apps.storefront",
     "apps.messaging",
     "apps.orders",
+    "apps.jobs",
 ]
 
 MIDDLEWARE = [
@@ -80,3 +83,11 @@ FORMS_URLFIELD_ASSUME_HTTPS = True
 
 # Host that serves the SEER super-admin, not any tenant storefront.
 PLATFORM_HOST = "admin.localhost"
+
+HUEY = {
+    "name": "seerkitchen",
+    "huey_class": "huey.RedisHuey",
+    "connection": {"url": os.environ.get("REDIS_URL", "redis://127.0.0.1:6389/0")},
+    "consumer": {"workers": 2, "worker_type": "thread", "periodic": True},
+    "immediate": False,
+}

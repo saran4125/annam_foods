@@ -30,6 +30,8 @@ from .models import (
     Order,
     OrderEvent,
     OrderStatus,
+    OrderSource,
+    PaymentMode,
     PaymentStatus,
 )
 
@@ -132,7 +134,8 @@ def get_or_create_customer(tenant, *, phone: str, name: str = "",
 def create_order(tenant, *, customer: Customer, requested, slot: Slot,
                  delivery_date: date_cls, address: Address | None = None,
                  address_snapshot: dict | None = None,
-                 channel: str = Channel.WEB, now=None) -> Order:
+                 channel: str = Channel.WEB, source: str | None = None,
+                 payment_mode: str = PaymentMode.ONLINE, now=None) -> Order:
     """Create one order, or raise. Both channels come through here.
 
     Validates in the order a customer would hit the problems: is the kitchen
@@ -141,6 +144,11 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot,
     """
     if not tenant.can_take_orders:
         raise KitchenNotAccepting("This kitchen isn't accepting orders right now.")
+    source = source or {Channel.WEB: OrderSource.STOREFRONT,
+                        Channel.WHATSAPP: OrderSource.WA_CHAT,
+                        Channel.MANUAL: OrderSource.OWNER}[channel]
+    if source not in OrderSource.values or payment_mode not in PaymentMode.values:
+        raise OrderError("Unknown order source or payment mode.")
 
     if not slot_is_open(slot, delivery_date, now=now):
         raise SlotClosed(f"Ordering for {slot.label.lower()} has closed.")
@@ -171,7 +179,8 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot,
                 order = Order.objects.create(
                     tenant=tenant,
                     order_no=generate_order_number(tenant, delivery_date),
-                    customer=customer, channel=channel,
+                    customer=customer, channel=channel, source=source,
+                    payment_mode=payment_mode,
                     slot=slot, delivery_date=delivery_date,
                     items=lines, address=snapshot,
                     subtotal=subtotal, delivery_fee=delivery_fee, total=total,

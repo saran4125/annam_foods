@@ -42,7 +42,7 @@ def tenant_context(tenant):
 
     Use in management commands, background tasks and tests:
 
-        with tenant_context(annam):
+        with tenant_context(kitchen):
             Order.objects.count()
     """
     token = _current_tenant.set(tenant)

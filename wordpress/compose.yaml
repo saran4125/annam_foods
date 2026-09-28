@@ -1,0 +1,78 @@
+name: seerkitchen
+services:
+  db:
+    image: mariadb:11.4.8
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Run scripts/dev.sh first}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Run scripts/dev.sh first}
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  wordpress:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: &wp_environment
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      WORDPRESS_DB_NAME: wordpress
+      SEER_ENVIRONMENT: development
+      SEER_ALLOWED_HOSTS: ${SEER_ALLOWED_HOSTS:-seer.localhost,annam.localhost,demo.localhost}
+      WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
+      ANNAM_OWNER_PASSWORD: ${ANNAM_OWNER_PASSWORD}
+      DEMO_OWNER_PASSWORD: ${DEMO_OWNER_PASSWORD}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('DISALLOW_FILE_EDIT', true);
+        define('COOKIE_DOMAIN', '');
+        define('WP_ENVIRONMENT_TYPE', 'local');
+        if (!defined('WP_DEBUG')) define('WP_DEBUG', true);
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', false);
+        define('SEER_CHECKOUT_ENABLED', false);
+        define('SEER_ALLOWED_HOSTS', array_filter(array_map('trim', explode(',', getenv('SEER_ALLOWED_HOSTS')))));
+    volumes: &wp_volumes
+      - application:/var/www/html
+      - ./wp-content/themes/seerkitchen:/var/www/html/wp-content/themes/seerkitchen:ro
+      - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+      - ./scripts:/opt/seer/scripts:ro
+      - ./tests:/opt/seer/tests:ro
+      - ./data:/opt/seer/data:ro
+      - ./reports:/opt/seer/reports
+  cli:
+    build: .
+    profiles: [tools]
+    user: www-data
+    entrypoint: [php, /usr/local/bin/wp]
+    environment: *wp_environment
+    volumes: *wp_volumes
+    depends_on:
+      db:
+        condition: service_healthy
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8090:80
+    volumes:
+      - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
+      - application:/var/www/html:ro
+      - ./wp-content/themes/seerkitchen:/var/www/html/wp-content/themes/seerkitchen:ro
+      - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [wordpress]
+volumes:
+  database:
+  application:
+  caddy_data:
+  caddy_config:

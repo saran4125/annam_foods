@@ -112,21 +112,20 @@ def send_now(tenant, to_phone: str, payload: dict, *, purpose: str = "",
                          purpose=purpose, dedupe_key=dedupe_key))
 
 
-def dispatch_pending(limit: int = 50) -> dict:
+def dispatch_pending(limit: int = 50, tenant=None) -> dict:
     """Worker entry point. Runs across every tenant."""
     from apps.tenancy.context import all_tenants
 
     now = timezone.now()
     counts = {"sent": 0, "failed": 0, "abandoned": 0}
     with all_tenants():
-        due = list(
-            OutboundMessage.objects.select_related("tenant", "tenant__secrets")
-            .filter(
+        query = OutboundMessage.objects.select_related("tenant", "tenant__secrets").filter(
                 status__in=[MessageStatus.PENDING, MessageStatus.FAILED],
                 next_attempt_at__lte=now,
             )
-            .order_by("next_attempt_at")[:limit]
-        )
+        if tenant is not None:
+            query = query.filter(tenant=tenant)
+        due = list(query.order_by("next_attempt_at")[:limit])
         for message in due:
             deliver(message)
             if message.status == MessageStatus.SENT:

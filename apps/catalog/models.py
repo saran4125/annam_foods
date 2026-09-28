@@ -49,6 +49,10 @@ class MenuItem(TenantOwnedModel):
         MenuCategory, on_delete=models.PROTECT, related_name="items", null=True, blank=True
     )
     name = models.CharField(max_length=120)
+    retailer_id = models.CharField(max_length=80, null=True, blank=True)
+    fulfilment = models.CharField(max_length=12, choices=[("scheduled", "Scheduled meal"), ("courier", "Courier goods")], default="scheduled")
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    sac = models.CharField(max_length=12, blank=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     image = models.ImageField(upload_to="menu/", blank=True)
@@ -59,6 +63,7 @@ class MenuItem(TenantOwnedModel):
 
     class Meta(TenantOwnedModel.Meta):
         ordering = ["sort", "name"]
+        constraints = [models.UniqueConstraint(fields=["tenant", "retailer_id"], name="uniq_tenant_retailer_id")]
 
     def __str__(self):
         return self.name

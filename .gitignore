@@ -10,4 +10,3 @@ staticfiles/
 db.sqlite3-journal
 *.sqlite3*
 storefront-preview.html
-wordpress/

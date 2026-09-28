@@ -1,7 +1,7 @@
 """Attach a folder of photographs to menu items.
 
-    ./manage.py import_menu_images --tenant annam --dir ~/Desktop/annam-photos
-    ./manage.py import_menu_images --tenant annam --dir ./photos --dry-run
+    ./manage.py import_menu_images --tenant example-kitchen --dir ~/Desktop/product-photos
+    ./manage.py import_menu_images --tenant example-kitchen --dir ./photos --dry-run
 
 Filenames are matched to dish names loosely -- case, spaces, hyphens,
 underscores and bracketed quantities are all ignored -- so "Veg Meals" is

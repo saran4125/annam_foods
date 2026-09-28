@@ -1,0 +1,12 @@
+name: snacks-courier
+menu_mode: weekly
+features:
+  website_ordering: true
+  snacks_courier: true
+slots: []
+theme: {primary: '#497235', background: '#fafcf7'}
+copy: {welcome: 'Welcome! Explore our sweets and snacks.'}
+template_pack: [order_confirmed, bill_ready]
+pages:
+  - {slug: about, title: About us, body_md: 'Tell customers about your kitchen.'}
+  - {slug: shipping, title: Shipping, body_md: 'Add your reviewed shipping policy here.'}

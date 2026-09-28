@@ -46,6 +46,19 @@ class PaymentStatus(models.TextChoices):
     COD_PENDING = "cod_pending", "Cash on delivery"
 
 
+class PaymentMode(models.TextChoices):
+    ONLINE = "online", "Online"
+    COD = "cod", "Cash on delivery"
+    MANUAL = "manual", "Owner recorded"
+
+
+class OrderSource(models.TextChoices):
+    STOREFRONT = "storefront", "Storefront"
+    WA_CHAT = "wa_chat", "WhatsApp chat"
+    WA_CATALOG = "wa_catalog", "WhatsApp catalog"
+    OWNER = "owner", "Owner"
+
+
 class Customer(TenantOwnedModel):
     """Identified by phone. No passwords — guest checkout with an OTP."""
 
@@ -98,6 +111,13 @@ class Order(TenantOwnedModel):
     order_no = models.CharField(max_length=24, db_index=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name="orders")
     channel = models.CharField(max_length=12, choices=Channel.choices)
+    source = models.CharField(max_length=24, choices=OrderSource.choices, default=OrderSource.STOREFRONT)
+    payment_mode = models.CharField(max_length=12, choices=PaymentMode.choices, default=PaymentMode.ONLINE)
+    fulfilment = models.CharField(max_length=12, choices=[("scheduled", "Scheduled"), ("courier", "Courier")], default="scheduled")
+    external_ref = models.CharField(max_length=120, blank=True)
+    buyer_gst = models.JSONField(default=dict, blank=True)
+    rider_name = models.CharField(max_length=120, blank=True)
+    rider_phone = models.CharField(max_length=20, blank=True)
     status = models.CharField(
         max_length=20, choices=OrderStatus.choices, default=OrderStatus.PLACED, db_index=True
     )
@@ -105,8 +125,8 @@ class Order(TenantOwnedModel):
         max_length=14, choices=PaymentStatus.choices, default=PaymentStatus.PENDING, db_index=True
     )
 
-    slot = models.ForeignKey("catalog.Slot", on_delete=models.PROTECT)
-    delivery_date = models.DateField(db_index=True)
+    slot = models.ForeignKey("catalog.Slot", on_delete=models.PROTECT, null=True, blank=True)
+    delivery_date = models.DateField(db_index=True, null=True, blank=True)
 
     # Snapshots, never foreign keys: a price change next week must not rewrite
     # last week's bill, and a customer moving house must not rewrite where a

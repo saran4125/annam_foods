@@ -1,0 +1,15 @@
+name: daily-meals
+menu_mode: daily
+features:
+  website_ordering: true
+  snacks_courier: false
+slots:
+  - {key: breakfast, label: Breakfast, order_cutoff: '07:30', delivery_from: '08:00', delivery_to: '10:00', sort: 1}
+  - {key: lunch, label: Lunch, order_cutoff: '11:00', delivery_from: '12:00', delivery_to: '14:00', sort: 2}
+  - {key: dinner, label: Dinner, order_cutoff: '18:00', delivery_from: '19:00', delivery_to: '21:00', sort: 3}
+theme: {primary: '#b04a1e', background: '#fffaf1'}
+copy: {welcome: 'Welcome! What would you like today?'}
+template_pack: [order_confirmed, bill_ready]
+pages:
+  - {slug: about, title: About us, body_md: 'Tell customers about your kitchen.'}
+  - {slug: refund-policy, title: Refund policy, body_md: 'Add your reviewed refund policy here.'}

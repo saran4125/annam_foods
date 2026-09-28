@@ -1,16 +1,18 @@
 """Create a kitchen. This is the whole of onboarding, and it should stay that way.
 
-    ./manage.py provision_tenant --slug annam --name "Annam Foods" \
-        --domain annam.localhost --owner-email owner@example.com
+    ./manage.py provision_tenant --slug example-kitchen --name "Example Kitchen" \
+        --domain example.localhost --owner-email owner@example.com
 """
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.crypto import get_random_string
+from apps.tenancy.presets import apply_preset, preset_names
 
 from apps.tenancy.models import (
     Tenant,
     TenantConfig,
+    BillingProfile,
     TenantDomain,
     TenantStatus,
     TenantUser,
@@ -28,6 +30,7 @@ class Command(BaseCommand):
         parser.add_argument("--owner-email", required=True)
         parser.add_argument("--menu-mode", default="daily", choices=["daily", "weekly"])
         parser.add_argument("--phone", default="")
+        parser.add_argument("--preset", choices=preset_names())
 
     @transaction.atomic
     def handle(self, *args, **opts):
@@ -50,6 +53,9 @@ class Command(BaseCommand):
             menu_mode=opts["menu_mode"],
             support_phone=opts["phone"],
         )
+        BillingProfile.objects.create(tenant=tenant, legal_name=opts["name"])
+        if opts["preset"]:
+            apply_preset(tenant, opts["preset"])
 
         email = opts["owner_email"]
         user, created = User.objects.get_or_create(

@@ -136,7 +136,7 @@
     <div class="dish-body">
       <h3>{{ e.item.name }}</h3>
       <div class="dish-buy">
-        <span class="price">₹{{ e.price|floatformat:0 }}</span>
+        <span class="price">₹{{ e.price|money }}</span>
         <a class="btn btn-add" href="{% url 'storefront:menu' %}?slot={{ e.slot.key }}">Choose</a>
       </div>
     </div>
@@ -163,7 +163,7 @@
       <li>
         <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}"
               aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
-        {{ e.item.name }}<em>₹{{ e.price|floatformat:0 }}</em>
+        {{ e.item.name }}<em>₹{{ e.price|money }}</em>
       </li>
       {% endfor %}
     </ul>

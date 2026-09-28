@@ -64,3 +64,14 @@ def test_a_kitchens_clock_is_its_own_while_serving(client, annam):
     # Outside the request the default clock is back; an early-returning
     # middleware must not leak its timezone into the whole process.
     assert str(timezone.get_current_timezone()) != "America/Sao_Paulo"
+
+
+def test_a_kitchens_request_restores_the_prior_active_timezone(annam):
+    TenantConfig.objects.create(tenant=annam, timezone="America/Sao_Paulo")
+    timezone.activate("Europe/London")
+    try:
+        request = RequestFactory().get("/", HTTP_HOST="annam.localhost")
+        TenantMiddleware(lambda request: HttpResponse("ok"))(request)
+        assert str(timezone.get_current_timezone()) == "Europe/London"
+    finally:
+        timezone.deactivate()

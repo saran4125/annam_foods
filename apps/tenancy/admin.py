@@ -6,6 +6,7 @@ from .forms import TenantSecretsForm
 from .models import (
     Tenant,
     TenantConfig,
+    BillingProfile,
     TenantDomain,
     TenantSecrets,
     TenantStatus,
@@ -23,13 +24,19 @@ class TenantConfigInline(admin.StackedInline):
     can_delete = False
 
 
+class BillingProfileInline(admin.StackedInline):
+    model = BillingProfile
+    can_delete = False
+    extra = 0
+
+
 @admin.register(Tenant)
 class TenantAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "status", "primary_domain", "created_at")
     list_filter = ("status",)
     search_fields = ("name", "slug", "primary_domain")
     prepopulated_fields = {"slug": ("name",)}
-    inlines = [TenantConfigInline, TenantDomainInline]
+    inlines = [TenantConfigInline, BillingProfileInline, TenantDomainInline]
     actions = ["mark_active", "mark_past_due", "mark_restricted", "mark_suspended"]
 
     @admin.action(description="Restore to Active")

@@ -1,6 +1,6 @@
 """Give a tenant a realistic menu to develop the storefront against.
 
-    ./manage.py seed_demo_menu --tenant annam
+    ./manage.py seed_demo_menu --tenant example-kitchen
 """
 from datetime import time
 from decimal import Decimal

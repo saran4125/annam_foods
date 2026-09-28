@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 from .managers import TenantOwnedModel
+from .features import FEATURES, validate_features
 
 
 class TenantStatus(models.TextChoices):
@@ -41,6 +42,9 @@ class Tenant(models.Model):
 
     def __str__(self):
         return self.name
+
+    def feature(self, key):
+        return self.config.feature(key)
 
     @property
     def can_take_orders(self) -> bool:
@@ -129,11 +133,48 @@ class TenantConfig(models.Model):
 
     features = models.JSONField(default=dict, blank=True)
 
+    owner_phones = models.JSONField(default=list, blank=True)
+    kitchen_closed_window = models.JSONField(default=dict, blank=True)
+    bot_idle_reset_hours = models.PositiveSmallIntegerField(default=24)
+    preset_name = models.CharField(max_length=60, blank=True)
+    preset_data = models.JSONField(default=dict, blank=True)
+
     def __str__(self):
         return f"Config for {self.tenant.name}"
 
-    def feature(self, key, default=False):
-        return self.features.get(key, default)
+    def feature(self, key):
+        if key not in FEATURES:
+            raise KeyError(f"Unknown feature flag: {key}")
+        value = self.features.get(key, FEATURES[key].default)
+        if type(value) is not bool:
+            raise ValueError(f"Feature {key} must be a boolean.")
+        return value
+
+    def clean(self):
+        super().clean()
+        validate_features(self.features)
+
+
+class BillingProfile(models.Model):
+    """Tenant billing identity and calculation settings; no invoice allocation here."""
+
+    tenant_scoping_exempt = "one-to-one with Tenant; accessed only through tenant.billing_profile"
+    tenant = models.OneToOneField(Tenant, on_delete=models.CASCADE, related_name="billing_profile")
+    legal_name = models.CharField(max_length=200, blank=True)
+    address = models.TextField(blank=True)
+    state = models.CharField(max_length=80, blank=True)
+    state_code = models.CharField(max_length=2, blank=True)
+    gstin = models.CharField(max_length=15, blank=True)
+    fssai_no = models.CharField(max_length=20, blank=True)
+    gst_mode = models.CharField(max_length=20, choices=[("regular", "Regular"), ("composition", "Composition"), ("unregistered", "Unregistered")], default="unregistered")
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    sac = models.CharField(max_length=12, blank=True)
+    prices_include_tax = models.BooleanField(default=True)
+    number_format = models.CharField(max_length=60, default="{prefix}/{fy}/{number:04d}")
+    round_total = models.BooleanField(default=False)
+    delivery_fee_taxable = models.BooleanField(default=False)
+    footer = models.TextField(blank=True)
+    layout = models.CharField(max_length=16, default="a4")
 
 
 class TenantUserRole(models.TextChoices):

@@ -400,10 +400,10 @@ def test_two_kitchens_share_browsers_not_carts(client, kitchen, menu, db):
     rival = Tenant.objects.create(slug="rival", name="Rival", status=TenantStatus.ACTIVE)
     TenantDomain.objects.create(tenant=rival, hostname="rival.localhost")
     TenantConfig.objects.create(tenant=rival, brand_name="Rival")
-    today = timezone.localdate()
+    today = date(2026, 9, 7)
     with tenant_context(rival):
         slot = Slot.objects.create(key="lunch", label="Lunch",
-                                   order_cutoff=(timezone.localtime() + timedelta(hours=3)).time())
+                                   order_cutoff=time(15, 0))
         rival_item = MenuItem.objects.create(name="Rival Roll", price=Decimal("70"))
         MenuSchedule.objects.create(item=rival_item, slot=slot, mode=ScheduleMode.DATE, on_date=today)
 

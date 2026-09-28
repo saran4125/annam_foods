@@ -1,0 +1,10 @@
+# Generate one site stanza per verified domain; never use wildcard/on-demand
+# certificate issuance without a domain-approval service. Mount the same code,
+# uploads and database as the application. The preview checkout gate stays on.
+store.example.com {
+    root * /var/www/html
+    php_fastcgi wordpress:9000
+    file_server
+    @private path /wp-config.php /readme.html /wp-content/debug.log /wp-content/uploads/*.php
+    respond @private 404
+}

@@ -1,0 +1,8 @@
+.env
+.runtime/
+data/assets/
+data/catalog.json
+reports/*.json
+reports/*.html
+reports/*.png
+!reports/.gitkeep
