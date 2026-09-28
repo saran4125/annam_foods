@@ -4,60 +4,100 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{{ tenant.config.brand_name|default:tenant.name }}{% endblock %}</title>
-{% if page.seo_description %}<meta name="description" content="{{ page.seo_description }}">{% endif %}
+<meta name="description" content="{% block description %}{{ tenant.config.tagline }}{% endblock %}">
+<meta name="theme-color" content="{{ tenant.config.theme.brand|default:'#FF8507' }}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="{% static 'css/storefront.css' %}">
 <style>
+  /* Every one of these is overridable per kitchen from TenantConfig.theme.
+     A new client is a row change, never a stylesheet fork. */
   :root{
-    --brand:{{ tenant.config.theme.brand|default:"#C2410C" }};
-    --brand-dark:{{ tenant.config.theme.brand_dark|default:"#9A3412" }};
-    --accent:{{ tenant.config.theme.accent|default:"#15803D" }};
+    --brand:{{ tenant.config.theme.brand|default:"#FF8507" }};
+    --brand-dark:{{ tenant.config.theme.brand_dark|default:"#1C1C1C" }};
+    {% if tenant.config.theme.paper %}--paper:{{ tenant.config.theme.paper }};{% endif %}
+    {% if tenant.config.theme.ink %}--ink:{{ tenant.config.theme.ink }};{% endif %}
+    {% if tenant.config.theme.font_display %}--font-display:{{ tenant.config.theme.font_display }};{% endif %}
+    {% if tenant.config.theme.font_body %}--font-body:{{ tenant.config.theme.font_body }};{% endif %}
   }
 </style>
 </head>
 <body>
 
+<a class="skip" href="#main">Skip to content</a>
+
 {% if not tenant.can_take_orders %}
-<div class="strip strip-quiet">
-  This kitchen isn’t accepting online orders at the moment.
-  {% if tenant.config.support_phone %}Please call {{ tenant.config.support_phone }}.{% endif %}
+<div class="strip strip-top" data-testid="orders-paused">
+  We aren’t taking online orders right now.{% if tenant.config.support_phone %}
+  Please call <a href="tel:{{ tenant.config.support_phone }}" style="color:inherit">{{ tenant.config.support_phone }}</a>.{% endif %}
 </div>
+{% endif %}
+
+{% if tenant.can_take_orders %}
+<div class="ticker">Freshly prepared for each meal slot · Order before the cutoff</div>
 {% endif %}
 
 <header class="site-head">
   <div class="wrap head-inner">
     <a class="brand" href="{% url 'storefront:home' %}">
-      {{ tenant.config.brand_name|default:tenant.name }}
-      {% if tenant.config.tagline %}<span>{{ tenant.config.tagline }}</span>{% endif %}
+      {% if tenant.config.theme.logo_url %}
+        <img class="brand-logo" src="{{ tenant.config.theme.logo_url }}" alt="" width="160" height="72">
+      {% else %}
+        <span class="brand-mark" aria-hidden="true">SK</span>
+      {% endif %}
+      <span class="brand-copy">{{ tenant.config.brand_name|default:tenant.name }}
+        {% if tenant.config.tagline %}<small>{{ tenant.config.tagline }}</small>{% endif %}
+      </span>
     </a>
-    <nav class="site-nav">
+    <nav class="site-nav" aria-label="Main">
+      <a class="nav-home" href="{% url 'storefront:home' %}">Home</a>
       <a href="{% url 'storefront:menu' %}">Menu</a>
-      {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
-      <a class="cart-link" href="{% url 'storefront:cart' %}">
-        Cart{% if cart.count %} <b>{{ cart.count }}</b>{% endif %}
+      <span class="nav-pages">
+        {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
+      </span>
+      <a class="cart-link" href="{% url 'storefront:cart' %}"
+         aria-label="Cart{% if cart.count %}, {{ cart.count }} item{{ cart.count|pluralize }}{% endif %}">
+        Your order{% if cart.count %} <b>{{ cart.count }}</b>{% endif %}
       </a>
     </nav>
   </div>
 </header>
+{% block categorynav %}{% endblock %}
+
+{% block hero %}{% endblock %}
+{% block valuestrip %}{% endblock %}
 
 {% if messages %}
 <div class="wrap">
-  {% for m in messages %}<div class="flash flash-{{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% for m in messages %}<div class="flash flash-{{ m.tags }}" data-testid="flash">{{ m }}</div>{% endfor %}
 </div>
 {% endif %}
 
-<main class="wrap">{% block content %}{% endblock %}</main>
+<main class="wrap" id="main">{% block content %}{% endblock %}</main>
 
 <footer class="site-foot">
   <div class="wrap foot-inner">
     <div>
       <strong>{{ tenant.config.brand_name|default:tenant.name }}</strong>
-      {% if tenant.config.support_phone %}<br>{{ tenant.config.support_phone }}{% endif %}
+      {% if tenant.config.tagline %}<p>{{ tenant.config.tagline }}</p>{% endif %}
+      {% if tenant.config.support_phone %}
+        <br><a class="foot-phone" href="tel:{{ tenant.config.support_phone }}">{{ tenant.config.support_phone }}</a>
+      {% endif %}
     </div>
     <div class="foot-links">
+      <b>Order</b>
+      <a href="{% url 'storefront:menu' %}">Today’s menu</a>
+      <a href="{% url 'storefront:cart' %}">Your cart</a>
+    </div>
+    <div class="foot-links">
+      <b>Information</b>
       {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
     </div>
   </div>
 </footer>
 
+{% block scripts %}{% endblock %}
 </body>
 </html>

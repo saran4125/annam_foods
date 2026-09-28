@@ -34,19 +34,15 @@ class MetaCloudSender:
     def send(self, message) -> SendResult:
         try:
             body = to_graph_payload(message.to_phone, message.payload)
-        except Exception as exc:  # a payload we built wrong is our bug, not Meta's
-            return SendResult.permanent(f"Could not build the request: {exc}")
-
-        request = urllib.request.Request(
-            self._url(),
-            data=json.dumps(body).encode(),
-            headers={
-                "Authorization": f"Bearer {self.secrets.wa_token}",
-                "Content-Type": "application/json",
-            },
-            method="POST",
-        )
-        try:
+            request = urllib.request.Request(
+                self._url(),
+                data=json.dumps(body).encode(),
+                headers={
+                    "Authorization": f"Bearer {self.secrets.wa_token}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
             with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
                 data = json.loads(response.read().decode() or "{}")
             wamid = (data.get("messages") or [{}])[0].get("id", "")
@@ -59,6 +55,11 @@ class MetaCloudSender:
             if code in PERMANENT_CODES or 400 <= exc.code < 500 and exc.code != 429:
                 return SendResult.permanent(detail)
             return SendResult.transient(detail)
+        except RuntimeError as exc:
+            # A rotated or wrong SECRETS_KEY. Retrying would keep hammering Meta
+            # with a bad credential, so land it as permanent -- the error names
+            # the problem and the operator must fix the key, not the message.
+            return SendResult.permanent(f"Secret could not be read: {exc}")
         except Exception as exc:
             return SendResult.transient(f"{type(exc).__name__}: {exc}")
 

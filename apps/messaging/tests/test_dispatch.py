@@ -136,3 +136,60 @@ def test_messages_do_not_leak_between_kitchens(kitchen, db):
         assert OutboundMessage.objects.count() == 0
     with all_tenants():
         assert OutboundMessage.objects.count() == 1
+
+
+def test_a_sender_that_raises_does_not_stick_the_message_in_sending(kitchen, monkeypatch):
+    """A bug or a wrong SECRETS_KEY must not leave a row stuck in SENDING,
+    which is deliverable-never and would silently stop a message for good."""
+
+    class ExplodingSender:
+        def __init__(self, tenant):
+            self.tenant = tenant
+
+        def send(self, message):
+            raise RuntimeError("Could not decrypt a tenant secret. Wrong SECRETS_KEY?")
+
+    monkeypatch.setattr(services, "sender_for", ExplodingSender)
+    with tenant_context(kitchen):
+        msg = services.queue(kitchen, "9195", p.text("Your invoice"), purpose="invoice")
+        services.deliver(msg)
+
+    msg.refresh_from_db()
+    assert msg.status == MessageStatus.ABANDONED
+    assert "Wrong SECRETS_KEY" in msg.last_error
+    # A terminal state: a later worker run must not pick it up again.
+    assert not msg.is_deliverable
+
+
+def test_a_wrong_key_does_not_abort_the_whole_batch(kitchen, monkeypatch, db):
+    """One tenant with a broken key must not stop the worker from sending the
+    rest of the batch."""
+
+    class ExplodingSender:
+        def __init__(self, tenant):
+            self.tenant = tenant
+
+        def send(self, message):
+            raise RuntimeError("Could not decrypt a tenant secret. Wrong SECRETS_KEY?")
+
+    class HealthySender:
+        def __init__(self, tenant):
+            self.tenant = tenant
+
+        def send(self, message):
+            return SendResult.sent("wamid.ok")
+
+    def per_tenant(tenant):
+        return ExplodingSender(tenant) if tenant.slug == "annam" else HealthySender(tenant)
+
+    other = Tenant.objects.create(slug="rival", name="Rival", status="active")
+    TenantSecrets.objects.create(tenant=other, wa_provider=MessageProvider.CONSOLE)
+    monkeypatch.setattr(services, "sender_for", per_tenant)
+    with tenant_context(kitchen):
+        services.queue(kitchen, "9111", p.text("a"))
+    with tenant_context(other):
+        services.queue(other, "9222", p.text("b"))
+
+    counts = services.dispatch_pending()
+    assert counts["abandoned"] == 1
+    assert counts["sent"] == 1

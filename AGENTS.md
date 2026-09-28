@@ -5,7 +5,9 @@ codebase, one database, many kitchens — each on its own domain, differing only
 by configuration. It is sold as a subscription (₹5,000/month per kitchen), so
 adding a client must never mean adding code.
 
-Work through `docs/` in phase order. Phases 1 and 2 are done and are the
+**[`docs/PLAN.md`](docs/PLAN.md) is the whole plan in one file** — read it for
+the why. This file is the how: the conventions and invariants you must not
+break. Then work `docs/` in phase order; phases 1 and 2 are done and are the
 reference for how everything else should look.
 
 ---
@@ -176,4 +178,7 @@ docs/                  phase specs; work them in order
 | 6 | Super admin and subscription billing | `docs/phase-6-super-admin-billing.md` |
 | 7 | Postgres and production deploy | `docs/phase-7-production.md` |
 
-107 tests green as of the messaging spine landing. Keep them that way.
+110 tests green as of the messaging spine landing and the wrong-key fix. Keep
+them that way: a sender that can no longer decrypt a secret (rotated
+`SECRETS_KEY`) must land the message `abandoned`, never leave it stuck in
+`sending`.

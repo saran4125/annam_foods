@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date as date_cls, timedelta
 
 from django.contrib import messages
 from django.http import Http404
@@ -8,10 +8,21 @@ from django.views.decorators.http import require_POST
 
 from apps.catalog.models import Slot
 from apps.catalog.services import resolve_menu, slot_is_open
-from apps.content.models import Banner, Page
+from apps.content.models import Page
+from apps.content.services import resolve_hero_slides, resolve_promo_tiles
 from apps.delivery.services import normalise_pincode, zones_for_pincode
 
+from . import services
 from .cart import Cart
+
+_ADD_MESSAGES = {
+    services.PAUSED: "This kitchen isn’t accepting orders right now.",
+    services.UNKNOWN_ITEM: "We can’t find that dish — it may have been removed.",
+    services.CLOSED: "Ordering has closed for that meal time.",
+    services.NOT_ON_MENU: "That dish isn’t on the menu for the time you chose.",
+    services.CROSS_SLOT: "Your cart already holds a different meal and day. Start a fresh order to change it.",
+    services.BAD_QUANTITY: "That quantity isn’t allowed.",
+}
 
 
 def _nav_pages():
@@ -21,6 +32,22 @@ def _nav_pages():
 def _dates():
     today = timezone.localdate()
     return [(today, "Today"), (today + timedelta(days=1), "Tomorrow")]
+
+
+def _parse_date(raw: str | None) -> date_cls:
+    if not raw:
+        return None
+    try:
+        return date_cls.fromisoformat(raw)
+    except ValueError:
+        return None
+
+
+def _add_error_message(request, code):
+    if code in _ADD_MESSAGES:
+        messages.error(request, _ADD_MESSAGES[code])
+        return True
+    return False
 
 
 def home(request):
@@ -34,12 +61,29 @@ def home(request):
             highlights.append(
                 {"slot": slot, "entries": entries, "open": slot_is_open(slot, today)}
             )
+
+    # The honest urgency on a food site is the cutoff clock, not a fake
+    # countdown. Surface the next one the customer can still order against.
+    next_cutoff = next((h["slot"] for h in highlights if h["open"]), None)
+
+    # A shop must still look like a shop after the final cutoff. Keep today's
+    # dishes visible for browsing; the menu page remains the authority on
+    # whether a line can actually be added. These are labelled "Featured",
+    # never "Best sellers", because there is no sales ranking to back that up.
+    featured = []
+    for h in highlights:
+        featured.extend(h["entries"])
+    featured = featured[:8]
     return render(
         request,
         "storefront/home.html",
         {
-            "banners": Banner.objects.filter(active=True),
+            "hero_slides": resolve_hero_slides(),
+            "promo_tiles": resolve_promo_tiles(),
             "highlights": highlights,
+            "next_cutoff": next_cutoff,
+            "featured": featured,
+            "food_showcase": tenant.config.features.get("food_showcase", []),
             "pages": _nav_pages(),
             "cart": Cart(request),
         },
@@ -76,8 +120,13 @@ def menu(request):
     entries = resolve_menu(chosen_date, chosen_slot)
     is_open = slot_is_open(chosen_slot, chosen_date)
 
+    # Browsing the menu must never touch the cart (FIX-05): reading another
+    # day or slot is not permission to delete what a customer has ordered.
+    # Quantities are only shown when the cart is actually for this day/slot.
     cart = Cart(request)
-    cart.set_context(chosen_slot.key, chosen_date)
+    same_context = (
+        cart.slot_key == chosen_slot.key and cart.delivery_date == chosen_date
+    )
 
     return render(
         request,
@@ -91,7 +140,8 @@ def menu(request):
             "slot_open": is_open,
             "slot_states": slot_states,
             "cart": cart,
-            "cart_quantities": cart.items,
+            "cart_quantities": cart.items if same_context else {},
+            "cart_mismatch": not cart.is_empty and not same_context,
             "pages": _nav_pages(),
         },
     )
@@ -100,16 +150,31 @@ def menu(request):
 @require_POST
 def cart_add(request):
     if not request.tenant.can_take_orders:
-        messages.error(request, "This kitchen isn't accepting orders right now.")
-        return redirect("storefront:menu")
+        messages.error(request, "This kitchen isn’t accepting orders right now.")
+        return redirect(services.safe_next(request, "storefront:menu"))
     cart = Cart(request)
     try:
         item_id = int(request.POST["item_id"])
         delta = int(request.POST.get("delta", 1))
     except (KeyError, ValueError):
         raise Http404
-    cart.add(item_id, delta)
-    return redirect(request.POST.get("next") or "storefront:menu")
+    slot_key = request.POST.get("slot_key")
+    delivery_date = _parse_date(request.POST.get("delivery_date"))
+    outcome = services.add_item(
+        cart, request.tenant, item_id=item_id, delta=delta,
+        slot_key=slot_key, delivery_date=delivery_date,
+    )
+    if outcome == services.OK:
+        return redirect(services.safe_next(request, "storefront:cart"))
+    _add_error_message(request, outcome)
+    return redirect(services.safe_next(request, "storefront:menu"))
+
+
+@require_POST
+def cart_clear(request):
+    """An explicit, user-initiated fresh order (`FIX-05`)."""
+    Cart(request).clear()
+    return redirect(services.safe_next(request, "storefront:menu"))
 
 
 @require_POST

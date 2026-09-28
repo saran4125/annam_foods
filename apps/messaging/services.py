@@ -60,7 +60,21 @@ def deliver(message: OutboundMessage) -> OutboundMessage:
     message.attempts += 1
     message.save(update_fields=["status", "provider", "attempts"])
 
-    result = sender.send(message)
+    try:
+        result = sender.send(message)
+    except Exception as exc:
+        # A sender must return a SendResult, but a bug or a misconfigured
+        # secret (wrong SECRETS_KEY) can still throw. Landing it here as
+        # permanent means the row is never left stuck in SENDING -- the order
+        # survives, the error is visible, and retrying won't fix a code bug.
+        message.status = MessageStatus.ABANDONED
+        message.last_error = f"{type(exc).__name__}: {exc}"
+        log.error(
+            "[whatsapp:%s] sender raised for message %s: %s",
+            tenant.slug, message.pk, message.last_error,
+        )
+        message.save(update_fields=["status", "last_error"])
+        return message
 
     if result.ok:
         message.status = MessageStatus.SENT

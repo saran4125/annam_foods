@@ -81,7 +81,8 @@ apps/tenancy/      tenants, domains, config, scoping, middleware
 
 ## Where this is going
 
-See `AGENTS.md` for conventions and `docs/` for the phase specs.
+**The whole plan is in [`docs/PLAN.md`](docs/PLAN.md).** `AGENTS.md` carries the
+coding conventions; `docs/` carries the per-phase specs.
 
 1. Foundation — tenancy, scoping, hostname routing ✅
 2. Catalog, scheduling, zones, storefront, CMS pages ✅

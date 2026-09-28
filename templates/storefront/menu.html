@@ -3,30 +3,43 @@
 {% block title %}Menu · {{ tenant.config.brand_name|default:tenant.name }}{% endblock %}
 {% block content %}
 
-<h1>Menu</h1>
+<div class="page-intro">
+  <p class="section-kicker">Cooked fresh for your slot</p>
+  <h1>What’s cooking</h1>
+  <p>Choose a day and meal time. Prices and availability are checked again whenever you view your order.</p>
+</div>
 
 {% if not slots %}
   <p class="empty">This kitchen hasn’t set up its meal times yet.</p>
 {% else %}
 
-<div class="tabs">
+<div class="tabs" role="group" aria-label="Delivery day">
   {% for d, label in dates %}
     <a class="tab{% if d == chosen_date %} on{% endif %}"
+       {% if d == chosen_date %}aria-current="true"{% endif %}
        href="?date={{ d|date:'Y-m-d' }}&slot={{ chosen_slot.key }}">{{ label }}</a>
   {% endfor %}
 </div>
 
-<div class="tabs tabs-slot">
+<div class="tabs tabs-slot" role="group" aria-label="Meal">
   {% for s in slots %}
     <a class="tab{% if s.key == chosen_slot.key %} on{% endif %}"
+       {% if s.key == chosen_slot.key %}aria-current="true"{% endif %}
        href="?date={{ chosen_date|date:'Y-m-d' }}&slot={{ s.key }}">
       {{ s.label }}{% if not slot_states|dictkey:s.key %} <small>closed</small>{% endif %}
     </a>
   {% endfor %}
 </div>
 
+{% if cart_mismatch %}
+<div class="strip strip-warn" data-testid="cart-mismatch">
+  Your cart already holds a different meal and day. To start a fresh order,
+  <a href="{% url 'storefront:cart' %}">review your cart</a> first.
+</div>
+{% endif %}
+
 {% if not slot_open %}
-  <div class="strip strip-quiet">
+  <div class="strip strip-quiet" data-testid="slot-closed">
     Ordering for {{ chosen_slot.label|lower }} closed at {{ chosen_slot.order_cutoff|time:"g:i A" }}.
     {% if chosen_date == dates.0.0 %}Try tomorrow, or another meal.{% endif %}
   </div>
@@ -36,27 +49,38 @@
 <ul class="dishes">
   {% for e in entries %}
   <li class="dish">
-    <div class="dish-main">
-      <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}" aria-hidden="true"></span>
-      <div>
-        <h3>{{ e.item.name }}</h3>
-        {% if e.item.description %}<p>{{ e.item.description }}</p>{% endif %}
-      </div>
-    </div>
-    <div class="dish-buy">
-      <span class="price">₹{{ e.price|floatformat:0 }}</span>
-      {% if slot_open and tenant.can_take_orders %}
-        {% with qty=cart_quantities|dictkey:e.item.id %}
-        <form method="post" action="{% url 'storefront:cart_add' %}">
-          {% csrf_token %}
-          <input type="hidden" name="item_id" value="{{ e.item.id }}">
-          <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <button class="btn btn-add" name="delta" value="1">
-            {% if qty %}Add ({{ qty }}){% else %}Add{% endif %}
-          </button>
-        </form>
-        {% endwith %}
+    <div class="dish-media">
+      {% if e.item.image %}
+        <img src="{{ e.item.image.url }}" alt="{{ e.item.name }}" width="600" height="600" loading="lazy">
+      {% else %}
+        <span class="dish-tile tile-{{ e.item.name|tile_tint }}" aria-hidden="true">{{ e.item.name|slice:":1"|upper }}</span>
       {% endif %}
+      <span class="dish-veg">
+        <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}"
+              aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
+      </span>
+    </div>
+
+    <div class="dish-body">
+      <h3>{{ e.item.name }}</h3>
+      {% if e.item.description %}<p>{{ e.item.description }}</p>{% endif %}
+      <div class="dish-buy">
+        <span class="price">₹{{ e.price|money }}</span>
+        {% if slot_open and tenant.can_take_orders %}
+          {% with qty=cart_quantities|dictkey:e.item.id %}
+          <form method="post" action="{% url 'storefront:cart_add' %}">
+            {% csrf_token %}
+            <input type="hidden" name="item_id" value="{{ e.item.id }}">
+            <input type="hidden" name="slot_key" value="{{ chosen_slot.key }}">
+            <input type="hidden" name="delivery_date" value="{{ chosen_date|date:'Y-m-d' }}">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="btn btn-add" name="delta" value="1">
+              {% if qty %}Added ({{ qty }}){% else %}Add{% endif %}
+            </button>
+          </form>
+          {% endwith %}
+        {% endif %}
+      </div>
     </div>
   </li>
   {% endfor %}
@@ -68,7 +92,7 @@
 {% if cart.count %}
 <div class="cart-bar">
   <span>{{ cart.count }} item{{ cart.count|pluralize }} in your cart</span>
-  <a class="btn btn-primary" href="{% url 'storefront:cart' %}">View cart</a>
+  <a class="btn" href="{% url 'storefront:cart' %}">View cart</a>
 </div>
 {% endif %}
 

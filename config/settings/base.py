@@ -29,6 +29,8 @@ MIDDLEWARE = [
     # Resolves Host -> Tenant. Must sit after auth so admin/staff views
     # can still resolve a tenant from the session when on the admin host.
     "apps.tenancy.middleware.TenantMiddleware",
+    # /admin/ only on the platform host (FIX-11).
+    "apps.tenancy.middleware.PlatformAdminGuard",
 ]
 
 ROOT_URLCONF = "config.urls"

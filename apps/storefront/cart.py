@@ -3,21 +3,30 @@
 Session-backed for now. Phase 4 gives WhatsApp a database-backed cart, and
 this interface is what both will share — so order creation never learns which
 channel it came from.
+
+Two rules guard the money here (`FIX-06`, `FIX-08`):
+
+* Prices are never read from the session — a stale price in someone's browser
+  must not decide what they pay. Every read re-prices from the live menu.
+* The stored session shape is validated on load. Tampered, malformed or
+  stale data degrades to an empty cart instead of throwing halfway through a
+  page render.
 """
 from dataclasses import dataclass
 from datetime import date as date_cls
 from decimal import Decimal
 
-from apps.catalog.models import MenuItem, Slot
+from apps.catalog.models import Slot
 from apps.catalog.services import resolve_menu
 from apps.delivery.services import zones_for_pincode
 
 SESSION_KEY = "cart"
+MAX_LINE_QUANTITY = 99
 
 
 @dataclass
 class CartLine:
-    item: MenuItem
+    item: object
     quantity: int
     unit_price: Decimal
 
@@ -26,17 +35,27 @@ class CartLine:
         return self.unit_price * self.quantity
 
 
-class Cart:
-    """Reads and writes the session, but prices from the live menu.
+def _tenant_key(request) -> str:
+    """One cart per kitchen, even when two tenants share a browser cookie.
 
-    Prices are never trusted from the session — a stale price sitting in
-    someone's browser must not decide what they pay.
+    The cart shipped namespaced by tenant id (`FIX-08`): a person ordering from
+    two kitchens must never inherit the other kitchen's items from their
+    session. Host-scoped cookies are a convenience, not an isolation control.
     """
+    tenant = getattr(request, "tenant", None)
+    if tenant is not None:
+        return f"{SESSION_KEY}.{tenant.pk}"
+    return SESSION_KEY
+
+
+class Cart:
+    """Reads and writes the session, but prices from the live menu."""
 
     def __init__(self, request):
         self.request = request
         self.session = request.session
-        self._data = self.session.get(SESSION_KEY) or {}
+        self._key = _tenant_key(request)
+        self._data = self._load_shape(self.session.get(self._key) or {})
 
     # -- state ------------------------------------------------------------
 
@@ -46,8 +65,7 @@ class Cart:
 
     @property
     def delivery_date(self):
-        raw = self._data.get("delivery_date")
-        return date_cls.fromisoformat(raw) if raw else None
+        return self._data.get("delivery_date")
 
     @property
     def pincode(self):
@@ -69,36 +87,97 @@ class Cart:
     def count(self) -> int:
         return sum(self.items.values())
 
+    # -- load guard -------------------------------------------------------
+
+    def _load_shape(self, raw):
+        """A hostile or stale session must not crash a page.
+
+        Anything that fails its type check is dropped; what remains is a valid
+        (possibly empty) cart. A malformed date is ignored, not trusted."""
+        if not isinstance(raw, dict):
+            return {}
+        data = {}
+
+        slot_key = raw.get("slot_key")
+        data["slot_key"] = slot_key if isinstance(slot_key, str) else None
+
+        raw_date = raw.get("delivery_date")
+        try:
+            data["delivery_date"] = date_cls.fromisoformat(raw_date) if raw_date else None
+        except (TypeError, ValueError):
+            data["delivery_date"] = None
+
+        items = {}
+        raw_items = raw.get("items")
+        if isinstance(raw_items, dict):
+            for key, value in raw_items.items():
+                try:
+                    qty = int(value)
+                except (TypeError, ValueError):
+                    continue
+                if not (1 <= qty <= MAX_LINE_QUANTITY):
+                    continue
+                try:
+                    items[str(int(key))] = qty
+                except (TypeError, ValueError):
+                    continue
+        data["items"] = items
+
+        pincode = raw.get("pincode")
+        data["pincode"] = pincode if isinstance(pincode, str) else ""
+
+        zone_id = raw.get("zone_id")
+        if isinstance(zone_id, int):
+            data["zone_id"] = zone_id
+        elif isinstance(zone_id, str) and zone_id.isdigit():
+            data["zone_id"] = int(zone_id)
+        else:
+            data["zone_id"] = None
+
+        return data
+
     # -- mutation ---------------------------------------------------------
 
     def _save(self):
-        self.session[SESSION_KEY] = self._data
+        payload = {
+            "slot_key": self._data.get("slot_key"),
+            "delivery_date": self._data.get("delivery_date").isoformat()
+            if self._data.get("delivery_date") else None,
+            "items": self._data.get("items", {}),
+            "pincode": self._data.get("pincode", ""),
+            "zone_id": self._data.get("zone_id"),
+        }
+        self.session[self._key] = payload
         self.session.modified = True
 
     def set_context(self, slot_key: str, delivery_date: date_cls):
-        """Switching slot or day empties the cart — a lunch item can't be
-        carried into a dinner order."""
-        if self.slot_key != slot_key or self.delivery_date != delivery_date:
-            self._data = {
-                "slot_key": slot_key,
-                "delivery_date": delivery_date.isoformat(),
-                "items": {},
-                "pincode": self.pincode,
-                "zone_id": self.zone_id,
-            }
-            self._save()
+        """Adopt a delivery context.
 
-    def add(self, item_id: int, quantity: int = 1):
+        Called by the purchase service once an order is actually being built.
+        Browsing the menu never calls this — reading a page must not delete a
+        customer's cart (`FIX-05`)."""
+        self._data["slot_key"] = slot_key
+        self._data["delivery_date"] = delivery_date
+        self._data.setdefault("items", {})
+        self._save()
+
+    def add(self, item_id: int, delta: int):
+        """Change one line's quantity by a bounded delta."""
         items = self._data.setdefault("items", {})
         key = str(item_id)
-        items[key] = max(0, items.get(key, 0) + quantity)
-        if items[key] == 0:
-            items.pop(key)
+        qty = max(0, items.get(key, 0) + delta)
+        if qty > MAX_LINE_QUANTITY:
+            qty = MAX_LINE_QUANTITY
+        if qty <= 0:
+            items.pop(key, None)
+        else:
+            items[key] = qty
         self._save()
 
     def set_quantity(self, item_id: int, quantity: int):
         items = self._data.setdefault("items", {})
         key = str(item_id)
+        quantity = min(max(quantity, 0), MAX_LINE_QUANTITY)
         if quantity <= 0:
             items.pop(key, None)
         else:
@@ -112,13 +191,13 @@ class Cart:
 
     def clear(self):
         self._data = {}
-        self.session.pop(SESSION_KEY, None)
+        self.session.pop(self._key, None)
         self.session.modified = True
 
     # -- pricing ----------------------------------------------------------
 
     def lines(self):
-        """Cart lines priced from today's menu, dropping anything no longer
+        """Cart lines priced from the live menu, dropping anything no longer
         on sale. A sold-out dish silently leaving the cart is better than a
         customer paying for food the kitchen can't make."""
         if self.is_empty or not self.slot_key or not self.delivery_date:

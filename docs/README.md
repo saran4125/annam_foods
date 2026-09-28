@@ -1,4 +1,24 @@
-# SeerKitchen — build phases
+# SeerKitchen — docs
+
+**[PLAN.md](PLAN.md) is the whole plan in one file** — business model, unit
+economics, hosting, architecture, data model, current state, all seven phases,
+traps and open decisions. Start there.
+
+**[CODEBASE_STATUS.md](CODEBASE_STATUS.md) is the current implementation and
+local-data inventory** — use it to see what exists now, what the development
+database contains, and which risks remain before launch.
+
+**[OPENCODE_STOREFRONT_HANDOFF.md](OPENCODE_STOREFRONT_HANDOFF.md) is the detailed
+storefront and owner-CMS implementation backlog** — based on the September 2026
+Sweet Karam Coffee review and the current source. It specifies the banner-led
+store, editable homepage, missing commerce flows, implementation order, and
+acceptance tests. It is a plan, not a claim that these features are implemented.
+
+The files below are the detailed implementation specs PLAN.md links to.
+
+---
+
+## Build phases
 
 Read `../AGENTS.md` first. It carries the conventions and the one invariant
 that matters (tenant scoping). These documents assume it.

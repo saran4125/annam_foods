@@ -40,9 +40,12 @@ class Page(TenantOwnedModel):
     def body_html(self):
         import markdown
 
-        return markdown.markdown(
+        from .services import sanitize_html
+
+        rendered = markdown.markdown(
             self.body_md, extensions=["extra", "sane_lists", "nl2br"]
         )
+        return sanitize_html(rendered)
 
 
 class Banner(TenantOwnedModel):

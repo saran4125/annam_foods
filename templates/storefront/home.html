@@ -1,49 +1,200 @@
 {% extends "base.html" %}
-{% block content %}
+{% load storefront_extras %}
 
-<section class="hero">
-  <h1>{{ tenant.config.brand_name|default:tenant.name }}</h1>
-  {% if tenant.config.tagline %}<p class="hero-sub">{{ tenant.config.tagline }}</p>{% endif %}
-  <a class="btn btn-primary" href="{% url 'storefront:menu' %}">See today’s menu</a>
+{% block categorynav %}
+{% if highlights %}
+<nav class="category-nav" aria-label="Meal categories">
+  <div class="wrap">
+    {% for h in highlights %}<a href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}">{{ h.slot.label }}</a>{% endfor %}
+    <a href="{% url 'storefront:menu' %}">View all</a>
+  </div>
+</nav>
+{% endif %}
+{% endblock %}
+
+{% block hero %}
+<section class="hero-slider{% if not hero_slides %} is-hidden{% endif %}" aria-label="Current offers" {% if not hero_slides %}hidden{% endif %} data-slider>
+  {% if hero_slides %}
+  <div class="hero-slides">
+    {% for b in hero_slides %}
+      <div class="hero-slide{% if forloop.first %} is-active{% endif %}" data-slide aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
+        {% if b.link|safe_link %}<a href="{{ b.link|safe_link }}" aria-label="{{ b.title }}">{% endif %}
+          <img src="{{ b.image.url }}" alt="{{ b.title }}" width="1920" height="680"{% if not forloop.first %} loading="lazy"{% endif %}>
+        {% if b.link|safe_link %}</a>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% if hero_slides|length > 1 %}
+  <button class="slider-arrow slider-prev" type="button" aria-label="Previous offer" data-prev>‹</button>
+  <button class="slider-arrow slider-next" type="button" aria-label="Next offer" data-next>›</button>
+  <div class="slider-dots" role="group" aria-label="Choose offer">
+    {% for b in hero_slides %}
+      <button type="button" class="slider-dot{% if forloop.first %} is-active{% endif %}" aria-label="Show offer {{ forloop.counter }}" data-dot="{{ forloop.counter0 }}"></button>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
 </section>
 
-{% for b in banners %}
-<div class="banner">
-  <strong>{{ b.title }}</strong>
-  {% if b.subtitle %}<span>{{ b.subtitle }}</span>{% endif %}
-  {% if b.link %}<a href="{{ b.link }}">More</a>{% endif %}
+{% if promo_tiles %}
+<div class="promo-rail wrap" aria-label="Current offers">
+  {% for b in promo_tiles %}
+    <a class="promo-tile" href="{{ b.link|safe_link }}">
+      {% if b.image %}<img src="{{ b.image.url }}" alt="" width="720" height="220" loading="lazy">{% endif %}
+      <span><b>{{ b.title }}</b>{% if b.subtitle %}<small>{{ b.subtitle }}</small>{% endif %}</span>
+    </a>
+  {% endfor %}
 </div>
-{% endfor %}
+{% endif %}
+{% endblock %}
 
-{% if highlights %}
-<section>
-  <h2>On the menu today</h2>
-  <div class="slot-cards">
-    {% for h in highlights %}
-    <article class="slot-card">
-      <header>
-        <h3>{{ h.slot.label }}</h3>
-        {% if h.open %}
-          <span class="pill pill-open">Ordering until {{ h.slot.order_cutoff|time:"g:i A" }}</span>
-        {% else %}
-          <span class="pill pill-shut">Closed for today</span>
-        {% endif %}
-      </header>
-      <ul class="dish-list">
-        {% for e in h.entries %}
-        <li>
-          <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}" aria-hidden="true"></span>
-          {{ e.item.name }}<em>₹{{ e.price|floatformat:0 }}</em>
-        </li>
-        {% endfor %}
-      </ul>
-      <a href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}">View {{ h.slot.label|lower }} →</a>
-    </article>
+{% block valuestrip %}
+<div class="wrap">
+  <div class="values">
+    <div class="value">
+      <span class="value-mark" aria-hidden="true">01</span>
+      <div><b>Made to the slot</b><span>Nothing sits waiting. We cook against the orders that came in before the cutoff.</span></div>
+    </div>
+    <div class="value">
+      <span class="value-mark" aria-hidden="true">02</span>
+      <div><b>A menu that changes</b><span>Today’s dishes are today’s. Come back tomorrow and it will be different.</span></div>
+    </div>
+    <div class="value">
+      <span class="value-mark" aria-hidden="true">03</span>
+      <div><b>We deliver near you</b><span>Check your pincode at checkout — we’ll tell you straight away.</span></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(() => {
+  const root = document.querySelector('[data-slider]');
+  if (!root) return;
+  const slides = [...root.querySelectorAll('[data-slide]')];
+  const dots = [...root.querySelectorAll('[data-dot]')];
+  if (slides.length < 2) return;
+  let current = 0;
+  const show = index => {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('is-active', i === current);
+      slide.setAttribute('aria-hidden', i === current ? 'false' : 'true');
+    });
+    dots.forEach((dot, i) => dot.classList.toggle('is-active', i === current));
+  };
+  root.querySelector('[data-prev]')?.addEventListener('click', () => show(current - 1));
+  root.querySelector('[data-next]')?.addEventListener('click', () => show(current + 1));
+  dots.forEach(dot => dot.addEventListener('click', () => show(Number(dot.dataset.dot))));
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let timer = setInterval(() => show(current + 1), 5500);
+    root.addEventListener('mouseenter', () => clearInterval(timer));
+    root.addEventListener('mouseleave', () => timer = setInterval(() => show(current + 1), 5500));
+  }
+})();
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if food_showcase %}
+<section class="food-showcase" aria-labelledby="food-showcase-title">
+  <div class="section-head">
+    <div><p class="section-kicker">Explore the kitchen</p><h2 id="food-showcase-title">Food favourites</h2></div>
+  </div>
+  <div class="food-category-grid">
+    {% for food in food_showcase %}
+    <a class="food-category" href="{{ food.link|default:'/menu/' }}">
+      <img src="{{ food.image }}" alt="{{ food.label }}" width="500" height="500" loading="lazy">
+      <span>{{ food.label }}</span>
+    </a>
     {% endfor %}
   </div>
 </section>
+{% endif %}
+
+{% if featured %}
+<div class="section-head">
+  <div><p class="section-kicker">From today’s menu</p><h2>Featured dishes</h2><span class="section-subtitle">A selection from today’s menu.</span></div>
+  <a href="{% url 'storefront:menu' %}">View the full menu →</a>
+</div>
+<ul class="dishes">
+  {% for e in featured %}
+  <li class="dish">
+    <div class="dish-media">
+      {% if e.item.image %}
+        <img src="{{ e.item.image.url }}" alt="{{ e.item.name }}" width="600" height="600" loading="lazy">
+      {% else %}
+        <span class="dish-tile tile-{{ e.item.name|tile_tint }}" aria-hidden="true">{{ e.item.name|slice:":1"|upper }}</span>
+      {% endif %}
+      <span class="dish-veg">
+        <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}"
+              aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
+      </span>
+    </div>
+    <div class="dish-body">
+      <h3>{{ e.item.name }}</h3>
+      <div class="dish-buy">
+        <span class="price">₹{{ e.price|floatformat:0 }}</span>
+        <a class="btn btn-add" href="{% url 'storefront:menu' %}?slot={{ e.slot.key }}">Choose</a>
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if highlights %}
+<div class="section-head section-head-spaced"><div><p class="section-kicker">Plan your meal</p><h2>From today’s kitchen</h2></div></div>
+<div class="slot-cards">
+  {% for h in highlights %}
+  <article class="slot-card">
+    <header>
+      <h3>{{ h.slot.label }}</h3>
+      {% if h.open %}
+        <span class="pill pill-open">Until {{ h.slot.order_cutoff|time:"g:i A" }}</span>
+      {% else %}
+        <span class="pill pill-shut">Closed today</span>
+      {% endif %}
+    </header>
+    <ul class="dish-list">
+      {% for e in h.entries %}
+      <li>
+        <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}"
+              aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
+        {{ e.item.name }}<em>₹{{ e.price|floatformat:0 }}</em>
+      </li>
+      {% endfor %}
+    </ul>
+    <a href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}">
+      {% if h.open %}Order {{ h.slot.label|lower }} →{% else %}See {{ h.slot.label|lower }} →{% endif %}
+    </a>
+  </article>
+  {% endfor %}
+</div>
 {% else %}
 <p class="empty">Today’s menu isn’t up yet. Please check back shortly.</p>
 {% endif %}
+
+<section class="story-band">
+  <div class="story-copy">
+    <p class="section-kicker">Why order direct</p>
+    <h2>A shorter journey from the stove to your table.</h2>
+    <p>You choose the meal and delivery slot. The kitchen sees the same live menu, prepares against confirmed demand, and sends it straight to your area.</p>
+    <a class="text-link" href="{% url 'storefront:menu' %}">Build your order →</a>
+  </div>
+  <ol class="steps" aria-label="How ordering works">
+    <li><b>Choose</b><span>Pick today or tomorrow and select a meal slot.</span></li>
+    <li><b>Check</b><span>Confirm delivery availability with your pincode.</span></li>
+    <li><b>Enjoy</b><span>We cook for the slot and deliver it fresh.</span></li>
+  </ol>
+</section>
+
+<section class="closing-cta">
+  <p>Ready when you are</p>
+  <h2>See what the kitchen is making next.</h2>
+  <a class="btn" href="{% url 'storefront:menu' %}">Explore the menu</a>
+</section>
 
 {% endblock %}

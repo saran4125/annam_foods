@@ -162,6 +162,27 @@ def test_no_n8n_url_configured_is_a_permanent_failure(kitchen):
     assert not result.ok and not result.retryable
 
 
+def test_a_wrong_secrets_key_is_permanent_not_retried(kitchen, settings):
+    """A rotated key must not be retried -- retrying would keep hammering Meta
+    with a bad credential -- and must not look like an empty token."""
+    import pytest
+
+    from apps.messaging.senders.meta_cloud import MetaCloudSender
+
+    with tenant_context(kitchen):
+        kitchen.secrets.wa_token = "real-token"
+        kitchen.secrets.save()
+        kitchen.refresh_from_db()
+        msg = services.queue(kitchen, "9195", p.text("Hi"))
+
+        settings.SECRETS_KEY = "ZBHHDJ3n5cJcOTBFqIxNiFN6BMRRDIsuDlWJ7cShAB0="
+        kitchen.refresh_from_db()
+
+        result = MetaCloudSender(kitchen).send(msg)
+        assert not result.ok and not result.retryable
+        assert "Secret could not be read" in result.error
+
+
 # --- the architectural claim ------------------------------------------------
 
 def test_switching_provider_changes_the_hop_and_nothing_else(kitchen):

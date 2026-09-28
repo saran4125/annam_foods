@@ -41,15 +41,15 @@ class N8nSender:
             "graph": to_graph_payload(message.to_phone, message.payload),
         }
 
-        headers = {"Content-Type": "application/json"}
-        token = self.secrets.n8n_auth_token
-        if token:
-            headers["Authorization"] = f"Bearer {token}"
-
-        request = urllib.request.Request(
-            url, data=json.dumps(envelope).encode(), headers=headers, method="POST"
-        )
         try:
+            headers = {"Content-Type": "application/json"}
+            token = self.secrets.n8n_auth_token
+            if token:
+                headers["Authorization"] = f"Bearer {token}"
+            request = urllib.request.Request(
+                url, data=json.dumps(envelope).encode(),
+                headers=headers, method="POST",
+            )
             with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
                 raw = response.read().decode() or "{}"
             try:
@@ -66,5 +66,9 @@ class N8nSender:
             # body won't help. 5xx and timeouts are worth another attempt.
             return (SendResult.permanent(detail) if 400 <= exc.code < 500
                     else SendResult.transient(detail))
+        except RuntimeError as exc:
+            # Rotated or wrong SECRETS_KEY. Permanent, not retried -- an
+            # operator must fix the key, not the worker wait out a backoff.
+            return SendResult.permanent(f"Secret could not be read: {exc}")
         except Exception as exc:
             return SendResult.transient(f"{type(exc).__name__}: {exc}")

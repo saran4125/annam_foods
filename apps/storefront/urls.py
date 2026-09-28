@@ -9,6 +9,7 @@ urlpatterns = [
     path("menu/", views.menu, name="menu"),
     path("cart/", views.cart_detail, name="cart"),
     path("cart/add/", views.cart_add, name="cart_add"),
+    path("cart/clear/", views.cart_clear, name="cart_clear"),
     path("cart/pincode/", views.cart_set_pincode, name="cart_pincode"),
     path("p/<slug:slug>/", views.page_detail, name="page"),
 ]
