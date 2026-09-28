@@ -10,7 +10,7 @@ add_action('woocommerce_admin_process_product_object', function ($product) {
     $kind = sanitize_key(wp_unslash($_POST['_seer_fulfilment'] ?? 'packaged_goods'));
     $product->update_meta_data('_seer_fulfilment', $kind === 'scheduled_meal' ? $kind : 'packaged_goods');
 });
-add_filter('woocommerce_product_add_to_cart_text',function($text,$product){return $product->is_in_stock()?$text:'Sold out · View product';},10,2);
+add_filter('woocommerce_product_add_to_cart_text',function($text,$product){return $product->is_in_stock()?$text:'View product';},10,2);
 
 function seer_cart_validate(int $id, $quantity): void {
     if (!is_numeric($quantity) || (int) $quantity != $quantity || $quantity < 1 || $quantity > 99) {

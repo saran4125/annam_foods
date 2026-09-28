@@ -24,3 +24,10 @@ logo description were improved
 without replacing owner-written descriptions. Draft policy/campaign pages and
 the disabled checkout are outside the public shopping flow until their content
 and business rules are approved.
+
+Button follow-up: photographed product cards now have full-width, aligned
+50px actions. Available items use a darker terracotta fill with cream text;
+unavailable items use a separate “Sold out” badge and a restrained “View
+product” action. The product-page add button fills the space beside quantity
+on phones, while pincode checking stays visually secondary. The same action
+styles apply to the home, shop, collection, and search listings.

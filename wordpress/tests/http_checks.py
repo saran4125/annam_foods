@@ -40,6 +40,7 @@ check('Great things are on the horizon' not in body and '<h1' in body,'Public pr
 status,_,body=fetch(a,annam,'/categories/sweets/');check(status==200 and 'Sweets' in body,'Original collection URLs remain usable.')
 check('Great things are on the horizon' not in body and 'Badam Ghee Halwa' in body,'Public collections show photographed products.')
 status,_,body=fetch(a,annam,'/shop/');check(status==200 and 'Great things are on the horizon' not in body and '2 Suttu Murukku' in body,'The public shop displays the catalog.')
+check('View product' in body and 'Sold out · View product' not in body,'Unavailable products use a short secondary action that fits mobile cards.')
 status,_,body=fetch(a,annam,'/?s=murukku');check(status==200 and 'Mullu Murukku' in body and 'Search Results' in body,'Store search returns products without a post_type parameter.')
 status,_,body=fetch(a,annam,'/products/butter-murukku/');check(status==200 and 'alt="Butter Murukku"' in body,'Imported product imagery has a readable description.')
 status,h,body=fetch(a,annam,'/wp-json/wc/store/v1/cart');token=h.get('Cart-Token');nonce=h.get('Nonce');check(bool(token),'WooCommerce issues a real anonymous cart token.')
