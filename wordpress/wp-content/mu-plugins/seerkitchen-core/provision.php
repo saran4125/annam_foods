@@ -49,6 +49,9 @@ function seer_provision_site(string $domain,string $name,string $owner,string $p
         update_option('woocommerce_calc_taxes','no');
         update_option('woocommerce_onboarding_profile',['completed'=>true]);
         update_option('woocommerce_allow_tracking','no');
+        // The catalog is reviewable before checkout is enabled. WooCommerce's
+        // fresh-install default otherwise replaces shop and product pages.
+        update_option('woocommerce_coming_soon','no');
         update_option('woocommerce_permalinks',['product_base'=>'/products','category_base'=>'categories','tag_base'=>'product-tag','attribute_base'=>'']);
         update_option('permalink_structure','/%postname%/');
         switch_theme('seerkitchen');

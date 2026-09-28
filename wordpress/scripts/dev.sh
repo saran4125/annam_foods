@@ -20,6 +20,8 @@ if ! wp core is-installed --network >/dev/null 2>&1; then
 fi
 wp plugin install woocommerce --version=11.1.2 --activate-network
 wp eval-file /opt/seer/scripts/provision.php
+wp option update woocommerce_coming_soon no --url=http://annam.localhost:8090
+wp option update woocommerce_coming_soon no --url=http://demo.localhost:8090
 wp eval-file /opt/seer/scripts/seed-demo.php --url=http://demo.localhost:8090
 if [ ! -f data/catalog.json ]; then python3 scripts/fetch_annam.py; fi
 wp seer import --url=http://annam.localhost:8090

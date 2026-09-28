@@ -36,7 +36,12 @@ p=next(p for p in products if p['slug']=='tirunelveli-halwa')
 check(bool(p['images']) and 'annam.localhost' in p['images'][0]['src'],'Product imagery is served from Annam’s media library.')
 status,_,body=fetch(b,demo,'/wp-json/wc/store/v1/products?search=Halwa');check(status==200 and json.loads(body)==[],'Product search cannot leak Annam items into demo.')
 status,_,body=fetch(a,annam,'/products/tirunelveli-halwa/');check(status==200 and '250gm' in body and '₹' in body,'Original product URL and actual pack description are preserved.')
+check('Great things are on the horizon' not in body and '<h1' in body,'Public product pages show the product rather than WooCommerce coming soon.')
 status,_,body=fetch(a,annam,'/categories/sweets/');check(status==200 and 'Sweets' in body,'Original collection URLs remain usable.')
+check('Great things are on the horizon' not in body and 'Badam Ghee Halwa' in body,'Public collections show photographed products.')
+status,_,body=fetch(a,annam,'/shop/');check(status==200 and 'Great things are on the horizon' not in body and '2 Suttu Murukku' in body,'The public shop displays the catalog.')
+status,_,body=fetch(a,annam,'/?s=murukku');check(status==200 and 'Mullu Murukku' in body and 'Search Results' in body,'Store search returns products without a post_type parameter.')
+status,_,body=fetch(a,annam,'/products/butter-murukku/');check(status==200 and 'alt="Butter Murukku"' in body,'Imported product imagery has a readable description.')
 status,h,body=fetch(a,annam,'/wp-json/wc/store/v1/cart');token=h.get('Cart-Token');nonce=h.get('Nonce');check(bool(token),'WooCommerce issues a real anonymous cart token.')
 goods=json.loads(fetch(a,annam,'/wp-json/wc/store/v1/products?slug=butter-murukku')[2])[0]
 cart_headers={'Cart-Token':token,'Content-Type':'application/json'}

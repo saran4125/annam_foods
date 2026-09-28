@@ -23,11 +23,22 @@ function seer_import_snapshot(WC_Product $p): array {
     }
     return seer_import_normalize($out);
 }
-function seer_import_media(string $url, array $manifest): int {
+function seer_import_media(string $url, array $manifest, string $alt = ''): int {
     $existing=get_posts(['post_type'=>'attachment','post_status'=>'inherit','fields'=>'ids','numberposts'=>2,
         'meta_key'=>'_seer_source_url','meta_value'=>$url]);
     if(count($existing)>1) throw new RuntimeException('Duplicate media source: '.$url);
-    if($existing) return (int)$existing[0];
+    if($existing) {
+        $id=(int)$existing[0];
+        $current=get_post_meta($id,'_wp_attachment_image_alt',true);
+        $seeded=get_post_meta($id,'_seer_seeded_alt',true);
+        $filename_alt=sanitize_text_field(pathinfo(basename(parse_url($url,PHP_URL_PATH)),PATHINFO_FILENAME));
+        if($alt && (!$current || $current===$filename_alt || ($seeded && $current===$seeded))) {
+            $readable=sanitize_text_field($alt);
+            update_post_meta($id,'_wp_attachment_image_alt',$readable);
+            update_post_meta($id,'_seer_seeded_alt',$readable);
+        }
+        return $id;
+    }
     $filename=$manifest['assets'][$url]??'';
     if(!$filename || basename($filename)!==$filename) throw new RuntimeException('Missing downloaded image: '.$url);
     $path='/opt/seer/data/assets/'.$filename;
@@ -41,7 +52,9 @@ function seer_import_media(string $url, array $manifest): int {
     $id=media_handle_sideload(['name'=>$filename,'tmp_name'=>$temp],0);
     if(is_wp_error($id)){@unlink($temp);throw new RuntimeException($id->get_error_message());}
     update_post_meta($id,'_seer_source_url',$url);
-    update_post_meta($id,'_wp_attachment_image_alt',sanitize_text_field(pathinfo(basename(parse_url($url,PHP_URL_PATH)),PATHINFO_FILENAME)));
+    $readable=sanitize_text_field($alt?:pathinfo(basename(parse_url($url,PHP_URL_PATH)),PATHINFO_FILENAME));
+    update_post_meta($id,'_wp_attachment_image_alt',$readable);
+    update_post_meta($id,'_seer_seeded_alt',$readable);
     return (int)$id;
 }
 function seer_import_find(string $url): array {
@@ -80,6 +93,7 @@ if(defined('WP_CLI') && WP_CLI) {
             $ids=seer_import_find($row['source_url']);$action='create';$id=$ids[0]??0;
             $reasons=$row['review_reasons'];$variants=[];
             try{$variants=seer_import_variant_plan($row);}catch(Throwable $e){$reasons[]=$e->getMessage();}
+            if(empty($row['images'])) $reasons[]='Product photograph missing.';
             foreach($row['images'] as $image) if(empty($m['assets'][$image])) $reasons[]='Image download missing.';
             $fingerprint=hash('sha256',wp_json_encode($row));
             if(count($ids)>1)$action='duplicate';
@@ -87,7 +101,7 @@ if(defined('WP_CLI') && WP_CLI) {
                 $p=wc_get_product($id);
                 $stored=get_post_meta($id,'_seer_import_snapshot',true);
                 if(!$p || !is_array($stored) || seer_import_snapshot($p)!==seer_import_normalize($stored))$action='owner_conflict';
-                elseif(get_post_meta($id,'_seer_source_hash',true)===$fingerprint)$action='unchanged';
+                elseif(get_post_meta($id,'_seer_source_hash',true)===$fingerprint && $p->get_status()===($reasons?'draft':'publish'))$action='unchanged';
                 else $action='update';
             }
             $counts[$action]++;
@@ -118,7 +132,7 @@ if(defined('WP_CLI') && WP_CLI) {
             $categories[$row['slug']]=$id;$source_ids[$row['source_id']]=$id;
             if(!get_term_meta($id,'_seer_source_url',true)){
                 update_term_meta($id,'_seer_source_url',$row['source_url']);
-                if($row['image'] && isset($m['assets'][$row['image']]))update_term_meta($id,'thumbnail_id',seer_import_media($row['image'],$m));
+                if($row['image'] && isset($m['assets'][$row['image']]))update_term_meta($id,'thumbnail_id',seer_import_media($row['image'],$m,$row['name']));
             }
         }
         foreach($m['categories'] as $row)if(isset($source_ids[$row['parent_id']])&&!get_term_meta($categories[$row['slug']],'_seer_parent_seeded',true)){
@@ -138,7 +152,7 @@ if(defined('WP_CLI') && WP_CLI) {
             $p->set_stock_status($row['available']?'instock':'outofstock');$p->set_manage_stock(false);
             $p->update_meta_data('_seer_fulfilment',$row['fulfilment']);$p->update_meta_data('_seer_source_url',$row['source_url']);
             $p->update_meta_data('_seer_source_id',$row['source_id']);$p->update_meta_data('_seer_review_reasons',$change['review_reasons']);
-            $photos=[];foreach($row['images'] as $url)if(isset($m['assets'][$url]))$photos[]=seer_import_media($url,$m);
+            $photos=[];foreach($row['images'] as $url)if(isset($m['assets'][$url]))$photos[]=seer_import_media($url,$m,$row['name']);
             $p->set_image_id($photos[0]??0);$p->set_gallery_image_ids(array_slice($photos,1));
             if(!$variable){$p->set_regular_price($row['price']??'');$p->set_sale_price('');}
             else {

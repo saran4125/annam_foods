@@ -24,6 +24,8 @@ changes; applies the first import; and seeds Annam's homepage only once.
 Product photos are copied into Annam's site-specific WordPress media library.
 The image-generation campaign artwork in `data/artwork/` is separate from
 those unmodified product photos.
+The page-by-page visual findings and fixes are recorded in
+`reports/UI_REVIEW.md`.
 
 - Storefront: `http://annam.localhost:8090/`
 - Owner editor: `http://annam.localhost:8090/wp-admin/`

@@ -23,7 +23,7 @@ report; the importer does not invent products or infer meal dates from their
 names. The source campaigns and informational pages remain drafts pending
 review. The Annam delivery window and zone tables are empty.
 
-Validation: 36 PHP service and isolation checks; 35 HTTP checks covering
+Validation: 36 PHP service and isolation checks; 40 HTTP checks covering
 host rejection, separate storefront search and carts, server pricing,
 checkout rejection, owner layout and product edits, and cross-store admin
 access. Full machine-readable reports are regenerated locally under
