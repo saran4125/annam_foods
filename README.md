@@ -81,16 +81,20 @@ apps/tenancy/      tenants, domains, config, scoping, middleware
 
 ## Where this is going
 
-**The whole plan is in [`docs/PLAN.md`](docs/PLAN.md).** `AGENTS.md` carries the
-coding conventions; `docs/` carries the per-phase specs.
+**The whole plan is in [`docs/PLAN.md`](docs/PLAN.md)** — the single source of
+truth. `AGENTS.md` carries the coding conventions.
 
-1. Foundation — tenancy, scoping, hostname routing ✅
-2. Catalog, scheduling, zones, storefront, CMS pages ✅
-3. Orders, Razorpay, invoices — `docs/phase-3-money-path.md`
-4. Owner backend — `docs/phase-4-owner-backend.md`
-5. WhatsApp — `docs/phase-5-whatsapp.md`
-6. Super admin and subscription billing — `docs/phase-6-super-admin-billing.md`
-7. Postgres and production — `docs/phase-7-production.md`
+Built: tenancy and fail-closed scoping, catalog and daily/weekly menus,
+delivery zones, content pages, storefront and cart, the messaging spine,
+orders. Next, in order (PLAN.md §17):
 
-**Start Phase 3 by doing section 7a (the Postgres swap).** Invoice numbering
-needs row locking that SQLite cannot provide.
+- **A. Foundation** — PostgreSQL, worker and scheduler, feature flags, presets
+- **B. Bills** — billing engine, bills on WhatsApp, bill on request, catalog
+  orders, owner backend v0 · *first release to Annam*
+- **C. WhatsApp assistant** — the full bot in the app, parity with Annam's
+- **D. Payments and updates** — Razorpay, WhatsApp Pay, every order update on
+  WhatsApp
+- **E. Storefront** — checkout, hero campaigns, collections, Annam's photos
+- **F. Owner backend** — menus, zones, content, connections, reports
+- **G. Platform** — provisioning in under an hour, subscriptions, extensions
+- **H. Annam cutover**

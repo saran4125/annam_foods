@@ -1,5 +1,7 @@
 # Phase 6 — Super admin and subscription billing
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Kept as implementation detail; the platform is specified in PLAN.md §12 and built in Phase G (§17). Where this file and PLAN.md differ, PLAN.md wins.
+
 ## Goal
 
 Provision a kitchen in under an hour, collect ₹5,000/month without chasing

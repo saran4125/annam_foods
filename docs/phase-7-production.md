@@ -1,5 +1,7 @@
 # Phase 7 — Postgres and production
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Kept as implementation detail; PostgreSQL moves to Phase A and hosting is PLAN.md §16. Where this file and PLAN.md differ, PLAN.md wins.
+
 **Do the Postgres half of this before Phase 3**, not after. Invoice numbering
 needs `SELECT … FOR UPDATE`, and SQLite cannot give you that. Everything else
 here can wait until there's a client to deploy for.

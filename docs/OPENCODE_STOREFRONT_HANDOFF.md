@@ -1,5 +1,7 @@
 # Storefront + owner CMS — detailed OpenCode handoff
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Kept as the detailed storefront fix list and backlog; direction and scope are PLAN.md §10–§11, built in Phases E and F. Where this file and PLAN.md differ, PLAN.md wins.
+
 Reviewed: **20 September 2026**  
 Project: **SeerKitchen**, currently configured locally for Annam Foods  
 Reference: [Sweet Karam Coffee](https://sweetkaramcoffee.in/)  

@@ -1,5 +1,7 @@
 # SeerKitchen codebase status
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** This is a snapshot inventory; PLAN.md §4 carries the current state and known defects. Where this file and PLAN.md differ, PLAN.md wins.
+
 Last reviewed: 28 September 2026  
 Repository: `/Users/sudhan/Desktop/SEER/CloudKitchen`
 

@@ -1,5 +1,7 @@
 # Phase 3 — Orders, Razorpay, invoices
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Kept as implementation detail; the build order is now PLAN.md §17 (bills ship first, Phase B), and invoicing is specified in §8, payments in §9. Where this file and PLAN.md differ, PLAN.md wins.
+
 **Prerequisite: do `docs/phase-7-production.md` section 7a first.** Invoice
 numbering needs `select_for_update()` and SQLite cannot provide it.
 

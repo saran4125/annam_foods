@@ -1,5 +1,7 @@
 # Phase 5 — WhatsApp
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Kept as implementation detail; WhatsApp is specified in full in PLAN.md §7 (parity with Annam's bot, catalog orders, bills, payments and updates on WhatsApp). Where this file and PLAN.md differ, PLAN.md wins.
+
 ## Goal
 
 A customer completes an entire order on WhatsApp, and it lands in the **same

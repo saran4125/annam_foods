@@ -5,10 +5,13 @@ codebase, one database, many kitchens — each on its own domain, differing only
 by configuration. It is sold as a subscription (₹5,000/month per kitchen), so
 adding a client must never mean adding code.
 
-**[`docs/PLAN.md`](docs/PLAN.md) is the whole plan in one file** — read it for
-the why. This file is the how: the conventions and invariants you must not
-break. Then work `docs/` in phase order; phases 1 and 2 are done and are the
-reference for how everything else should look.
+**[`docs/PLAN.md`](docs/PLAN.md) is the whole plan in one file and the single
+source of truth** — the why, the WhatsApp and billing specifications, the
+customisation model, and the build order (§17, Phases A–H). This file is the
+how: the conventions and invariants you must not break. The older
+`docs/phase-*.md` files are supporting detail; where they differ, PLAN.md wins.
+The built apps (tenancy, catalog, delivery, content, storefront, messaging,
+orders) are the reference for how everything else should look.
 
 ---
 

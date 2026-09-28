@@ -1,5 +1,7 @@
 # Storefront redesign
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Historical note; storefront direction is PLAN.md §10. Where this file and PLAN.md differ, PLAN.md wins.
+
 > Historical implementation note. The status and test count below describe an
 > earlier redesign, not the complete store requested in September 2026. For the
 > current image-only hero, owner-editable CMS, and remaining implementation work,

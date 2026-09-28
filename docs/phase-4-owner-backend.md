@@ -1,5 +1,7 @@
 # Phase 4 — Owner backend
 
+> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Kept as implementation detail; the owner backend is specified in PLAN.md §11 and built across Phases B and F (§17). Where this file and PLAN.md differ, PLAN.md wins.
+
 ## Goal
 
 The kitchen owner runs his business here every morning without calling you.
