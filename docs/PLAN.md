@@ -212,7 +212,8 @@ catalog     Slot · MenuCategory · MenuItem · MenuSchedule
 delivery    DeliveryZone
 content     Page · Banner
 messaging   OutboundMessage
-orders      Customer · Address · Order · OrderEvent · Payment · Invoice     (phase 3)
+orders      Customer · Address · Order · OrderEvent        (built)
+            Payment · Invoice                            (phase 3)
 whatsapp    WaSession · WaInboundMessage                                    (phase 5)
 billing     Subscription · SubscriptionInvoice · AdminAuditLog              (phase 6)
 ```
@@ -249,7 +250,8 @@ last week's bill.
 | Storefront: home, menu, cart, CMS pages | done |
 | Messaging: queue, payloads, three senders, retries, idempotency | done |
 | TenantSecrets with Fernet encryption, write-only portal pattern | done |
-| Orders, payments, invoices | phase 3 |
+| Orders, customers, addresses, status flow | done |
+| Payments, invoices | phase 3 — needs PostgreSQL first |
 | Owner backend | phase 4 |
 | WhatsApp inbound and conversation | phase 5 |
 | Subscriptions and billing automation | phase 6 |

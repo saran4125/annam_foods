@@ -18,7 +18,9 @@ reference for how everything else should look.
 uv sync                                  # install
 uv run python manage.py migrate
 uv run python manage.py runserver
-uv run pytest -q                         # must be green before any commit
+uv run python -m pytest -q               # must be green before any commit
+                                         # (python -m: console scripts break if
+                                         #  the project folder is ever moved)
 uv run python manage.py check
 uv run python manage.py makemigrations <app>
 ```
@@ -143,6 +145,7 @@ apps/delivery/         zones, pincode serviceability
 apps/content/          owner-written pages and banners
 apps/storefront/       public site: home, menu, cart
 apps/messaging/        outbound message queue, payload builders, senders
+apps/orders/           customers, addresses, orders, status flow
 templates/             base.html + per-app directories
 static/css/            storefront.css — colours come from TenantConfig.theme
 docs/                  phase specs; work them in order
@@ -178,7 +181,7 @@ docs/                  phase specs; work them in order
 | 6 | Super admin and subscription billing | `docs/phase-6-super-admin-billing.md` |
 | 7 | Postgres and production deploy | `docs/phase-7-production.md` |
 
-110 tests green as of the messaging spine landing and the wrong-key fix. Keep
+164 tests green as of the orders app landing. Keep
 them that way: a sender that can no longer decrypt a secret (rotated
 `SECRETS_KEY`) must land the message `abandoned`, never leave it stuck in
 `sending`.

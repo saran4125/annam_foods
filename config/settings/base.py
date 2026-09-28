@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     "apps.content",
     "apps.storefront",
     "apps.messaging",
+    "apps.orders",
 ]
 
 MIDDLEWARE = [

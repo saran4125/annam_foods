@@ -1,7 +1,7 @@
 # SeerKitchen codebase status
 
-Last reviewed: 20 September 2026  
-Repository: `/Users/sudhan/Desktop/CloudKitchen`
+Last reviewed: 28 September 2026  
+Repository: `/Users/sudhan/Desktop/SEER/CloudKitchen`
 
 This document is a current-state inventory of the repository and local development
 data. It complements `PLAN.md`, which describes the intended product and future
@@ -25,9 +25,12 @@ Implemented today:
 - an Annam-specific storefront configuration with three promotional hero slides,
   Annam branding, and a food-category showcase.
 
-Not implemented yet:
+Implemented since the 20 September review:
 
-- durable customers, addresses and orders;
+- durable customers, addresses, orders and an order-event audit trail, with
+  `orders.services.create_order` as the single entry point for every channel.
+
+Not implemented yet:
 - checkout, OTP and Razorpay payments;
 - invoice allocation and PDF generation;
 - owner operations backend;
@@ -364,7 +367,8 @@ These changes should be reviewed and committed as coherent units before Phase 3.
 
 1. PostgreSQL is required before invoice-number allocation and concurrent payment
    processing. SQLite does not provide the required row locking.
-2. The orders and payments applications do not exist.
+2. The payments application does not exist. Orders do (`apps/orders`);
+   invoice-number allocation still waits on PostgreSQL.
 3. Razorpay webhook verification and idempotency do not exist.
 4. Checkout is deliberately disabled.
 5. Production settings, storage, background workers, TLS/deployment definitions
