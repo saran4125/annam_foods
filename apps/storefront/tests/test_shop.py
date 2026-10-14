@@ -105,3 +105,15 @@ def test_home_shows_shelves_and_featured_goods(client, shop):
     r = client.get("/", HTTP_HOST=HOST)
     assert b"Pakshanams" in r.content
     assert b"Ellu Podi" in r.content
+
+
+def test_stale_cart_form_gets_a_friendly_reload_not_a_raw_403(kitchen, shop):
+    from django.test import Client
+
+    c = Client(enforce_csrf_checks=True)   # a form posted without a valid token
+    r = c.post("/cart/pincode/", {"pincode": "600005"}, HTTP_HOST=HOST)
+    assert r.status_code == 302 and r["Location"] == "/cart/"
+    page = c.get("/cart/", HTTP_HOST=HOST)
+    assert b"out of date" in page.content           # the message is shown once
+    other = c.post("/somewhere-else/", {}, HTTP_HOST=HOST)
+    assert other.status_code in (403, 404)

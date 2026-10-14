@@ -80,6 +80,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# A stale form (token renewed by a login elsewhere, or a page left open) gets a
+# friendly reload instead of a raw 403, and the reason is logged.
+CSRF_FAILURE_VIEW = "apps.storefront.views.csrf_failure"
+
 # Django 6 will default URLField to https; opt in now so the behaviour
 # doesn't change under us at upgrade time.
 FORMS_URLFIELD_ASSUME_HTTPS = True

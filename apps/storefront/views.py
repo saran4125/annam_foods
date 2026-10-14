@@ -1,7 +1,8 @@
+import logging
 from datetime import date as date_cls, timedelta
 
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -425,4 +426,26 @@ def item_detail(request, pk):
             "pages": _nav_pages(),
             "shelves": shop_categories(),
         },
+    )
+
+
+log = logging.getLogger(__name__)
+
+
+def csrf_failure(request, reason=""):
+    """A form was submitted from a stale page (the browser's security token was
+    renewed -- e.g. by logging in to the admin in another tab -- or the page sat
+    open for a long time). Customers get a reload and a sentence, not a raw 403;
+    the real reason goes to the log so it can be diagnosed."""
+    log.warning("CSRF failure on %s %s from host %s: %s", request.method, request.path,
+                request.get_host(), reason)
+    if request.path.startswith("/cart/") and request.tenant is not None:
+        messages.error(request, "That page was out of date. Please try again.")
+        return redirect("storefront:cart")
+    return HttpResponseForbidden(
+        "<!doctype html><meta charset=utf-8><title>Please reload</title>"
+        "<body style=\"font:16px system-ui;max-width:32rem;margin:4rem auto;padding:0 1rem\">"
+        "<h1>That page was out of date</h1><p>Please go back, reload the page, and try again.</p>"
+        "<p><a href=\"/\">Back to the home page</a></p></body>",
+        content_type="text/html",
     )
