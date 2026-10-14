@@ -24,6 +24,12 @@ def test_unknown_host_is_not_served(client, db):
     assert response.status_code == 404
 
 
+def test_health_check_does_not_require_a_registered_tenant_host(client, db):
+    response = client.get("/healthz", HTTP_HOST="health.example.test")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_platform_host_carries_no_tenant(client, annam, settings):
     settings.PLATFORM_HOST = "admin.localhost"
     response = client.get("/admin/login/", HTTP_HOST="admin.localhost")
@@ -50,7 +56,7 @@ def test_django_admin_still_worlds_on_the_platform_host(client, annam, settings)
 def test_a_kitchens_clock_is_its_own_while_serving(client, annam):
     """(FIX-10) The middleware operates in the tenant's timezone, so cutoffs
     and menus are read at local midnight, not the server's."""
-    TenantConfig.objects.create(tenant=annam, brand_name="Annam", timezone="America/Sao_Paulo")
+    TenantConfig.objects.filter(tenant=annam).update(brand_name="Annam", timezone="America/Sao_Paulo")
     captured = {}
 
     def get_response(request):
@@ -67,7 +73,7 @@ def test_a_kitchens_clock_is_its_own_while_serving(client, annam):
 
 
 def test_a_kitchens_request_restores_the_prior_active_timezone(annam):
-    TenantConfig.objects.create(tenant=annam, timezone="America/Sao_Paulo")
+    TenantConfig.objects.filter(tenant=annam).update(timezone="America/Sao_Paulo")
     timezone.activate("Europe/London")
     try:
         request = RequestFactory().get("/", HTTP_HOST="annam.localhost")

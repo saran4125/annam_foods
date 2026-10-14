@@ -141,7 +141,7 @@ covered; those are the acceptance criteria.
 ## Layout
 
 ```
-config/settings/       base.py + dev.py (prod.py comes in Phase 7)
+config/settings/       base.py + dev.py + prod.py
 apps/tenancy/          tenants, domains, config, scoping, middleware, super admin
 apps/catalog/          slots, categories, items, MenuSchedule, menu resolution
 apps/delivery/         zones, pincode serviceability
@@ -174,17 +174,12 @@ docs/                  phase specs; work them in order
 
 ## Current state
 
-| Phase | Scope | Status |
-|---|---|---|
-| 1 | Tenancy, scoping, hostname routing, super admin skeleton | done |
-| 2 | Catalog, scheduling, delivery zones, storefront, CMS pages | done |
-| 3 | Orders, Razorpay, invoices — the money path | `docs/phase-3-money-path.md` |
-| 4 | Owner backend | `docs/phase-4-owner-backend.md` |
-| 5 | WhatsApp | `docs/phase-5-whatsapp.md` |
-| 6 | Super admin and subscription billing | `docs/phase-6-super-admin-billing.md` |
-| 7 | Postgres and production deploy | `docs/phase-7-production.md` |
+`docs/PLAN.md` §17 is authoritative for phase names, order, and status. Phase A
+(foundation, including PostgreSQL and worker infrastructure) is complete. Phase
+B (bills and the first Annam release) is next. The older `docs/phase-*.md`
+files remain implementation references only; PLAN.md wins when they differ.
 
-164 tests green as of the orders app landing. Keep
-them that way: a sender that can no longer decrypt a secret (rotated
+The plan records 189 passing tests at the Phase A completion checkpoint. Keep
+the suite green: a sender that can no longer decrypt a secret (rotated
 `SECRETS_KEY`) must land the message `abandoned`, never leave it stuck in
 `sending`.

@@ -168,7 +168,7 @@ The pre-Phase-A baseline was 164 green tests. The PostgreSQL suite now has
 | `import_menu_images` command | **built** |
 | Orders: customers, addresses, orders (snapshotted lines), status flow, event trail | **built** |
 | PostgreSQL, background worker, scheduler | **built in Phase A** |
-| Invoicing | not built |
+| Invoicing | Phase B started locally: tenant-scoped invoice models, number sequences, tax snapshot issuance, credit notes and bill requests; PDF delivery and owner/WhatsApp workflows remain |
 | Payments | not built |
 | WhatsApp inbound, conversation, catalog orders | not built |
 | Owner backend | not built |
@@ -185,6 +185,8 @@ The pre-Phase-A baseline was 164 green tests. The PostgreSQL suite now has
 | D2 | Prices render with `floatformat:0`, which rounds ₹120.50 to ₹121 | Fixed in Phase A with the money filter |
 | D3 | Tests that derive times from the wall clock fail after 21:00 IST (one fixed; rule in §18) | Fixed the remaining shared-browser case in Phase A |
 | D4 | Dev database lives in two places (`db.sqlite3` in the repo and `~/.seerkitchen/`) | PostgreSQL is now authoritative; the populated SQLite file remains an untouched backup |
+| D5 | Logo and showcase images load from Annam's old CDN; they disappear when the old site does | Phase E |
+| D6 | Moving the project folder breaks `.venv` console scripts; use `uv run python -m pytest` | documented in AGENTS.md |
 
 ### 4.2 Parallel storefront preview
 
@@ -197,8 +199,6 @@ disabled. This is an architectural difference from §5, not a production
 cutover. Decide whether to adopt WordPress or continue the Django storefront
 before connecting any checkout or WhatsApp order flow; do not create two
 authoritative order systems.
-| D5 | Logo and showcase images load from Annam's old CDN; they disappear when the old site does | Phase E |
-| D6 | Moving the project folder breaks `.venv` console scripts; use `uv run python -m pytest` | documented in AGENTS.md |
 
 ---
 

@@ -1,13 +1,12 @@
 # SeerKitchen codebase status
 
-> **Superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** This is a snapshot inventory; PLAN.md §4 carries the current state and known defects. Where this file and PLAN.md differ, PLAN.md wins.
+> **Historical snapshot, superseded by [PLAN.md](PLAN.md) v2 (28 September 2026).** Its inventory below is retained for reference and may be stale. PLAN.md §4 and §17 carry the current state and build order; where they differ, PLAN.md wins.
 
 Last reviewed: 28 September 2026  
 Repository: `/Users/sudhan/Desktop/SEER/CloudKitchen`
 
-This document is a current-state inventory of the repository and local development
-data. It complements `PLAN.md`, which describes the intended product and future
-phases. Secrets and encrypted credential values are deliberately excluded.
+This document records an earlier repository review. Secrets and encrypted
+credential values are deliberately excluded.
 
 ## 1. Executive summary
 
@@ -32,13 +31,14 @@ Implemented since the 20 September review:
 - durable customers, addresses, orders and an order-event audit trail, with
   `orders.services.create_order` as the single entry point for every channel.
 
-Not implemented yet:
+Still incomplete per the master plan:
 - checkout, OTP and Razorpay payments;
-- invoice allocation and PDF generation;
+- invoice PDFs, delivery, and owner/WhatsApp billing workflows (the first billing models and service layer now exist);
 - owner operations backend;
 - inbound WhatsApp conversations;
 - subscription billing;
-- PostgreSQL and production deployment.
+- production deployment and cutover (PostgreSQL and worker infrastructure are
+  already part of the completed Phase A foundation).
 
 The project is therefore a functional storefront/catalog foundation, not yet a
 complete transactional ordering system.
@@ -64,8 +64,8 @@ complete transactional ordering system.
 |---|---|
 | Language | Python 3.10+ |
 | Framework | Django 5.x |
-| Development database | SQLite at `~/.seerkitchen/dev.sqlite3` |
-| Production database | Planned PostgreSQL; not configured |
+| Development database | PostgreSQL via local Compose (Phase A) |
+| Production database | PostgreSQL settings exist; production deployment remains |
 | Rendering | Django templates and CSS |
 | Image handling | Pillow / Django `ImageField` |
 | Markdown pages | Python-Markdown |
@@ -335,14 +335,15 @@ Test modules cover:
 - message persistence, retrying, abandonment, deduplication and tenant isolation;
 - Meta/n8n/console sender behavior.
 
-The last successful full run during storefront work was **125 passing tests**.
-The current session could not repeat the run because `uv` is not installed and
-the existing local `.venv` points at an incompatible interpreter. The source has not
-been represented here as currently green until that environment is repaired.
+The older storefront checkpoint recorded 125 passing tests. The later Phase A
+checkpoint in PLAN.md §17 records 189 passing tests on PostgreSQL. This review
+did not rerun the suite; consult the latest CI or run the project command before
+relying on current test status.
 
-## 8. Current Git working tree
+## 8. Git working tree at the historical review
 
-The working tree is not clean. It contains the recent storefront redesign,
+The statements below describe the 28 September snapshot, not the current tree.
+At that time the working tree contained the recent storefront redesign,
 messaging robustness work, documentation updates and image-import command.
 
 Modified tracked areas include:
@@ -361,20 +362,19 @@ Untracked source/documentation files include:
 - `docs/storefront-redesign.md`;
 - this status document.
 
-These changes should be reviewed and committed as coherent units before Phase 3.
+Those changes were to be reviewed and committed as coherent units before the
+next planned milestone.
 
 ## 9. Known risks and technical debt
 
 ### Release blockers before taking payments
 
-1. PostgreSQL is required before invoice-number allocation and concurrent payment
-   processing. SQLite does not provide the required row locking.
-2. The payments application does not exist. Orders do (`apps/orders`);
-   invoice-number allocation still waits on PostgreSQL.
-3. Razorpay webhook verification and idempotency do not exist.
-4. Checkout is deliberately disabled.
-5. Production settings, storage, background workers, TLS/deployment definitions
-   and backup/restore processes do not exist.
+1. The payments application does not exist. Orders do (`apps/orders`); invoice
+   allocation and PDF generation remain on the Phase B path.
+2. Razorpay webhook verification and idempotency do not exist.
+3. Checkout is deliberately disabled.
+4. Production deployment, storage, TLS configuration, and backup/restore
+   processes remain to be completed.
 
 ### Storefront/content risks
 
@@ -394,16 +394,16 @@ These changes should be reviewed and committed as coherent units before Phase 3.
 
 ### Backend/concurrency risks
 
-1. `dispatch_pending()` reads due messages without atomically claiming them.
-   Multiple workers could deliver the same row concurrently. PostgreSQL row
-   locking with `select_for_update(skip_locked=True)` or an atomic claim is needed.
+1. `dispatch_pending()` previously allowed concurrent duplicate sends. The
+   current `messaging.services.deliver()` claims each row under
+   `select_for_update()` before sending.
 2. Tenant-scoped managers protect reads but do not themselves prove that every
    foreign-key relation points to an object from the same tenant. Services should
    validate cross-model tenant consistency, especially for future orders.
 3. `TenantConfig.features` is intentionally flexible JSON but lacks schema
    validation for storefront keys such as `food_showcase`.
 
-### Development environment
+### Development environment at the historical review
 
 1. Documentation expects `uv`, but `uv` is unavailable on the current host.
 2. The existing `.venv` contains stale/incompatible interpreter paths and a
@@ -413,19 +413,14 @@ These changes should be reviewed and committed as coherent units before Phase 3.
 
 ## 10. Recommended next actions
 
-1. Recreate the development environment with `uv` and establish a fresh green
-   test run.
-2. Review and commit the current storefront/messaging changes.
-3. Move development and CI to PostgreSQL as specified in Phase 7a.
-4. Replace demo Annam menu data with client-approved items, prices, dietary flags
-   and photography.
-5. Move hero, logo and food imagery into owned/object storage and add mobile hero
+1. Follow Phase B in PLAN.md §17: invoice sequence and models, PDF rendering,
+   bill requests/sending, and the owner backend v0.
+2. Before release, replace demo Annam menu data with client-approved items,
+   prices, dietary flags and photography.
+3. Move hero, logo and food imagery into owned/object storage and add mobile hero
    crops.
-6. Add banner validation and an owner-friendly promotion editor.
-7. Implement Phase 3 in service-first order: models, order creation, payment
-   verification, invoice allocation, then checkout UI.
-8. Make the messaging worker claim rows atomically before running more than one
-   worker.
+4. Resolve the WordPress storefront decision before connecting any checkout or
+   WhatsApp transactional flow to it.
 
 ## 11. Repository file inventory
 

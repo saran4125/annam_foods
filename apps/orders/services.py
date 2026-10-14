@@ -17,7 +17,7 @@ from decimal import Decimal
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
-from apps.catalog.models import Slot
+from apps.catalog.models import MenuItem, Slot
 from apps.catalog.services import resolve_menu, slot_is_open
 from apps.delivery.services import zones_for_pincode
 
@@ -110,6 +110,32 @@ def price_lines(requested, *, delivery_date: date_cls, slot: Slot):
     return lines, subtotal
 
 
+def price_courier_lines(requested):
+    """Price courier goods directly from the active tenant catalog."""
+    if not requested:
+        raise EmptyOrder("An order needs at least one item.")
+    ids = {line.item_id for line in requested if line.quantity > 0}
+    items = MenuItem.objects.filter(pk__in=ids, active=True, fulfilment="courier")
+    by_id = {item.pk: item for item in items}
+    lines, subtotal = [], Decimal("0")
+    for want in requested:
+        if want.quantity <= 0:
+            continue
+        item = by_id.get(want.item_id)
+        if item is None:
+            raise ItemNotOnMenu(f"Item {want.item_id} is not an active courier item.")
+        line_total = item.price * want.quantity
+        subtotal += line_total
+        lines.append({
+            "item_id": item.pk, "name": item.name,
+            "unit_price": str(item.price), "quantity": want.quantity,
+            "line_total": str(line_total), "is_veg": item.is_veg,
+        })
+    if not lines:
+        raise EmptyOrder("An order needs at least one item.")
+    return lines, subtotal
+
+
 def get_or_create_customer(tenant, *, phone: str, name: str = "",
                            email: str = "", channel: str = Channel.WEB) -> Customer:
     customer, created = Customer.objects.get_or_create(
@@ -131,11 +157,12 @@ def get_or_create_customer(tenant, *, phone: str, name: str = "",
 
 
 @transaction.atomic
-def create_order(tenant, *, customer: Customer, requested, slot: Slot,
-                 delivery_date: date_cls, address: Address | None = None,
+def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = None,
+                 delivery_date: date_cls | None = None, address: Address | None = None,
                  address_snapshot: dict | None = None,
                  channel: str = Channel.WEB, source: str | None = None,
-                 payment_mode: str = PaymentMode.ONLINE, now=None) -> Order:
+                 payment_mode: str = PaymentMode.ONLINE, now=None,
+                 external_ref: str = "") -> Order:
     """Create one order, or raise. Both channels come through here.
 
     Validates in the order a customer would hit the problems: is the kitchen
@@ -144,22 +171,39 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot,
     """
     if not tenant.can_take_orders:
         raise KitchenNotAccepting("This kitchen isn't accepting orders right now.")
+    requested = list(requested)
+    if not requested or not any(line.quantity > 0 for line in requested):
+        raise EmptyOrder("An order needs at least one item.")
+    if external_ref:
+        existing = Order.objects.filter(external_ref=external_ref).first()
+        if existing:
+            return existing
     source = source or {Channel.WEB: OrderSource.STOREFRONT,
                         Channel.WHATSAPP: OrderSource.WA_CHAT,
                         Channel.MANUAL: OrderSource.OWNER}[channel]
     if source not in OrderSource.values or payment_mode not in PaymentMode.values:
         raise OrderError("Unknown order source or payment mode.")
 
-    if not slot_is_open(slot, delivery_date, now=now):
-        raise SlotClosed(f"Ordering for {slot.label.lower()} has closed.")
-
-    lines, subtotal = price_lines(requested, delivery_date=delivery_date, slot=slot)
+    requested_ids = {line.item_id for line in requested}
+    fulfillments = set(MenuItem.objects.filter(pk__in=requested_ids).values_list("fulfilment", flat=True))
+    if fulfillments == {"courier"}:
+        fulfilment = "courier"
+        lines, subtotal = price_courier_lines(requested)
+        delivery_date = None
+        slot = None
+    else:
+        fulfilment = "scheduled"
+        if fulfillments != {"scheduled"} or slot is None or delivery_date is None:
+            raise OrderError("Scheduled orders need a slot and delivery date; courier orders must contain only courier items.")
+        if not slot_is_open(slot, delivery_date, now=now):
+            raise SlotClosed(f"Ordering for {slot.label.lower()} has closed.")
+        lines, subtotal = price_lines(requested, delivery_date=delivery_date, slot=slot)
 
     snapshot = address_snapshot or (address.as_snapshot() if address else None)
     if not snapshot or not snapshot.get("pincode"):
         raise NotServiceable("A delivery address is required.")
 
-    zones = zones_for_pincode(snapshot["pincode"], slot_key=slot.key)
+    zones = zones_for_pincode(snapshot["pincode"], slot_key=slot.key if slot else None)
     if not zones:
         raise NotServiceable(f"We don't deliver to {snapshot['pincode']} yet.")
     zone = next((z for z in zones if z.area_name == snapshot.get("area")), zones[0])
@@ -181,12 +225,17 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot,
                     order_no=generate_order_number(tenant, delivery_date),
                     customer=customer, channel=channel, source=source,
                     payment_mode=payment_mode,
+                    fulfilment=fulfilment, external_ref=external_ref,
                     slot=slot, delivery_date=delivery_date,
                     items=lines, address=snapshot,
                     subtotal=subtotal, delivery_fee=delivery_fee, total=total,
                 )
             break
         except IntegrityError:
+            if external_ref:
+                duplicate = Order.objects.filter(external_ref=external_ref).first()
+                if duplicate:
+                    return duplicate
             continue
     else:
         raise OrderError("Could not allocate an order number. Please try again.")

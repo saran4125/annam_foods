@@ -1,6 +1,10 @@
 """Queueing, retries and idempotency — the parts that stay in the app no
 matter which provider does the final hop."""
 import pytest
+from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
+from threading import Lock
+from django.db import close_old_connections, connections
 from django.utils import timezone
 
 from apps.messaging import payloads as p
@@ -114,6 +118,66 @@ def test_the_worker_only_picks_up_messages_that_are_due(kitchen, monkeypatch):
     with tenant_context(kitchen):
         assert OutboundMessage.objects.get(pk=due.pk).status == MessageStatus.SENT
         assert OutboundMessage.objects.get(pk=later.pk).status == MessageStatus.PENDING
+
+
+def test_a_stale_sending_claim_is_retried_and_a_fresh_claim_is_left_alone(kitchen, monkeypatch):
+    use(monkeypatch, FakeSender([]))
+    with tenant_context(kitchen):
+        stale = services.queue(kitchen, "9195", p.text("stale"))
+        stale.status = MessageStatus.SENDING
+        stale.attempts = 1
+        stale.claimed_at = timezone.now() - services.STALE_SENDING_AFTER - timedelta(seconds=1)
+        stale.save(update_fields=["status", "attempts", "claimed_at"])
+        fresh = services.queue(kitchen, "9195", p.text("fresh"))
+        fresh.status = MessageStatus.SENDING
+        fresh.attempts = 1
+        fresh.claimed_at = timezone.now()
+        fresh.save(update_fields=["status", "attempts", "claimed_at"])
+
+    counts = services.dispatch_pending()
+    with tenant_context(kitchen):
+        stale.refresh_from_db()
+        fresh.refresh_from_db()
+        assert stale.status == MessageStatus.FAILED
+        assert stale.claimed_at is None
+        assert "Recovered" in stale.last_error
+        assert fresh.status == MessageStatus.SENDING
+        assert counts["failed"] == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_two_workers_claim_a_message_only_once(kitchen, monkeypatch):
+    assert connections["default"].vendor == "postgresql"
+
+    class CountingSender:
+        def __init__(self):
+            self.calls = 0
+            self.lock = Lock()
+
+        def send(self, message):
+            with self.lock:
+                self.calls += 1
+            return SendResult.sent("wamid.once")
+
+    sender = CountingSender()
+    use(monkeypatch, lambda tenant: sender)
+    with tenant_context(kitchen):
+        message = services.queue(kitchen, "9195", p.text("once"))
+
+    def attempt():
+        close_old_connections()
+        try:
+            candidate = OutboundMessage.all_tenants.get(pk=message.pk)
+            return services.deliver(candidate).status
+        finally:
+            close_old_connections()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        statuses = list(pool.map(lambda _: attempt(), range(2)))
+    message.refresh_from_db()
+    assert statuses.count(MessageStatus.SENT) == 2
+    assert sender.calls == 1
+    assert message.attempts == 1
 
 
 def test_the_worker_runs_across_every_tenant(kitchen, monkeypatch, db):

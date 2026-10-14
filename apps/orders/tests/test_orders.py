@@ -175,6 +175,29 @@ def test_both_channels_produce_the_same_record(kitchen, shop):
         assert Order.objects.count() == 2       # one list, both channels
 
 
+def test_a_courier_order_needs_no_slot_and_uses_the_live_catalog_price(kitchen, shop):
+    with tenant_context(kitchen):
+        snack = MenuItem.objects.create(name="Festival Box", price=Decimal("200"), fulfilment="courier")
+        order = services.create_order(
+            kitchen, customer=shop["customer"], requested=[RequestedLine(snack.pk, 1)],
+            address_snapshot=dict(ADDRESS), channel=Channel.WHATSAPP,
+            external_ref="wamid.courier-1",
+        )
+        assert order.fulfilment == "courier"
+        assert order.slot is None and order.delivery_date is None
+        assert order.total == Decimal("220")
+        assert order.items[0]["unit_price"] == "200.00"
+
+
+def test_redelivered_external_order_reference_returns_the_original_order(kitchen, shop):
+    with tenant_context(kitchen):
+        first = place(kitchen, shop, external_ref="wamid.catalog-1")
+        again = place(kitchen, shop, lines=[RequestedLine(shop["curd"].pk, 3)],
+                      external_ref="wamid.catalog-1")
+        assert again.pk == first.pk
+        assert Order.objects.count() == 1
+
+
 # --- status flow ------------------------------------------------------------
 
 def test_status_moves_forward_and_records_who_did_it(kitchen, shop):

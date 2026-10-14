@@ -36,6 +36,7 @@ class OutboundMessage(TenantOwnedModel):
     provider_message_id = models.CharField(max_length=120, blank=True)
 
     attempts = models.PositiveSmallIntegerField(default=0)
+    claimed_at = models.DateTimeField(null=True, blank=True)
     last_error = models.TextField(blank=True)
     next_attempt_at = models.DateTimeField(default=timezone.now, db_index=True)
 

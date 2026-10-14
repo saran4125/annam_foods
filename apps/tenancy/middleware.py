@@ -25,7 +25,7 @@ class TenantMiddleware:
         token = None
         previous_timezone = timezone.get_current_timezone()
 
-        if host != platform_host:
+        if host != platform_host and request.path != "/healthz":
             domain = (
                 TenantDomain.objects.select_related("tenant", "tenant__config")
                 .filter(hostname=host)

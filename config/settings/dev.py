@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from .base import *  # noqa: F401,F403
 load_dotenv(BASE_DIR / ".env")
 HUEY["connection"]["url"] = os.environ.get("REDIS_URL", "redis://127.0.0.1:6389/0")
+PLATFORM_HOST = os.environ.get("PLATFORM_HOST", PLATFORM_HOST).strip().lower()
 
 DEBUG = os.environ.get("DEBUG", "1") == "1"
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-not-a-secret-change-in-production")

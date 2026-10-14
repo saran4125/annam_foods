@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -44,7 +45,11 @@ class Tenant(models.Model):
         return self.name
 
     def feature(self, key):
-        return self.config.feature(key)
+        config = self._state.fields_cache.get("config")
+        if config is not None and config.pk and TenantConfig.objects.filter(pk=config.pk).exists():
+            return config.feature(key)
+        config, _ = TenantConfig.objects.get_or_create(tenant=self)
+        return config.feature(key)
 
     @property
     def can_take_orders(self) -> bool:
@@ -114,6 +119,7 @@ class TenantConfig(models.Model):
     brand_name = models.CharField(max_length=120, blank=True)
     tagline = models.CharField(max_length=200, blank=True)
     theme = models.JSONField(default=dict, blank=True)  # colours, fonts, logo path
+    home_sections = models.JSONField(default=list, blank=True)
     support_phone = models.CharField(max_length=20, blank=True)
 
     # Operations
@@ -126,16 +132,11 @@ class TenantConfig(models.Model):
     kitchen_close = models.TimeField(null=True, blank=True)
 
     # Billing to the customer
-    invoice_prefix = models.CharField(max_length=12, default="INV")
-    invoice_next_no = models.PositiveIntegerField(default=1)
-    gstin = models.CharField(max_length=20, blank=True)
-    fssai_no = models.CharField(max_length=20, blank=True)
-
     features = models.JSONField(default=dict, blank=True)
 
     owner_phones = models.JSONField(default=list, blank=True)
     kitchen_closed_window = models.JSONField(default=dict, blank=True)
-    bot_idle_reset_hours = models.PositiveSmallIntegerField(default=24)
+    bot_idle_reset_hours = models.PositiveSmallIntegerField(default=12)
     preset_name = models.CharField(max_length=60, blank=True)
     preset_data = models.JSONField(default=dict, blank=True)
 
@@ -152,7 +153,10 @@ class TenantConfig(models.Model):
 
     def clean(self):
         super().clean()
-        validate_features(self.features)
+        try:
+            validate_features(self.features)
+        except ValidationError as exc:
+            raise ValidationError({"features": exc}) from exc
 
 
 class BillingProfile(models.Model):
@@ -166,15 +170,39 @@ class BillingProfile(models.Model):
     state_code = models.CharField(max_length=2, blank=True)
     gstin = models.CharField(max_length=15, blank=True)
     fssai_no = models.CharField(max_length=20, blank=True)
+    invoice_prefix = models.CharField(max_length=8, default="AF")
+    bill_timing = models.CharField(
+        max_length=16,
+        choices=[("on_payment", "On payment"), ("on_delivery", "On delivery")],
+        default="on_payment",
+    )
+    bill_request_promise_hours = models.PositiveSmallIntegerField(default=24)
+    bill_request_daily_limit = models.PositiveSmallIntegerField(default=5)
     gst_mode = models.CharField(max_length=20, choices=[("regular", "Regular"), ("composition", "Composition"), ("unregistered", "Unregistered")], default="unregistered")
-    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    sac = models.CharField(max_length=12, blank=True)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=5)
+    sac = models.CharField(max_length=12, default="996331")
     prices_include_tax = models.BooleanField(default=True)
-    number_format = models.CharField(max_length=60, default="{prefix}/{fy}/{number:04d}")
-    round_total = models.BooleanField(default=False)
-    delivery_fee_taxable = models.BooleanField(default=False)
+    number_format = models.CharField(max_length=60, default="{prefix}/{fy}/{seq:05d}")
+    round_total = models.BooleanField(default=True)
+    delivery_fee_taxable = models.BooleanField(default=True)
     footer = models.TextField(blank=True)
     layout = models.CharField(max_length=16, default="a4")
+
+    def clean(self):
+        super().clean()
+        if not self.bill_request_promise_hours:
+            raise ValidationError({"bill_request_promise_hours": "Must be at least one hour."})
+        try:
+            sample = self.number_format.format(prefix=self.invoice_prefix, fy="26-27", seq=99999)
+        except (KeyError, IndexError, ValueError) as exc:
+            raise ValidationError({"number_format": "Use {prefix}, {fy}, and {seq:05d} placeholders."}) from exc
+        allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/"
+        if len(sample) > 16 or not sample or any(c not in allowed for c in sample):
+            raise ValidationError({"number_format": "Invoice numbers must be at most 16 characters and use only letters, digits, hyphen, and slash."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 class TenantUserRole(models.TextChoices):

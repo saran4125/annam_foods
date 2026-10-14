@@ -13,3 +13,5 @@ template_pack: [order_confirmed, bill_ready]
 pages:
   - {slug: about, title: About us, body_md: 'Tell customers about your kitchen.'}
   - {slug: refund-policy, title: Refund policy, body_md: 'Add your reviewed refund policy here.'}
+  - {slug: delivery-cashback, title: Delivery cashback, body_md: 'Add delivery cashback details here.'}
+  - {slug: festival-offer, title: Festival offer, body_md: 'Add a festival offer here.'}

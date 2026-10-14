@@ -1,5 +1,6 @@
 """The complete, typed registry of tenant feature switches."""
 from dataclasses import dataclass
+from django.core.exceptions import ValidationError
 
 
 @dataclass(frozen=True)
@@ -30,10 +31,12 @@ FEATURES = {
 
 def validate_features(values: dict) -> dict:
     if not isinstance(values, dict):
-        raise ValueError("Features must be a mapping.")
+        raise ValidationError("Features must be a mapping.", code="invalid")
     unknown = set(values) - set(FEATURES)
     if unknown:
-        raise ValueError("Unknown feature flag: " + ", ".join(sorted(unknown)))
+        raise ValidationError(
+            "Unknown feature flag: " + ", ".join(sorted(unknown)), code="unknown"
+        )
     if any(type(value) is not bool for value in values.values()):
-        raise ValueError("Every feature value must be a boolean.")
+        raise ValidationError("Every feature value must be a boolean.", code="invalid")
     return values

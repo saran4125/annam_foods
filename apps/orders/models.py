@@ -65,6 +65,9 @@ class Customer(TenantOwnedModel):
     phone = models.CharField(max_length=20, db_index=True)
     name = models.CharField(max_length=120, blank=True)
     email = models.EmailField(blank=True)
+    gstin = models.CharField(max_length=15, blank=True)
+    business_name = models.CharField(max_length=200, blank=True)
+    billing_address = models.TextField(blank=True)
     source = models.CharField(max_length=20, choices=Channel.choices, default=Channel.WEB)
     first_seen = models.DateTimeField(default=timezone.now)
     last_seen = models.DateTimeField(default=timezone.now)
@@ -146,7 +149,12 @@ class Order(TenantOwnedModel):
     class Meta(TenantOwnedModel.Meta):
         ordering = ["-placed_at"]
         constraints = [
-            models.UniqueConstraint(fields=["tenant", "order_no"], name="uniq_tenant_order_no")
+            models.UniqueConstraint(fields=["tenant", "order_no"], name="uniq_tenant_order_no"),
+            models.UniqueConstraint(
+                fields=["tenant", "external_ref"],
+                condition=~models.Q(external_ref=""),
+                name="uniq_tenant_order_external_ref",
+            ),
         ]
         indexes = [
             models.Index(fields=["tenant", "delivery_date", "slot"], name="idx_order_service"),

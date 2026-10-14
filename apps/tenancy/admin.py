@@ -22,6 +22,7 @@ class TenantDomainInline(admin.TabularInline):
 class TenantConfigInline(admin.StackedInline):
     model = TenantConfig
     can_delete = False
+    extra = 0
 
 
 class BillingProfileInline(admin.StackedInline):

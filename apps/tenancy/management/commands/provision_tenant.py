@@ -12,7 +12,6 @@ from apps.tenancy.presets import apply_preset, preset_names
 from apps.tenancy.models import (
     Tenant,
     TenantConfig,
-    BillingProfile,
     TenantDomain,
     TenantStatus,
     TenantUser,
@@ -47,13 +46,11 @@ class Command(BaseCommand):
         TenantDomain.objects.create(
             tenant=tenant, hostname=opts["domain"], is_primary=True
         )
-        TenantConfig.objects.create(
-            tenant=tenant,
+        TenantConfig.objects.filter(tenant=tenant).update(
             brand_name=opts["name"],
             menu_mode=opts["menu_mode"],
             support_phone=opts["phone"],
         )
-        BillingProfile.objects.create(tenant=tenant, legal_name=opts["name"])
         if opts["preset"]:
             apply_preset(tenant, opts["preset"])
 
