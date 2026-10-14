@@ -137,19 +137,42 @@ def _safe_next(request, default):
 
 # -- auth --------------------------------------------------------------------
 
+class OwnerLoginForm(AuthenticationForm):
+    """Same checks as Django's, with a friendlier, less technical message."""
+
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        "invalid_login": "That username or password isn’t right. Check for typos and capital letters, then try again.",
+    }
+
+
+def _login_photos():
+    """A few distinct dish photos for the login page's side panel."""
+    photos, seen = [], set()
+    for item in MenuItem.objects.filter(active=True).exclude(image="").order_by("category__sort", "sort", "name"):
+        if item.category_id not in seen:  # one per shelf, so the three never look alike
+            seen.add(item.category_id)
+            photos.append(item)
+        if len(photos) >= 3:
+            break
+    return photos
+
+
 def login_view(request):
     if getattr(request, "tenant", None) is None:
         raise Http404
     if can_manage(request.user, request.tenant):
         return redirect("owner:dashboard")
-    form = AuthenticationForm(request, data=request.POST or None)
+    form = OwnerLoginForm(request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = form.get_user()
         if can_manage(user, request.tenant):
             login(request, user)
             return redirect(_safe_next(request, reverse("owner:dashboard")))
         form.add_error(None, "This account can’t manage this store.")
-    return render(request, "owner/login.html", {"form": form, "next": request.GET.get("next", "")})
+    return render(request, "owner/login.html", {
+        "form": form, "next": request.GET.get("next", request.POST.get("next", "")), "photos": _login_photos(),
+    })
 
 
 @require_POST

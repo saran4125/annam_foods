@@ -1,4 +1,4 @@
-{% load static %}<!doctype html>
+{% load static storefront_extras %}<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -8,29 +8,64 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{% static 'css/owner.css' %}">
+<link rel="stylesheet" href="{% static_v 'css/owner.css' %}">
 <style>:root{--brand:{{ tenant.config.theme.brand|default:"#FF8507" }}}</style>
 </head>
-<body class="o-login-body">
-<main class="o-login">
-  <div class="o-login-card">
-    {% if tenant.config.theme.logo_url %}<img class="o-login-logo" src="{{ tenant.config.theme.logo_url }}" alt="" width="120" height="78">{% endif %}
-    <h1>Store admin</h1>
-    <p>Log in to manage {{ tenant.config.brand_name|default:tenant.name }}’s dishes, orders and website.</p>
-    <form method="post" novalidate>
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next }}">
-      {% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
-      <label class="o-field"><span>Username</span>
-        <input class="o-input" type="text" name="username" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}">
-      </label>
-      <label class="o-field"><span>Password</span>
-        <input class="o-input" type="password" name="password" autocomplete="current-password" required>
-      </label>
-      <button class="o-btn o-btn-primary o-btn-block" type="submit">Log in</button>
-    </form>
-    <a class="o-back" href="/">← Back to the website</a>
-  </div>
+<body class="lg-body">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="lg-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="lg-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.2A9.6 9.6 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-3.2 3.8M6.5 7.6A16 16 0 0 0 2.5 12S6 18 12 18a9.4 9.4 0 0 0 4-.9M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="lg-dish" viewBox="0 0 24 24"><path d="M3 15h18M5 15a7 7 0 0 1 14 0M12 6v2M4 18h16"/></symbol>
+  <symbol id="lg-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="lg-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-5 4 4 2.5-2.5L20 18"/></symbol>
+  <symbol id="lg-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+</svg>
+
+<main class="lg">
+  <aside class="lg-brand" aria-hidden="false">
+    <div class="lg-brand-inner">
+      <p class="lg-eyebrow">{{ tenant.config.brand_name|default:tenant.name }} · Store admin</p>
+      <h1>Everything about your store, <em>in one place.</em></h1>
+      <ul class="lg-points">
+        <li><svg class="o-ic"><use href="#lg-dish"/></svg>Add dishes, change prices and photos</li>
+        <li><svg class="o-ic"><use href="#lg-bag"/></svg>See orders and move them along</li>
+        <li><svg class="o-ic"><use href="#lg-image"/></svg>Update offers, pages and your logo</li>
+      </ul>
+    </div>
+    {% if photos|length >= 3 %}
+    <div class="lg-arches" aria-hidden="true">
+      {% for p in photos %}<span class="lg-arch a{{ forloop.counter }}"><img src="{{ p.image.url }}" alt="" width="220" height="300"></span>{% endfor %}
+    </div>
+    {% endif %}
+  </aside>
+
+  <section class="lg-form-side">
+    <div class="lg-card">
+      {% if tenant.config.theme.logo_url %}<img class="lg-logo" src="{{ tenant.config.theme.logo_url }}" alt="{{ tenant.config.brand_name|default:tenant.name }}" width="120" height="78">{% endif %}
+      <h2>Welcome back</h2>
+      <p class="lg-sub">Log in to manage {{ tenant.config.brand_name|default:tenant.name }}.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% if form.non_field_errors %}<div class="lg-error" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+        <label class="lg-field"><span>Username</span>
+          <input class="lg-input" type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus value="{{ form.username.value|default:'' }}">
+        </label>
+        <label class="lg-field"><span>Password</span>
+          <span class="lg-pass">
+            <input class="lg-input" type="password" name="password" autocomplete="current-password" required data-password>
+            <button class="lg-eye" type="button" aria-label="Show password" aria-pressed="false" data-toggle-password hidden>
+              <svg class="o-ic lg-eye-on"><use href="#lg-eye"/></svg><svg class="o-ic lg-eye-off"><use href="#lg-eye-off"/></svg>
+            </button>
+          </span>
+        </label>
+        <button class="lg-submit" type="submit">Log in</button>
+      </form>
+      <p class="lg-secure"><svg class="o-ic"><use href="#lg-lock"/></svg>Only people added to this store can sign in.</p>
+      <a class="lg-back" href="/">← Back to the website</a>
+    </div>
+  </section>
 </main>
+<script src="{% static_v 'js/owner.js' %}" defer></script>
 </body>
 </html>

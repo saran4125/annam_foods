@@ -71,4 +71,17 @@
       requestAnimationFrame(tick);
     });
   }
+
+  /* Login: show / hide the password (button only appears when JavaScript runs) */
+  $$('[data-toggle-password]').forEach(btn => {
+    const input = btn.parentElement.querySelector('[data-password]');
+    btn.hidden = false;
+    btn.addEventListener('click', () => {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', String(show));
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      input.focus();
+    });
+  });
 })();
