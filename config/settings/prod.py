@@ -61,6 +61,10 @@ LOGGING = {
 }
 
 MEDIA_ROOT = os.environ.get("PUBLIC_MEDIA_ROOT", str(BASE_DIR / "media"))
+# Absolute on purpose: STORAGES below is built from this raw value (not from the
+# script-prefixed settings.MEDIA_URL), and a relative "media/" resolves against
+# the current page, so /menu/ would look for /menu/media/... and 404.
+MEDIA_URL = "/media/"
 PRIVATE_BILLS_ROOT = os.environ.get("PRIVATE_BILLS_ROOT", str(BASE_DIR / "private-bills"))
 STATIC_ROOT = os.environ.get("STATIC_ROOT", str(BASE_DIR / "staticfiles"))
 STORAGES = {
