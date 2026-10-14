@@ -1,0 +1,63 @@
+{% extends "owner/base.html" %}
+{% load storefront_extras %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}<h1>Good to see you</h1><p>{{ today|date:"l, j F" }}</p>{% endblock %}
+{% block actions %}<a class="o-btn o-btn-primary" href="{% url 'owner:new' 'dishes' %}"><svg class="o-ic"><use href="#o-plus"/></svg>Add a dish</a>{% endblock %}
+{% block content %}
+
+<section class="o-stats" data-stagger>
+  {% for s in stats %}
+  <a class="o-stat" href="{{ s.url }}">
+    <span class="o-stat-value" data-count="{{ s.value }}">{{ s.value }}</span>
+    <span class="o-stat-label">{{ s.label }}{% if s.of %} <small>of {{ s.of }}</small>{% endif %}</span>
+  </a>
+  {% endfor %}
+</section>
+
+{% if missing_photos %}
+<a class="o-callout" href="{% url 'owner:list' 'dishes' %}?status=1">
+  <svg class="o-ic"><use href="#o-image"/></svg>
+  <span><b>{{ missing_photos }} dish{{ missing_photos|pluralize:"es" }} on sale without a photo.</b> Dishes with photos sell better — add one in a minute.</span>
+</a>
+{% endif %}
+
+<div class="o-cols">
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Today’s menu</h2><a href="{% url 'owner:list' 'dishes' %}?type=scheduled">Edit dishes →</a></header>
+    {% for t in todays %}
+      <div class="o-menu-slot">
+        <h3>{{ t.slot.label }} <small>orders close {{ t.slot.order_cutoff|time:"g:i A" }}</small></h3>
+        {% if t.entries %}
+        <ul class="o-chips">
+          {% for e in t.entries %}<li><a href="{% url 'owner:edit' 'dishes' e.item.id %}">{{ e.item.name }} · ₹{{ e.price|money }}</a></li>{% endfor %}
+        </ul>
+        {% else %}<p class="o-muted">Nothing on today. <a href="{% url 'owner:list' 'dishes' %}?type=scheduled">Add dishes to this meal</a>.</p>{% endif %}
+      </div>
+    {% empty %}
+      <p class="o-muted">No meal times yet. <a href="{% url 'owner:new' 'meals' %}">Add breakfast, lunch or dinner</a>.</p>
+    {% endfor %}
+  </section>
+
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Latest orders</h2><a href="{% url 'owner:orders' %}">All orders →</a></header>
+    {% if recent %}
+    <ul class="o-rows">
+      {% for o in recent %}
+      <li><a href="{% url 'owner:order' o.pk %}">
+        <span><b>{{ o.order_no }}</b><small>{{ o.customer.name|default:o.customer.phone }} · {{ o.placed_at|date:"j M, g:i A" }}</small></span>
+        <span class="o-pill o-pill-{{ o.status }}">{{ o.get_status_display }}</span>
+        <span class="o-money">₹{{ o.total|money }}</span>
+      </a></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="o-muted">No orders yet. They’ll appear here as soon as customers check out.</p>{% endif %}
+  </section>
+</div>
+
+<section class="o-quick" data-stagger>
+  <a href="{% url 'owner:new' 'dishes' %}"><svg class="o-ic"><use href="#o-dish"/></svg><b>Add a dish</b><span>Name, price, photo, menu days</span></a>
+  <a href="{% url 'owner:new' 'banners' %}"><svg class="o-ic"><use href="#o-image"/></svg><b>New offer banner</b><span>Festival or weekly offers</span></a>
+  <a href="{% url 'owner:new' 'categories' %}"><svg class="o-ic"><use href="#o-grid"/></svg><b>New category</b><span>A new shelf in the shop</span></a>
+  <a href="{% url 'owner:settings' %}"><svg class="o-ic"><use href="#o-cog"/></svg><b>Store settings</b><span>Logo, colours, hero text</span></a>
+</section>
+{% endblock %}

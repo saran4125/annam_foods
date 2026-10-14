@@ -1,0 +1,76 @@
+{% extends "owner/base.html" %}
+{% load storefront_extras %}
+{% block title %}{{ res.title }}{% endblock %}
+{% block heading %}<h1>{{ res.title }}</h1><p>{{ total }} {% if total == 1 %}{{ res.singular }}{% else %}{{ res.plural }}{% endif %}</p>{% endblock %}
+{% block actions %}<a class="o-btn o-btn-primary" href="{% url 'owner:new' res.key %}"><svg class="o-ic"><use href="#o-plus"/></svg>Add {{ res.singular }}</a>{% endblock %}
+{% block content %}
+
+{% if res.search or filters %}
+<form class="o-tools" method="get">
+  {% if res.search %}
+  <label class="o-search">
+    <svg class="o-ic" aria-hidden="true"><use href="#o-search"/></svg>
+    <input type="search" name="q" value="{{ query }}" placeholder="Search {{ res.title|lower }}…" aria-label="Search">
+  </label>
+  {% endif %}
+  {% for f in filters %}
+  <label class="o-filter"><span class="o-sr">{{ f.label }}</span>
+    <select class="o-input" name="{{ f.param }}" data-autosubmit>
+      <option value="">All {{ f.label|lower }}</option>
+      {% for v, l in f.options %}<option value="{{ v }}"{% if f.value == v|stringformat:"s" %} selected{% endif %}>{{ l }}</option>{% endfor %}
+    </select>
+  </label>
+  {% endfor %}
+  <noscript><button class="o-btn" type="submit">Apply</button></noscript>
+</form>
+{% endif %}
+
+{% if rows %}
+<div class="o-table-wrap" data-reveal>
+<table class="o-table">
+  <thead><tr>{% for h in headers %}<th scope="col">{{ h }}</th>{% endfor %}<th scope="col"><span class="o-sr">Actions</span></th></tr></thead>
+  <tbody data-stagger>
+  {% for row in rows %}
+    {% url 'owner:edit' res.key row.obj.pk as edit_url %}
+    <tr>
+      {% for c in row.cells %}
+      <td class="o-cell-{{ c.kind }}">
+        {% if c.kind == "image" or c.kind == "image-wide" %}
+          <a class="o-thumb{% if c.kind == 'image-wide' %} o-thumb-wide{% endif %}" href="{{ edit_url }}" tabindex="-1" aria-hidden="true">{% if c.value %}<img src="{{ c.value.url }}" alt="" loading="lazy">{% else %}<svg class="o-ic"><use href="#o-image"/></svg>{% endif %}</a>
+        {% elif c.kind == "title" %}<a class="o-row-title" href="{{ edit_url }}">{{ c.value }}</a>
+        {% elif c.kind == "money" %}₹{{ c.value|money }}
+        {% elif c.kind == "time" %}{{ c.value|time:"g:i A" }}
+        {% elif c.kind == "bool" %}{% if c.value %}Yes{% else %}<span class="o-muted">No</span>{% endif %}
+        {% elif c.kind == "toggle" %}
+          <form method="post" action="{% url 'owner:toggle' res.key row.obj.pk %}">{% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="o-switch{% if c.value %} is-on{% endif %}" type="submit" role="switch" aria-checked="{% if c.value %}true{% else %}false{% endif %}" aria-label="Toggle {{ row.obj }}"><i></i></button>
+          </form>
+        {% else %}{{ c.value|default:"—" }}{% endif %}
+      </td>
+      {% endfor %}
+      <td class="o-cell-actions">
+        <a class="o-icon-btn" href="{{ edit_url }}" aria-label="Edit {{ row.obj }}"><svg class="o-ic"><use href="#o-edit"/></svg></a>
+        <a class="o-icon-btn o-danger" href="{% url 'owner:delete' res.key row.obj.pk %}" aria-label="Delete {{ row.obj }}"><svg class="o-ic"><use href="#o-trash"/></svg></a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if page.has_other_pages %}
+<nav class="o-pager" aria-label="Pages">
+  {% if page.has_previous %}<a class="o-btn" href="?{{ querystring }}&page={{ page.previous_page_number }}">← Previous</a>{% endif %}
+  <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a class="o-btn" href="?{{ querystring }}&page={{ page.next_page_number }}">Next →</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<div class="o-empty" data-reveal>
+  <svg class="o-ic"><use href="#o-search"/></svg>
+  <p>{% if query %}Nothing matches “{{ query }}”.{% else %}No {{ res.title|lower }} yet.{% endif %}</p>
+  <a class="o-btn o-btn-primary" href="{% url 'owner:new' res.key %}">Add {{ res.singular }}</a>
+</div>
+{% endif %}
+{% endblock %}

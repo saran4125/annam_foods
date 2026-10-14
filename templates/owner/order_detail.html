@@ -1,0 +1,40 @@
+{% extends "owner/base.html" %}
+{% load storefront_extras %}
+{% block title %}{{ order.order_no }}{% endblock %}
+{% block heading %}<a class="o-crumb" href="{% url 'owner:orders' %}">← Orders</a><h1>{{ order.order_no }}</h1><p>Placed {{ order.placed_at|date:"j M Y, g:i A" }} · {{ order.get_channel_display }}</p>{% endblock %}
+{% block content %}
+<div class="o-cols">
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Items</h2><span class="o-pill o-pill-{{ order.status }}">{{ order.get_status_display }}</span></header>
+    <ul class="o-rows o-rows-static">
+      {% for line in order.items %}
+      <li><span><b>{{ line.name }}</b><small>₹{{ line.unit_price|money }} × {{ line.quantity }}</small></span><span class="o-money">₹{{ line.line_total|money }}</span></li>
+      {% endfor %}
+      <li><span>Subtotal</span><span class="o-money">₹{{ order.subtotal|money }}</span></li>
+      <li><span>Delivery</span><span class="o-money">₹{{ order.delivery_fee|money }}</span></li>
+      <li class="o-total"><span>Total</span><span class="o-money">₹{{ order.total|money }}</span></li>
+    </ul>
+  </section>
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Customer &amp; delivery</h2></header>
+    <p><b>{{ order.customer.name|default:"Customer" }}</b><br><a href="tel:{{ order.customer.phone }}">{{ order.customer.phone }}</a></p>
+    <p class="o-muted">{% for k, v in order.address.items %}{% if v %}{{ v }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</p>
+    <p>{% if order.slot %}{{ order.slot.label }} on {{ order.delivery_date|date:"l, j M" }}{% else %}Shop order (shipped){% endif %} · {{ order.get_payment_mode_display }} · {{ order.get_payment_status_display }}</p>
+    {% if next_steps %}
+    <form method="post" class="o-status-form">{% csrf_token %}
+      <p class="o-muted">Move this order to:</p>
+      <div class="o-btn-row">
+        {% for value, label in next_steps %}<button class="o-btn o-btn-primary" name="to" value="{{ value }}">{{ label }}</button>{% endfor %}
+        <button class="o-btn o-danger-btn" name="to" value="cancelled">Cancel order</button>
+      </div>
+      <input class="o-input" type="text" name="note" maxlength="200" placeholder="Note (optional, e.g. reason for cancelling)">
+    </form>
+    {% endif %}
+    {% if events %}
+    <ol class="o-timeline">
+      {% for e in events %}<li><b>{{ e.to_status|title }}</b> <small>{{ e.at|date:"j M, g:i A" }} · {{ e.actor }}</small>{% if e.note %}<p>{{ e.note }}</p>{% endif %}</li>{% endfor %}
+    </ol>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

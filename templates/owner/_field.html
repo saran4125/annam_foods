@@ -1,0 +1,6 @@
+<label class="o-field{% if wide %} o-field-wide{% endif %}{% if f.errors %} has-error{% endif %}">
+  <span>{{ f.label }}{% if f.field.required %} <i class="o-req" aria-hidden="true">*</i>{% endif %}</span>
+  {{ f }}
+  {% if f.help_text %}<small>{{ f.help_text }}</small>{% endif %}
+  {% for e in f.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
+</label>

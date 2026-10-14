@@ -1,0 +1,50 @@
+{% extends "owner/base.html" %}
+{% block title %}{% if obj %}Edit {{ obj }}{% else %}Add {{ res.singular }}{% endif %}{% endblock %}
+{% block heading %}<a class="o-crumb" href="{% url 'owner:list' res.key %}">← {{ res.title }}</a><h1>{% if obj %}{{ obj }}{% else %}New {{ res.singular }}{% endif %}</h1>{% endblock %}
+{% block actions %}{% if obj %}<a class="o-btn o-danger-btn" href="{% url 'owner:delete' res.key obj.pk %}"><svg class="o-ic"><use href="#o-trash"/></svg>Delete</a>{% endif %}{% endblock %}
+{% block content %}
+<form class="o-form o-card" method="post" enctype="multipart/form-data" novalidate data-reveal>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  <div class="o-grid-form">
+  {% for field in form %}
+    {% if field.field.widget.input_type == "checkbox" %}
+      <label class="o-check{% if field.errors %} has-error{% endif %}">
+        {{ field }}<span class="o-switch-ui" aria-hidden="true"><i></i></span>
+        <span><b>{{ field.label }}</b>{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}</span>
+      </label>
+    {% elif field.field.widget.input_type == "file" %}
+      <div class="o-field o-field-wide{% if field.errors %} has-error{% endif %}">
+        <span>{{ field.label }}</span>
+        <label class="o-drop" data-drop>
+          <img class="o-drop-preview" data-preview alt="" {% if field.value and field.value.url %}src="{{ field.value.url }}"{% else %}hidden{% endif %}>
+          <span class="o-drop-hint"><svg class="o-ic"><use href="#o-upload"/></svg><b>Drop a photo here</b> or click to choose<small>{{ field.help_text|default:"JPG or PNG, up to 5 MB" }}</small></span>
+          <input type="file" name="{{ field.html_name }}" accept="image/*" id="{{ field.id_for_label }}">
+        </label>
+        {% if field.value and field.value.url %}<label class="o-inline-check"><input type="checkbox" name="{{ field.html_name }}-clear"> Remove current photo</label>{% endif %}
+        {% for e in field.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
+      </div>
+    {% elif field.name == "weekdays" or field.name == "slot_keys" %}
+      <fieldset class="o-field o-field-wide{% if field.errors %} has-error{% endif %}">
+        <legend>{{ field.label }}</legend>
+        <div class="o-daypicker">{% for cb in field %}<label>{{ cb.tag }}<span>{{ cb.choice_label }}</span></label>{% endfor %}</div>
+        {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+        {% for e in field.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
+      </fieldset>
+    {% else %}
+      <label class="o-field{% if field.field.widget.input_type == None or field.name == 'description' or field.name == 'body_md' %} o-field-wide{% endif %}{% if field.errors %} has-error{% endif %}">
+        <span>{{ field.label }}{% if field.field.required %} <i class="o-req" aria-hidden="true">*</i>{% endif %}</span>
+        {{ field }}
+        {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+        {% for e in field.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
+      </label>
+    {% endif %}
+  {% endfor %}
+  </div>
+  <div class="o-form-bar">
+    <a class="o-btn" href="{% url 'owner:list' res.key %}">Cancel</a>
+    {% if not obj %}<button class="o-btn" type="submit" name="save_add">Save and add another</button>{% endif %}
+    <button class="o-btn o-btn-primary" type="submit">Save {{ res.singular }}</button>
+  </div>
+</form>
+{% endblock %}

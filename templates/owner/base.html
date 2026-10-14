@@ -1,0 +1,79 @@
+{% load static storefront_extras %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>{% block title %}Dashboard{% endblock %} · {{ tenant.config.brand_name|default:tenant.name }} admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{% static_v 'css/owner.css' %}">
+<style>:root{--brand:{{ tenant.config.theme.brand|default:"#FF8507" }};{% if tenant.config.theme.header_bg %}--side-bg:{{ tenant.config.theme.header_bg }};{% endif %}}</style>
+</head>
+<body class="o-body">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="o-home" viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5V20h-5v-5h-6v5H4z"/></symbol>
+  <symbol id="o-dish" viewBox="0 0 24 24"><path d="M3 15h18M5 15a7 7 0 0 1 14 0M12 6v2M4 18h16"/></symbol>
+  <symbol id="o-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="o-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="o-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-5 4 4 2.5-2.5L20 18"/></symbol>
+  <symbol id="o-page" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M10 12h5M10 15.5h5"/></symbol>
+  <symbol id="o-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.3"/></symbol>
+  <symbol id="o-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="o-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></symbol>
+  <symbol id="o-out" viewBox="0 0 24 24"><path d="M14 5h5v14h-5M10 8l-4 4 4 4M6 12h10"/></symbol>
+  <symbol id="o-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="o-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="o-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="o-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
+  <symbol id="o-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/></symbol>
+  <symbol id="o-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="o-upload" viewBox="0 0 24 24"><path d="M12 16V5M7.5 9.5 12 5l4.5 4.5M5 19h14"/></symbol>
+</svg>
+
+<a class="o-skip" href="#o-main">Skip to content</a>
+{% url 'owner:dashboard' as dash_url %}
+<aside class="o-side" id="o-side" data-side>
+  <a class="o-brand" href="{{ dash_url }}">
+    {% if tenant.config.theme.logo_url %}<img src="{{ tenant.config.theme.logo_url }}" alt="" width="44" height="30">{% endif %}
+    <span>{{ tenant.config.brand_name|default:tenant.name }}<small>Store admin</small></span>
+  </a>
+  <nav class="o-nav" aria-label="Admin">
+    <a href="{{ dash_url }}" class="{% if request.path == dash_url %}on{% endif %}"><svg class="o-ic"><use href="#o-home"/></svg>Dashboard</a>
+    <a href="{% url 'owner:orders' %}" class="{% if '/manage/orders' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>Orders</a>
+    <p class="o-nav-label">Menu &amp; shop</p>
+    <a href="{% url 'owner:list' 'dishes' %}" class="{% if '/manage/dishes' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-dish"/></svg>Dishes &amp; products</a>
+    <a href="{% url 'owner:list' 'categories' %}" class="{% if '/manage/categories' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-grid"/></svg>Categories</a>
+    <a href="{% url 'owner:list' 'meals' %}" class="{% if '/manage/meals' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-clock"/></svg>Meal times</a>
+    <p class="o-nav-label">Website</p>
+    <a href="{% url 'owner:list' 'banners' %}" class="{% if '/manage/banners' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-image"/></svg>Offer banners</a>
+    <a href="{% url 'owner:list' 'pages' %}" class="{% if '/manage/pages' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-page"/></svg>Pages</a>
+    <a href="{% url 'owner:list' 'zones' %}" class="{% if '/manage/zones' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-pin"/></svg>Delivery areas</a>
+    <a href="{% url 'owner:settings' %}" class="{% if '/manage/settings' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-cog"/></svg>Store settings</a>
+  </nav>
+  <div class="o-side-foot">
+    <a class="o-ghost" href="/" target="_blank" rel="noopener"><svg class="o-ic"><use href="#o-eye"/></svg>View website</a>
+    <form method="post" action="{% url 'owner:logout' %}">{% csrf_token %}
+      <button class="o-ghost" type="submit"><svg class="o-ic"><use href="#o-out"/></svg>Log out <small>{{ request.user.get_username }}</small></button>
+    </form>
+  </div>
+</aside>
+<div class="o-scrim" data-scrim hidden></div>
+
+<div class="o-shell">
+  <header class="o-top">
+    <button class="o-burger" type="button" aria-label="Open menu" aria-controls="o-side" aria-expanded="false" data-burger><svg class="o-ic"><use href="#o-menu"/></svg></button>
+    <div class="o-top-title">{% block heading %}{% endblock %}</div>
+    <div class="o-top-actions">{% block actions %}{% endblock %}</div>
+  </header>
+  {% if messages %}
+  <div class="o-flashes" data-flashes>
+    {% for m in messages %}<div class="o-flash o-flash-{{ m.tags }}" role="status">{{ m }}</div>{% endfor %}
+  </div>
+  {% endif %}
+  <main class="o-main" id="o-main">{% block content %}{% endblock %}</main>
+</div>
+<script src="{% static_v 'js/owner.js' %}" defer></script>
+</body>
+</html>

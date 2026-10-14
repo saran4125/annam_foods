@@ -1,0 +1,59 @@
+{% extends "owner/base.html" %}
+{% block title %}Store settings{% endblock %}
+{% block heading %}<h1>Store settings</h1><p>Your name, logo, colours and the words on your home page.</p>{% endblock %}
+{% block content %}
+<form class="o-form" method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="o-flash o-flash-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Your store</h2></header>
+    <div class="o-grid-form">
+      {% with f=form.brand_name %}{% include "owner/_field.html" %}{% endwith %}
+      {% with f=form.tagline %}{% include "owner/_field.html" %}{% endwith %}
+      {% with f=form.support_phone %}{% include "owner/_field.html" %}{% endwith %}
+      {% with f=form.contact_email %}{% include "owner/_field.html" %}{% endwith %}
+    </div>
+  </section>
+
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Look</h2></header>
+    <div class="o-grid-form">
+      <label class="o-field"><span>{{ form.brand_color.label }}</span>
+        <span class="o-color">{{ form.brand_color }}<code data-color-value>{{ form.brand_color.value }}</code></span>
+        <small>Buttons, highlights and the top strip use this colour.</small>
+        {% for e in form.brand_color.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
+      </label>
+      <div class="o-field">
+        <span>Logo</span>
+        <label class="o-drop o-drop-sm" data-drop>
+          <img class="o-drop-preview" data-preview alt="" {% if logo %}src="{{ logo }}"{% else %}hidden{% endif %}>
+          <span class="o-drop-hint"><svg class="o-ic"><use href="#o-upload"/></svg><b>Drop your logo</b> or click<small>{{ form.logo.help_text }}</small></span>
+          <input type="file" name="logo" accept="image/*">
+        </label>
+        {% for e in form.logo.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
+      </div>
+      {% with f=form.announcements %}{% include "owner/_field.html" with wide=1 %}{% endwith %}
+    </div>
+  </section>
+
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Home page hero</h2><a href="/" target="_blank" rel="noopener">Preview →</a></header>
+    <div class="o-grid-form">
+      {% with f=form.hero_kicker %}{% include "owner/_field.html" %}{% endwith %}
+      {% with f=form.hero_title %}{% include "owner/_field.html" %}{% endwith %}
+      {% with f=form.hero_body %}{% include "owner/_field.html" with wide=1 %}{% endwith %}
+    </div>
+    <p class="o-muted">The hero photos are your popular dishes — mark dishes as “Featured” to choose them.</p>
+  </section>
+
+  <section class="o-card" data-reveal>
+    <header class="o-card-head"><h2>Selling</h2></header>
+    {% for f in form %}{% if f.name == "website_ordering" or f.name == "snacks_courier" %}
+    <label class="o-check">{{ f }}<span class="o-switch-ui" aria-hidden="true"><i></i></span><span><b>{{ f.label }}</b></span></label>
+    {% endif %}{% endfor %}
+  </section>
+
+  <div class="o-form-bar o-form-bar-sticky"><button class="o-btn o-btn-primary" type="submit">Save settings</button></div>
+</form>
+{% endblock %}

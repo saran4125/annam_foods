@@ -1,0 +1,15 @@
+{% extends "owner/base.html" %}
+{% block title %}Delete {{ obj }}{% endblock %}
+{% block heading %}<a class="o-crumb" href="{% url 'owner:list' res.key %}">← {{ res.title }}</a><h1>Delete {{ res.singular }}?</h1>{% endblock %}
+{% block content %}
+<div class="o-card o-confirm" data-reveal>
+  <p>You’re about to permanently delete <b>“{{ obj }}”</b>. This can’t be undone.</p>
+  {% if res.key == "dishes" or res.key == "categories" or res.key == "banners" %}
+  <p class="o-muted">Just want it off the website for now? Switch it off in the list instead — you can bring it back any time.</p>
+  {% endif %}
+  <form method="post">{% csrf_token %}
+    <a class="o-btn" href="{% url 'owner:edit' res.key obj.pk %}">Keep it</a>
+    <button class="o-btn o-danger-btn" type="submit"><svg class="o-ic"><use href="#o-trash"/></svg>Yes, delete</button>
+  </form>
+</div>
+{% endblock %}

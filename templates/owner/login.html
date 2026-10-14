@@ -1,0 +1,36 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Log in · {{ tenant.config.brand_name|default:tenant.name }} admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{% static 'css/owner.css' %}">
+<style>:root{--brand:{{ tenant.config.theme.brand|default:"#FF8507" }}}</style>
+</head>
+<body class="o-login-body">
+<main class="o-login">
+  <div class="o-login-card">
+    {% if tenant.config.theme.logo_url %}<img class="o-login-logo" src="{{ tenant.config.theme.logo_url }}" alt="" width="120" height="78">{% endif %}
+    <h1>Store admin</h1>
+    <p>Log in to manage {{ tenant.config.brand_name|default:tenant.name }}’s dishes, orders and website.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+      <label class="o-field"><span>Username</span>
+        <input class="o-input" type="text" name="username" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}">
+      </label>
+      <label class="o-field"><span>Password</span>
+        <input class="o-input" type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="o-btn o-btn-primary o-btn-block" type="submit">Log in</button>
+    </form>
+    <a class="o-back" href="/">← Back to the website</a>
+  </div>
+</main>
+</body>
+</html>
