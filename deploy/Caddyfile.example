@@ -1,0 +1,17 @@
+# Set SITE_HOSTS to a comma-separated list of the platform and tenant domains.
+# Mount collectstatic output at /srv/seerkitchen/staticfiles and public media at
+# /srv/seerkitchen/media. Do not mount PRIVATE_BILLS_ROOT into this container.
+{$SITE_HOSTS} {
+	encode zstd gzip
+	handle_path /static/* {
+		root * /srv/seerkitchen/staticfiles
+		file_server
+	}
+	handle_path /media/* {
+		root * /srv/seerkitchen/media
+		file_server
+	}
+	handle {
+		reverse_proxy web:8000
+	}
+}

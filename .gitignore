@@ -10,3 +10,14 @@ staticfiles/
 db.sqlite3-journal
 *.sqlite3*
 storefront-preview.html
+
+.venv-win/
+
+# local-only
+static/images/
+staticfiles/
+private-bills/
+.tmp-*/
+.claude/
+*.sqlite3
+annam-preview-desktop.jpg
