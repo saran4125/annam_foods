@@ -1,0 +1,42 @@
+{% load storefront_extras %}{# One shop product. Needs: p, ordering_enabled; optional cart_quantities #}
+{% url 'storefront:item' p.id as item_url %}
+<li class="dish product" data-item="{{ p.id }}">
+  <a class="dish-media" href="{{ item_url }}" tabindex="-1" aria-hidden="true">
+    {% if p.image %}
+      <img src="{{ p.image.url }}" alt="" width="600" height="600" loading="lazy">
+    {% else %}
+      <span class="dish-tile tile-{{ p.name|tile_tint }}">{{ p.name|slice:":1"|upper }}</span>
+    {% endif %}
+  </a>
+  <span class="dish-veg">
+    <span class="veg{% if not p.is_veg %} veg-no{% endif %}"
+          aria-label="{% if p.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
+  </span>
+  <div class="dish-body">
+    {% if p.category %}<span class="product-shelf">{{ p.category.name }}</span>{% endif %}
+    <h3><a class="product-link" href="{{ item_url }}">{{ p.name }}</a></h3>
+    {% if p.description %}<p>{{ p.description }}</p>{% endif %}
+    <div class="dish-buy" data-buy>
+      <span class="price">₹{{ p.price|money }}</span>
+      {% if ordering_enabled and tenant.can_take_orders %}
+        {% with qty=cart_quantities|dictkey:p.id %}
+        <form method="post" action="{% url 'storefront:cart_add' %}" data-cart-form data-name="{{ p.name }}">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="shop">
+          <input type="hidden" name="item_id" value="{{ p.id }}">
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          {% if qty %}
+          <div class="stepper" role="group" aria-label="{{ p.name }} quantity">
+            <button name="delta" value="-1" aria-label="One fewer {{ p.name }}"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg></button>
+            <span data-qty>{{ qty }}</span>
+            <button name="delta" value="1" aria-label="One more {{ p.name }}"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+          </div>
+          {% else %}
+          <button class="btn btn-add" name="delta" value="1">Add</button>
+          {% endif %}
+        </form>
+        {% endwith %}
+      {% endif %}
+    </div>
+  </div>
+</li>

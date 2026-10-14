@@ -14,8 +14,9 @@ class SlotAdmin(UnscopedAdmin):
 
 @admin.register(MenuCategory)
 class MenuCategoryAdmin(UnscopedAdmin):
-    list_display = ("name", "tenant", "sort", "active")
+    list_display = ("name", "slug", "tenant", "parent", "sort", "active")
     list_filter = ("tenant", "active")
+    search_fields = ("name", "slug")
 
 
 @admin.register(MenuItem)

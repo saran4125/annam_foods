@@ -1,0 +1,25 @@
+{% load storefront_extras %}{% comment %}Premium closing section. Needs: hero_picks (optional photos), shop_enabled, whatsapp_link.{% endcomment %}
+<section class="closing" aria-labelledby="closing-title" data-reveal>
+  <div class="closing-main">
+    <div class="closing-copy">
+      <p class="section-kicker">Ready when you are</p>
+      <h2 id="closing-title">Good food is <em>one tap</em> away.</h2>
+      <p>Choose today’s meal or fill a pantry box. We confirm your area, cook it fresh, and bring it to your door.</p>
+      <div class="closing-actions">
+        <a class="btn btn-primary btn-lg" href="{% url 'storefront:menu' %}">Order today’s meals <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        {% if shop_enabled %}<a class="btn btn-lg" href="{% url 'storefront:shop' %}">Shop the pantry</a>{% endif %}
+      </div>
+    </div>
+    {% if hero_picks|length >= 3 %}
+    <div class="arches" aria-hidden="true">
+      {% for p in hero_picks|slice:":3" %}<span class="arch a{{ forloop.counter }}"><img src="{{ p.image.url }}" alt="" width="260" height="340" loading="lazy"></span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <ul class="closing-strip">
+    {% if whatsapp_link %}<li><a href="{{ whatsapp_link }}" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span><small>WhatsApp</small><b>Chat with the kitchen</b></span></a></li>{% endif %}
+    {% if tenant.config.support_phone %}<li><a href="tel:{{ tenant.config.support_phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span><small>Call</small><b>{{ tenant.config.support_phone }}</b></span></a></li>{% endif %}
+    {% if tenant.billing_profile.address %}<li><span class="strip-static"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span><small>Kitchen</small><b>{{ tenant.billing_profile.address }}</b></span></span></li>{% endif %}
+    {% if tenant.billing_profile.fssai_no %}<li><span class="strip-static"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span><small>FSSAI licensed</small><b>{{ tenant.billing_profile.fssai_no }}</b></span></span></li>{% endif %}
+  </ul>
+</section>

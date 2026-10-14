@@ -4,12 +4,19 @@ import io
 
 import pytest
 from django.core.management import call_command
+from django.test import override_settings
 from PIL import Image
 
 from apps.catalog.management.commands.import_menu_images import keys_for, normalise
 from apps.catalog.models import MenuItem
 from apps.tenancy.context import tenant_context
 from apps.tenancy.models import Tenant
+
+
+@pytest.fixture(autouse=True)
+def isolate_media_root(tmp_path):
+    with override_settings(MEDIA_ROOT=tmp_path):
+        yield
 
 
 def make_image(path):

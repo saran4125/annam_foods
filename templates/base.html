@@ -1,30 +1,60 @@
-{% load static %}<!doctype html>
+{% load static storefront_extras %}<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% block title %}{{ tenant.config.brand_name|default:tenant.name }}{% endblock %}</title>
 <meta name="description" content="{% block description %}{{ tenant.config.tagline }}{% endblock %}">
 <meta name="theme-color" content="{{ tenant.config.theme.brand|default:'#FF8507' }}">
+<script>document.documentElement.classList.add('js')</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{% static 'css/storefront.css' %}">
+{% if tenant.config.theme.google_fonts %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ tenant.config.theme.google_fonts }}&display=swap">
+{% else %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">{% endif %}
+<link rel="stylesheet" href="{% static_v 'css/storefront.css' %}">
 <style>
   /* Every one of these is overridable per kitchen from TenantConfig.theme.
-     A new client is a row change, never a stylesheet fork. */
+     A new client is a row change, never a stylesheet fork. Tints and the
+     readable-on-white brand shade are derived in storefront.css. */
   :root{
     --brand:{{ tenant.config.theme.brand|default:"#FF8507" }};
     --brand-dark:{{ tenant.config.theme.brand_dark|default:"#1C1C1C" }};
+    {% if tenant.config.theme.on_brand %}--on-brand:{{ tenant.config.theme.on_brand }};{% endif %}
     {% if tenant.config.theme.paper %}--paper:{{ tenant.config.theme.paper }};{% endif %}
     {% if tenant.config.theme.ink %}--ink:{{ tenant.config.theme.ink }};{% endif %}
     {% if tenant.config.theme.font_display %}--font-display:{{ tenant.config.theme.font_display }};{% endif %}
+    {% if tenant.config.theme.display_weight %}--display-weight:{{ tenant.config.theme.display_weight }};{% endif %}
+    {% if tenant.config.theme.header_bg %}--header-bg:{{ tenant.config.theme.header_bg }};--header-ink:{{ tenant.config.theme.header_ink|default:"#fff" }};--header-muted:{{ tenant.config.theme.header_muted|default:"rgba(255,255,255,.78)" }};{% endif %}
+    {% if tenant.config.theme.footer_bg %}--footer-bg:{{ tenant.config.theme.footer_bg }};--footer-ink:{{ tenant.config.theme.footer_ink|default:"#1A1410" }};--footer-muted:{{ tenant.config.theme.footer_muted|default:"#4A423B" }};{% endif %}
+    {% if tenant.config.theme.ticker_bg %}--ticker-bg:{{ tenant.config.theme.ticker_bg }};--ticker-ink:{{ tenant.config.theme.ticker_ink|default:"#1A1410" }};{% endif %}
+    {% if tenant.config.theme.band_bg %}--band-bg:{{ tenant.config.theme.band_bg }};--band-accent:{{ tenant.config.theme.band_accent|default:"#fff" }};{% endif %}
     {% if tenant.config.theme.font_body %}--font-body:{{ tenant.config.theme.font_body }};{% endif %}
   }
 </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m14.5 5-7 7 7 7"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9.5 5 7 7-7 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.3"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c3-5 6-8 10-10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6.5h10.5v9H3zM13.5 9.5h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 5 6v5.5c0 4.4 3 7.9 7 9 4-1.1 7-4.6 7-9V6l-7-2.5Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M4.5 19.5 5.6 16A8 8 0 1 1 8.4 18.6Z"/><path d="M9.2 8.6c.3-.6.6-.6.9-.6h.6c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .5-.1.6l-.5.6c-.1.2-.1.4 0 .5a6 6 0 0 0 2.6 2.4c.2.1.4.1.5-.1l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.2.1.4.3.3.5 0 .9-.6 1.8-1.6 1.9-1 .1-3.1-.3-5-2.2-1.9-1.9-2.3-3.7-2.2-4.6.1-.4.3-.7.5-.9Z"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 4h3l1.2 4.2-2 1.3a11 11 0 0 0 5.7 5.7l1.3-2L20 14.4v3a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.6 6.2 2 2 0 0 1 6.6 4Z"/></symbol>
+</svg>
 
 <a class="skip" href="#main">Skip to content</a>
 
@@ -36,32 +66,80 @@
 {% endif %}
 
 {% if tenant.can_take_orders %}
-<div class="ticker">Freshly prepared for each meal slot · Order before the cutoff</div>
+<div class="ticker" role="note">
+  <div class="ticker-track">
+    {% if tenant.config.theme.announcements %}
+      {% for a in tenant.config.theme.announcements %}<span>{{ a }}</span><i aria-hidden="true"></i>{% endfor %}
+      {% for a in tenant.config.theme.announcements %}<span class="ticker-dup" aria-hidden="true">{{ a }}</span><i aria-hidden="true" class="ticker-dup"></i>{% endfor %}
+    {% else %}
+    <span>Freshly prepared for each meal slot</span><i aria-hidden="true"></i>
+    <span>Order before the cutoff</span><i aria-hidden="true"></i>
+    <span>Check delivery with your pincode</span><i aria-hidden="true"></i>
+    <span class="ticker-dup" aria-hidden="true">Freshly prepared for each meal slot</span><i aria-hidden="true" class="ticker-dup"></i>
+    <span class="ticker-dup" aria-hidden="true">Order before the cutoff</span><i aria-hidden="true" class="ticker-dup"></i>
+    <span class="ticker-dup" aria-hidden="true">Check delivery with your pincode</span><i aria-hidden="true" class="ticker-dup"></i>
+    {% endif %}
+  </div>
+</div>
 {% endif %}
 
-<header class="site-head">
+{% url 'storefront:home' as home_url %}{% url 'storefront:menu' as menu_url %}{% url 'storefront:cart' as cart_url %}{% url 'storefront:shop' as shop_url %}
+<header class="site-head" data-header>
   <div class="wrap head-inner">
-    <a class="brand" href="{% url 'storefront:home' %}">
+    <a class="brand" href="{{ home_url }}" aria-label="{{ tenant.config.brand_name|default:tenant.name }} — home">
       {% if tenant.config.theme.logo_url %}
         <img class="brand-logo" src="{{ tenant.config.theme.logo_url }}" alt="" width="160" height="72">
       {% else %}
         <span class="brand-mark" aria-hidden="true">SK</span>
       {% endif %}
-      <span class="brand-copy">{{ tenant.config.brand_name|default:tenant.name }}
-        {% if tenant.config.tagline %}<small>{{ tenant.config.tagline }}</small>{% endif %}
-      </span>
+      <span class="brand-name">{{ tenant.config.brand_name|default:tenant.name }}</span>
     </a>
-    <nav class="site-nav" aria-label="Main">
-      <a class="nav-home" href="{% url 'storefront:home' %}">Home</a>
-      <a href="{% url 'storefront:menu' %}">Menu</a>
-      <span class="nav-pages">
-        {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
-      </span>
-      <a class="cart-link" href="{% url 'storefront:cart' %}"
-         aria-label="Cart{% if cart.count %}, {{ cart.count }} item{{ cart.count|pluralize }}{% endif %}">
-        Your order{% if cart.count %} <b>{{ cart.count }}</b>{% endif %}
-      </a>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <a class="{% if request.path == home_url %}is-current{% endif %}" href="{{ home_url }}"{% if request.path == home_url %} aria-current="page"{% endif %}>Home</a>
+      <a class="{% if request.path == menu_url %}is-current{% endif %}" href="{{ menu_url }}"{% if request.path == menu_url %} aria-current="page"{% endif %}>{% if shop_enabled %}Daily menu{% else %}Menu{% endif %}</a>
+      {% if shop_enabled %}<a class="{% if shop_url in request.path or '/item/' in request.path %}is-current{% endif %}" href="{{ shop_url }}"{% if request.path == shop_url %} aria-current="page"{% endif %}>Shop</a>{% endif %}
+      {% for p in pages %}{% url 'storefront:page' p.slug as page_url %}<a{% if request.path == page_url %} class="is-current" aria-current="page"{% endif %} href="{{ page_url }}">{{ p.title }}</a>{% endfor %}
     </nav>
+    <div class="head-actions">
+      {% if shop_enabled %}
+      <button class="icon-btn" type="button" aria-label="Search the shop" aria-expanded="false" aria-controls="search-panel" data-search-toggle>
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      {% endif %}
+      <a class="cart-link{% if request.path == cart_url %} is-current{% endif %}" href="{{ cart_url }}" data-cart-link
+         aria-label="Cart{% if cart.count %}, {{ cart.count }} item{{ cart.count|pluralize }}{% endif %}">
+        <svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>
+        <span class="cart-text">Cart</span>{% if cart.count %}<b data-cart-count>{{ cart.count }}</b>{% endif %}
+      </a>
+      <button class="icon-btn nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav" data-nav-toggle>
+        <svg class="ic ic-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="ic ic-close" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+  </div>
+  {% if shop_enabled %}
+  <div class="search-panel" id="search-panel" data-search-panel hidden>
+    <form class="wrap search-form" action="{{ shop_url }}" method="get" role="search">
+      <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="search" name="q" placeholder="Search podi, sweets, pickles, thokku…" aria-label="Search the shop" value="{{ query|default:'' }}">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+  </div>
+  {% endif %}
+  <div class="mobile-nav" id="mobile-nav" data-mobile-nav hidden>
+    <div class="wrap">
+      <a href="{{ home_url }}">Home</a>
+      {% if shop_enabled %}
+      <form class="mobile-search" action="{{ shop_url }}" method="get" role="search">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <input type="search" name="q" placeholder="Search the shop" aria-label="Search the shop">
+      </form>
+      {% endif %}
+      <a href="{{ menu_url }}">{% if shop_enabled %}Daily menu{% else %}Menu{% endif %}</a>
+      {% if shop_enabled %}<a href="{{ shop_url }}">Shop</a>{% endif %}
+      {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
+      <a href="{{ cart_url }}">Your order{% if cart.count %} ({{ cart.count }}){% endif %}</a>
+    </div>
   </div>
 </header>
 {% block categorynav %}{% endblock %}
@@ -71,7 +149,7 @@
 
 {% if messages %}
 <div class="wrap">
-  {% for m in messages %}<div class="flash flash-{{ m.tags }}" data-testid="flash">{{ m }}</div>{% endfor %}
+  {% for m in messages %}<div class="flash flash-{{ m.tags }}" data-testid="flash" role="status">{{ m }}</div>{% endfor %}
 </div>
 {% endif %}
 
@@ -79,25 +157,50 @@
 
 <footer class="site-foot">
   <div class="wrap foot-inner">
-    <div>
+    <div class="foot-brand">
       <strong>{{ tenant.config.brand_name|default:tenant.name }}</strong>
       {% if tenant.config.tagline %}<p>{{ tenant.config.tagline }}</p>{% endif %}
-      {% if tenant.config.support_phone %}
-        <br><a class="foot-phone" href="tel:{{ tenant.config.support_phone }}">{{ tenant.config.support_phone }}</a>
-      {% endif %}
+      <div class="foot-contact">
+        {% if tenant.config.support_phone %}<a class="foot-phone" href="tel:{{ tenant.config.support_phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>{{ tenant.config.support_phone }}</a>{% endif %}
+        {% if tenant.config.theme.contact_email %}<a href="mailto:{{ tenant.config.theme.contact_email }}"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>{{ tenant.config.theme.contact_email }}</a>{% endif %}
+        {% if tenant.billing_profile.address %}<span><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>{{ tenant.billing_profile.address|linebreaksbr }}</span></span>{% endif %}
+      </div>
+      {% if whatsapp_link %}<a class="btn btn-wa" href="{{ whatsapp_link }}" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>Order on WhatsApp</a>{% endif %}
     </div>
     <div class="foot-links">
       <b>Order</b>
-      <a href="{% url 'storefront:menu' %}">Today’s menu</a>
-      <a href="{% url 'storefront:cart' %}">Your cart</a>
+      <a href="{{ menu_url }}">{% if shop_enabled %}Daily menu{% else %}Today’s menu{% endif %}</a>
+      {% if shop_enabled %}<a href="{{ shop_url }}">Shop all</a>{% endif %}
+      <a href="{{ cart_url }}">Your cart</a>
     </div>
+    {% if nav_shelves %}
+    <div class="foot-links">
+      <b>Shop</b>
+      {% for c in nav_shelves|slice:":7" %}<a href="{% url 'storefront:shop_category' c.slug %}">{{ c.name }}</a>{% endfor %}
+    </div>
+    {% endif %}
     <div class="foot-links">
       <b>Information</b>
-      {% for p in pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
+      {% for p in footer_pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
+    </div>
+  </div>
+  <div class="foot-base">
+    <div class="wrap foot-base-inner">
+      <span>© {% now "Y" %} {{ tenant.config.brand_name|default:tenant.name }}</span>
+      {% if tenant.billing_profile.fssai_no %}<span class="fssai"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>FSSAI Lic. No. {{ tenant.billing_profile.fssai_no }}</span>{% endif %}
     </div>
   </div>
 </footer>
 
+{% if whatsapp_link %}
+<a class="wa-float" href="{{ whatsapp_link }}" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
+  <svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Chat with us</span>
+</a>
+{% endif %}
+
+<div class="toasts" data-toasts aria-live="polite" aria-atomic="false"></div>
+
 {% block scripts %}{% endblock %}
+<script src="{% static_v 'js/storefront.js' %}" defer></script>
 </body>
 </html>

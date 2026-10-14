@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load storefront_extras %}
+{% block title %}About us · {{ tenant.config.brand_name|default:tenant.name }}{% endblock %}
+{% block description %}{{ page.seo_description|default:tenant.config.tagline }}{% endblock %}
+{% block content %}
+
+{% comment %}1. Opening: the promise, with the kitchen's own dishes as arches.{% endcomment %}
+<section class="about-hero" aria-labelledby="about-title">
+  <div class="about-hero-copy">
+    <p class="hero2-kicker"><span class="hero2-dot" aria-hidden="true"></span>Our story</p>
+    <h1 id="about-title">Food the way it’s made <em>at home</em>.</h1>
+    <p class="about-lede">{{ tenant.config.tagline|default:"Home-made meals, sweets and savouries, cooked fresh in our own kitchen." }}</p>
+    <div class="about-actions">
+      <a class="btn btn-primary btn-lg" href="{% url 'storefront:menu' %}">Order today’s meals <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      {% if shop_enabled %}<a class="btn btn-lg" href="{% url 'storefront:shop' %}">Shop the pantry</a>{% endif %}
+    </div>
+  </div>
+  {% if hero_picks|length >= 3 %}
+  <div class="arches arches-lg" aria-hidden="true">
+    {% for p in hero_picks|slice:":3" %}<span class="arch a{{ forloop.counter }}"><img src="{{ p.image.url }}" alt="" width="320" height="420"></span>{% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+{% comment %}2. The story: a large statement, then the owner's own words.{% endcomment %}
+<section class="about-story" data-reveal>
+  <p class="section-kicker">Who we are</p>
+  <div class="about-story-grid">
+    <blockquote class="about-statement">Every dish starts the way a family’s does — fresh ingredients, patient hands, and nothing rushed.</blockquote>
+    <div class="about-story-body prose-body">
+      {% if page %}{{ page.body_html|safe }}{% else %}<p>{{ tenant.config.tagline }}</p>{% endif %}
+    </div>
+  </div>
+</section>
+
+{% if numbers %}
+<section class="stats" aria-label="{{ tenant.config.brand_name|default:tenant.name }} in numbers" data-stagger>
+  {% for n, label, sub, icon in numbers %}
+  <div class="stat">
+    <span class="stat-icon" aria-hidden="true"><svg class="ic"><use href="#i-{{ icon }}"/></svg></span>
+    <div><b data-count-to="{{ n }}">{{ n }}</b><span class="stat-label">{{ label }}</span><small>{{ sub }}</small></div>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% comment %}3. What we stand for.{% endcomment %}
+<section class="about-values" aria-labelledby="values-title">
+  <div class="section-head" data-reveal><div><p class="section-kicker">What we stand for</p><h2 id="values-title">Three promises we keep</h2></div></div>
+  <div class="values-3" data-stagger>
+    <article><span class="value-no">01</span><span class="stat-icon" aria-hidden="true"><svg class="ic"><use href="#i-leaf"/></svg></span><h3>Pure vegetarian</h3><p>Every dish and every pantry item is made in a vegetarian kitchen, with recipes passed down at home.</p></article>
+    <article><span class="value-no">02</span><span class="stat-icon" aria-hidden="true"><svg class="ic"><use href="#i-clock"/></svg></span><h3>Cooked to order</h3><p>Meals are made against the orders that arrive before each cutoff, so nothing sits waiting for you.</p></article>
+    <article><span class="value-no">03</span><span class="stat-icon" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span><h3>Made in small batches</h3><p>Podis, pakshanams, sweets and pickles are prepared in small quantities and packed fresh before they travel.</p></article>
+  </div>
+</section>
+
+{% comment %}4. From our kitchen to your door.{% endcomment %}
+<section class="about-journey" aria-labelledby="journey-title">
+  <div class="section-head" data-reveal><div><p class="section-kicker">How it reaches you</p><h2 id="journey-title">From our kitchen to your door</h2></div></div>
+  <ol class="journey" data-stagger>
+    <li><b>You choose</b><span>Pick a meal and slot, or fill a box from the pantry.</span></li>
+    <li><b>We confirm</b><span>Your pincode tells us straight away whether we deliver.</span></li>
+    <li><b>We cook and pack</b><span>Fresh for your slot, or packed in small batches.</span></li>
+    <li><b>It arrives</b><span>Delivered in your window, or shipped to your door.</span></li>
+  </ol>
+</section>
+
+{% comment %}5. A look at the shelves.{% endcomment %}
+{% if gallery %}
+<section class="about-gallery" aria-labelledby="gallery-title">
+  <div class="section-head" data-reveal>
+    <div><p class="section-kicker">A look inside</p><h2 id="gallery-title">Straight from our shelves</h2></div>
+    <a class="arrow-link" href="{% url 'storefront:shop' %}">Shop everything <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </div>
+  <ul class="gallery-grid" data-stagger>
+    {% for p in gallery %}
+    <li class="g{{ forloop.counter }}"><a href="{% url 'storefront:item' p.id %}"><img src="{{ p.image.url }}" alt="{{ p.name }}" width="520" height="520" loading="lazy"><span>{{ p.name }}</span></a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% comment %}6. Visit and trust.{% endcomment %}
+<section class="about-visit" data-reveal>
+  <div class="visit-card">
+    <p class="section-kicker">Find us</p>
+    <h2>Our kitchen</h2>
+    <ul class="visit-list">
+      {% if tenant.billing_profile.address %}<li><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>{{ tenant.billing_profile.address|linebreaksbr }}</span></li>{% endif %}
+      {% if tenant.config.support_phone %}<li><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><a href="tel:{{ tenant.config.support_phone }}">{{ tenant.config.support_phone }}</a></li>{% endif %}
+      {% if tenant.config.theme.contact_email %}<li><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><a href="mailto:{{ tenant.config.theme.contact_email }}">{{ tenant.config.theme.contact_email }}</a></li>{% endif %}
+      {% if tenant.billing_profile.fssai_no %}<li><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>FSSAI licence {{ tenant.billing_profile.fssai_no }}</span></li>{% endif %}
+    </ul>
+  </div>
+  {% if slots %}
+  <div class="visit-card visit-hours">
+    <p class="section-kicker">Daily meals</p>
+    <h2>Delivery times</h2>
+    <ul class="visit-list">
+      {% for s in slots %}<li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span><b>{{ s.label }}</b> · {{ s.delivery_from|time:"g:i" }}–{{ s.delivery_to|time:"g:i A" }} <small>orders close {{ s.order_cutoff|time:"g:i A" }}</small></span></li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</section>
+
+{% include "storefront/_closing.html" %}
+{% endblock %}

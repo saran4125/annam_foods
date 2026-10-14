@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load storefront_extras %}
+{% block title %}{% if category %}{{ category.name }}{% elif query %}Search: {{ query }}{% else %}Shop{% endif %} · {{ tenant.config.brand_name|default:tenant.name }}{% endblock %}
+{% block description %}{% if category.description %}{{ category.description|truncatechars:150 }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block content %}
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="{% url 'storefront:home' %}">Home</a><span aria-hidden="true">/</span>
+  {% if category %}
+    <a href="{% url 'storefront:shop' %}">Shop</a><span aria-hidden="true">/</span>
+    {% if category.parent and category.parent.slug %}<a href="{% url 'storefront:shop_category' category.parent.slug %}">{{ category.parent.name }}</a><span aria-hidden="true">/</span>{% endif %}
+    <span aria-current="page">{{ category.name }}</span>
+  {% else %}<span aria-current="page">Shop</span>{% endif %}
+</nav>
+
+<header class="shop-head">
+  <div class="page-intro">
+    <p class="section-kicker">{% if category %}Shop · shipped to your door{% else %}Made in our kitchen · shipped to your door{% endif %}</p>
+    <h1>{% if category %}{{ category.name }}{% elif query %}Results for “{{ query }}”{% else %}Shop everything{% endif %}</h1>
+    {% if category.description %}<p>{{ category.description }}</p>
+    {% else %}<p>Podis, pakshanams, sweets, pickles and more, made in small batches and packed fresh.</p>{% endif %}
+  </div>
+  {% if category.image %}
+  <div class="shop-head-art" aria-hidden="true"><img src="{{ category.image.url }}" alt="" width="320" height="320"></div>
+  {% endif %}
+</header>
+
+<div class="shelf-bar" data-filters>
+  <div class="tabs shelf-tabs" role="list" aria-label="Shop categories">
+    <a role="listitem" class="tab{% if not category %} on{% endif %}" href="{% url 'storefront:shop' %}{% if query %}?q={{ query|urlencode }}{% endif %}"{% if not category %} aria-current="page"{% endif %}>All</a>
+    {% for c in shelves %}
+      <a role="listitem" class="tab{% if category and category.id == c.id or category.parent_id == c.id %} on{% endif %}" href="{% url 'storefront:shop_category' c.slug %}"{% if category.id == c.id %} aria-current="page"{% endif %}>{{ c.name }} <small>{{ c.item_count }}</small></a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if sub_shelves %}
+<div class="sub-shelves" aria-label="Narrow down">
+  {% for c in sub_shelves %}
+  <a class="sub-shelf" href="{% url 'storefront:shop_category' c.slug %}">
+    {% if c.image %}<img src="{{ c.image.url }}" alt="" width="64" height="64" loading="lazy">{% endif %}
+    <span>{{ c.name }}</span>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<form class="shop-tools" method="get" action="">
+  <label class="shop-search">
+    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+    <input type="search" name="q" value="{{ query }}" placeholder="Search {% if category %}{{ category.name|lower }}{% else %}the shop{% endif %}…" aria-label="Search">
+  </label>
+  <p class="shop-count" aria-live="polite">{{ items|length }} item{{ items|length|pluralize }}</p>
+  <label class="shop-sort">
+    <span>Sort</span>
+    <select name="sort" data-autosubmit aria-label="Sort products">
+      {% for value, label in sorts %}<option value="{{ value }}"{% if value == sort %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <noscript><button class="btn" type="submit">Apply</button></noscript>
+</form>
+
+{% if items %}
+<ul class="dishes products" data-stagger>
+  {% for p in items %}{% include "storefront/_product_card.html" %}{% endfor %}
+</ul>
+{% else %}
+<div class="empty-cart">
+  <span class="empty-mark" aria-hidden="true"><svg class="ic"><use href="#i-search"/></svg></span>
+  <p>{% if query %}Nothing matches “{{ query }}”. Try a shorter word, like “podi” or “halwa”.{% else %}Nothing on this shelf right now.{% endif %}</p>
+  <a class="btn" href="{% url 'storefront:shop' %}">See everything</a>
+</div>
+{% endif %}
+
+<section class="ship-note" data-reveal>
+  <div><svg class="ic" aria-hidden="true"><use href="#i-truck"/></svg><b>Shipped fresh</b><span>Packed after you order, in small batches.</span></div>
+  <div><svg class="ic" aria-hidden="true"><use href="#i-leaf"/></svg><b>Home-style recipes</b><span>No shortcuts, no preservatives we wouldn’t use at home.</span></div>
+  <div><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><b>Check your pincode</b><span>We confirm delivery to your area in the cart.</span></div>
+</section>
+
+{% if cart.count %}
+<div class="cart-bar" data-cart-bar>
+  <span><b data-bar-count>{{ cart.count }}</b> item{{ cart.count|pluralize }} in your cart</span>
+  <a class="btn btn-dark-on" href="{% url 'storefront:cart' %}">View cart <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+</div>
+{% endif %}
+{% endblock %}

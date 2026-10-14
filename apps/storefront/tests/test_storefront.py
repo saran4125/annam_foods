@@ -25,7 +25,7 @@ HOST = "annam.localhost"
 def kitchen(db):
     t = Tenant.objects.create(slug="annam", name="Annam Foods", status=TenantStatus.ACTIVE)
     TenantDomain.objects.create(tenant=t, hostname=HOST, is_primary=True)
-    TenantConfig.objects.create(tenant=t, brand_name="Annam Foods", support_phone="+919551079550")
+    TenantConfig.objects.filter(tenant=t).update(brand_name="Annam Foods", support_phone="+919551079550")
     return t
 
 
@@ -105,6 +105,28 @@ def test_adding_to_cart_updates_the_count(client, kitchen, menu):
     assert r.status_code == 302
     r = client.get("/cart/", HTTP_HOST=HOST)
     assert b"Veg Meals" in r.content
+
+
+def test_disabled_website_ordering_hides_the_add_action(client, kitchen, menu):
+    with tenant_context(kitchen):
+        config = kitchen.config
+        config.features = {"website_ordering": False}
+        config.save()
+    menu_response = client.get("/menu/", HTTP_HOST=HOST)
+    assert b"btn-add" not in menu_response.content
+    response = _add(client, menu)
+    assert response.status_code == 404
+    assert f"cart.{kitchen.pk}" not in client.session
+
+
+def test_home_showcase_is_stored_outside_the_feature_registry(client, kitchen):
+    with tenant_context(kitchen):
+        config = kitchen.config
+        config.home_sections = [{"label": "Festival sweets", "image": "showcase/sweets.jpg"}]
+        config.save()
+    response = client.get("/", HTTP_HOST=HOST)
+    assert response.status_code == 200
+    assert b"Festival sweets" in response.content
 
 
 def test_cart_prices_from_the_live_menu_not_the_session(client, kitchen, menu):
@@ -287,7 +309,7 @@ def test_unpublished_page_is_not_visible(client, kitchen):
 def test_pages_do_not_leak_between_kitchens(client, kitchen, db):
     rival = Tenant.objects.create(slug="rival", name="Rival", status=TenantStatus.ACTIVE)
     TenantDomain.objects.create(tenant=rival, hostname="rival.localhost")
-    TenantConfig.objects.create(tenant=rival, brand_name="Rival")
+    TenantConfig.objects.filter(tenant=rival).update(brand_name="Rival")
     with tenant_context(rival):
         Page.objects.create(slug="secret", title="Rival Only", body_md="x", published=True)
     assert client.get("/p/secret/", HTTP_HOST=HOST).status_code == 404
@@ -352,7 +374,9 @@ def test_page_markdown_never_emits_script_or_event_handlers(client, kitchen):
             published=True,
         )
     r = client.get("/p/about/", HTTP_HOST=HOST)
-    body = r.content.split(b"<main")[-1].split(b"</main>")[0]
+    # Only the owner-written part is untrusted; the About layout around it is
+    # our own markup and uses tags (like <b>) the sanitiser would strip.
+    body = r.content.split(b'about-story-body prose-body">')[-1].split(b"</div>")[0]
     assert b"<script>" not in body
     assert b"onclick" not in body
     assert b"javascript:" not in body
@@ -399,7 +423,7 @@ def test_two_kitchens_share_browsers_not_carts(client, kitchen, menu, db):
     """The same browser can hold carts for two kitchens without leaking."""
     rival = Tenant.objects.create(slug="rival", name="Rival", status=TenantStatus.ACTIVE)
     TenantDomain.objects.create(tenant=rival, hostname="rival.localhost")
-    TenantConfig.objects.create(tenant=rival, brand_name="Rival")
+    TenantConfig.objects.filter(tenant=rival).update(brand_name="Rival")
     today = date(2026, 9, 7)
     with tenant_context(rival):
         slot = Slot.objects.create(key="lunch", label="Lunch",
@@ -453,3 +477,13 @@ def test_kitchen_status_policy(status, ordering, read_only, banner, db):
     t.status = TenantStatus.CANCELLED
     t.save()
     assert not t.can_take_orders
+
+
+def test_about_page_renders_the_owners_story_and_the_premium_layout(client, kitchen):
+    with tenant_context(kitchen):
+        Page.objects.create(slug="about", title="About", body_md="We cook at **home**.", published=True)
+    for url in ("/about/", "/p/about/"):
+        r = client.get(url, HTTP_HOST=HOST)
+        assert r.status_code == 200
+        assert b"about-hero" in r.content
+        assert b"<strong>home</strong>" in r.content

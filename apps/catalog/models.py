@@ -29,13 +29,28 @@ class Slot(TenantOwnedModel):
 
 
 class MenuCategory(TenantOwnedModel):
+    """A shelf in the shop. Courier goods are browsed by category at
+    /shop/<slug>/; scheduled meals are still browsed by slot on /menu/."""
+
     name = models.CharField(max_length=80)
+    slug = models.SlugField(max_length=80, blank=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to="categories/", blank=True)
+    parent = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="children"
+    )
     sort = models.PositiveSmallIntegerField(default=0)
     active = models.BooleanField(default=True)
 
     class Meta(TenantOwnedModel.Meta):
         ordering = ["sort", "name"]
         verbose_name_plural = "menu categories"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tenant", "slug"], condition=~models.Q(slug=""),
+                name="uniq_tenant_category_slug",
+            )
+        ]
 
     def __str__(self):
         return self.name

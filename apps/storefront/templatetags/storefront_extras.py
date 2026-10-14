@@ -57,3 +57,25 @@ def tile_tint(value):
     broken rather than lively.
     """
     return sum(ord(c) for c in str(value or "")) % 6
+
+
+@register.filter
+def words(value):
+    """Split a headline into words, so each can be revealed in turn."""
+    return str(value or "").split()
+
+
+@register.simple_tag
+def static_v(path):
+    """A static URL with the file's modification time, so a browser never keeps
+    serving yesterday's stylesheet after a change."""
+    import os
+
+    from django.contrib.staticfiles import finders
+    from django.templatetags.static import static
+
+    url = static(path)
+    found = finders.find(path)
+    if found and not isinstance(found, (list, tuple)):
+        url += f"?v={int(os.path.getmtime(found))}"
+    return url

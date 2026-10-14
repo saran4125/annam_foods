@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load storefront_extras %}
+{% block title %}{{ item.name }} · {{ tenant.config.brand_name|default:tenant.name }}{% endblock %}
+{% block description %}{% if item.description %}{{ item.description|truncatechars:150 }}{% else %}{{ item.name }} from {{ tenant.config.brand_name|default:tenant.name }}{% endif %}{% endblock %}
+{% block content %}
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="{% url 'storefront:home' %}">Home</a><span aria-hidden="true">/</span>
+  <a href="{% url 'storefront:shop' %}">Shop</a><span aria-hidden="true">/</span>
+  {% if item.category and item.category.slug %}<a href="{% url 'storefront:shop_category' item.category.slug %}">{{ item.category.name }}</a><span aria-hidden="true">/</span>{% endif %}
+  <span aria-current="page">{{ item.name }}</span>
+</nav>
+
+<article class="product-page">
+  <div class="product-gallery">
+    {% if item.image %}
+      <img src="{{ item.image.url }}" alt="{{ item.name }}" width="900" height="900">
+    {% else %}
+      <span class="dish-tile tile-{{ item.name|tile_tint }}" aria-hidden="true">{{ item.name|slice:":1"|upper }}</span>
+    {% endif %}
+  </div>
+
+  <div class="product-info">
+    {% if item.category %}<p class="section-kicker">{{ item.category.name }}</p>{% endif %}
+    <h1>{{ item.name }}</h1>
+    <p class="product-price">₹{{ item.price|money }} <small>incl. of taxes</small></p>
+    <p class="product-veg"><span class="veg{% if not item.is_veg %} veg-no{% endif %}" aria-hidden="true"></span>{% if item.is_veg %}Pure vegetarian{% else %}Non-vegetarian{% endif %}</p>
+    {% if item.description %}<p class="product-desc">{{ item.description|linebreaksbr }}</p>{% endif %}
+
+    <div class="product-buy" data-item="{{ item.id }}">
+      <div data-buy>
+      {% if ordering_enabled and tenant.can_take_orders %}
+        <form method="post" action="{% url 'storefront:cart_add' %}" data-cart-form data-name="{{ item.name }}">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="shop">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          {% if qty %}
+          <div class="product-qty">
+            <div class="stepper stepper-lg" role="group" aria-label="{{ item.name }} quantity">
+              <button name="delta" value="-1" aria-label="One fewer"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg></button>
+              <span data-qty>{{ qty }}</span>
+              <button name="delta" value="1" aria-label="One more"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+            </div>
+            <a class="btn btn-dark" href="{% url 'storefront:cart' %}">Go to cart <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+          {% else %}
+          <button class="btn btn-primary btn-wide" name="delta" value="1"><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>Add to cart</button>
+          {% endif %}
+        </form>
+      {% else %}
+        <span class="pill">Ordering unavailable</span>
+      {% endif %}
+      </div>
+    </div>
+
+    <ul class="product-promises">
+      <li><svg class="ic" aria-hidden="true"><use href="#i-truck"/></svg>Packed fresh and shipped to your door</li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Delivery checked against your pincode in the cart</li>
+      {% if whatsapp_link %}<li><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span>Questions? <a href="{{ whatsapp_link }}" target="_blank" rel="noopener">Ask us on WhatsApp</a></span></li>{% endif %}
+    </ul>
+  </div>
+</article>
+
+{% if related %}
+<div class="section-head" data-reveal>
+  <div><p class="section-kicker">From the same shelf</p><h2>You may also like</h2></div>
+  {% if item.category.slug %}<a class="arrow-link" href="{% url 'storefront:shop_category' item.category.slug %}">See all <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
+</div>
+<ul class="dishes products" data-stagger>
+  {% for p in related %}{% include "storefront/_product_card.html" %}{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

@@ -23,6 +23,7 @@ CLOSED = "closed"
 NOT_ON_MENU = "not_on_menu"
 SOLD_OUT = "sold_out"
 CROSS_SLOT = "cross_slot"
+CROSS_KIND = "cross_kind"
 BAD_QUANTITY = "bad_quantity"
 
 MAX_DELTA = 10  # one click adds or removes a bounded handful, not a flood
@@ -67,6 +68,8 @@ def add_item(cart, tenant, *, item_id: int, delta: int, slot_key: str,
         return BAD_QUANTITY
     if slot_key is None or delivery_date is None:
         return UNKNOWN_ITEM
+    if cart.is_courier and not cart.is_empty:
+        return CROSS_KIND
 
     slot = Slot.objects.filter(key=slot_key).first()
     if slot is None:
@@ -97,6 +100,35 @@ def add_item(cart, tenant, *, item_id: int, delta: int, slot_key: str,
         # available and not sold out; anything else is simply not on the menu.
         if entry is None:
             return NOT_ON_MENU
+
+    current = cart.items.get(str(item_id), 0)
+    after = current + delta
+    if after < 0 or after > MAX_LINE_QUANTITY:
+        return BAD_QUANTITY
+
+    cart.add(item_id, delta)
+    return OK
+
+
+def add_courier_item(cart, tenant, *, item_id: int, delta: int):
+    """Add or remove one shop (courier) item.
+
+    Courier goods have no slot or delivery day; they are on sale while the
+    item is active. A shop item never joins a meal cart, or the reverse.
+    """
+    if not tenant.can_take_orders:
+        return PAUSED
+    if not _bounded_delta(delta):
+        return BAD_QUANTITY
+    item = MenuItem.objects.filter(pk=item_id, fulfilment="courier").first()
+    if item is None:
+        return UNKNOWN_ITEM
+    if delta > 0 and not item.active:
+        return NOT_ON_MENU
+    if not cart.is_courier:
+        if not cart.is_empty:
+            return CROSS_KIND
+        cart.set_courier()
 
     current = cart.items.get(str(item_id), 0)
     after = current + delta

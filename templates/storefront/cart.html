@@ -10,100 +10,109 @@
 </div>
 
 {% if not totals.lines %}
-  <p class="empty" data-testid="cart-empty">
-    Nothing here yet. <a href="{% url 'storefront:menu' %}">Browse today’s menu →</a>
-  </p>
+  <div class="empty-cart" data-testid="cart-empty">
+    <span class="empty-mark" aria-hidden="true"><svg class="ic"><use href="#i-bag"/></svg></span>
+    <p>Nothing here yet.</p>
+    <a class="btn btn-primary" href="{% url 'storefront:menu' %}">Browse today’s menu <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </div>
 {% else %}
 
-<p class="cart-context">
-  <strong>{{ slot.label }}</strong> · {{ cart.delivery_date|date:"D, j M" }}
-  {% if not slot_open %}<span class="pill pill-shut">Ordering closed</span>{% endif %}
-</p>
-
-<table class="cart-table">
-  <caption class="skip">Items in your cart</caption>
-  <tbody>
-  {% for line in totals.lines %}
-  <tr>
-    <td>
-      <div class="dish-title">
-        <span class="veg{% if not line.item.is_veg %} veg-no{% endif %}"
-              aria-label="{% if line.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
-        <strong>{{ line.item.name }}</strong>
-      </div>
-    </td>
-    <td>
-      <form method="post" action="{% url 'storefront:cart_add' %}" class="qty-form">
-        {% csrf_token %}
-        <input type="hidden" name="item_id" value="{{ line.item.id }}">
-        <input type="hidden" name="slot_key" value="{{ cart.slot_key }}">
-        <input type="hidden" name="delivery_date" value="{{ cart.delivery_date|date:'Y-m-d' }}">
-        <input type="hidden" name="next" value="{% url 'storefront:cart' %}">
-        <button name="delta" value="-1" aria-label="One fewer {{ line.item.name }}">−</button>
-        <span>{{ line.quantity }}</span>
-        <button name="delta" value="1" aria-label="One more {{ line.item.name }}">+</button>
-      </form>
-    </td>
-    <td class="money">₹{{ line.line_total|money }}</td>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
-
-<section class="pincode-box">
-  <h2>Where are we delivering?</h2>
-  <form method="post" action="{% url 'storefront:cart_pincode' %}">
-    {% csrf_token %}
-    <input type="text" name="pincode" inputmode="numeric" autocomplete="postal-code"
-           placeholder="6-digit pincode" value="{{ cart.pincode }}" aria-label="Delivery pincode">
-    {% if needs_area_choice %}
-    <select name="zone_id" aria-label="Your area">
-      <option value="">Choose your area</option>
-      {% for z in zones %}
-        <option value="{{ z.id }}">{{ z.area_name }} — ₹{{ z.delivery_fee|money }} delivery</option>
-      {% endfor %}
-    </select>
-    {% endif %}
-    <button class="btn">Check</button>
-  </form>
-  {% if totals.zone %}
-    <p class="ok">
-      Delivering to {{ totals.zone.area_name }} · ₹{{ totals.zone.delivery_fee|money }} delivery{% if totals.min_order %} · ₹{{ totals.min_order|money }} minimum{% endif %}
+<div class="cart-layout">
+  <div class="cart-main">
+    <p class="cart-context">
+      {% if cart.is_courier %}<strong>Shop order</strong> · shipped to your door
+      {% else %}<strong>{{ slot.label }}</strong> · {{ cart.delivery_date|date:"D, j M" }}{% endif %}
+      {% if not slot_open %}<span class="pill pill-shut">Ordering closed</span>{% endif %}
     </p>
-  {% endif %}
-</section>
 
-<div class="totals">
-  <div><span>Subtotal</span><span>₹{{ totals.subtotal|money }}</span></div>
-  {% if totals.zone %}<div><span>Delivery</span><span>₹{{ totals.delivery_fee|money }}</span></div>{% endif %}
-  <div class="grand"><span>Total</span><span>₹{{ totals.total|money }}</span></div>
-</div>
+    <ul class="cart-lines">
+      {% for line in totals.lines %}
+      <li class="cart-line">
+        <span class="line-thumb">
+          {% if line.item.image %}<img src="{{ line.item.image.url }}" alt="" width="120" height="120" loading="lazy">
+          {% else %}<span class="dish-tile tile-{{ line.item.name|tile_tint }}" aria-hidden="true">{{ line.item.name|slice:":1"|upper }}</span>{% endif %}
+        </span>
+        <div class="line-info">
+          <div class="dish-title">
+            <span class="veg{% if not line.item.is_veg %} veg-no{% endif %}"
+                  aria-label="{% if line.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
+            <strong>{{ line.item.name }}</strong>
+          </div>
+          {% if cart.is_courier %}<a class="line-name-link" href="{% url 'storefront:item' line.item.id %}">View item</a> · {% endif %}<span class="line-unit">₹{{ line.unit_price|money }} each</span>
+        </div>
+        {% if ordering_enabled %}<form method="post" action="{% url 'storefront:cart_add' %}" class="qty-form" data-cart-form data-swap="main" data-name="{{ line.item.name }}">
+          {% csrf_token %}
+          <input type="hidden" name="item_id" value="{{ line.item.id }}">
+          {% if cart.is_courier %}<input type="hidden" name="kind" value="shop">{% else %}<input type="hidden" name="slot_key" value="{{ cart.slot_key }}">{% endif %}
+          <input type="hidden" name="delivery_date" value="{{ cart.delivery_date|date:'Y-m-d' }}">
+          <input type="hidden" name="next" value="{% url 'storefront:cart' %}">
+          <button name="delta" value="-1" aria-label="One fewer {{ line.item.name }}"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg></button>
+          <span>{{ line.quantity }}</span>
+          <button name="delta" value="1" aria-label="One more {{ line.item.name }}"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+        </form>{% else %}<span class="qty-static">× {{ line.quantity }}</span>{% endif %}
+        <span class="money">₹{{ line.line_total|money }}</span>
+      </li>
+      {% endfor %}
+    </ul>
 
-{% if totals.below_minimum %}
-  <div class="strip strip-warn">
-    {{ totals.zone.area_name }} has a ₹{{ totals.min_order|money }} minimum — add ₹{{ totals.shortfall|money }} more to order.
+    <form class="fresh-form" method="post" action="{% url 'storefront:cart_clear' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'storefront:cart' %}">
+      <button class="link-like" type="submit">Start a fresh order</button>
+    </form>
+    <a class="arrow-link more-link" href="{% if cart.is_courier %}{% url 'storefront:shop' %}{% else %}{% url 'storefront:menu' %}{% endif %}">Add more items <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
   </div>
-{% endif %}
 
-<form class="fresh-form" method="post" action="{% url 'storefront:cart_clear' %}">
-  {% csrf_token %}
-  <input type="hidden" name="next" value="{% url 'storefront:cart' %}">
-  <button class="link-like" type="submit">Start a fresh order</button>
-</form>
+  <aside class="cart-side">
+    <section class="pincode-box">
+      <h2>Where are we delivering?</h2>
+      <form method="post" action="{% url 'storefront:cart_pincode' %}">
+        {% csrf_token %}
+        <input type="text" name="pincode" inputmode="numeric" autocomplete="postal-code"
+               placeholder="6-digit pincode" value="{{ cart.pincode }}" aria-label="Delivery pincode">
+        {% if needs_area_choice %}
+        <select name="zone_id" aria-label="Your area">
+          <option value="">Choose your area</option>
+          {% for z in zones %}
+            <option value="{{ z.id }}">{{ z.area_name }} — ₹{{ z.delivery_fee|money }} delivery</option>
+          {% endfor %}
+        </select>
+        {% endif %}
+        <button class="btn">Check</button>
+      </form>
+      {% if totals.zone %}
+        <p class="ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+          Delivering to {{ totals.zone.area_name }} · ₹{{ totals.zone.delivery_fee|money }} delivery{% if totals.min_order %} · ₹{{ totals.min_order|money }} minimum{% endif %}
+        </p>
+      {% endif %}
+    </section>
 
-<div class="checkout-row">
-  {% if not totals.zone %}
-    <button class="btn btn-primary" data-testid="checkout" data-blocked="pincode" disabled>Enter your pincode to continue</button>
-  {% elif totals.below_minimum %}
-    <button class="btn btn-primary" data-testid="checkout" data-blocked="minimum" disabled>Add ₹{{ totals.shortfall|money }} more to order</button>
-  {% elif not slot_open %}
-    <button class="btn btn-primary" data-testid="checkout" data-blocked="closed" disabled>Ordering has closed for this slot</button>
-  {% elif not tenant.can_take_orders %}
-    <button class="btn btn-primary" data-testid="checkout" data-blocked="paused" disabled>Not accepting orders</button>
-  {% else %}
-    <button class="btn btn-primary" data-testid="checkout" disabled title="Checkout arrives in Phase 3">Checkout</button>
-  {% endif %}
-  <a href="{% url 'storefront:menu' %}">Add more items</a>
+    <div class="totals">
+      <div><span>Subtotal</span><span>₹{{ totals.subtotal|money }}</span></div>
+      {% if totals.zone %}<div><span>Delivery</span><span>₹{{ totals.delivery_fee|money }}</span></div>{% endif %}
+      <div class="grand"><span>Total</span><span>₹{{ totals.total|money }}</span></div>
+    </div>
+
+    {% if totals.below_minimum %}
+      <div class="strip strip-warn">
+        {{ totals.zone.area_name }} has a ₹{{ totals.min_order|money }} minimum — add ₹{{ totals.shortfall|money }} more to order.
+      </div>
+    {% endif %}
+
+    <div class="checkout-row">
+      {% if not totals.zone %}
+        <button class="btn btn-primary" data-testid="checkout" data-blocked="pincode" disabled>Enter your pincode to continue</button>
+      {% elif totals.below_minimum %}
+        <button class="btn btn-primary" data-testid="checkout" data-blocked="minimum" disabled>Add ₹{{ totals.shortfall|money }} more to order</button>
+      {% elif not slot_open %}
+        <button class="btn btn-primary" data-testid="checkout" data-blocked="closed" disabled>Ordering has closed for this slot</button>
+      {% elif not tenant.can_take_orders %}
+        <button class="btn btn-primary" data-testid="checkout" data-blocked="paused" disabled>Not accepting orders</button>
+      {% else %}
+        <button class="btn btn-primary" data-testid="checkout" disabled title="Checkout arrives in Phase 3">Checkout</button>
+      {% endif %}
+    </div>
+  </aside>
 </div>
 
 {% endif %}

@@ -19,7 +19,9 @@ INSTALLED_APPS = [
     "apps.storefront",
     "apps.messaging",
     "apps.orders",
+    "apps.billing",
     "apps.jobs",
+    "apps.owner",
 ]
 
 MIDDLEWARE = [
@@ -51,6 +53,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.tenancy.context.tenant",
+                "apps.storefront.context.storefront",
             ],
         },
     },
@@ -82,7 +85,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 FORMS_URLFIELD_ASSUME_HTTPS = True
 
 # Host that serves the SEER super-admin, not any tenant storefront.
-PLATFORM_HOST = "admin.localhost"
+PLATFORM_HOST = os.environ.get("PLATFORM_HOST", "admin.localhost").strip().lower()
 
 HUEY = {
     "name": "seerkitchen",

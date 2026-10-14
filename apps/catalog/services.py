@@ -9,7 +9,7 @@ from decimal import Decimal
 
 from django.utils import timezone
 
-from .models import MenuItem, MenuSchedule, ScheduleMode, Slot
+from .models import MenuCategory, MenuItem, MenuSchedule, ScheduleMode, Slot
 
 
 @dataclass(frozen=True)
@@ -107,3 +107,70 @@ def open_slots(on_date: date_cls, now=None):
         for s in Slot.objects.filter(active=True)
         if slot_is_open(s, on_date, now=now)
     ]
+
+
+# -- the shop: courier goods browsed by category ------------------------------
+
+SHOP_SORTS = {
+    "featured": ("category__sort", "sort", "name"),
+    "price": ("price", "name"),
+    "-price": ("-price", "name"),
+    "name": ("name",),
+}
+
+
+def shop_items():
+    """Every courier item currently on sale, whatever its category."""
+    return MenuItem.objects.filter(active=True, fulfilment="courier").select_related("category")
+
+
+def shop_categories():
+    """Top-level shop shelves that have something to sell, with live counts.
+
+    A parent shelf (Pakshanams) counts the goods on its child shelves
+    (Murukku, Chips...), because that is how a customer reads it."""
+    categories = list(
+        MenuCategory.objects.filter(active=True).exclude(slug="").select_related("parent")
+    )
+    counts = {}
+    for category_id in shop_items().values_list("category_id", flat=True):
+        counts[category_id] = counts.get(category_id, 0) + 1
+    by_id = {c.id: c for c in categories}
+    totals = {}
+    for c in categories:
+        top, depth = c, 0
+        while top.parent_id and top.parent_id in by_id and depth < 6:  # a bad edit can loop
+            top, depth = by_id[top.parent_id], depth + 1
+        totals[top.id] = totals.get(top.id, 0) + counts.get(c.id, 0)
+    shelves = []
+    for c in categories:
+        if c.parent_id is None and totals.get(c.id):
+            c.item_count = totals[c.id]
+            shelves.append(c)
+    return shelves
+
+
+def category_family_ids(category):
+    """A shelf and every shelf beneath it."""
+    ids, frontier = {category.id}, [category.id]
+    while frontier:
+        children = list(
+            MenuCategory.objects.filter(parent_id__in=frontier, active=True).values_list("id", flat=True)
+        )
+        frontier = [c for c in children if c not in ids]
+        ids.update(frontier)
+    return ids
+
+
+def search_shop(*, category=None, query="", sort="featured"):
+    """Shop listing: optional shelf, free-text search, a known sort order."""
+    items = shop_items()
+    if category is not None:
+        items = items.filter(category_id__in=category_family_ids(category))
+    query = (query or "").strip()[:80]
+    if query:
+        from django.db.models import Q
+
+        for word in query.split()[:5]:
+            items = items.filter(Q(name__icontains=word) | Q(description__icontains=word))
+    return items.order_by(*SHOP_SORTS.get(sort, SHOP_SORTS["featured"]))

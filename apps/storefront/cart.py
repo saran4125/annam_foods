@@ -16,12 +16,18 @@ from dataclasses import dataclass
 from datetime import date as date_cls
 from decimal import Decimal
 
-from apps.catalog.models import Slot
+from apps.catalog.models import MenuItem, Slot
 from apps.catalog.services import resolve_menu
 from apps.delivery.services import zones_for_pincode
 
 SESSION_KEY = "cart"
 MAX_LINE_QUANTITY = 99
+
+# A cart is one kind of order: a scheduled meal (one slot, one day) or a shop
+# order of courier goods. They are priced and delivered differently, so they
+# never share a cart -- exactly as orders.services.create_order requires.
+MEAL = "meal"
+COURIER = "courier"
 
 
 @dataclass
@@ -58,6 +64,14 @@ class Cart:
         self._data = self._load_shape(self.session.get(self._key) or {})
 
     # -- state ------------------------------------------------------------
+
+    @property
+    def kind(self):
+        return self._data.get("kind")
+
+    @property
+    def is_courier(self) -> bool:
+        return self.kind == COURIER
 
     @property
     def slot_key(self):
@@ -97,6 +111,9 @@ class Cart:
         if not isinstance(raw, dict):
             return {}
         data = {}
+
+        kind = raw.get("kind")
+        data["kind"] = kind if kind in (MEAL, COURIER) else None
 
         slot_key = raw.get("slot_key")
         data["slot_key"] = slot_key if isinstance(slot_key, str) else None
@@ -140,6 +157,7 @@ class Cart:
 
     def _save(self):
         payload = {
+            "kind": self._data.get("kind"),
             "slot_key": self._data.get("slot_key"),
             "delivery_date": self._data.get("delivery_date").isoformat()
             if self._data.get("delivery_date") else None,
@@ -156,8 +174,17 @@ class Cart:
         Called by the purchase service once an order is actually being built.
         Browsing the menu never calls this — reading a page must not delete a
         customer's cart (`FIX-05`)."""
+        self._data["kind"] = MEAL
         self._data["slot_key"] = slot_key
         self._data["delivery_date"] = delivery_date
+        self._data.setdefault("items", {})
+        self._save()
+
+    def set_courier(self):
+        """Adopt the shop (courier goods) context: no slot, no delivery day."""
+        self._data["kind"] = COURIER
+        self._data["slot_key"] = None
+        self._data["delivery_date"] = None
         self._data.setdefault("items", {})
         self._save()
 
@@ -200,20 +227,31 @@ class Cart:
         """Cart lines priced from the live menu, dropping anything no longer
         on sale. A sold-out dish silently leaving the cart is better than a
         customer paying for food the kitchen can't make."""
-        if self.is_empty or not self.slot_key or not self.delivery_date:
+        if self.is_empty:
             return []
-        slot = Slot.objects.filter(key=self.slot_key).first()
-        if slot is None:
-            return []
-        priced = {e.item.id: e for e in resolve_menu(self.delivery_date, slot)}
+        if self.is_courier:
+            # Courier goods are priced straight from the live catalog.
+            prices = {
+                item.id: (item, item.price)
+                for item in MenuItem.objects.filter(
+                    pk__in=[int(k) for k in self.items], active=True, fulfilment="courier",
+                )
+            }
+        else:
+            if not self.slot_key or not self.delivery_date:
+                return []
+            slot = Slot.objects.filter(key=self.slot_key).first()
+            if slot is None:
+                return []
+            prices = {e.item.id: (e.item, e.price) for e in resolve_menu(self.delivery_date, slot)}
 
         lines, dropped = [], []
         for item_id_str, qty in list(self.items.items()):
-            entry = priced.get(int(item_id_str))
-            if entry is None:
+            found = prices.get(int(item_id_str))
+            if found is None:
                 dropped.append(item_id_str)
                 continue
-            lines.append(CartLine(item=entry.item, quantity=qty, unit_price=entry.price))
+            lines.append(CartLine(item=found[0], quantity=qty, unit_price=found[1]))
         for item_id_str in dropped:
             self._data["items"].pop(item_id_str, None)
         if dropped:
