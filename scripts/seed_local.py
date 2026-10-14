@@ -15,6 +15,9 @@ Environment (all optional locally, used by the Render deploy):
   SEED_OWNER_PASSWORD      REQUIRED outside config.settings.local
   SEED_ONLY_IF_EMPTY=1     do nothing when the kitchen already exists, so a
                            redeploy never wipes the owner's edits
+  SEED_RESTORE_MEDIA=1     with SEED_ONLY_IF_EMPTY: when the kitchen exists,
+                           put the catalog photos back on disk (for hosts whose
+                           disk is wiped on every restart) and change no data
 
 Demo-only values, to be replaced by the owner: meal slot cutoffs and delivery
 windows, delivery zones and fees, and the policy page text.
@@ -173,9 +176,32 @@ def slot_for(category_name: str) -> str:
 
 # -- tenant -------------------------------------------------------------------
 
+def restore_media():
+    """Re-create the catalog photo files exactly where the database expects
+    them. File names are derived from the photo address, so they match what the
+    original seed stored; only files that are missing are written."""
+    prefetch_assets()
+    jobs = [(EXPORT["brand"]["logo"], "brand")]
+    jobs += [(c.get("image"), "categories") for c in EXPORT["categories"]]
+    jobs += [(u, "menu") for p in EXPORT["products"] for u in (p.get("images") or [])[:1]]
+    jobs += [("https://cdn.commmerce.com/uploads/annams/media/2026/10/17913667748689Diwali-Banner.jpg", "banners")]
+    restored = 0
+    for url, folder in jobs:
+        src = asset_for(url)
+        if src and not (MEDIA / folder / src.name).exists():
+            copy_media(src, folder)
+            restored += 1
+    # Shelves that borrow their first product's photo point at menu/ files,
+    # which the loop above already restored.
+    print(f"Restored {restored} photo files.")
+
+
 with all_tenants():
     if os.environ.get("SEED_ONLY_IF_EMPTY") == "1" and Tenant.objects.filter(slug="annam").exists():
-        print("Annam already exists; leaving it untouched.")
+        if os.environ.get("SEED_RESTORE_MEDIA") == "1":
+            restore_media()
+        else:
+            print("Annam already exists; leaving it untouched.")
         sys.exit(0)
     prefetch_assets()
     for old in Tenant.objects.filter(slug="annam"):

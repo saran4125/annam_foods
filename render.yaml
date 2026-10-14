@@ -1,15 +1,21 @@
-# Render Blueprint: one web service, one Postgres database, one persistent disk.
-# Deploy: Render dashboard -> New -> Blueprint -> pick this repository.
+# Render Blueprint -- FREE DEMO. No payment method is required.
 #
-# Costs (check render.com/pricing): the web service must be a paid plan because
-# the persistent disk (dish photos and owner uploads) needs one; the free
-# Postgres plan is deleted after 30 days, so a small paid database is used.
-# Region: Singapore, the nearest to Chennai.
+# Limits of Render's free tier, so nobody is surprised:
+#   * The web service goes to sleep after ~15 minutes without visitors; the next
+#     visit takes about a minute to wake it.
+#   * There is no persistent disk. Files are wiped on every restart, so the
+#     catalog photos are downloaded again at each start (a few minutes) and
+#     photos uploaded through the owner admin do not survive a restart.
+#   * The free Postgres database is deleted after 30 days.
+#   * One free Postgres per Render account.
+# Good for showing Annam a working preview; not for running the real store.
+# For a real store use render.paid.yaml (persistent disk + paid database): in
+# Render, set the Blueprint file path to render.paid.yaml.
 
 databases:
   - name: annam-db
     region: singapore
-    plan: basic-256mb
+    plan: free
     databaseName: annam
     user: annam
 
@@ -18,14 +24,10 @@ services:
     name: annam-foods
     runtime: python
     region: singapore
-    plan: starter
+    plan: free
     buildCommand: ./build.sh
     startCommand: ./start.sh
     healthCheckPath: /healthz
-    disk:
-      name: annam-media
-      mountPath: /var/data
-      sizeGB: 2
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.7
@@ -52,16 +54,20 @@ services:
         fromDatabase: {name: annam-db, property: host}
       - key: POSTGRES_PORT
         fromDatabase: {name: annam-db, property: port}
-      # The storefront is whichever hostname Render gives the service (or a
-      # custom domain added later). The Django super-admin host is parked on a
-      # name that cannot resolve; owners use /manage/ on the storefront itself.
+      # The storefront is whichever hostname Render gives the service. The Django
+      # super-admin host is parked on a name that cannot resolve; the owner uses
+      # /manage/ on the storefront itself.
       - key: ALLOWED_HOSTS
         value: .onrender.com,platform.invalid
       - key: PLATFORM_HOST
         value: platform.invalid
       - key: CSRF_TRUSTED_ORIGINS
         value: https://*.onrender.com
+      # No disk: media lives in the instance's temporary storage and is put back
+      # from Annam's public image addresses on every start.
       - key: PUBLIC_MEDIA_ROOT
-        value: /var/data/media
+        value: /tmp/media
       - key: PRIVATE_BILLS_ROOT
-        value: /var/data/private-bills
+        value: /tmp/private-bills
+      - key: SEED_RESTORE_MEDIA
+        value: "1"

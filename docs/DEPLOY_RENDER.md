@@ -1,7 +1,15 @@
 # Deploying to Render
 
-The repository includes a Render Blueprint (`render.yaml`): one web service, one
-Postgres database and one persistent disk, all in Singapore (nearest to Chennai).
+The repository has two Render Blueprints, both in Singapore (nearest to Chennai):
+
+| File | For | Card needed | Photos and uploads | Database |
+|---|---|---|---|---|
+| `render.yaml` | **Free demo** | No | Wiped on each restart; catalog photos are re-downloaded automatically, owner uploads are lost | Free, deleted after 30 days |
+| `render.paid.yaml` | **Real store** | Yes | Kept on a persistent disk | Paid, permanent |
+
+`render.yaml` is the default. For the real store, choose **New → Blueprint** and set
+the Blueprint file path to `render.paid.yaml`. The free web service also sleeps after
+about 15 minutes idle; the first visit afterwards takes about a minute.
 
 ## Deploy
 
@@ -17,12 +25,12 @@ Postgres database and one persistent disk, all in Singapore (nearest to Chennai)
    `SEED_OWNER_PASSWORD`**. The username is `annam-owner`. Change it after the
    first login, or create a named owner with `manage.py provision_tenant`.
 
-## Costs
+## Costs (render.paid.yaml)
 
 The web service uses the `starter` plan because the persistent disk (dish photos
 and owner uploads) requires a paid instance, and Postgres uses `basic-256mb`
 because the free database is deleted after 30 days. Edit the `plan:` lines in
-`render.yaml` to change them; check render.com/pricing for current prices.
+`render.paid.yaml` to change them; check render.com/pricing for current prices.
 
 ## How it works
 
