@@ -15,6 +15,8 @@ Environment (all optional locally, used by the Render deploy):
   SEED_OWNER_PASSWORD      REQUIRED outside config.settings.local
   SEED_ONLY_IF_EMPTY=1     do nothing when the kitchen already exists, so a
                            redeploy never wipes the owner's edits
+  SEED_SYNC_OWNER=1        also reset the owner's password to SEED_OWNER_PASSWORD
+                           on every start (otherwise it is only set on creation)
   SEED_RESTORE_MEDIA=1     with SEED_ONLY_IF_EMPTY: when the kitchen exists,
                            put the catalog photos back on disk (for hosts whose
                            disk is wiped on every restart) and change no data
@@ -176,6 +178,22 @@ def slot_for(category_name: str) -> str:
 
 # -- tenant -------------------------------------------------------------------
 
+def ensure_owner(tenant):
+    """Make sure the login named in the environment exists and belongs to this
+    kitchen. A new name creates a new owner (so changing SEED_OWNER_USERNAME in
+    the host's dashboard just works); an existing account keeps its password
+    unless SEED_SYNC_OWNER=1, so a password changed inside the app is not
+    overwritten by a restart."""
+    User = get_user_model()
+    user, created = User.objects.get_or_create(username=OWNER_USERNAME)
+    if created or os.environ.get("SEED_SYNC_OWNER") == "1":
+        user.set_password(OWNER_PASSWORD)
+        user.save()
+    if not TenantUser.all_tenants.filter(tenant=tenant, user=user).exists():
+        TenantUser.all_tenants.create(tenant=tenant, user=user, role=TenantUserRole.OWNER)
+    print(f"Owner login '{OWNER_USERNAME}': {'created' if created else 'already exists'}.")
+
+
 def restore_media():
     """Re-create the catalog photo files exactly where the database expects
     them. File names are derived from the photo address, so they match what the
@@ -197,7 +215,9 @@ def restore_media():
 
 
 with all_tenants():
-    if os.environ.get("SEED_ONLY_IF_EMPTY") == "1" and Tenant.objects.filter(slug="annam").exists():
+    existing = Tenant.objects.filter(slug="annam").first()
+    if os.environ.get("SEED_ONLY_IF_EMPTY") == "1" and existing:
+        ensure_owner(existing)
         if os.environ.get("SEED_RESTORE_MEDIA") == "1":
             restore_media()
         else:

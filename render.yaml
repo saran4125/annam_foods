@@ -71,3 +71,8 @@ services:
         value: /tmp/private-bills
       - key: SEED_RESTORE_MEDIA
         value: "1"
+      # Demo convenience: changing SEED_OWNER_PASSWORD in Render's dashboard
+      # takes effect at the next restart. (Not set in render.paid.yaml, where a
+      # password changed inside the app must survive restarts.)
+      - key: SEED_SYNC_OWNER
+        value: "1"
