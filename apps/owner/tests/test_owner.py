@@ -156,3 +156,90 @@ def test_every_resource_list_renders(signed_in, catalog):
     assert signed_in.get("/manage/orders/", HTTP_HOST=HOST).status_code == 200
     assert signed_in.get("/manage/settings/", HTTP_HOST=HOST).status_code == 200
     assert signed_in.get("/manage/nonsense/", HTTP_HOST=HOST).status_code == 404
+
+
+@pytest.fixture
+def billable_order(kitchens):
+    from apps.orders.models import Customer, Order
+    with tenant_context(kitchens[0]):
+        customer = Customer.objects.create(phone="919888888888", name="Billing Customer")
+        return Order.objects.create(order_no="TEST-BILL-1", customer=customer, channel="manual",
+            payment_mode="cod", payment_status="cod_pending", subtotal="100", total="100",
+            items=[{"name": "Lunch", "quantity": 1, "unit_price": "100.00", "line_total": "100.00"}])
+
+
+def _billing_data():
+    return {"legal_name": "Example Kitchen", "address": "123 Test Street", "state": "Tamil Nadu",
+            "state_code": "33", "fssai_no": "12345678901234", "invoice_prefix": "EX",
+            "gst_mode": "unregistered", "gstin": "", "tax_rate": "0", "sac": "996331",
+            "prices_include_tax": "on", "round_total": "on", "delivery_fee_taxable": "on", "footer": "Thank you"}
+
+
+def test_billing_settings_saved_once_and_payment_creates_one_printable_bill(signed_in, kitchens, billable_order):
+    from apps.billing.models import Invoice
+    assert signed_in.post("/manage/billing/", _billing_data(), HTTP_HOST=HOST).status_code == 302
+    url = f"/manage/orders/{billable_order.pk}/payment/"
+    assert signed_in.get(url, HTTP_HOST=HOST).status_code == 405
+    signed_in.post(url, {}, HTTP_HOST=HOST)
+    billable_order.refresh_from_db()
+    assert billable_order.payment_status == "cod_pending"
+    response = signed_in.post(url, {"confirmed": "yes", "reference": "Cash collected"}, HTTP_HOST=HOST)
+    billable_order.refresh_from_db()
+    assert billable_order.payment_status == "paid"
+    with tenant_context(kitchens[0]):
+        invoice = Invoice.objects.get(order=billable_order)
+        assert invoice.seller["name"] == "Example Kitchen"
+        assert invoice.payment_ref == "Cash collected"
+    assert response["Location"] == f"/manage/bills/{invoice.pk}/"
+    page = signed_in.get(response["Location"], HTTP_HOST=HOST)
+    assert page.status_code == 200
+    assert b"Print / Save as PDF" in page.content
+    assert b"Lunch" in page.content
+    signed_in.post(url, {"confirmed": "yes"}, HTTP_HOST=HOST)
+    changed = _billing_data(); changed["legal_name"] = "New Legal Name"
+    signed_in.post("/manage/billing/", changed, HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        assert Invoice.objects.filter(order=billable_order).count() == 1
+        invoice.refresh_from_db()
+        assert invoice.seller["name"] == "Example Kitchen"
+    with tenant_context(kitchens[0]):
+        assert billable_order.events.filter(note__contains="Payment receipt").count() == 1
+    assert signed_in.get(f"/manage/bills/{invoice.pk}/", HTTP_HOST=OTHER).status_code == 403
+
+
+def test_missing_settings_preserve_payment_and_allow_bill_retry(signed_in, kitchens, billable_order):
+    from apps.billing.models import Invoice
+    signed_in.post(f"/manage/orders/{billable_order.pk}/payment/", {"confirmed": "yes"}, HTTP_HOST=HOST)
+    billable_order.refresh_from_db()
+    assert billable_order.payment_status == "paid"
+    with tenant_context(kitchens[0]):
+        assert not Invoice.objects.exists()
+    signed_in.post("/manage/billing/", _billing_data(), HTTP_HOST=HOST)
+    response = signed_in.post(f"/manage/orders/{billable_order.pk}/bill/", HTTP_HOST=HOST)
+    assert "/manage/bills/" in response["Location"]
+
+
+def test_invalid_registered_settings_are_rejected(signed_in, kitchens):
+    data = _billing_data(); data.update(gst_mode="regular", gstin="INVALID")
+    page = signed_in.post("/manage/billing/", data, HTTP_HOST=HOST)
+    assert page.status_code == 200
+    assert b"valid GSTIN" in page.content
+
+
+def test_other_kitchen_bill_cannot_be_read_or_generated(signed_in, kitchens, billable_order):
+    from apps.orders.models import Customer, Order
+    from apps.billing.models import Invoice
+    from apps.billing.services import issue_bill
+    with tenant_context(kitchens[1]):
+        profile = kitchens[1].billing_profile
+        for k, v in _billing_data().items():
+            if k not in ("prices_include_tax", "round_total", "delivery_fee_taxable"):
+                setattr(profile, k, v)
+        profile.save()
+        customer = Customer.objects.create(phone="919777777777")
+        order = Order.objects.create(order_no="RIVAL-1", customer=customer, channel="manual",
+            payment_status="paid", subtotal="100", total="100", items=billable_order.items)
+        invoice = issue_bill(order)
+    assert signed_in.get(f"/manage/bills/{invoice.pk}/", HTTP_HOST=HOST).status_code == 404
+    assert signed_in.post(f"/manage/orders/{order.pk}/bill/", HTTP_HOST=HOST).status_code == 404
+    assert signed_in.post(f"/manage/orders/{order.pk}/payment/", {"confirmed": "yes"}, HTTP_HOST=HOST).status_code == 404

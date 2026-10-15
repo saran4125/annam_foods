@@ -97,17 +97,13 @@ def issue_bill(order, *, gst_details=None, force=False):
         existing = Invoice.objects.filter(order=order).exclude(kind=InvoiceKind.CREDIT_NOTE).first()
         if existing:
             return existing
-        if not force and order.payment_status != PaymentStatus.PAID:
-            if not (order.payment_status == PaymentStatus.COD_PENDING and order.status == "delivered"):
-                raise ValueError("An order must be paid or delivered COD before a bill can be issued.")
+        if order.payment_status != PaymentStatus.PAID:
+            raise ValueError("Payment must be confirmed before issuing a bill.")
         try:
             profile = BillingProfile.objects.get(tenant=order.tenant)
         except BillingProfile.DoesNotExist as exc:
             raise ValueError("Complete billing settings before issuing a bill.") from exc
-        if not force and profile.bill_timing == "on_delivery" and order.status != "delivered":
-            raise ValueError("This kitchen issues bills when the order is delivered.")
-        if not profile.fssai_no:
-            raise ValueError("An FSSAI licence or registration number is required to issue a bill.")
+        validate_billing_profile(profile)
 
         if profile.gst_mode == "regular":
             kind = InvoiceKind.TAX_INVOICE
@@ -116,7 +112,11 @@ def issue_bill(order, *, gst_details=None, force=False):
         else:
             kind = InvoiceKind.BILL
 
-        buyer_data = {"name": order.customer.name, "phone": order.customer.phone}
+        buyer_data = {"name": order.customer.name, "phone": order.customer.phone,
+                      "delivery_address": order.address, "order_no": order.order_no,
+                      "channel": order.get_channel_display(),
+                      "delivery_date": str(order.delivery_date or ""),
+                      "slot": order.slot.label if order.slot_id else ""}
         if gst_details:
             buyer_data.update(gst_details)
         elif order.buyer_gst:
@@ -130,9 +130,18 @@ def issue_bill(order, *, gst_details=None, force=False):
         )}
         snapshots = []
         taxable_total = cgst_total = sgst_total = igst_total = Decimal("0")
-        for line in order.items:
+        remaining_discount = Decimal(order.discount)
+        item_total = sum((Decimal(str(line["line_total"])) for line in order.items), Decimal("0"))
+        if remaining_discount < 0 or remaining_discount > item_total:
+            raise ValueError("The order discount is invalid.")
+        for index, line in enumerate(order.items):
             quantity = int(line["quantity"])
             gross = Decimal(str(line["line_total"])).quantize(CENT)
+            discount = (remaining_discount if index == len(order.items) - 1 else
+                        (Decimal(order.discount) * gross / item_total).quantize(CENT, rounding=ROUND_HALF_UP) if item_total else Decimal("0"))
+            discount = min(discount, remaining_discount, gross)
+            remaining_discount -= discount
+            gross -= discount
             item = source_items.get(line.get("item_id"))
             rate = (item.tax_rate if item and item.tax_rate is not None else profile.tax_rate) if kind == InvoiceKind.TAX_INVOICE else Decimal("0")
             price_base = gross / (Decimal("1") + rate / 100) if profile.prices_include_tax and rate else gross
@@ -145,7 +154,7 @@ def issue_bill(order, *, gst_details=None, force=False):
             igst = tax if interstate else Decimal("0")
             snapshots.append({"description": line["name"], "sac": (item.sac if item and item.sac else profile.sac),
                               "quantity": quantity, "unit_price": line["unit_price"],
-                              "taxable": str(taxable), "tax_rate": str(rate), "tax": str(tax),
+                              "discount": str(discount), "taxable": str(taxable), "tax_rate": str(rate), "tax": str(tax),
                               "cgst": str(cgst), "sgst": str(sgst), "igst": str(igst)})
             taxable_total += taxable
             cgst_total += cgst
@@ -172,6 +181,8 @@ def issue_bill(order, *, gst_details=None, force=False):
 
         raw_total = taxable_total + cgst_total + sgst_total + igst_total
         payable = raw_total.quantize(RUPEE, rounding=ROUND_HALF_UP) if profile.round_total else raw_total
+        if payable != Decimal(order.total):
+            raise ValueError("Bill total does not match the paid order. Check tax, rounding and order totals before issuing.")
         round_off = (payable - raw_total).quantize(CENT)
         fy, seq, number = allocate_number(order.tenant, day=timezone.localdate())
         return Invoice.objects.create(
@@ -179,7 +190,7 @@ def issue_bill(order, *, gst_details=None, force=False):
             order=order, seller=_seller_snapshot(order.tenant, profile), buyer=buyer_data,
             lines=snapshots, taxable=taxable_total, cgst=cgst_total, sgst=sgst_total, igst=igst_total,
             round_off=round_off, total=payable, amount_words=_amount_words(payable),
-            payment_mode=order.payment_mode, payment_ref=order.external_ref,
+            payment_mode=order.payment_mode, payment_ref=order.payment_reference or order.external_ref,
         )
 
 
@@ -256,3 +267,43 @@ def fulfil_request(request, order):
     locked.resolved_at = timezone.now()
     locked.save(update_fields=["invoice", "order", "status", "resolved_at"])
     return invoice
+
+
+def validate_billing_profile(profile):
+    """Validate persisted settings too, including profiles created before the owner UI."""
+    import re
+    missing = [label for field, label in [("legal_name", "legal business name"),
+               ("address", "business address"), ("state", "state"),
+               ("state_code", "state code"), ("fssai_no", "FSSAI number")]
+               if not getattr(profile, field).strip()]
+    if missing:
+        raise ValueError("Complete Billing Settings: " + ", ".join(missing) + ".")
+    if not re.fullmatch(r"[0-9]{14}", profile.fssai_no):
+        raise ValueError("Enter a 14-digit FSSAI number.")
+    if not re.fullmatch(r"[0-9]{2}", profile.state_code):
+        raise ValueError("Enter a two-digit state code.")
+    if profile.gst_mode != "unregistered":
+        if not re.fullmatch(r"[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]", profile.gstin):
+            raise ValueError("Enter a valid GSTIN for a GST-registered business.")
+        if profile.gstin[:2] != profile.state_code:
+            raise ValueError("GSTIN and seller state code must match.")
+    if not Decimal("0") <= profile.tax_rate <= Decimal("100"):
+        raise ValueError("Tax rate must be between 0 and 100.")
+    profile.full_clean()
+
+
+@transaction.atomic
+def confirm_payment(order, *, actor, reference=""):
+    """Record staff-confirmed receipt once; settings errors never undo real payment."""
+    from apps.orders.models import OrderEvent, OrderStatus
+    order = Order.objects.select_for_update().get(pk=order.pk)
+    if order.payment_status == PaymentStatus.PAID:
+        return order
+    if order.status == OrderStatus.CANCELLED or order.payment_status == PaymentStatus.REFUNDED:
+        raise ValueError("Cancelled or refunded orders cannot be marked paid.")
+    order.payment_status = PaymentStatus.PAID
+    order.payment_reference = reference
+    order.save(update_fields=["payment_status", "payment_reference"])
+    OrderEvent.objects.create(order=order, from_status=order.status, to_status=order.status,
+                             actor=actor[:60], note=("Payment receipt confirmed. " + reference)[:200])
+    return order

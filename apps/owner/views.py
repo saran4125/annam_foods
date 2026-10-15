@@ -15,6 +15,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import ProtectedError, Q
+from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -321,6 +322,7 @@ def order_detail(request, pk):
         (s, OrderStatus(s).label) for s in STATUS_FLOW.get(order.status, [])]
     return render(request, "owner/order_detail.html", {
         "order": order, "next_steps": next_steps, "events": order.events.all(),
+        "invoice": order.invoices.exclude(kind="credit_note").first(),
     })
 
 
@@ -364,3 +366,60 @@ def settings_view(request):
         messages.success(request, "Store settings saved.")
         return redirect("owner:settings")
     return render(request, "owner/settings.html", {"form": form, "logo": theme.get("logo_url")})
+
+
+@owner_required
+def billing_settings(request):
+    from apps.tenancy.models import BillingProfile
+    profile = get_object_or_404(BillingProfile, tenant=request.tenant)
+    form = forms.BillingSettingsForm(request.POST if request.method == "POST" else None, instance=profile)
+    if request.method == "POST" and form.is_valid():
+        profile = form.save(commit=False)
+        profile.bill_timing = "on_payment"
+        profile.save()
+        messages.success(request, "Billing settings saved. These details will be used for future bills.")
+        return redirect("owner:billing_settings")
+    return render(request, "owner/billing_settings.html", {"form": form})
+
+
+@owner_required
+@require_POST
+def order_bill(request, pk):
+    from apps.billing.services import issue_bill
+    order = get_object_or_404(Order.objects, pk=pk)
+    try:
+        invoice = issue_bill(order)
+    except (ValueError, ValidationError) as exc:
+        messages.error(request, str(exc))
+        return redirect("owner:order", pk=pk)
+    return redirect("owner:bill", pk=invoice.pk)
+
+
+@owner_required
+@require_POST
+def order_payment(request, pk):
+    from apps.billing.services import confirm_payment, issue_bill
+    order = get_object_or_404(Order.objects, pk=pk)
+    if request.POST.get("confirmed") != "yes":
+        messages.error(request, "Confirm that the full order payment has actually been received.")
+        return redirect("owner:order", pk=pk)
+    try:
+        order = confirm_payment(order, actor=f"owner:{request.user.username}",
+                                reference=request.POST.get("reference", "")[:120])
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("owner:order", pk=pk)
+    try:
+        invoice = issue_bill(order)
+    except (ValueError, ValidationError) as exc:
+        messages.warning(request, "Payment recorded. Bill not issued: " + str(exc))
+        return redirect("owner:order", pk=pk)
+    messages.success(request, "Payment confirmed and bill issued.")
+    return redirect("owner:bill", pk=invoice.pk)
+
+
+@owner_required
+def bill_detail(request, pk):
+    from apps.billing.models import Invoice
+    invoice = get_object_or_404(Invoice.objects.select_related("order"), pk=pk)
+    return render(request, "owner/bill.html", {"invoice": invoice})

@@ -111,3 +111,24 @@ An image-led WordPress/WooCommerce storefront prototype is running separately
 on `http://annam.localhost:8090/`, with its owner editor at `/wp-admin/` and
 local credentials in the ignored `wordpress/.env`. It is a review prototype;
 the master plan's Django order/billing architecture does not use its catalog.
+
+## Owner billing (local workflow)
+
+Sign in on the kitchen domain at `/manage/`. Open **Billing settings** and
+save the client's legal name, address, state/code, 14-digit FSSAI number,
+invoice prefix and accountant-confirmed GST settings. These settings are reused;
+issued bills retain their original seller, buyer, line and payment snapshots.
+No example business credentials or registration details are populated by setup.
+
+Open an order under **Orders**. After receiving its full payment (including
+collecting cash for COD), tick **Full payment received** and choose **Confirm
+payment & issue bill**. This is staff confirmation of actual receipt, not a
+payment gateway or bank verification. Delivery alone never makes an order billable.
+If settings are incomplete, the payment remains recorded; complete the settings
+and use **Generate bill** on that paid order. Repeated requests reuse its bill.
+Use **View / print bill**, then **Print / Save as PDF** for the browser print dialog.
+Automatic WhatsApp delivery and payment gateway integration are separate work.
+
+Bills must match the paid order total. If tax or rounding settings would change
+that amount, issuance stops with an explanation instead of producing a bill for
+a different amount. Apply the included migrations before starting the server.

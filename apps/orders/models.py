@@ -118,6 +118,7 @@ class Order(TenantOwnedModel):
     payment_mode = models.CharField(max_length=12, choices=PaymentMode.choices, default=PaymentMode.ONLINE)
     fulfilment = models.CharField(max_length=12, choices=[("scheduled", "Scheduled"), ("courier", "Courier")], default="scheduled")
     external_ref = models.CharField(max_length=120, blank=True)
+    payment_reference = models.CharField(max_length=120, blank=True)
     buyer_gst = models.JSONField(default=dict, blank=True)
     rider_name = models.CharField(max_length=120, blank=True)
     rider_phone = models.CharField(max_length=20, blank=True)

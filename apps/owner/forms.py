@@ -275,3 +275,30 @@ class SettingsForm(forms.Form):
 
     def clean_logo(self):
         return _check_image(self.cleaned_data.get("logo"))
+
+
+class BillingSettingsForm(StyledForm):
+    class Meta:
+        from apps.tenancy.models import BillingProfile
+        model = BillingProfile
+        fields = ["legal_name", "address", "state", "state_code", "fssai_no", "invoice_prefix",
+                  "gst_mode", "gstin", "tax_rate", "sac", "prices_include_tax", "round_total",
+                  "delivery_fee_taxable", "footer"]
+        widgets = {"address": forms.Textarea(attrs={"rows": 3}), "footer": forms.Textarea(attrs={"rows": 2})}
+        labels = {"fssai_no": "FSSAI number", "gstin": "GSTIN", "sac": "SAC / HSN code"}
+
+    def clean(self):
+        from apps.billing.services import validate_billing_profile
+        data = super().clean()
+        if self.errors:
+            return data
+        from copy import copy
+        profile = copy(self.instance)
+        for field, value in data.items():
+            setattr(profile, field, value)
+        profile.bill_timing = "on_payment"
+        try:
+            validate_billing_profile(profile)
+        except (ValueError, ValidationError) as exc:
+            raise ValidationError(" ".join(exc.messages) if isinstance(exc, ValidationError) else str(exc)) from exc
+        return data

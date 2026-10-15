@@ -1,0 +1,19 @@
+{% extends "owner/base.html" %}
+{% block title %}{{ invoice.number }}{% endblock %}
+{% block heading %}<h1>{{ invoice.get_kind_display }} {{ invoice.number }}</h1>{% endblock %}
+{% block content %}
+<style>@media print { .o-side, .o-top, .o-flashes, .o-skip, .o-scrim, .bill-actions {display:none!important} .o-shell, main, .o-main {margin:0!important;padding:0!important} .o-main>* {animation:none!important} @page {size:A4;margin:12mm} .o-card {border:0;box-shadow:none} } .bill-table {width:100%;border-collapse:collapse} .bill-table th,.bill-table td {padding:8px;text-align:left;border-bottom:1px solid #ddd}</style>
+<div class="bill-actions"><a href="{% url 'owner:order' invoice.order_id %}">Back to order</a> <button class="o-btn" onclick="window.print()">Print / Save as PDF</button></div>
+<article class="o-card">
+<h2>{{ invoice.get_kind_display }} — {{ invoice.number }}</h2><p>{{ invoice.issued_at|date:"j M Y, g:i A" }}</p>
+<h3>{{ invoice.seller.name }}</h3><p>{{ invoice.seller.address|linebreaksbr }}<br>{{ invoice.seller.state }} ({{ invoice.seller.state_code }})<br>FSSAI: {{ invoice.seller.fssai_no }}{% if invoice.seller.gstin %}<br>GSTIN: {{ invoice.seller.gstin }}{% endif %}</p>
+<h3>Bill to</h3><p>{{ invoice.buyer.name }} · {{ invoice.buyer.phone }}<br>{{ invoice.buyer.business_name }}<br>{{ invoice.buyer.billing_address|linebreaksbr }}{% if invoice.buyer.gstin %}<br>GSTIN: {{ invoice.buyer.gstin }}{% endif %}</p>
+<p>Order: {{ invoice.buyer.order_no }} · {{ invoice.buyer.channel }}<br>Payment: {{ invoice.payment_mode }}{% if invoice.payment_ref %} · {{ invoice.payment_ref }}{% endif %}</p>
+<p>Delivery: {% for key, value in invoice.buyer.delivery_address.items %}{% if value %}{{ value }} {% endif %}{% endfor %}<br>{{ invoice.buyer.slot }} {{ invoice.buyer.delivery_date }}</p>
+<table class="bill-table"><thead><tr><th>Item</th><th>SAC / HSN</th><th>Qty</th><th>Unit ₹</th><th>Discount ₹</th><th>Taxable ₹</th><th>Tax %</th><th>Tax ₹</th></tr></thead><tbody>
+{% for line in invoice.lines %}<tr><td>{{ line.description }}</td><td>{{ line.sac }}</td><td>{{ line.quantity }}</td><td>{{ line.unit_price }}</td><td>{{ line.discount|default:"0.00" }}</td><td>{{ line.taxable }}</td><td>{{ line.tax_rate }}</td><td>{{ line.tax }}</td></tr>{% endfor %}</tbody></table>
+<p>Taxable value: ₹{{ invoice.taxable }}<br>CGST: ₹{{ invoice.cgst }} · SGST: ₹{{ invoice.sgst }} · IGST: ₹{{ invoice.igst }}<br>Round off: ₹{{ invoice.round_off }}</p>
+<h2>Total paid: ₹{{ invoice.total }}</h2><p>{{ invoice.amount_words }}</p>
+{% if invoice.seller.gst_mode == 'composition' %}<p>Composition taxable person, not eligible to collect tax on supplies.</p>{% endif %}
+<p>{{ invoice.seller.footer|linebreaksbr }}</p><p>Authorised signatory __________________</p>
+</article>{% endblock %}

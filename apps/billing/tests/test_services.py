@@ -18,6 +18,9 @@ def billing_order(db):
     tenant = Tenant.objects.create(slug="billing-kitchen", name="Billing Kitchen")
     with tenant_context(tenant):
         profile = BillingProfile.objects.get(tenant=tenant)
+        profile.address = "Test address"
+        profile.state = "Tamil Nadu"
+        profile.state_code = "33"
         profile.fssai_no = "12345678901234"
         profile.save()
         customer = Customer.objects.create(phone="919999999999", name="Buyer")
@@ -73,7 +76,7 @@ def test_unpaid_order_cannot_be_billed_and_does_not_consume_a_number(billing_ord
     tenant, order = billing_order
     order.payment_status = PaymentStatus.PENDING
     order.save()
-    with tenant_context(tenant), pytest.raises(ValueError, match="paid or delivered COD"):
+    with tenant_context(tenant), pytest.raises(ValueError, match="Payment must be confirmed"):
         issue_bill(order)
     with tenant_context(tenant):
         assert not InvoiceSequence.objects.exists()
@@ -113,3 +116,80 @@ def test_bill_requests_enforce_the_profile_daily_limit(billing_order):
             request_bill(phone=order.customer.phone, customer=order.customer)
         with pytest.raises(ValueError, match="daily bill request limit"):
             request_bill(phone=order.customer.phone, customer=order.customer)
+
+
+@pytest.mark.django_db
+def test_delivered_cod_still_requires_confirmed_payment_even_with_force(billing_order):
+    tenant, order = billing_order
+    order.payment_status = PaymentStatus.COD_PENDING
+    order.status = "delivered"
+    order.save()
+    with tenant_context(tenant), pytest.raises(ValueError, match="Payment must be confirmed"):
+        issue_bill(order, force=True)
+
+
+@pytest.mark.django_db
+def test_discount_is_included_and_paid_total_must_match(billing_order):
+    tenant, order = billing_order
+    order.discount = Decimal("5")
+    order.total = Decimal("100")
+    order.save()
+    with tenant_context(tenant):
+        invoice = issue_bill(order)
+        assert invoice.total == Decimal("100")
+        assert invoice.lines[0]["discount"] == "5.00"
+
+
+@pytest.mark.django_db
+def test_wrong_paid_total_does_not_allocate_a_number(billing_order):
+    tenant, order = billing_order
+    order.total = Decimal("999")
+    order.save()
+    with tenant_context(tenant):
+        with pytest.raises(ValueError, match="does not match"):
+            issue_bill(order)
+        assert not InvoiceSequence.objects.exists()
+
+
+@pytest.mark.django_db
+def test_registered_bill_splits_inclusive_gst_and_retains_seller_snapshot(billing_order):
+    tenant, order = billing_order
+    with tenant_context(tenant):
+        profile = BillingProfile.objects.get(tenant=tenant)
+        profile.gst_mode = "regular"
+        profile.gstin = "33ABCDE1234F1Z5"
+        profile.save()
+        invoice = issue_bill(order)
+        assert invoice.taxable == Decimal("100")
+        assert invoice.cgst == Decimal("2.50")
+        assert invoice.sgst == Decimal("2.50")
+        assert invoice.total == order.total
+
+
+@pytest.mark.django_db(transaction=True)
+def test_simultaneous_bill_requests_issue_one_bill_and_one_number():
+    from concurrent.futures import ThreadPoolExecutor
+    from django.db import connections
+    tenant = Tenant.objects.create(slug="concurrent-bills", name="Concurrency Kitchen")
+    with tenant_context(tenant):
+        profile = tenant.billing_profile
+        profile.address = "Test address"
+        profile.state = "Tamil Nadu"
+        profile.state_code = "33"
+        profile.fssai_no = "12345678901234"
+        profile.save()
+        customer = Customer.objects.create(phone="919000000000")
+        order = Order.objects.create(order_no="CONCURRENT-1", customer=customer, channel="manual",
+            payment_status="paid", subtotal="100", total="100",
+            items=[{"name": "Lunch", "quantity": 1, "unit_price": "100", "line_total": "100"}])
+    def attempt(_):
+        try:
+            return issue_bill(order).pk
+        finally:
+            connections.close_all()
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        ids = list(pool.map(attempt, range(2)))
+    assert ids[0] == ids[1]
+    with tenant_context(tenant):
+        assert Invoice.objects.count() == 1
+        assert InvoiceSequence.objects.get().next_no == 2

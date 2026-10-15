@@ -3,6 +3,20 @@
 {% block title %}{{ order.order_no }}{% endblock %}
 {% block heading %}<a class="o-crumb" href="{% url 'owner:orders' %}">← Orders</a><h1>{{ order.order_no }}</h1><p>Placed {{ order.placed_at|date:"j M Y, g:i A" }} · {{ order.get_channel_display }}</p>{% endblock %}
 {% block content %}
+<section class="o-card">
+<h2>Payment &amp; bill</h2>
+{% if invoice %}<a class="o-btn" href="{% url 'owner:bill' invoice.pk %}">View / print bill {{ invoice.number }}</a>
+{% elif order.payment_status == 'paid' %}
+<form method="post" action="{% url 'owner:order_bill' order.pk %}">{% csrf_token %}<button class="o-btn o-btn-primary">Generate bill</button></form>
+{% elif order.payment_status != 'refunded' and order.status != 'cancelled' %}
+<p>Confirm only after receiving the full payment of ₹{{ order.total|money }}. For COD, confirm after collecting cash.</p>
+<form method="post" action="{% url 'owner:order_payment' order.pk %}">{% csrf_token %}
+<label><input type="checkbox" name="confirmed" value="yes" required> Full payment received</label>
+<input class="o-input" name="reference" maxlength="120" placeholder="Payment reference / collection note (optional)">
+<button class="o-btn o-btn-primary">Confirm payment &amp; issue bill</button></form>
+{% endif %}
+<p><a href="{% url 'owner:billing_settings' %}">Billing settings</a> · Complete once before issuing your first bill.</p>
+</section>
 <div class="o-cols">
   <section class="o-card" data-reveal>
     <header class="o-card-head"><h2>Items</h2><span class="o-pill o-pill-{{ order.status }}">{{ order.get_status_display }}</span></header>
@@ -12,6 +26,7 @@
       {% endfor %}
       <li><span>Subtotal</span><span class="o-money">₹{{ order.subtotal|money }}</span></li>
       <li><span>Delivery</span><span class="o-money">₹{{ order.delivery_fee|money }}</span></li>
+      {% if order.discount %}<li><span>Discount</span><span>−₹{{ order.discount|money }}</span></li>{% endif %}
       <li class="o-total"><span>Total</span><span class="o-money">₹{{ order.total|money }}</span></li>
     </ul>
   </section>

@@ -175,7 +175,12 @@ def test_two_workers_claim_a_message_only_once(kitchen, monkeypatch):
     with ThreadPoolExecutor(max_workers=2) as pool:
         statuses = list(pool.map(lambda _: attempt(), range(2)))
     message.refresh_from_db()
-    assert statuses.count(MessageStatus.SENT) == 2
+    # Delivery happens outside the claim transaction. A competing worker may
+    # observe SENDING before the winning worker saves its final result.
+    assert set(statuses) <= {MessageStatus.SENDING, MessageStatus.SENT}
+    assert MessageStatus.SENT in statuses
+    assert message.status == MessageStatus.SENT
+    assert message.provider_message_id == "wamid.once"
     assert sender.calls == 1
     assert message.attempts == 1
 

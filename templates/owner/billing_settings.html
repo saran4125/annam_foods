@@ -1,0 +1,8 @@
+{% extends "owner/base.html" %}
+{% block title %}Billing settings{% endblock %}
+{% block heading %}<h1>Billing settings</h1><p>Save your business details once. Future bills use these settings; existing bills stay unchanged. Bills are issued only after payment is confirmed.</p>{% endblock %}
+{% block content %}<form method="post" class="o-form" novalidate>{% csrf_token %}
+{{ form.non_field_errors }}
+<section class="o-card"><p>Choose your GST status, rate and SAC / HSN as confirmed by your accountant. No tax is collected for unregistered or composition businesses. Inclusive prices should match the amount customers pay.</p>
+<div class="o-grid-form">{% for f in form %}{% include "owner/_field.html" %}{% endfor %}</div></section>
+<button class="o-btn o-btn-primary">Save billing settings</button></form>{% endblock %}
