@@ -1,10 +1,14 @@
 """Resolve the tenant from the request's hostname."""
 from django.conf import settings
 from django.http import HttpResponseNotFound
+from django.shortcuts import redirect
+from django.urls import reverse
+from urllib.parse import urlencode
+import re
 from django.utils import timezone
 
 from .context import reset_current_tenant, set_current_tenant
-from .models import TenantDomain
+from .models import TenantDomain, Tenant, TenantUser
 
 
 class TenantMiddleware:
@@ -25,23 +29,37 @@ class TenantMiddleware:
         token = None
         previous_timezone = timezone.get_current_timezone()
 
+        is_central = request.path == "/platform" or request.path.startswith("/platform/")
+        domain = None
         if host != platform_host and request.path != "/healthz":
-            domain = (
-                TenantDomain.objects.select_related("tenant", "tenant__config")
-                .filter(hostname=host)
-                .first()
-            )
+            domain = TenantDomain.objects.select_related("tenant", "tenant__config").filter(hostname=host).first()
             if domain is None:
-                # An unknown hostname is not a tenant. Say so plainly rather
-                # than falling through and serving someone else's kitchen.
-                return HttpResponseNotFound(
-                    "No kitchen is configured for this address."
-                )
-            request.tenant = domain.tenant
-            token = set_current_tenant(domain.tenant)
-            # FIX-10: a kitchen's clock is its own. Cutoffs, menus and campaign
-            # windows must agree at local midnight, never at the server's.
-            config = getattr(domain.tenant, "config", None)
+                return HttpResponseNotFound("No kitchen is configured for this address.")
+        selected = None
+        if is_central:
+            workspace = re.match(r"^/platform/workspaces/([a-z0-9-]+)/(manage|billing|preview)(?:/|$)", request.path)
+            webhook = re.fullmatch(r"/platform/webhooks/([a-z0-9-]+)/whatsapp/(?:n8n/)?", request.path)
+            if workspace:
+                if not request.user.is_authenticated:
+                    return redirect("/platform/login/?" + urlencode({"next": request.get_full_path()}))
+                selected = Tenant.objects.select_related("config").filter(slug=workspace.group(1)).first()
+                if selected is None or not request.user.is_active or not (request.user.is_superuser or TenantUser.all_tenants.filter(tenant=selected, user=request.user).exists()):
+                    return HttpResponseNotFound("Workspace not found.")
+                from apps.platform_portal.workspace_urls import workspace_urlconf
+                request.urlconf = workspace_urlconf(selected.slug)
+                request.workspace_slug = selected.slug
+                request.workspace_preview_url = f"/platform/workspaces/{selected.slug}/preview/"
+            elif webhook:
+                # Public only for these exact signed/authenticated webhook paths.
+                selected = Tenant.objects.select_related("config").filter(slug=webhook.group(1)).first()
+                if selected is None:
+                    return HttpResponseNotFound("Kitchen not found.")
+        elif domain:
+            selected = domain.tenant
+        if selected:
+            request.tenant = selected
+            token = set_current_tenant(selected)
+            config = getattr(selected, "config", None)
             if config is not None and config.timezone:
                 timezone.activate(config.timezone)
 

@@ -38,7 +38,7 @@
   </section>
 
   <section class="o-card" data-reveal>
-    <header class="o-card-head"><h2>Home page hero</h2><a href="/" target="_blank" rel="noopener">Preview →</a></header>
+    <header class="o-card-head"><h2>Home page hero</h2><a href="{{ tenant_home_url|default:'/' }}" target="_blank" rel="noopener">Preview →</a></header>
     <div class="o-grid-form">
       {% with f=form.hero_kicker %}{% include "owner/_field.html" %}{% endwith %}
       {% with f=form.hero_title %}{% include "owner/_field.html" %}{% endwith %}

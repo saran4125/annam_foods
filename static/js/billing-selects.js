@@ -10,7 +10,9 @@
   document.querySelectorAll('.billing-ui select:not([multiple])').forEach((select,index) => {
     if(select.closest('[data-line]') || select.disabled) return;
     const originalLabels=[...select.labels];
-    const labelText=(originalLabels[0]?.querySelector('span')?.textContent || originalLabels[0]?.textContent.split('\n')[0] || select.name).replace(/\*/g,'').trim();
+    const label=originalLabels[0]?.cloneNode(true);
+    label?.querySelectorAll('select,input,textarea,[aria-hidden="true"]').forEach(node=>node.remove());
+    const labelText=(label?.textContent || select.name).replace(/\*/g,'').replace(/\s+/g,' ').trim() || select.name;
     // Avoid placing interactive dropdown buttons inside the old wrapping label.
     if(select.parentElement.tagName==='LABEL'){
       const wrapper=select.parentElement;

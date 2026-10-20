@@ -41,6 +41,8 @@
     <span>{{ tenant.config.brand_name|default:tenant.name }}<small>Billing portal</small></span>
   </a>
   <nav class="o-nav" aria-label="Billing">
+    {% if workspace_overview_url %}<a href="{{ workspace_overview_url }}">← Workspace overview</a>{% endif %}
+    <a href="{% url 'portal:home' %}">My kitchens</a>
     <a href="{% url 'billing:dashboard' %}">Billing overview</a>
     <a href="{% url 'billing:channel' 'manual' %}" class="{% if channel == 'manual' %}on{% endif %}">Manual billing</a>
     <a href="{% url 'billing:channel' 'web' %}" class="{% if channel == 'web' %}on{% endif %}">Website billing</a>
@@ -49,7 +51,7 @@
     <a href="{% url 'owner:dashboard' %}">Store management</a>
   </nav>
   <div class="o-side-foot">
-    <a class="o-ghost" href="/" target="_blank" rel="noopener"><svg class="o-ic"><use href="#o-eye"/></svg>View website</a>
+    <a class="o-ghost" href="{{ tenant_home_url|default:'/' }}" target="_blank" rel="noopener"><svg class="o-ic"><use href="#o-eye"/></svg>View website</a>
     <form method="post" action="{% url 'billing:logout' %}">{% csrf_token %}
       <button class="o-ghost" type="submit"><svg class="o-ic"><use href="#o-out"/></svg>Log out <small>{{ request.user.get_username }}</small></button>
     </form>

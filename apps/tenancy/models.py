@@ -324,3 +324,24 @@ class TenantSecrets(models.Model):
     @property
     def razorpay_is_configured(self) -> bool:
         return bool(self.razorpay_key_id and self._razorpay_secret)
+
+
+class OwnerInvitation(TenantOwnedModel):
+    """Only a token hash is persisted; invitation links are shown once."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    email = models.EmailField()
+    token_hash = models.CharField(max_length=64, unique=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
+class PlatformAuditEvent(TenantOwnedModel):
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    action = models.CharField(max_length=60)
+    details = models.JSONField(default=dict)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta(TenantOwnedModel.Meta):
+        ordering = ["-created_at"]

@@ -175,3 +175,20 @@ The Render start script now supervises the web server and a database-backed inbo
 worker. Apply the included tenancy/messaging migrations on startup. Old chat
 history is not automatically imported. Staff replies require an open 24-hour
 window; the WhatsApp billing section remains separate from the inbox.
+
+## Central platform workspace
+
+Open `/platform/` to sign in centrally with an existing kitchen account. Owners
+see their own kitchens; Django superusers can use `/platform/admin/` to create
+kitchens, invite accounts, manage status and configure existing website features.
+The original Annam storefront at `/` and `/manage/` remain available.
+
+Each kitchen gets a private setup dashboard, management/billing tools and website
+preview at `/platform/workspaces/<slug>/`. It works before public DNS is ready.
+Owners activate new accounts through single-use invitations shared by the platform
+administrator. Email is not sent automatically. Public subdomains can be reserved
+with `TENANT_BASE_DOMAIN`; actual DNS/HTTPS setup remains external.
+
+The pre-platform code is preserved at Git tag `pre-platform-2026-10-20`.
+See [docs/platform-stage-one.md](docs/platform-stage-one.md) for administrator
+setup, routing, invitation security, deployment limitations and rollback guidance.

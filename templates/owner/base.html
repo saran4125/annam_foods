@@ -40,6 +40,8 @@
     <span>{{ tenant.config.brand_name|default:tenant.name }}<small>Store admin</small></span>
   </a>
   <nav class="o-nav" aria-label="Admin">
+    {% if workspace_overview_url %}<a href="{{ workspace_overview_url }}">← Workspace overview</a>{% endif %}
+    <a href="{% url 'portal:home' %}">My kitchens</a>
     <a href="{{ dash_url }}" class="{% if request.path == dash_url %}on{% endif %}"><svg class="o-ic"><use href="#o-home"/></svg>Dashboard</a>
     <a href="{% url 'owner:orders' %}" class="{% if '/manage/orders' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>Orders</a>
     <a href="{% url 'owner:whatsapp' %}" class="{% if '/manage/whatsapp' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>WhatsApp inbox</a>
@@ -56,7 +58,7 @@
     <a href="{% url 'owner:settings' %}" class="{% if '/manage/settings' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-cog"/></svg>Store settings</a>
   </nav>
   <div class="o-side-foot">
-    <a class="o-ghost" href="/" target="_blank" rel="noopener"><svg class="o-ic"><use href="#o-eye"/></svg>View website</a>
+    <a class="o-ghost" href="{{ tenant_home_url|default:'/' }}" target="_blank" rel="noopener"><svg class="o-ic"><use href="#o-eye"/></svg>View website</a>
     <form method="post" action="{% url 'owner:logout' %}">{% csrf_token %}
       <button class="o-ghost" type="submit"><svg class="o-ic"><use href="#o-out"/></svg>Log out <small>{{ request.user.get_username }}</small></button>
     </form>

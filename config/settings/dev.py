@@ -30,3 +30,5 @@ DATABASES = {"default": {
     "PORT": os.environ.get("POSTGRES_PORT", "5439"),
     "CONN_MAX_AGE": 60,
 }}
+
+TENANT_BASE_DOMAIN = os.environ.get("TENANT_BASE_DOMAIN", "localhost").strip().lower()

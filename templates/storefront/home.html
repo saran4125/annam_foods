@@ -57,7 +57,7 @@
             <h2>{{ b.title }}</h2>
             {% if b.subtitle %}<p>{{ b.subtitle }}</p>{% endif %}
             <div class="offer-actions">
-              {% if b.link|safe_link %}<a class="btn btn-primary btn-lg" href="{{ b.link|safe_link }}"{% if not forloop.first %} tabindex="-1"{% endif %}>See the offer <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
+              {% if b.link|safe_link|workspace_link:request %}<a class="btn btn-primary btn-lg" href="{{ b.link|safe_link|workspace_link:request }}"{% if not forloop.first %} tabindex="-1"{% endif %}>See the offer <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
               {% if whatsapp_link %}<a class="btn btn-lg" href="{{ whatsapp_link }}" target="_blank" rel="noopener"{% if not forloop.first %} tabindex="-1"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>Pre-order on WhatsApp</a>{% endif %}
             </div>
           </div>
@@ -82,7 +82,7 @@
 {% if promo_tiles %}
 <div class="promo-rail wrap" aria-label="Current offers" data-stagger>
   {% for b in promo_tiles %}
-    <a class="promo-tile" href="{{ b.link|safe_link }}">
+    <a class="promo-tile" href="{{ b.link|safe_link|workspace_link:request }}">
       {% if b.image %}<img src="{{ b.image.url }}" alt="" width="720" height="220" loading="lazy">{% endif %}
       <span><b>{{ b.title }}</b>{% if b.subtitle %}<small>{{ b.subtitle }}</small>{% endif %}</span>
     </a>
@@ -249,7 +249,7 @@ but quieter, with a link to order them for tomorrow.{% endcomment %}
     <p class="feature-list-title">What goes in <span>{{ spotlight.points|length }} ingredients</span></p>
     <ul class="feature-list">{% for point in spotlight.points %}<li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>{{ point }}</li>{% endfor %}</ul>
     {% endif %}
-    {% if spotlight.link|safe_link %}<a class="btn btn-primary btn-lg" href="{{ spotlight.link|safe_link }}">{{ spotlight.cta|default:"Order now" }} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
+    {% if spotlight.link|safe_link|workspace_link:request %}<a class="btn btn-primary btn-lg" href="{{ spotlight.link|safe_link|workspace_link:request }}">{{ spotlight.cta|default:"Order now" }} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
   </div>
 </section>
 {% endif %}

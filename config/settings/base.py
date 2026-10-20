@@ -98,3 +98,6 @@ HUEY = {
     "consumer": {"workers": 2, "worker_type": "thread", "periodic": True},
     "immediate": False,
 }
+
+# Public subdomain base; DNS/hosting/TLS must also be configured externally.
+TENANT_BASE_DOMAIN = os.environ.get("TENANT_BASE_DOMAIN", "").strip().lower()

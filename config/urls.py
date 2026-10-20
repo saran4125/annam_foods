@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.db import connection, DatabaseError
 from django.http import JsonResponse
 from django.urls import include, path
+from apps.platform_portal.views import root
 
 
 def healthz(request):
@@ -17,11 +18,13 @@ def healthz(request):
 
 
 urlpatterns = [
+    path("platform/", include("apps.platform_portal.urls")),
     path("healthz", healthz, name="healthz"),
     path("admin/", admin.site.urls),
     path("webhooks/whatsapp/", include("apps.messaging.webhook_urls")),
     path("billing/", include("apps.billing.urls")),
     path("manage/", include("apps.owner.urls")),
+    path("", root),
     path("", include("apps.storefront.urls")),
 ]
 

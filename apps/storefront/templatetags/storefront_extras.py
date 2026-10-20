@@ -79,3 +79,12 @@ def static_v(path):
     if found and not isinstance(found, (list, tuple)):
         url += f"?v={int(os.path.getmtime(found))}"
     return url
+
+
+@register.filter
+def workspace_link(value, request):
+    """Keep root-relative owner content links inside a private website preview."""
+    prefix = getattr(request, "workspace_preview_url", "")
+    if prefix and isinstance(value, str) and value.startswith("/") and not value.startswith(("//", "/platform/", "/static/", "/media/")):
+        return prefix.rstrip("/") + value
+    return value
