@@ -45,7 +45,6 @@
     <a href="{% url 'billing:channel' 'manual' %}" class="{% if channel == 'manual' %}on{% endif %}">Manual billing</a>
     <a href="{% url 'billing:channel' 'web' %}" class="{% if channel == 'web' %}on{% endif %}">Website billing</a>
     <a href="{% url 'billing:channel' 'whatsapp' %}" class="{% if channel == 'whatsapp' %}on{% endif %}">WhatsApp billing</a>
-    <a class="b-nav-new" href="{% url 'billing:new' %}">＋ New booking</a>
     <a href="{% url 'billing:settings' %}">Billing settings</a>
     <a href="{% url 'owner:dashboard' %}">Store management</a>
   </nav>
@@ -72,6 +71,7 @@
   <main class="o-main" id="o-main">{% block content %}{% endblock %}</main>
 </div>
 <script src="{% static_v 'js/owner.js' %}" defer></script>
+<script src="{% static_v 'js/billing-selects.js' %}" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

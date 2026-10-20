@@ -1,4 +1,4 @@
 {% extends "billing/base.html" %}
 {% block heading %}<h1>Billing</h1><p>One business identity and invoice series across every order source.</p>{% endblock %}
 {% block content %}<div class="b-source-cards">{% for card in cards %}<section class="o-card b-source-card"><span class="b-eyebrow">ORDER SOURCE</span><h2>{{ card.label }}</h2><p class="b-card-count">{{ card.count }} <small>orders</small></p><a class="o-btn" href="{% url 'billing:channel' card.channel %}">Open {{ card.label }}</a></section>{% endfor %}</div>
-<section class="o-card"><h2>Create a bill</h2><p>Enter a phone, walk-in or WhatsApp booking, then confirm payment on its order page. The bill is issued only after payment.</p><a class="o-btn o-btn-primary" href="{% url 'billing:new' %}">New order</a> <a href="{% url 'billing:settings' %}">Set up billing details</a></section>{% endblock %}
+<section class="o-card"><h2>Business details</h2><p>Your saved billing settings are shared across manual, website and WhatsApp orders.</p><a class="o-btn" href="{% url 'billing:settings' %}">Manage billing settings</a></section>{% endblock %}
