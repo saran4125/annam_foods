@@ -1,6 +1,19 @@
-{% extends "billing/base.html" %}
-{% block heading %}<h1>Enter a booking</h1><p>Choose catalog items. Prices and delivery charges are calculated by the server.</p>{% endblock %}
-{% block content %}<form method="post" class="o-form">{% csrf_token %}{{ form.token }}{{ form.non_field_errors }}{{ form.token.errors }}<section class="o-card"><div class="o-grid-form">{% for f in form %}{% if not f.is_hidden %}{% include "owner/_field.html" %}{% endif %}{% endfor %}</div></section>
-<section class="o-card"><h2>Items</h2>{{ lines.management_form }}{{ lines.non_form_errors }}<div id="order-lines">{% for line in lines %}<div class="o-grid-form">{{ line.as_p }}</div>{% endfor %}</div><button class="o-btn" type="button" id="add-line">Add another item</button></section><button class="o-btn o-btn-primary">Save order &amp; review total</button></form>
-<template id="line-template"><div class="o-grid-form">{{ lines.empty_form.as_p }}</div></template>
-<script>document.getElementById('add-line').addEventListener('click',function(){const total=document.getElementById('id_lines-TOTAL_FORMS');const n=Number(total.value);if(n>=50)return;document.getElementById('order-lines').insertAdjacentHTML('beforeend',document.getElementById('line-template').innerHTML.replace(/__prefix__/g,String(n)));total.value=n+1;});</script>{% endblock %}
+{% extends "billing/base.html" %}{% load storefront_extras %}
+{% block title %}New booking{% endblock %}
+{% block heading %}<span class="b-eyebrow">BILLING / NEW BOOKING</span><h1>Enter a booking</h1><p>Select the food, add customer details, then review the order.</p>{% endblock %}
+{% block actions %}<a class="o-btn" href="{% url 'billing:dashboard' %}">Back to billing</a>{% endblock %}
+{% block content %}
+<form method="post" class="b-booking" id="booking-form">{% csrf_token %}{{ form.token }}{{ form.non_field_errors }}{{ form.token.errors }}
+<div class="b-booking-main">
+<section class="o-card b-panel"><div class="b-panel-head"><span class="b-step-number">1</span><div><h2>Customer &amp; booking</h2><p>Who is this order for?</p></div></div><div class="o-grid-form">{% with f=form.channel %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.payment_mode %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.name %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.phone %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.zone %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.address %}{% include "owner/_field.html" %}{% endwith %}</div></section>
+<section class="o-card b-panel"><div class="b-panel-head"><span class="b-step-number">2</span><div><h2>Order items</h2><p>Browse by meal or search for a dish. Prices appear beside each item.</p></div></div>
+{{ lines.management_form }}{{ lines.management_form.errors }}{{ lines.non_form_errors }}
+<div id="order-lines">{% for line in lines %}{% include "billing/_line.html" %}{% endfor %}</div>
+<button class="o-btn b-add-item" type="button" id="add-line">＋ Add another item</button><p class="b-muted" id="line-limit" role="status"></p>
+</section></div>
+<aside class="b-summary"><section class="o-card"><span class="b-eyebrow">ORDER SUMMARY</span><h2>Review your booking</h2><div id="summary-items" class="b-summary-items"><p class="b-muted">Your selected items will appear here.</p></div><dl class="b-totals"><div><dt>Items subtotal</dt><dd id="summary-subtotal">₹0.00</dd></div><div><dt>Delivery</dt><dd id="summary-delivery">₹0.00</dd></div><div class="b-grand-total"><dt>Estimated total</dt><dd id="summary-total">₹0.00</dd></div></dl><p class="b-muted" id="minimum-note" role="status"></p><button class="o-btn o-btn-primary b-save" type="submit">Save order &amp; review total →</button><p class="b-summary-note">Review the final total after saving. A bill is issued only after you confirm payment received.</p></section><a class="b-help-link" href="{% url 'billing:settings' %}">Manage business &amp; billing details ↗</a></aside>
+</form>
+<template id="line-template">{% include "billing/_line.html" with line=lines.empty_form %}</template>
+{{ catalog|json_script:"billing-catalog" }}{{ delivery_areas|json_script:"billing-delivery-areas" }}
+{% endblock %}
+{% block scripts %}<script src="{% static_v 'js/billing.js' %}" defer></script>{% endblock %}

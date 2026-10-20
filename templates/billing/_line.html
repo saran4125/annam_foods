@@ -1,0 +1,7 @@
+<div class="b-line" data-line>
+  <div class="b-line-item"><label class="b-label" for="{{ line.item.id_for_label }}">Item</label>{{ line.item }}{{ line.item.errors }}</div>
+  <div class="b-line-qty"><label class="b-label" for="{{ line.quantity.id_for_label }}">Quantity</label><div class="b-stepper"><button type="button" data-step="-1" aria-label="Decrease quantity">−</button>{{ line.quantity }}<button type="button" data-step="1" aria-label="Increase quantity">+</button></div>{{ line.quantity.errors }}</div>
+  <div class="b-line-price"><span class="b-label">Amount</span><strong data-line-total>—</strong></div>
+  <label class="b-remove" title="Remove item">{{ line.DELETE }}<span>Remove</span></label>
+  {{ line.non_field_errors }}
+</div>

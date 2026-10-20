@@ -140,3 +140,31 @@ def test_delivery_fee_minimum_and_unpaid_bill_rule(signed_in, kitchens, item):
     with tenant_context(kitchens[0]):
         assert not Invoice.objects.exists()
     assert signed_in.get(f"/billing/orders/{order.pk}/payment/", HTTP_HOST=HOST).status_code == 405
+
+
+def test_booking_picker_groups_items_by_meal_and_keeps_prices_tenant_scoped(signed_in, kitchens, item):
+    from datetime import time
+    from apps.catalog.models import Slot, MenuSchedule
+    from apps.billing.services import staff_catalog
+    with tenant_context(kitchens[0]):
+        breakfast = Slot.objects.create(key="breakfast", label="Breakfast", order_cutoff=time(9))
+        dinner = Slot.objects.create(key="dinner", label="Dinner", order_cutoff=time(19))
+        for slot in (breakfast, dinner):
+            MenuSchedule.objects.create(item=item, slot=slot, mode="weekday", weekday=0)
+        other = MenuItem.objects.create(name="Test Pickle", price="50", fulfilment="courier")
+        inactive = MenuItem.objects.create(name="Not For Sale", price="1", active=False)
+        catalog = staff_catalog()
+        assert next(x for x in catalog if x["id"] == item.pk)["groups"] == ["breakfast", "dinner"]
+        assert next(x for x in catalog if x["id"] == other.pk)["groups"] == ["other"]
+        assert inactive.pk not in {x["id"] for x in catalog}
+    with tenant_context(kitchens[1]):
+        MenuItem.objects.create(name="Private Rival Dish", price="99")
+    response = signed_in.get("/billing/new/", HTTP_HOST=HOST)
+    assert response.status_code == 200
+    assert b'optgroup label="Breakfast"' in response.content
+    assert b'optgroup label="Dinner"' in response.content
+    assert b'optgroup label="Other items"' in response.content
+    assert b'Private Rival Dish' not in response.content
+    assert b'Not For Sale' not in response.content
+    assert b'100.00' in response.content
+    assert response.context['lines'].total_form_count() == 1

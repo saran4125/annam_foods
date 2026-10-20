@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>{% block title %}Dashboard{% endblock %} · {{ tenant.config.brand_name|default:tenant.name }} admin</title>
+<title>{% block title %}Billing{% endblock %} · {{ tenant.config.brand_name|default:tenant.name }} admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="{% static_v 'css/owner.css' %}">
+<link rel="stylesheet" href="{% static_v 'css/billing.css' %}">
 <style>:root{--brand:{{ tenant.config.theme.brand|default:"#FF8507" }};{% if tenant.config.theme.header_bg %}--side-bg:{{ tenant.config.theme.header_bg }};{% endif %}}</style>
 </head>
-<body class="o-body">
+<body class="o-body billing-ui">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="o-home" viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5V20h-5v-5h-6v5H4z"/></symbol>
   <symbol id="o-dish" viewBox="0 0 24 24"><path d="M3 15h18M5 15a7 7 0 0 1 14 0M12 6v2M4 18h16"/></symbol>
@@ -44,7 +45,7 @@
     <a href="{% url 'billing:channel' 'manual' %}" class="{% if channel == 'manual' %}on{% endif %}">Manual billing</a>
     <a href="{% url 'billing:channel' 'web' %}" class="{% if channel == 'web' %}on{% endif %}">Website billing</a>
     <a href="{% url 'billing:channel' 'whatsapp' %}" class="{% if channel == 'whatsapp' %}on{% endif %}">WhatsApp billing</a>
-    <a href="{% url 'billing:new' %}">New manual / WhatsApp order</a>
+    <a class="b-nav-new" href="{% url 'billing:new' %}">＋ New booking</a>
     <a href="{% url 'billing:settings' %}">Billing settings</a>
     <a href="{% url 'owner:dashboard' %}">Store management</a>
   </nav>
@@ -71,5 +72,6 @@
   <main class="o-main" id="o-main">{% block content %}{% endblock %}</main>
 </div>
 <script src="{% static_v 'js/owner.js' %}" defer></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

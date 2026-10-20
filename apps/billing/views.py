@@ -20,7 +20,7 @@ from apps.owner.forms import BillingSettingsForm
 from apps.tenancy.models import BillingProfile
 from .forms import ManualOrderForm, OrderLines
 from .models import Invoice
-from .services import create_staff_order, confirm_payment, issue_bill
+from .services import create_staff_order, confirm_payment, issue_bill, staff_catalog
 
 CHANNELS = {"manual": "Manual billing", "web": "Website billing", "whatsapp": "WhatsApp billing"}
 
@@ -109,7 +109,18 @@ def new_order(request):
         else:
             messages.success(request, "Order saved. Confirm payment after receiving the full amount to issue its bill.")
             return redirect("billing:order", pk=order.pk)
-    return render(request, "billing/new.html", {"form": form, "lines": lines})
+    catalog = staff_catalog()
+    groups = [("breakfast", "Breakfast"), ("lunch", "Lunch"), ("dinner", "Dinner"), ("other", "Other items")]
+    choices = [("", "Select an item")]
+    for key, label in groups:
+        options = [(entry["id"], f'{entry["name"]} — ₹{entry["price"]}') for entry in catalog if key in entry["groups"]]
+        if options:
+            choices.append((label, options))
+    for line in [*lines.forms, lines.empty_form]:
+        line.fields["item"].choices = choices
+    return render(request, "billing/new.html", {"form": form, "lines": lines,
+        "catalog": catalog, "delivery_areas": [{"id": z.pk, "fee": str(z.delivery_fee), "minimum": str(z.min_order)}
+                                                for z in form.fields["zone"].queryset]})
 
 
 @staff_required

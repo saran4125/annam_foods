@@ -373,3 +373,18 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
     OrderEvent.objects.create(order=order, to_status=order.status, actor=actor[:60],
                               note="Booking entered by staff in billing portal.")
     return order
+
+
+def staff_catalog():
+    """Group active catalog choices by their configured meal schedules, not names."""
+    from django.db.models import Prefetch
+    from apps.catalog.models import MenuSchedule
+    schedules = MenuSchedule.objects.filter(available=True, slot__active=True).select_related("slot")
+    result = []
+    for item in MenuItem.objects.filter(active=True).select_related("category").prefetch_related(
+            Prefetch("schedule", queryset=schedules, to_attr="billing_schedules")).order_by("name"):
+        groups = sorted({row.slot.key for row in item.billing_schedules
+                         if row.slot.key in ("breakfast", "lunch", "dinner")}) if item.fulfilment == "scheduled" else []
+        result.append({"id": item.pk, "name": item.name, "price": str(item.price),
+                       "category": item.category.name if item.category else "", "groups": groups or ["other"]})
+    return result

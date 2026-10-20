@@ -155,3 +155,9 @@ collection. Retrying the same booking submission reuses its order; repeated bill
 requests reuse its invoice. Billing settings are available at `/billing/settings/`
 and continue to be shared with the previous management screens. No new database
 migration is needed for this portal.
+
+Booking item selection offers searchable Breakfast, Lunch, Dinner and Other
+filters. Meal groups follow each item's available schedules and active meal slots;
+courier goods and items without a matching meal schedule appear under Other.
+An item assigned to more than one meal appears in each applicable filter.
+The live booking summary is an estimate; final prices remain server-calculated.

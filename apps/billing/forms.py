@@ -19,6 +19,13 @@ class ManualOrderForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["zone"].queryset = DeliveryZone.objects.filter(active=True)
+        self.fields["zone"].empty_label = "Collection / takeaway"
+        self.fields["zone"].label = "Delivery area"
+        self.fields["channel"].label = "Order source"
+        self.fields["payment_mode"].choices = [("manual", "Cash / UPI / bank transfer"), ("cod", "Cash on delivery")]
+        self.fields["name"].widget.attrs.update(placeholder="Customer's full name", autocomplete="name")
+        self.fields["phone"].widget.attrs.update(placeholder="Phone number", autocomplete="tel", inputmode="tel")
+        self.fields["address"].widget.attrs.update(placeholder="Door number, street and landmark", autocomplete="street-address")
         for field in self.fields.values():
             field.widget.attrs.setdefault("class", "o-input")
 
@@ -35,8 +42,13 @@ class ManualOrderForm(forms.Form):
         return data
 
 
+class PricedItemField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return f"{obj.name} — ₹{obj.price:.2f}"
+
+
 class OrderLineForm(forms.Form):
-    item = forms.ModelChoiceField(queryset=MenuItem.all_tenants.none())
+    item = PricedItemField(queryset=MenuItem.all_tenants.none())
     quantity = forms.IntegerField(min_value=1, max_value=999, initial=1)
 
     def __init__(self, *args, **kwargs):
@@ -46,5 +58,5 @@ class OrderLineForm(forms.Form):
             field.widget.attrs["class"] = "o-input"
 
 
-OrderLines = formset_factory(OrderLineForm, extra=1, min_num=1, validate_min=True,
+OrderLines = formset_factory(OrderLineForm, extra=0, min_num=1, validate_min=True,
                             max_num=50, validate_max=True, absolute_max=50, can_delete=True)
