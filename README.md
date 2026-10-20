@@ -166,8 +166,8 @@ The live booking summary is an estimate; final prices remain server-calculated.
 
 `/manage/whatsapp/` shows tenant-scoped customer conversations, incoming text,
 attachments and catalog order requests, app/n8n outgoing messages, and delivery
-statuses. Configure write-only credentials and find the Meta/n8n endpoints at
-`/manage/whatsapp/settings/`. Keep the existing n8n automation and add incoming and
+statuses. Set the Meta phone number ID and inbox sync token, and find the single
+n8n sync endpoint at `/manage/whatsapp/settings/`. Keep the existing n8n automation and add incoming and
 outgoing sync nodes as documented in [docs/n8n/inbox-sync.md](docs/n8n/inbox-sync.md).
 No live Meta subscription or n8n workflow is changed by deploying this code.
 

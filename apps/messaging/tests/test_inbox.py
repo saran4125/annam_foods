@@ -200,14 +200,18 @@ def test_connection_form_does_not_echo_credentials_or_replace_blank_secrets(sign
     assert page.status_code==200
     for secret in (APP_SECRET,SYNC_TOKEN,"test-workflow-auth","test-verify"):
         assert secret.encode() not in page.content
-    data={"phone_number_id":"123456","waba_id":"","provider":"n8n","n8n_send_url":"https://example.n8n.cloud/webhook/send","n8n_receive_url":""}
+    assert set(page.context["form"].fields) == {"phone_number_id", "sync_token"}
+    for name in ("provider", "waba_id", "verify_token", "app_secret", "n8n_send_url", "n8n_receive_url", "n8n_auth_token", "meta_token"):
+        assert f'name="{name}"'.encode() not in page.content
+    data={"phone_number_id":"123456"}
     assert signed_in.post("/manage/whatsapp/settings/",data,HTTP_HOST=HOST).status_code==302
     connection.refresh_from_db();assert connection.wa_sync_token==SYNC_TOKEN and connection.wa_app_secret==APP_SECRET
     assert SYNC_TOKEN not in connection._wa_sync_token
     data["n8n_receive_url"]="https://127.0.0.1/private"
     response=signed_in.post("/manage/whatsapp/settings/",data,HTTP_HOST=HOST)
-    assert response.status_code==200
+    assert response.status_code==302  # Removed fields cannot change existing integration settings.
     connection.refresh_from_db();assert not connection.n8n_receive_url
+    assert connection.wa_provider=="n8n" and connection.n8n_send_url=="https://example.n8n.cloud/webhook/send"
 
 
 def test_media_download_is_staff_only_and_does_not_redirect_tokens(signed_in, client, connection, kitchens):
@@ -281,3 +285,20 @@ def test_two_simultaneous_meta_deliveries_create_one_message_and_one_unread(conn
     with tenant_context(kitchens[0]):
         assert WhatsAppMessage.objects.count()==1
         assert WhatsAppConversation.objects.get().unread_count==1
+
+
+
+def test_minimal_n8n_connection_requires_initial_token_and_can_receive_without_a_send_workflow(signed_in, kitchens):
+    data={"phone_number_id":"123456"}
+    response=signed_in.post("/manage/whatsapp/settings/",data,HTTP_HOST=HOST)
+    assert response.status_code==200 and "sync_token" in response.context["form"].errors
+    data["sync_token"]="new-sync-token-with-at-least-24-characters"
+    assert signed_in.post("/manage/whatsapp/settings/",data,HTTP_HOST=HOST).status_code==302
+    connection=TenantSecrets.objects.get(tenant=kitchens[0])
+    assert connection.wa_sync_token==data["sync_token"]
+    assert connection.wa_provider=="console" and not connection.n8n_send_url
+    payload={"event":"outbound","phone_number_id":"123456","message_id":"wamid.minimal","message":{"to":"919999999999","type":"text","text":{"body":"n8n replied"}}}
+    response=signed_in.post("/webhooks/whatsapp/n8n/",json.dumps(payload),content_type="application/json",HTTP_HOST=HOST,HTTP_AUTHORIZATION="Bearer "+data["sync_token"])
+    assert response.status_code==200
+    with tenant_context(kitchens[0]):
+        assert WhatsAppMessage.objects.get().body=="n8n replied"

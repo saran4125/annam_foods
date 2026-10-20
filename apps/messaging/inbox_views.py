@@ -17,7 +17,7 @@ from apps.owner.access import owner_required
 from apps.tenancy.models import TenantSecrets
 from .connection import WhatsAppConnectionForm
 from .inbox import mark_read, queue_reply, sync_outbound
-from .models import WhatsAppConversation, WhatsAppMessage, WhatsAppForwardEvent, OutboundMessage
+from .models import WhatsAppConversation, WhatsAppMessage, OutboundMessage
 
 
 def _context(request, pk=None):
@@ -91,15 +91,13 @@ def connection_settings(request):
         except RuntimeError:
             form.add_error(None, "Connection secrets could not be encrypted. Check SECRETS_KEY on the server.")
         else:
-            messages.success(request, "WhatsApp connection settings saved. Follow the endpoint instructions below to connect n8n and Meta.")
+            messages.success(request, "Inbox sync settings saved. Use the endpoint below in n8n.")
             return redirect("owner:whatsapp_settings")
-    return render(request, "messaging/settings.html", {"form": form,
-        "meta_url": request.build_absolute_uri(reverse("whatsapp_webhooks:meta")),
+    return render(request, "messaging/settings.html", {
+        "form": form,
         "n8n_url": request.build_absolute_uri(reverse("whatsapp_webhooks:n8n")),
-        "stored": {"verify_token": bool(connection.wa_verify_token), "app_secret": bool(connection._wa_app_secret), "sync_token": bool(connection._wa_sync_token),
-                   "n8n_auth_token": bool(connection._n8n_auth_token), "meta_token": bool(connection._wa_token)},
-        "forward_pending": WhatsAppForwardEvent.objects.filter(status__in=["pending", "sending"]).count(),
-        "forward_failed": WhatsAppForwardEvent.objects.filter(status="failed").count()})
+        "sync_token_saved": bool(connection._wa_sync_token),
+    })
 
 
 @owner_required

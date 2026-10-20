@@ -46,7 +46,7 @@ def forward_to_n8n(event):
 def download_media(tenant, media_id):
     token = tenant.secrets.wa_token
     if not token:
-        raise ValueError("Add a Meta access token in WhatsApp connection settings to preview media.")
+        raise ValueError("Attachment preview is not connected. View this attachment in WhatsApp.")
     if not str(media_id).isdigit():
         raise ValueError("Invalid media identifier.")
     opener = urllib.request.build_opener(NoRedirect)
