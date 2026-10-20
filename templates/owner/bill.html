@@ -10,8 +10,8 @@
 <h3>Bill to</h3><p>{{ invoice.buyer.name }} · {{ invoice.buyer.phone }}<br>{{ invoice.buyer.business_name }}<br>{{ invoice.buyer.billing_address|linebreaksbr }}{% if invoice.buyer.gstin %}<br>GSTIN: {{ invoice.buyer.gstin }}{% endif %}</p>
 <p>Order: {{ invoice.buyer.order_no }} · {{ invoice.buyer.channel }}<br>Payment: {{ invoice.payment_mode }}{% if invoice.payment_ref %} · {{ invoice.payment_ref }}{% endif %}</p>
 <p>Delivery: {% for key, value in invoice.buyer.delivery_address.items %}{% if value %}{{ value }} {% endif %}{% endfor %}<br>{{ invoice.buyer.slot }} {{ invoice.buyer.delivery_date }}</p>
-<table class="bill-table"><thead><tr><th>Item</th><th>SAC / HSN</th><th>Qty</th><th>Unit ₹</th><th>Discount ₹</th><th>Taxable ₹</th><th>Tax %</th><th>Tax ₹</th></tr></thead><tbody>
-{% for line in invoice.lines %}<tr><td>{{ line.description }}</td><td>{{ line.sac }}</td><td>{{ line.quantity }}</td><td>{{ line.unit_price }}</td><td>{{ line.discount|default:"0.00" }}</td><td>{{ line.taxable }}</td><td>{{ line.tax_rate }}</td><td>{{ line.tax }}</td></tr>{% endfor %}</tbody></table>
+<div class="b-table-scroll" role="region" aria-label="Bill item details" tabindex="0"><table class="bill-table"><thead><tr><th>Item</th><th>SAC / HSN</th><th>Qty</th><th>Unit ₹</th><th>Discount ₹</th><th>Taxable ₹</th><th>Tax %</th><th>Tax ₹</th></tr></thead><tbody>
+{% for line in invoice.lines %}<tr><td>{{ line.description }}</td><td>{{ line.sac }}</td><td>{{ line.quantity }}</td><td>{{ line.unit_price }}</td><td>{{ line.discount|default:"0.00" }}</td><td>{{ line.taxable }}</td><td>{{ line.tax_rate }}</td><td>{{ line.tax }}</td></tr>{% endfor %}</tbody></table></div>
 <p>Taxable value: ₹{{ invoice.taxable }}<br>CGST: ₹{{ invoice.cgst }} · SGST: ₹{{ invoice.sgst }} · IGST: ₹{{ invoice.igst }}<br>Round off: ₹{{ invoice.round_off }}</p>
 <h2>Total paid: ₹{{ invoice.total }}</h2><p>{{ invoice.amount_words }}</p>
 {% if invoice.seller.gst_mode == 'composition' %}<p>Composition taxable person, not eligible to collect tax on supplies.</p>{% endif %}
