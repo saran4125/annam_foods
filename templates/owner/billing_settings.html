@@ -1,4 +1,4 @@
-{% extends "owner/base.html" %}
+{% extends portal_base|default:"owner/base.html" %}
 {% block title %}Billing settings{% endblock %}
 {% block heading %}<h1>Billing settings</h1><p>Save your business details once. Future bills use these settings; existing bills stay unchanged. Bills are issued only after payment is confirmed.</p>{% endblock %}
 {% block content %}<form method="post" class="o-form" novalidate>{% csrf_token %}

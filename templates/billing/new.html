@@ -1,0 +1,6 @@
+{% extends "billing/base.html" %}
+{% block heading %}<h1>Enter a booking</h1><p>Choose catalog items. Prices and delivery charges are calculated by the server.</p>{% endblock %}
+{% block content %}<form method="post" class="o-form">{% csrf_token %}{{ form.token }}{{ form.non_field_errors }}{{ form.token.errors }}<section class="o-card"><div class="o-grid-form">{% for f in form %}{% if not f.is_hidden %}{% include "owner/_field.html" %}{% endif %}{% endfor %}</div></section>
+<section class="o-card"><h2>Items</h2>{{ lines.management_form }}{{ lines.non_form_errors }}<div id="order-lines">{% for line in lines %}<div class="o-grid-form">{{ line.as_p }}</div>{% endfor %}</div><button class="o-btn" type="button" id="add-line">Add another item</button></section><button class="o-btn o-btn-primary">Save order &amp; review total</button></form>
+<template id="line-template"><div class="o-grid-form">{{ lines.empty_form.as_p }}</div></template>
+<script>document.getElementById('add-line').addEventListener('click',function(){const total=document.getElementById('id_lines-TOTAL_FORMS');const n=Number(total.value);if(n>=50)return;document.getElementById('order-lines').insertAdjacentHTML('beforeend',document.getElementById('line-template').innerHTML.replace(/__prefix__/g,String(n)));total.value=n+1;});</script>{% endblock %}

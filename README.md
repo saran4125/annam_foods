@@ -132,3 +132,26 @@ Automatic WhatsApp delivery and payment gateway integration are separate work.
 Bills must match the paid order total. If tax or rounding settings would change
 that amount, issuance stops with an explanation instead of producing a bill for
 a different amount. Apply the included migrations before starting the server.
+
+## Separate billing portal
+
+Open `/billing/` on the kitchen's domain and sign in with the existing staff
+account. This portal is separate from `/manage/`; the management sidebar links
+to it. Its Manual, Website and WhatsApp sections share the same billing profile,
+invoice numbering, payment checks and immutable issued bills.
+
+- **Manual:** choose New order, enter the customer and select catalog items with
+  quantities. Prices are re-read on the server. Leave delivery area empty for
+  collection; otherwise select an active area and enter an address. The area's
+  minimum and delivery fee apply. Save, review the total, then confirm actual
+  payment receipt to issue and print the bill.
+- **Website:** existing orders whose channel is Website appear here. Customer
+  checkout and online payment collection still require integration.
+- **WhatsApp:** existing WhatsApp orders appear here; staff can also enter a
+  WhatsApp booking using New order. Automatic automation imports are not connected.
+
+A saved booking starts unpaid. COD also requires explicit confirmation of cash
+collection. Retrying the same booking submission reuses its order; repeated bill
+requests reuse its invoice. Billing settings are available at `/billing/settings/`
+and continue to be shared with the previous management screens. No new database
+migration is needed for this portal.

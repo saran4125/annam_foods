@@ -1,9 +1,9 @@
-{% extends "owner/base.html" %}
+{% extends portal_base|default:"owner/base.html" %}
 {% block title %}{{ invoice.number }}{% endblock %}
 {% block heading %}<h1>{{ invoice.get_kind_display }} {{ invoice.number }}</h1>{% endblock %}
 {% block content %}
 <style>@media print { .o-side, .o-top, .o-flashes, .o-skip, .o-scrim, .bill-actions {display:none!important} .o-shell, main, .o-main {margin:0!important;padding:0!important} .o-main>* {animation:none!important} @page {size:A4;margin:12mm} .o-card {border:0;box-shadow:none} } .bill-table {width:100%;border-collapse:collapse} .bill-table th,.bill-table td {padding:8px;text-align:left;border-bottom:1px solid #ddd}</style>
-<div class="bill-actions"><a href="{% url 'owner:order' invoice.order_id %}">Back to order</a> <button class="o-btn" onclick="window.print()">Print / Save as PDF</button></div>
+<div class="bill-actions"><a href="{% if billing_portal %}{% url 'billing:order' invoice.order_id %}{% else %}{% url 'owner:order' invoice.order_id %}{% endif %}">Back to order</a> <button class="o-btn" onclick="window.print()">Print / Save as PDF</button></div>
 <article class="o-card">
 <h2>{{ invoice.get_kind_display }} — {{ invoice.number }}</h2><p>{{ invoice.issued_at|date:"j M Y, g:i A" }}</p>
 <h3>{{ invoice.seller.name }}</h3><p>{{ invoice.seller.address|linebreaksbr }}<br>{{ invoice.seller.state }} ({{ invoice.seller.state_code }})<br>FSSAI: {{ invoice.seller.fssai_no }}{% if invoice.seller.gstin %}<br>GSTIN: {{ invoice.seller.gstin }}{% endif %}</p>

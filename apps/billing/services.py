@@ -307,3 +307,69 @@ def confirm_payment(order, *, actor, reference=""):
     OrderEvent.objects.create(order=order, from_status=order.status, to_status=order.status,
                              actor=actor[:60], note=("Payment receipt confirmed. " + reference)[:200])
     return order
+
+
+@transaction.atomic
+def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
+                       token, actor, address="", zone=None):
+    """Capture a phone/counter/chat booking with live prices and a retry-safe key."""
+    from apps.orders.models import Channel, OrderSource, OrderEvent, PaymentMode
+    from apps.orders.services import generate_order_number, get_or_create_customer
+    from apps.tenancy.context import get_current_tenant
+    if get_current_tenant() != tenant:
+        raise ValueError("Use the kitchen's billing portal to create an order.")
+    if channel not in (Channel.MANUAL, Channel.WHATSAPP):
+        raise ValueError("Staff orders must be manual or WhatsApp bookings.")
+    if payment_mode not in (PaymentMode.MANUAL, PaymentMode.COD):
+        raise ValueError("Choose a supported payment mode.")
+    # Serialize retries for a kitchen, including two submissions arriving together.
+    Tenant.objects.select_for_update().get(pk=tenant.pk)
+    external_ref = "billing:" + token
+    existing = Order.objects.filter(external_ref=external_ref).first()
+    if existing:
+        return existing
+    quantities = {}
+    for item_id, quantity in requested:
+        if not isinstance(quantity, int) or not 1 <= quantity <= 999:
+            raise ValueError("Quantities must be between 1 and 999.")
+        quantities[item_id] = quantities.get(item_id, 0) + quantity
+    if not quantities or len(quantities) > 50 or any(q > 999 for q in quantities.values()):
+        raise ValueError("Choose 1 to 50 items, with at most 999 of each.")
+    items = {item.pk: item for item in MenuItem.objects.filter(pk__in=quantities, active=True)}
+    if set(items) != set(quantities):
+        raise ValueError("An item is unavailable. Reload the form and choose active items.")
+    lines = [{"item_id": pk, "name": items[pk].name, "quantity": q,
+              "unit_price": str(items[pk].price), "line_total": str(items[pk].price * q),
+              "is_veg": items[pk].is_veg} for pk, q in quantities.items()]
+    subtotal = sum((Decimal(line["line_total"]) for line in lines), Decimal("0"))
+    fee = Decimal("0")
+    snapshot = {"line1": address, "fulfilment": "Collection"}
+    if zone:
+        from apps.delivery.models import DeliveryZone
+        zone = DeliveryZone.objects.get(pk=zone.pk, active=True)
+        if not address.strip():
+            raise ValueError("A delivery address is required.")
+        if subtotal < zone.min_order:
+            raise ValueError(f"This delivery area requires a minimum order of ₹{zone.min_order}.")
+        fee = zone.delivery_fee
+        snapshot = {"line1": address, "area": zone.area_name, "pincode": zone.pincode}
+    total = subtotal + fee
+    if total <= 0 or total >= Decimal("100000000"):
+        raise ValueError("Order total must be positive and below ₹10 crore.")
+    customer = get_or_create_customer(tenant, phone=phone, name=name, channel=channel)
+    for _ in range(5):
+        try:
+            with transaction.atomic():
+                order = Order.objects.create(customer=customer, order_no=generate_order_number(tenant),
+                    channel=channel, source=OrderSource.OWNER if channel == Channel.MANUAL else OrderSource.WA_CHAT,
+                    payment_mode=payment_mode, payment_status=PaymentStatus.COD_PENDING if payment_mode == PaymentMode.COD else PaymentStatus.PENDING,
+                    items=lines, address=snapshot, subtotal=subtotal, delivery_fee=fee, total=total,
+                    external_ref=external_ref)
+            break
+        except IntegrityError:
+            continue
+    else:
+        raise ValueError("Could not allocate an order number. Please try again.")
+    OrderEvent.objects.create(order=order, to_status=order.status, actor=actor[:60],
+                              note="Booking entered by staff in billing portal.")
+    return order

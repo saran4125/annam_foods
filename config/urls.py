@@ -19,6 +19,7 @@ def healthz(request):
 urlpatterns = [
     path("healthz", healthz, name="healthz"),
     path("admin/", admin.site.urls),
+    path("billing/", include("apps.billing.urls")),
     path("manage/", include("apps.owner.urls")),
     path("", include("apps.storefront.urls")),
 ]
