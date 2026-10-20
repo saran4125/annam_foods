@@ -272,6 +272,10 @@ class TenantSecrets(models.Model):
     n8n_send_url = models.URLField(blank=True)
     _n8n_auth_token = models.TextField(blank=True, db_column="n8n_auth_token_enc")
 
+    # Inbox mirroring and optional Meta-to-n8n forwarding.
+    _wa_sync_token = models.TextField(blank=True, db_column="wa_sync_token_enc")
+    n8n_receive_url = models.URLField(blank=True)
+
     # Razorpay
     razorpay_key_id = models.CharField(max_length=60, blank=True)
     _razorpay_secret = models.TextField(blank=True, db_column="razorpay_secret_enc")
@@ -302,6 +306,8 @@ class TenantSecrets(models.Model):
                              lambda s, v: s._set("_wa_app_secret", v))
     n8n_auth_token = property(lambda s: s._get("_n8n_auth_token"),
                               lambda s, v: s._set("_n8n_auth_token", v))
+    wa_sync_token = property(lambda s: s._get("_wa_sync_token"),
+                             lambda s, v: s._set("_wa_sync_token", v))
     razorpay_secret = property(lambda s: s._get("_razorpay_secret"),
                                lambda s, v: s._set("_razorpay_secret", v))
     razorpay_webhook_secret = property(lambda s: s._get("_razorpay_webhook_secret"),

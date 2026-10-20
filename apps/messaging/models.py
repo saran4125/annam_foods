@@ -67,3 +67,69 @@ class OutboundMessage(TenantOwnedModel):
     @property
     def is_deliverable(self) -> bool:
         return self.status in {MessageStatus.PENDING, MessageStatus.FAILED}
+
+
+class WhatsAppConversation(TenantOwnedModel):
+    phone = models.CharField(max_length=20)
+    display_name = models.CharField(max_length=120, blank=True)
+    last_message_at = models.DateTimeField(default=timezone.now, db_index=True)
+    last_inbound_at = models.DateTimeField(null=True, blank=True)
+    preview = models.CharField(max_length=280, blank=True)
+    unread_count = models.PositiveIntegerField(default=0)
+
+    class Meta(TenantOwnedModel.Meta):
+        ordering = ["-last_message_at", "-pk"]
+        constraints = [models.UniqueConstraint(fields=["tenant", "phone"], name="uniq_wa_conversation_phone")]
+
+    @property
+    def can_reply(self):
+        from datetime import timedelta
+        return bool(self.last_inbound_at and self.last_inbound_at > timezone.now() - timedelta(hours=24))
+
+
+class WhatsAppMessage(TenantOwnedModel):
+    conversation = models.ForeignKey(WhatsAppConversation, on_delete=models.CASCADE, related_name="messages")
+    direction = models.CharField(max_length=8, choices=[("in", "Customer"), ("out", "Kitchen")])
+    kind = models.CharField(max_length=30, default="text")
+    body = models.TextField(blank=True)
+    provider_message_id = models.CharField(max_length=200, blank=True)
+    status = models.CharField(max_length=20, default="received")
+    occurred_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
+    payload = models.JSONField(default=dict)
+    media_id = models.CharField(max_length=200, blank=True)
+    filename = models.CharField(max_length=200, blank=True)
+    mime_type = models.CharField(max_length=100, blank=True)
+    outbound = models.OneToOneField(OutboundMessage, on_delete=models.SET_NULL, null=True, blank=True, related_name="inbox_message")
+    actor = models.CharField(max_length=120, blank=True)
+
+    class Meta(TenantOwnedModel.Meta):
+        ordering = ["occurred_at", "pk"]
+        constraints = [models.UniqueConstraint(fields=["tenant", "provider_message_id"],
+                       condition=~models.Q(provider_message_id=""), name="uniq_wa_message_provider_id")]
+        indexes = [models.Index(fields=["tenant", "conversation", "occurred_at"], name="idx_wa_conversation_time")]
+
+
+class WhatsAppReceipt(TenantOwnedModel):
+    provider_message_id = models.CharField(max_length=200)
+    status = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+    occurred_at = models.DateTimeField(default=timezone.now)
+
+    class Meta(TenantOwnedModel.Meta):
+        constraints = [models.UniqueConstraint(fields=["tenant", "provider_message_id", "status"], name="uniq_wa_message_receipt")]
+
+
+class WhatsAppForwardEvent(TenantOwnedModel):
+    """Durable Meta-to-n8n forwarding; webhooks acknowledge without network waits."""
+    digest = models.CharField(max_length=64)
+    payload = models.JSONField()
+    status = models.CharField(max_length=12, default="pending", db_index=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    next_attempt_at = models.DateTimeField(default=timezone.now)
+    claimed_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta(TenantOwnedModel.Meta):
+        constraints = [models.UniqueConstraint(fields=["tenant", "digest"], name="uniq_wa_forward_event")]

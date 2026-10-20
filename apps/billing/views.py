@@ -88,6 +88,7 @@ def channel_orders(request, channel):
 def new_order(request):
     initial_channel = "whatsapp" if request.GET.get("channel") == "whatsapp" else "manual"
     initial = {"token": signing.dumps({"tenant": request.tenant.pk, "key": uuid4().hex}, salt="staff-billing"), "channel": initial_channel}
+    initial.update({"name": request.GET.get("name", "")[:120], "phone": request.GET.get("phone", "")[:20]})
     data = request.POST if request.method == "POST" else None
     form = ManualOrderForm(data, initial=initial)
     lines = OrderLines(data, prefix="lines")

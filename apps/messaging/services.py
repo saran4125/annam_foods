@@ -38,10 +38,12 @@ def queue(tenant, to_phone: str, payload: dict, *, purpose: str = "",
             return existing
     try:
         with transaction.atomic():
-            return OutboundMessage.all_tenants.create(
+            message = OutboundMessage.all_tenants.create(
                 tenant=tenant, to_phone=to_phone, payload=payload,
                 purpose=purpose, dedupe_key=dedupe_key,
             )
+            _sync_inbox(message)
+            return message
     except IntegrityError:
         # Lost a race on the dedupe key: the other writer's row is the answer.
         return OutboundMessage.all_tenants.get(tenant=tenant, dedupe_key=dedupe_key)
@@ -84,6 +86,7 @@ def deliver(message: OutboundMessage) -> OutboundMessage:
             tenant.slug, message.pk, message.last_error,
         )
         message.save(update_fields=["status", "last_error", "claimed_at"])
+        _sync_inbox(message)
         return message
 
     if result.ok:
@@ -109,6 +112,7 @@ def deliver(message: OutboundMessage) -> OutboundMessage:
         "status", "provider_message_id", "sent_at", "last_error", "next_attempt_at",
         "claimed_at",
     ])
+    _sync_inbox(message)
     return message
 
 
@@ -171,3 +175,13 @@ def dispatch_pending(limit: int = 50, tenant=None) -> dict:
             else:
                 counts["failed"] += 1
     return counts
+
+
+def _sync_inbox(message):
+    from .inbox import phone_number, sync_outbound
+    try:
+        phone_number(message.to_phone)
+    except ValueError:
+        # Older internal/test recipients need not be WhatsApp phone numbers.
+        return
+    sync_outbound(message)

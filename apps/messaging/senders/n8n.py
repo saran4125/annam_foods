@@ -60,7 +60,7 @@ class N8nSender:
             # returns nothing still counts as sent on a 2xx.
             return SendResult.sent(str(data.get("message_id") or data.get("wamid") or ""))
         except urllib.error.HTTPError as exc:
-            detail = f"n8n returned HTTP {exc.code}: {exc.read().decode(errors='replace')[:300]}"
+            detail = f"n8n returned HTTP {exc.code}"
             log.warning("[whatsapp:%s] %s", self.tenant.slug, detail)
             # 4xx from n8n means the workflow rejected it; retrying the same
             # body won't help. 5xx and timeouts are worth another attempt.

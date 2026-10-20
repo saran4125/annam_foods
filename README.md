@@ -161,3 +161,17 @@ filters. Meal groups follow each item's available schedules and active meal slot
 courier goods and items without a matching meal schedule appear under Other.
 An item assigned to more than one meal appears in each applicable filter.
 The live booking summary is an estimate; final prices remain server-calculated.
+
+## WhatsApp staff inbox
+
+`/manage/whatsapp/` shows tenant-scoped customer conversations, incoming text,
+attachments and catalog order requests, app/n8n outgoing messages, and delivery
+statuses. Configure write-only credentials and find the Meta/n8n endpoints at
+`/manage/whatsapp/settings/`. Keep the existing n8n automation and add incoming and
+outgoing sync nodes as documented in [docs/n8n/inbox-sync.md](docs/n8n/inbox-sync.md).
+No live Meta subscription or n8n workflow is changed by deploying this code.
+
+The Render start script now supervises the web server and a database-backed inbox
+worker. Apply the included tenancy/messaging migrations on startup. Old chat
+history is not automatically imported. Staff replies require an open 24-hour
+window; the WhatsApp billing section remains separate from the inbox.

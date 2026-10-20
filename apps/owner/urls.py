@@ -1,10 +1,16 @@
 from django.urls import path
 
 from . import views
+from apps.messaging import inbox_views
 
 app_name = "owner"
 
 urlpatterns = [
+    path("whatsapp/", inbox_views.inbox, name="whatsapp"),
+    path("whatsapp/settings/", inbox_views.connection_settings, name="whatsapp_settings"),
+    path("whatsapp/<int:pk>/", inbox_views.inbox, name="whatsapp_conversation"),
+    path("whatsapp/<int:pk>/reply/", inbox_views.reply, name="whatsapp_reply"),
+    path("whatsapp/messages/<int:pk>/media/", inbox_views.media, name="whatsapp_media"),
     path("", views.dashboard, name="dashboard"),
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),

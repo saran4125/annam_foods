@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="{% static_v 'css/owner.css' %}">
 <style>:root{--brand:{{ tenant.config.theme.brand|default:"#FF8507" }};{% if tenant.config.theme.header_bg %}--side-bg:{{ tenant.config.theme.header_bg }};{% endif %}}</style>
 </head>
-<body class="o-body">
+<body class="o-body {% block body_class %}{% endblock %}">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="o-home" viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5V20h-5v-5h-6v5H4z"/></symbol>
   <symbol id="o-dish" viewBox="0 0 24 24"><path d="M3 15h18M5 15a7 7 0 0 1 14 0M12 6v2M4 18h16"/></symbol>
@@ -42,6 +42,7 @@
   <nav class="o-nav" aria-label="Admin">
     <a href="{{ dash_url }}" class="{% if request.path == dash_url %}on{% endif %}"><svg class="o-ic"><use href="#o-home"/></svg>Dashboard</a>
     <a href="{% url 'owner:orders' %}" class="{% if '/manage/orders' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>Orders</a>
+    <a href="{% url 'owner:whatsapp' %}" class="{% if '/manage/whatsapp' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>WhatsApp inbox</a>
     <p class="o-nav-label">Menu &amp; shop</p>
     <a href="{% url 'owner:list' 'dishes' %}" class="{% if '/manage/dishes' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-dish"/></svg>Dishes &amp; products</a>
     <a href="{% url 'owner:list' 'categories' %}" class="{% if '/manage/categories' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-grid"/></svg>Categories</a>
