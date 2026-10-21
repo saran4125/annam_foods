@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="{% static_v 'css/platform-login.css' %}">
+<link rel="stylesheet" href="{% static_v 'css/platform-brand.css' %}">
 </head>
 <body>
 <a class="sl-skip" href="#sign-in">Skip to sign in</a>
@@ -20,7 +21,7 @@
 </defs></svg>
 <main class="sl-layout">
 <aside class="sl-story" aria-label="SeerKitchen workspace">
-<a class="sl-brand" href="{% url 'portal:landing' %}" aria-label="SeerKitchen home"><span class="sl-mark"><svg class="sl-icon"><use href="#sl-dish"/></svg></span><span>SeerKitchen<small>YOUR KITCHEN WORKSPACE</small></span></a>
+<a class="sl-brand" href="{% url 'portal:landing' %}" aria-label="SeerKitchen home">{% include "platform_portal/_seer_logo.html" %}<span>SeerKitchen<small>YOUR KITCHEN WORKSPACE</small></span></a>
 <div class="sl-story-content"><span class="sl-eyebrow">LESS ADMIN. MORE COOKING.</span><h2>Your kitchen.<br> All <em>together.</em></h2><p>Bring your website, orders and daily operations to one place.</p>
 <div class="sl-tools"><div><span class="sl-tool-icon"><svg class="sl-icon"><use href="#sl-dish"/></svg></span><span><strong>Website &amp; menu</strong><small>Your dishes, your brand, your storefront.</small></span><svg class="sl-icon sl-tool-arrow"><use href="#sl-arrow"/></svg></div><div><span class="sl-tool-icon"><svg class="sl-icon"><use href="#sl-orders"/></svg></span><span><strong>Orders &amp; billing</strong><small>Keep the day's bookings and bills together.</small></span><svg class="sl-icon sl-tool-arrow"><use href="#sl-arrow"/></svg></div><div><span class="sl-tool-icon"><svg class="sl-icon"><use href="#sl-chat"/></svg></span><span><strong>WhatsApp inbox</strong><small>Customer conversations, close at hand.</small></span><svg class="sl-icon sl-tool-arrow"><use href="#sl-arrow"/></svg></div></div></div>
 <p class="sl-story-footer"><span></span>Built for the way cloud kitchens work.</p>
