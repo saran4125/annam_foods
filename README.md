@@ -3,6 +3,9 @@
 Multi-tenant ordering platform for cloud kitchens. One codebase, one database,
 many kitchens — each on its own domain, differing only by configuration.
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the current system architecture,
+implemented workflows, deployment boundaries and remaining launch setup.
+
 ## Running it
 
 ```bash

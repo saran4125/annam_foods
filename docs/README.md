@@ -1,5 +1,8 @@
 # SeerKitchen — docs
 
+[Current architecture](../ARCHITECTURE.md) describes the implemented platform,
+its integrations and the external setup still needed for production.
+
 **[PLAN.md](PLAN.md) is the whole plan in one file and the single source of
 truth** (v2, 28 September 2026): what we are building and why, the
 plug-and-play customisation model, the complete WhatsApp specification
