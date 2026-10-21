@@ -88,3 +88,14 @@ def workspace_link(value, request):
     if prefix and isinstance(value, str) and value.startswith("/") and not value.startswith(("//", "/platform/", "/static/", "/media/")):
         return prefix.rstrip("/") + value
     return value
+
+
+@register.filter
+def root_media_url(value):
+    """Old JSON sections saved storage URLs as ``media/...`` before the
+    production storage fix. Resolve those at the site root even in a private
+    preview; leave absolute media and external image URLs unchanged.
+    """
+    if isinstance(value, str) and value.startswith("media/"):
+        return "/" + value
+    return value

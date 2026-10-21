@@ -182,7 +182,7 @@ but quieter, with a link to order them for tomorrow.{% endcomment %}
   <div class="food-category-grid" data-stagger>
     {% for food in food_showcase %}
     <a class="food-category" href="{{ food.link|default:'/menu/' }}">
-      <span class="food-photo"><img src="{{ food.image }}" alt="{{ food.label }}" width="500" height="500" loading="lazy"></span>
+      <span class="food-photo"><img src="{{ food.image|root_media_url }}" alt="{{ food.label }}" width="500" height="500" loading="lazy"></span>
       <span class="food-label">{{ food.label }}</span>
     </a>
     {% endfor %}
@@ -237,7 +237,7 @@ but quieter, with a link to order them for tomorrow.{% endcomment %}
   {% if spotlight.image %}
   <div class="feature-art">
     <span class="feature-glow" aria-hidden="true"></span>
-    <img src="{{ spotlight.image }}" alt="{{ spotlight.title }}" width="700" height="756" loading="lazy">
+    <img src="{{ spotlight.image|root_media_url }}" alt="{{ spotlight.title }}" width="700" height="756" loading="lazy">
     {% if spotlight.badge %}<span class="feature-badge">{{ spotlight.badge }}</span>{% endif %}
   </div>
   {% endif %}

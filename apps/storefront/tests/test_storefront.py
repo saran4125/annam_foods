@@ -487,3 +487,27 @@ def test_about_page_renders_the_owners_story_and_the_premium_layout(client, kitc
         assert r.status_code == 200
         assert b"about-hero" in r.content
         assert b"<strong>home</strong>" in r.content
+
+
+@pytest.mark.parametrize("image, expected", [
+    ("media/menu/health-mix.jpg", "/media/menu/health-mix.jpg"),
+    ("/media/menu/health-mix.jpg", "/media/menu/health-mix.jpg"),
+    ("https://images.example.test/health-mix.jpg", "https://images.example.test/health-mix.jpg"),
+])
+@pytest.mark.parametrize("preview", [False, True])
+def test_saved_spotlight_image_resolves_at_the_site_root_in_both_storefronts(
+    client, kitchen, django_user_model, image, expected, preview,
+):
+    config = kitchen.config
+    config.home_sections = [{"kind": "spotlight", "title": "Health Mix", "image": image}]
+    config.save(update_fields=["home_sections"])
+    path = "/"
+    if preview:
+        user = django_user_model.objects.create_user(username="preview-operator", is_superuser=True)
+        client.force_login(user)
+        path = f"/platform/workspaces/{kitchen.slug}/preview/"
+    response = client.get(path, HTTP_HOST=HOST)
+    assert response.status_code == 200
+    assert f'src="{expected}" alt="Health Mix"' in response.content.decode()
+    config.refresh_from_db()
+    assert config.home_sections[0]["image"] == image  # Rendering preserves the owner's saved content.

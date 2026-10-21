@@ -84,6 +84,7 @@ SLOTS = [
     ("lunch", "Lunch", time(10, 30), time(12, 30), time(14, 0)),
     ("dinner", "Dinner", time(18, 0), time(19, 30), time(21, 0)),
 ]
+HEALTH_MIX_ART = "https://cdn.commmerce.com/uploads/annams/wbImages/17280598825665Health-Mix.jpg"
 FEATURED_SHELF = "always-loved-by-everyone-this-products"
 HIDDEN_SHELVES = {FEATURED_SHELF, "daily-foods-1"}  # a tag and a meal umbrella, not shop shelves
 # Shop shelf order: what customers come for first.
@@ -129,7 +130,7 @@ def prefetch_assets():
     urls = {EXPORT["brand"]["logo"]}
     urls |= {c.get("image") for c in EXPORT["categories"]}
     urls |= {u for p in EXPORT["products"] for u in (p.get("images") or [])[:1]}
-    urls |= {"https://cdn.commmerce.com/uploads/annams/media/2026/10/17913667748689Diwali-Banner.jpg"}
+    urls |= {"https://cdn.commmerce.com/uploads/annams/media/2026/10/17913667748689Diwali-Banner.jpg", HEALTH_MIX_ART}
     urls = [u for u in urls if u]
     print(f"Downloading up to {len(urls)} photos...")
     with ThreadPoolExecutor(max_workers=8) as pool:
@@ -203,6 +204,8 @@ def restore_media():
     jobs += [(c.get("image"), "categories") for c in EXPORT["categories"]]
     jobs += [(u, "menu") for p in EXPORT["products"] for u in (p.get("images") or [])[:1]]
     jobs += [("https://cdn.commmerce.com/uploads/annams/media/2026/10/17913667748689Diwali-Banner.jpg", "banners")]
+    # Spotlight artwork is not a product image and must also survive a restart.
+    jobs += [(HEALTH_MIX_ART, "campaigns")]
     restored = 0
     for url, folder in jobs:
         src = asset_for(url)
@@ -341,7 +344,7 @@ with tenant_context(tenant):
                               link="/shop/deepavli-2026-pakshanams/" if "deepavli-2026-pakshanams" in by_slug else "/shop/",
                               sort=0)
 
-    health_art = asset_for("https://cdn.commmerce.com/uploads/annams/wbImages/17280598825665Health-Mix.jpg")
+    health_art = asset_for(HEALTH_MIX_ART)
     if health_mix:
         TenantConfig.objects.filter(tenant=tenant).update(home_sections=[{
             "kind": "hero",
