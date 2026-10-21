@@ -13,7 +13,11 @@ class Styled:
 
 
 class PlatformLoginForm(Styled, AuthenticationForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.pop("autofocus", None)
+        self.fields["username"].widget.attrs.update({"placeholder": "Enter your username", "autocapitalize": "none", "spellcheck": "false"})
+        self.fields["password"].widget.attrs.update({"placeholder": "Enter your password", "data-password": ""})
 
 
 class ActivateOwnerForm(Styled, SetPasswordForm):
