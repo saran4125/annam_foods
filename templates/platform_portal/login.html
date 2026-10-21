@@ -27,7 +27,7 @@
 <p class="sl-story-footer"><span></span>Built for the way cloud kitchens work.</p>
 </aside>
 <section class="sl-form-side" id="sign-in" aria-labelledby="login-title">
-<div class="sl-form-wrap"><div class="sl-welcome-icon"><svg class="sl-icon"><use href="#sl-lock"/></svg></div><span class="sl-eyebrow">WELCOME BACK</span><h1 id="login-title">Let's get to work.</h1><p class="sl-intro">Sign in to manage your kitchen.</p>
+<div class="sl-form-wrap"><div class="sl-welcome-icon"><svg class="sl-icon"><use href="#sl-lock"/></svg></div><span class="sl-eyebrow">WELCOME BACK</span><h1 id="login-title">Let's get to work.</h1><p class="sl-intro">Sign in to open your workspace.</p>
 {% if messages %}{% for message in messages %}<p class="sl-message" role="status">{{ message }}</p>{% endfor %}{% endif %}
 <form method="post" class="sl-form">
 {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">

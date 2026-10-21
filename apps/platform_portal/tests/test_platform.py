@@ -30,7 +30,7 @@ def create_data(**overrides):
 
 def test_central_login_routes_existing_owner_to_their_workspace(client, owner, kitchens):
     response=client.post("/platform/login/",{"username":"owner","password":"pw-for-tests-only"},HTTP_HOST=HOST)
-    assert response.status_code==302 and response["Location"]=="/platform/workspaces/annam/"
+    assert response.status_code==302 and response["Location"]=="/platform/workspaces/annam/manage/"
     assert client.get(response["Location"],HTTP_HOST=HOST).status_code==200
     assert client.get("/",HTTP_HOST=HOST).status_code==200
 
@@ -169,7 +169,7 @@ def test_status_changes_and_feature_settings_are_superuser_only_and_audited(admi
 
 def test_login_cannot_redirect_to_external_sites(client, owner):
     response=client.post('/platform/login/?next=https://evil.example/',{'username':'owner','password':'pw-for-tests-only'},HTTP_HOST=HOST)
-    assert response.status_code==302 and response['Location']=='/platform/workspaces/annam/'
+    assert response.status_code==302 and response['Location']=='/platform/workspaces/annam/manage/'
 
 
 def test_scoped_n8n_webhook_cannot_write_into_the_hostname_tenant(client, kitchens):

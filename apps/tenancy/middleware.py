@@ -59,11 +59,20 @@ class TenantMiddleware:
             workspace = re.match(r"^/platform/workspaces/([a-z0-9-]+)/(manage|billing|preview|domains)(?:/|$)", request.path)
             webhook = re.fullmatch(r"/platform/webhooks/([a-z0-9-]+)/whatsapp/(?:n8n/)?", request.path)
             if workspace:
+                billing_login = f"/platform/workspaces/{workspace.group(1)}/billing/login/"
                 if not request.user.is_authenticated:
-                    return redirect("/platform/login/?" + urlencode({"next": request.get_full_path()}))
+                    if workspace.group(2) == "billing":
+                        if request.path != billing_login:
+                            return redirect(billing_login + "?" + urlencode({"next": request.get_full_path()}))
+                    else:
+                        return redirect("/platform/login/?" + urlencode({"next": request.get_full_path()}))
                 selected = Tenant.objects.select_related("config").filter(slug=workspace.group(1)).first()
-                if selected is None or not request.user.is_active or not (request.user.is_superuser or TenantUser.all_tenants.filter(tenant=selected, user=request.user).exists()):
+                public_billing_login = not request.user.is_authenticated and request.path == billing_login
+                if selected is None:
                     return HttpResponseNotFound("Workspace not found.")
+                if not public_billing_login:
+                    if not request.user.is_active or not (request.user.is_superuser or TenantUser.all_tenants.filter(tenant=selected, user=request.user).exists()):
+                        return HttpResponseNotFound("Workspace not found.")
                 from apps.platform_portal.workspace_urls import workspace_urlconf
                 request.urlconf = workspace_urlconf(selected.slug)
                 request.workspace_slug = selected.slug

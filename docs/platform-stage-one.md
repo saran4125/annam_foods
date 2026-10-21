@@ -18,7 +18,9 @@ On the existing Render hostname, open `/platform/`. The public `/` storefront,
 No new production domain or environment variable is required to try this stage.
 
 - `/platform/login/`: central account login. Existing kitchen credentials work.
-  One kitchen opens directly; multiple memberships show a kitchen picker.
+  Platform superusers open platform administration. One assigned kitchen opens
+  its admin dashboard directly; multiple memberships show a kitchen picker
+  whose links open each kitchen admin.
 - `/platform/admin/`: superuser-only kitchen administration. Kitchen owners do
   not gain platform privileges because their username happens to be `admin`.
 - `/platform/admin/kitchens/new/`: create a kitchen from a preset and invite its
@@ -33,6 +35,25 @@ No new production domain or environment variable is required to try this stage.
 A configured `PLATFORM_HOST` also serves the platform landing page at `/`.
 Do not change Annam's public hostname to the platform hostname merely to try this
 feature: use `/platform/` on its existing host instead.
+
+## One management login
+
+`/platform/login/` is the sole platform/kitchen management login. Existing
+credentials and roles are retained. `/manage/login/` and workspace-scoped
+management login URLs are compatibility redirects, not separate login forms.
+Old POSTs redirect without authenticating or copying credentials into a URL.
+Management logout returns to the shared login. Saved management links preserve
+their kitchen and query string only when the account is authorized for it;
+otherwise the account's normal destination is used. Unassigned accounts see
+an access-help screen, and inactive accounts cannot authenticate.
+
+Billing keeps its existing login/form and credentials at `/billing/login/`.
+Workspace billing links also use their own scoped billing login. That exact
+anonymous authentication route is an exception to private workspace admission;
+it serves no orders or invoices, and successful billing authentication still
+requires membership in the selected kitchen. The login pages use the existing
+Django session; this change does not introduce separate billing accounts or
+customer authentication.
 
 ## Platform administrator account
 

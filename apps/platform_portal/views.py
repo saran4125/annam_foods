@@ -53,12 +53,7 @@ def landing(request):
 
 
 def _destination(user):
-    if user.is_superuser:
-        return reverse("portal:admin")
-    kitchens = list(services.accessible_kitchens(user)[:2])
-    if len(kitchens) == 1:
-        return reverse("portal:workspace", args=[kitchens[0].slug])
-    return reverse("portal:home")
+    return services.login_destination(user)
 
 
 @never_cache
@@ -67,11 +62,11 @@ def login_view(request):
     if not target.startswith("/platform/") or not url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure()):
         target = ""
     if request.user.is_authenticated and request.user.is_active:
-        return redirect(target or _destination(request.user))
+        return redirect(services.authorized_login_target(request, request.user, target) or _destination(request.user))
     form = PlatformLoginForm(request, data=request.POST if request.method == "POST" else None)
     if request.method == "POST" and form.is_valid():
         login(request, form.get_user())
-        return redirect(target or _destination(request.user))
+        return redirect(services.authorized_login_target(request, form.get_user(), target) or _destination(form.get_user()))
     return render(request, "platform_portal/login.html", {"form": form, "next": target})
 
 

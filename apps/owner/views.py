@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
@@ -32,7 +32,7 @@ from apps.orders.services import InvalidTransition, advance_status
 from apps.tenancy.models import TenantConfig
 
 from . import forms
-from .access import can_manage, owner_required
+from .access import owner_required
 
 
 @dataclass
@@ -147,39 +147,18 @@ class OwnerLoginForm(AuthenticationForm):
     }
 
 
-def _login_photos():
-    """A few distinct dish photos for the login page's side panel."""
-    photos, seen = [], set()
-    for item in MenuItem.objects.filter(active=True).exclude(image="").order_by("category__sort", "sort", "name"):
-        if item.category_id not in seen:  # one per shelf, so the three never look alike
-            seen.add(item.category_id)
-            photos.append(item)
-        if len(photos) >= 3:
-            break
-    return photos
-
-
 def login_view(request):
+    """Compatibility URL only. All management authentication uses platform login."""
     if getattr(request, "tenant", None) is None:
         raise Http404
-    if can_manage(request.user, request.tenant):
-        return redirect("owner:dashboard")
-    form = OwnerLoginForm(request, data=request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        user = form.get_user()
-        if can_manage(user, request.tenant):
-            login(request, user)
-            return redirect(_safe_next(request, reverse("owner:dashboard")))
-        form.add_error(None, "This account can’t manage this store.")
-    return render(request, "owner/login.html", {
-        "form": form, "next": request.GET.get("next", request.POST.get("next", "")), "photos": _login_photos(),
-    })
+    from apps.platform_portal.services import management_login_url
+    return redirect(management_login_url(request, request.POST.get("next", request.GET.get("next", ""))))
 
 
 @require_POST
 def logout_view(request):
     logout(request)
-    return redirect("owner:login")
+    return redirect("portal:login")
 
 
 # -- dashboard ---------------------------------------------------------------
