@@ -1,0 +1,1 @@
+{% load storefront_extras %}<ul class="checkout-lines">{% for line in lines %}<li><div><strong>{{ line.name }}</strong><small>{{ line.quantity }} × ₹{{ line.unit_price|money }}</small></div><b>₹{{ line.line_total|money }}</b></li>{% endfor %}</ul>

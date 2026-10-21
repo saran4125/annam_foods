@@ -1384,3 +1384,6 @@ h3{font-weight:600}
 }
 
 .foot-address{white-space:pre-line}
+
+/* Long kitchen names must leave room for the mobile checkout navigation. */
+@media(max-width:999px){.head-inner{grid-template-columns:minmax(0,1fr) auto}.brand{min-width:0;max-width:100%}.brand-name{min-width:0;overflow:hidden;text-overflow:ellipsis}.brand-mark,.brand-logo{flex-shrink:0}.brand-logo{max-width:90px}}

@@ -287,6 +287,12 @@ def cart_set_pincode(request):
     cart = Cart(request)
     raw = request.POST.get("pincode", "")
     pincode = normalise_pincode(raw)
+    if cart.is_courier:
+        from apps.delivery.checkout import courier_quote
+        cart.set_pincode(pincode)
+        if courier_quote(request.tenant, pincode) is None:
+            messages.error(request, "We don't ship shop items to this pincode. Delivery is available only to approved Tamil Nadu pincodes.")
+        return redirect('storefront:cart')
     zones = zones_for_pincode(pincode, slot_key=cart.slot_key)
 
     if not zones:
@@ -308,7 +314,7 @@ def cart_set_pincode(request):
 def cart_detail(request):
     cart = Cart(request)
     totals = cart.totals()
-    zones = zones_for_pincode(cart.pincode, slot_key=cart.slot_key) if cart.pincode else []
+    zones = zones_for_pincode(cart.pincode, slot_key=cart.slot_key) if cart.pincode and not cart.is_courier else []
     slot = Slot.objects.filter(key=cart.slot_key).first() if cart.slot_key else None
     return render(
         request,

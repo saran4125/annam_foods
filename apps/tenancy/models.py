@@ -123,6 +123,8 @@ class TenantConfig(models.Model):
     storefront_design = models.JSONField(default=dict, blank=True)  # draft, published and previous appearance
     support_phone = models.CharField(max_length=20, blank=True)
 
+    checkout_settings = models.JSONField(default=dict, blank=True)
+
     # Operations
     timezone = models.CharField(max_length=40, default="Asia/Kolkata")
     currency = models.CharField(max_length=3, default="INR")

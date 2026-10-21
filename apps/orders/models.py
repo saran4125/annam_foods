@@ -120,6 +120,7 @@ class Order(TenantOwnedModel):
     external_ref = models.CharField(max_length=120, blank=True)
     payment_reference = models.CharField(max_length=120, blank=True)
     buyer_gst = models.JSONField(default=dict, blank=True)
+    pricing = models.JSONField(default=dict, blank=True)  # checkout tax and rounding snapshot
     rider_name = models.CharField(max_length=120, blank=True)
     rider_phone = models.CharField(max_length=20, blank=True)
     status = models.CharField(
@@ -163,6 +164,14 @@ class Order(TenantOwnedModel):
 
     def __str__(self):
         return self.order_no
+
+    @property
+    def buyer_name(self):
+        return self.address.get('recipient_name') or self.customer.name
+
+    @property
+    def buyer_phone(self):
+        return self.address.get('phone') or self.customer.phone
 
     @property
     def is_terminal(self) -> bool:

@@ -162,7 +162,7 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
                  address_snapshot: dict | None = None,
                  channel: str = Channel.WEB, source: str | None = None,
                  payment_mode: str = PaymentMode.ONLINE, now=None,
-                 external_ref: str = "") -> Order:
+                 external_ref: str = "", website_checkout: bool = False) -> Order:
     """Create one order, or raise. Both channels come through here.
 
     Validates in the order a customer would hit the problems: is the kitchen
@@ -203,17 +203,30 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
     if not snapshot or not snapshot.get("pincode"):
         raise NotServiceable("A delivery address is required.")
 
-    zones = zones_for_pincode(snapshot["pincode"], slot_key=slot.key if slot else None)
-    if not zones:
-        raise NotServiceable(f"We don't deliver to {snapshot['pincode']} yet.")
-    zone = next((z for z in zones if z.area_name == snapshot.get("area")), zones[0])
-
+    if website_checkout and fulfilment == "courier":
+        from apps.delivery.checkout import courier_quote
+        zone = courier_quote(tenant, snapshot['pincode'])
+        if zone is None:
+            raise NotServiceable("We don't ship shop items to this pincode.")
+    else:
+        zones = zones_for_pincode(snapshot["pincode"], slot_key=slot.key if slot else None)
+        if not zones:
+            raise NotServiceable(f"We don't deliver to {snapshot['pincode']} yet.")
+        zone = next((z for z in zones if z.area_name == snapshot.get("area")), None)
+        if zone is None:
+            if website_checkout and len(zones) > 1:
+                raise NotServiceable("Choose your delivery area.")
+            zone = zones[0]
     if subtotal < zone.min_order:
         raise BelowMinimum(zone.min_order - subtotal, zone.min_order)
-
     snapshot = {**snapshot, "area": zone.area_name}
     delivery_fee = zone.delivery_fee
     total = subtotal + delivery_fee
+    pricing = {}
+    if website_checkout:
+        from apps.billing.pricing import checkout_totals
+        quote = checkout_totals(tenant, lines, delivery_fee)
+        total, pricing = quote['total'], quote['pricing']
 
     # order_no carries a random suffix, so a collision is possible but rare;
     # retry rather than failing a customer's checkout over it.
@@ -228,7 +241,7 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
                     fulfilment=fulfilment, external_ref=external_ref,
                     slot=slot, delivery_date=delivery_date,
                     items=lines, address=snapshot,
-                    subtotal=subtotal, delivery_fee=delivery_fee, total=total,
+                    subtotal=subtotal, delivery_fee=delivery_fee, total=total, pricing=pricing,
                 )
             break
         except IntegrityError:

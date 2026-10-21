@@ -18,7 +18,7 @@ from .test_storefront import HOST, _add, kitchen, menu  # noqa: F401 (fixtures)
 
 @pytest.fixture
 def shop(kitchen):  # noqa: F811
-    TenantConfig.objects.filter(tenant=kitchen).update(features={"snacks_courier": True})
+    TenantConfig.objects.filter(tenant=kitchen).update(features={"snacks_courier": True}, checkout_settings={"courier_enabled": True, "courier_pincodes": ["600005"], "courier_fee": "30", "courier_minimum": "200"})
     kitchen.refresh_from_db()
     with tenant_context(kitchen):
         snacks = MenuCategory.objects.create(name="Pakshanams", slug="pakshanams", sort=1)

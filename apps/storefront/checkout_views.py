@@ -1,0 +1,56 @@
+import uuid
+
+from django.contrib import messages
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_http_methods
+
+from apps.orders.models import Order
+from apps.orders.services import OrderError
+from .cart import Cart
+from .forms import CheckoutForm
+from .checkout import browser_key, checkout_quote, place_checkout, review_token
+
+
+@never_cache
+@require_http_methods(['GET', 'POST'])
+def checkout(request):
+    cart = Cart(request)
+    browser_key(request)
+    form = CheckoutForm(request.POST or None, cart=cart,
+                        initial={'pincode': cart.pincode, 'zone_id': cart.zone_id or ''})
+    if request.method == 'POST' and request.POST.get('action') == 'place':
+        # Replays of an already accepted review work after the cart is cleared.
+        # All contact fields are still validated; no previous customer details
+        # are ever loaded into this guest form.
+        if form.is_valid():
+            try:
+                order, reference, created = place_checkout(request, cart, form.cleaned_data, request.POST.get('checkout_token', ''))
+                if created:
+                    cart.clear()
+                return redirect('storefront:checkout_complete', reference=uuid.UUID(reference))
+            except OrderError as exc:
+                form.add_error(None, str(exc))
+    elif request.method == 'POST' and request.POST.get('action') != 'edit' and form.is_valid():
+        try:
+            quote = checkout_quote(request.tenant, cart, form.cleaned_data)
+            return render(request, 'storefront/checkout_review.html', {'form': form, 'quote': quote,
+                'checkout_token': review_token(request, quote, form.cleaned_data), 'cart': cart})
+        except OrderError as exc:
+            form.add_error(None, str(exc))
+    if request.method == 'GET' and cart.is_empty:
+        messages.info(request, 'Add items to your cart before checking out.')
+        return redirect('storefront:cart')
+    return render(request, 'storefront/checkout.html', {'form': form, 'cart': cart})
+
+
+@never_cache
+@require_http_methods(['GET'])
+def complete(request, reference):
+    browser = browser_key(request, create=False)
+    if not browser:
+        raise Http404
+    order = get_object_or_404(Order.objects.select_related('slot'), external_ref=f'web:{browser}:{reference.hex}')
+    instructions = (request.tenant.config.checkout_settings or {}).get('payment_instructions', '')
+    return render(request, 'storefront/checkout_complete.html', {'order': order, 'payment_instructions': instructions})

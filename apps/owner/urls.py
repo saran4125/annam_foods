@@ -23,6 +23,7 @@ urlpatterns = [
     path("appearance/render/", views.appearance_render, name="appearance_render"),
     path("appearance/upload/", views.appearance_upload, name="appearance_upload"),
     path("appearance/", views.appearance, name="appearance"),
+    path("checkout-settings/", views.checkout_settings, name="checkout_settings"),
     path("settings/", views.settings_view, name="settings"),
     path("<slug:key>/", views.resource_list, name="list"),
     path("<slug:key>/new/", views.resource_edit, name="new"),

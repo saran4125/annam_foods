@@ -105,6 +105,13 @@ def issue_bill(order, *, gst_details=None, force=False):
             raise ValueError("Complete billing settings before issuing a bill.") from exc
         validate_billing_profile(profile)
 
+        # Checkout freezes tax/rounding choices with the order. Later settings
+        # edits must not change what a customer already agreed to pay.
+        for key, value in order.pricing.items():
+            if key in ('gst_mode', 'prices_include_tax', 'round_total', 'delivery_fee_taxable'):
+                setattr(profile, key, value)
+            elif key == 'tax_rate':
+                profile.tax_rate = Decimal(value)
         if profile.gst_mode == "regular":
             kind = InvoiceKind.TAX_INVOICE
         elif profile.gst_mode == "composition":
@@ -112,7 +119,7 @@ def issue_bill(order, *, gst_details=None, force=False):
         else:
             kind = InvoiceKind.BILL
 
-        buyer_data = {"name": order.customer.name, "phone": order.customer.phone,
+        buyer_data = {"name": order.address.get("recipient_name", order.customer.name), "phone": order.address.get("phone", order.customer.phone),
                       "delivery_address": order.address, "order_no": order.order_no,
                       "channel": order.get_channel_display(),
                       "delivery_date": str(order.delivery_date or ""),
@@ -121,6 +128,10 @@ def issue_bill(order, *, gst_details=None, force=False):
             buyer_data.update(gst_details)
         elif order.buyer_gst:
             buyer_data.update(order.buyer_gst)
+        elif order.pricing:
+            # Guest checkout is B2C. An unverified phone number must never
+            # import an existing customer's private GST/business identity.
+            buyer_data.update({"gstin": "", "business_name": "", "billing_address": ""})
         else:
             buyer_data.update({"gstin": order.customer.gstin, "business_name": order.customer.business_name,
                                "billing_address": order.customer.billing_address})
@@ -143,7 +154,7 @@ def issue_bill(order, *, gst_details=None, force=False):
             remaining_discount -= discount
             gross -= discount
             item = source_items.get(line.get("item_id"))
-            rate = (item.tax_rate if item and item.tax_rate is not None else profile.tax_rate) if kind == InvoiceKind.TAX_INVOICE else Decimal("0")
+            rate = Decimal(line["tax_rate"]) if order.pricing and "tax_rate" in line else ((item.tax_rate if item and item.tax_rate is not None else profile.tax_rate) if kind == InvoiceKind.TAX_INVOICE else Decimal("0"))
             price_base = gross / (Decimal("1") + rate / 100) if profile.prices_include_tax and rate else gross
             taxable = price_base.quantize(CENT, rounding=ROUND_HALF_UP)
             tax = (gross - taxable if profile.prices_include_tax else (taxable * rate / 100).quantize(CENT, rounding=ROUND_HALF_UP))
@@ -152,7 +163,7 @@ def issue_bill(order, *, gst_details=None, force=False):
             cgst = Decimal("0") if interstate else (tax / 2).quantize(CENT, rounding=ROUND_HALF_UP)
             sgst = Decimal("0") if interstate else tax - cgst
             igst = tax if interstate else Decimal("0")
-            snapshots.append({"description": line["name"], "sac": (item.sac if item and item.sac else profile.sac),
+            snapshots.append({"description": line["name"], "sac": line.get("sac") or (item.sac if item and item.sac else profile.sac),
                               "quantity": quantity, "unit_price": line["unit_price"],
                               "discount": str(discount), "taxable": str(taxable), "tax_rate": str(rate), "tax": str(tax),
                               "cgst": str(cgst), "sgst": str(sgst), "igst": str(igst)})

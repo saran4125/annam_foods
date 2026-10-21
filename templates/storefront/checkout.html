@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% load storefront_extras %}
+{% block title %}Checkout · {{ storefront_brand_name }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static_v 'css/checkout.css' %}">{% endblock %}
+{% block content %}
+<div class="page-intro"><p class="section-kicker">1 · Delivery details</p><h1>Good food, delivered to you.</h1><p>{% if cart.is_courier %}Shop items ship to approved Tamil Nadu pincodes.{% else %}Meals are delivered only to the kitchen’s serviceable pincodes.{% endif %}</p></div>
+<div class="checkout-layout">
+<form method="post" class="checkout-card checkout-form" novalidate>
+{% csrf_token %}
+{% if form.non_field_errors %}<div class="checkout-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+<h2>Your delivery address</h2><p class="checkout-note">Pincode is mandatory. We cannot accept an order outside our delivery coverage.</p>
+<div class="checkout-fields">{% for field in form %}{% if field.is_hidden %}{{ field }}{% for error in field.errors %}<p class="checkout-error" role="alert">{{ error }}</p>{% endfor %}{% else %}<label class="checkout-field{% if field.name == 'line1' or field.name == 'line2' %} checkout-field-wide{% endif %}"><span>{{ field.label }}{% if field.field.required %} <b aria-hidden="true">*</b>{% else %} <small>(optional)</small>{% endif %}</span>{{ field }}{% for error in field.errors %}<span class="checkout-error" role="alert">{{ error }}</span>{% endfor %}</label>{% endif %}{% endfor %}</div>
+<p class="checkout-note">State: Tamil Nadu · India</p>
+<button class="btn btn-primary btn-lg" name="action" value="review">Review order <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+</form>
+<aside class="checkout-card checkout-help"><span class="checkout-step">A little closer to your next meal</span><h2>{% if cart.is_courier %}From our pantry to yours{% else %}Fresh for your chosen meal{% endif %}</h2><p>{% if cart.is_courier %}Courier delivery is separate from daily meals. The kitchen will confirm dispatch and delivery timing.{% else %}Your meal and delivery date come from your cart. To change them, return to the menu and start a fresh order.{% endif %}</p><ol><li>Add your contact and delivery details.</li><li>Review availability, delivery charges and the final total.</li><li>Place your order. The kitchen will arrange payment with you.</li></ol><a class="arrow-link" href="{% url 'storefront:cart' %}">← Back to your cart</a></aside>
+</div>
+{% endblock %}

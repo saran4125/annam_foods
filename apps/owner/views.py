@@ -306,7 +306,7 @@ def orders(request):
     query = request.GET.get("q", "").strip()[:40]
     if query:
         qs = qs.filter(Q(order_no__icontains=query) | Q(customer__phone__icontains=query)
-                       | Q(customer__name__icontains=query))
+                       | Q(customer__name__icontains=query) | Q(address__recipient_name__icontains=query))
     page = Paginator(qs, 30).get_page(request.GET.get("page"))
     return render(request, "owner/orders.html", {
         "page": page, "statuses": OrderStatus.choices, "status": status, "query": query,
@@ -503,3 +503,15 @@ def appearance_upload(request):
     except ValidationError as exc:
         return JsonResponse({'error': ' '.join(exc.messages)}, status=400)
     return JsonResponse({'url': storefront_image_url(request.tenant, image), 'name': image.name}, status=201)
+
+
+@owner_required
+@never_cache
+def checkout_settings(request):
+    from apps.delivery.checkout import save_checkout_settings
+    form = forms.CheckoutSettingsForm(request.POST or None, config=request.tenant.config)
+    if request.method == 'POST' and form.is_valid():
+        save_checkout_settings(request.tenant, form.cleaned_data['settings'])
+        messages.success(request, 'Checkout and courier delivery settings saved.')
+        return redirect('owner:checkout_settings')
+    return render(request, 'owner/checkout_settings.html', {'form': form})

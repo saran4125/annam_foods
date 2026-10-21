@@ -2060,3 +2060,39 @@ series (`AFC/26-27/00001`), and names the original bill number and date.
 Tax notes in this plan are research for the accountant conversation, not tax
 advice; the kitchen's accountant confirms mode, rate, SAC and delivery-fee
 treatment before billing goes live (§21).
+
+### Website checkout implementation — 21 October 2026
+
+The Django storefront now submits to the shared Django order book; the older
+WordPress comparison above is not a second ordering system. Guest checkout
+collects contact/address details, then shows a server-priced order review before
+placing an unpaid `web` / `storefront` order. Razorpay and automatic message/bill
+delivery remain separate work. Manual payment instructions are configurable;
+staff must confirm receipt before a bill can be issued.
+
+- Meal checkout requires an active delivery-zone pincode and explicit area choice
+  when a pincode has several areas. Minimums, fees, today/tomorrow dates, active
+  slots, cutoffs, unavailable dishes and configured closed dates are rechecked
+  on submission. There is no pickup or out-of-zone bypass.
+- Shop checkout uses **separate explicit approved Tamil Nadu pincodes**, a flat
+  courier fee and a shop minimum under **Checkout & courier**. It is disabled by
+  default. The kitchen must confirm actual courier coverage and enter its exact
+  approved pincodes and charges; the platform does not guess state coverage from
+  postal prefixes or claim unverified statewide delivery. Unlisted pincodes are
+  blocked, even if they are in a meal delivery zone. Meals and shop goods remain
+  separate carts/orders.
+- Reviews are signed, browser/tenant bound, expire after 30 minutes, and include
+  a fingerprint of details, quantities, live prices, delivery rules and tax
+  settings. Changed prices or details require another review. A transaction and
+  unique order reference make accepted-review retries return the original order.
+- Receipts are private to the submitting browser session and tenant; guessing an
+  order number cannot retrieve customer information. Guest checkout never loads
+  an existing customer's address/history based on a supplied phone number.
+- Item tax rates and order tax/rounding settings are snapshotted. Manual bill
+  generation uses those frozen rates so subsequent tax-setting edits do not
+  alter the accepted order total. Seller billing settings still need completion
+  before bill issuance.
+
+Before testing on Render, let the deployment apply the two migrations. In the
+Annam admin, review **Delivery areas**, **Checkout & courier**, **Meal times** and
+**Billing settings**. Do not enable courier ordering with unconfirmed coverage.

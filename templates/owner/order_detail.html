@@ -32,7 +32,7 @@
   </section>
   <section class="o-card" data-reveal>
     <header class="o-card-head"><h2>Customer &amp; delivery</h2></header>
-    <p><b>{{ order.customer.name|default:"Customer" }}</b><br><a href="tel:{{ order.customer.phone }}">{{ order.customer.phone }}</a></p>
+    <p><b>{{ order.buyer_name|default:"Customer" }}</b><br><a href="tel:{{ order.buyer_phone }}">{{ order.buyer_phone }}</a></p>
     <p class="o-muted">{% for k, v in order.address.items %}{% if v %}{{ v }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</p>
     <p>{% if order.slot %}{{ order.slot.label }} on {{ order.delivery_date|date:"l, j M" }}{% else %}Shop order (shipped){% endif %} · {{ order.get_payment_mode_display }} · {{ order.get_payment_status_display }}</p>
     {% if next_steps %}

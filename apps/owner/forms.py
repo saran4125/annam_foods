@@ -393,3 +393,37 @@ class AppearanceForm(forms.Form):
         design.update(content=content, images=images)
         data["design"] = validate_storefront_design(design)
         return data
+
+
+class CheckoutSettingsForm(forms.Form):
+    courier_enabled = forms.BooleanField(required=False, label='Enable courier delivery for shop orders')
+    courier_pincodes = forms.CharField(required=False, max_length=80000, label='Approved Tamil Nadu courier pincodes',
+        help_text='Enter exact six-digit pincodes, one per line. Confirm courier coverage with Annam before adding them. Unlisted pincodes are blocked.',
+        widget=forms.Textarea(attrs={'rows': 8}))
+    courier_fee = forms.DecimalField(min_value=0, max_value=99999, decimal_places=2, label='Flat courier charge (₹)')
+    courier_minimum = forms.DecimalField(min_value=0, max_value=99999, decimal_places=2, label='Minimum shop items subtotal (₹)')
+    payment_instructions = forms.CharField(required=False, max_length=1000, label='Manual payment instructions',
+        help_text='Shown after placing an order. Payment stays pending until staff confirms receipt.', widget=forms.Textarea(attrs={'rows': 4}))
+    closed_dates = forms.CharField(required=False, max_length=4026, label='Closed meal dates',
+        help_text='YYYY-MM-DD, one date per line. Meals cannot be ordered for these dates.', widget=forms.Textarea(attrs={'rows': 3}))
+
+    def __init__(self, *args, config, **kwargs):
+        settings = config.checkout_settings or {}
+        initial = {**settings, 'courier_pincodes': '\n'.join(settings.get('courier_pincodes', [])),
+                   'closed_dates': '\n'.join(settings.get('closed_dates', [])),
+                   'courier_fee': settings.get('courier_fee', '0'), 'courier_minimum': settings.get('courier_minimum', '0')}
+        super().__init__(*args, initial=initial, **kwargs)
+        for field in self.fields.values():
+            if not isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs['class'] = 'o-input'
+
+    def clean(self):
+        from apps.delivery.checkout import validate_checkout_settings
+        data = super().clean()
+        if self.errors:
+            return data
+        settings = {key: data[key] for key in ('courier_enabled', 'payment_instructions')}
+        settings.update(courier_fee=str(data['courier_fee']), courier_minimum=str(data['courier_minimum']),
+            courier_pincodes=sorted(set(data['courier_pincodes'].split())), closed_dates=sorted(set(data['closed_dates'].split())))
+        data['settings'] = validate_checkout_settings(settings)
+        return data

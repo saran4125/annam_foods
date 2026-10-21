@@ -69,7 +69,7 @@
       <form method="post" action="{% url 'storefront:cart_pincode' %}">
         {% csrf_token %}
         <input type="text" name="pincode" inputmode="numeric" autocomplete="postal-code"
-               placeholder="6-digit pincode" value="{{ cart.pincode }}" aria-label="Delivery pincode">
+               required pattern="[0-9]{6}" placeholder="6-digit pincode" value="{{ cart.pincode }}" aria-label="Delivery pincode">
         {% if needs_area_choice %}
         <select name="zone_id" aria-label="Your area">
           <option value="">Choose your area</option>
@@ -87,6 +87,7 @@
       {% endif %}
     </section>
 
+    <p class="checkout-note">Delivery pincode is required. {% if cart.is_courier %}Shop items ship only to approved Tamil Nadu pincodes.{% else %}Meals are delivered only within the kitchen’s delivery zones.{% endif %} The final total, including applicable tax, is shown at checkout.</p>
     <div class="totals">
       <div><span>Subtotal</span><span>₹{{ totals.subtotal|money }}</span></div>
       {% if totals.zone %}<div><span>Delivery</span><span>₹{{ totals.delivery_fee|money }}</span></div>{% endif %}
@@ -109,7 +110,7 @@
       {% elif not tenant.can_take_orders %}
         <button class="btn btn-primary" data-testid="checkout" data-blocked="paused" disabled>Not accepting orders</button>
       {% else %}
-        <button class="btn btn-primary" data-testid="checkout" disabled title="Checkout arrives in Phase 3">Checkout</button>
+        <a class="btn btn-primary" data-testid="checkout" href="{% url 'storefront:checkout' %}">Continue to checkout <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       {% endif %}
     </div>
   </aside>

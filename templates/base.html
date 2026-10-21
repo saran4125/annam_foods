@@ -35,6 +35,7 @@
     {% if storefront_theme.font_body %}--font-body:{{ storefront_theme.font_body }};{% endif %}
   }
 </style>
+{% block extra_head %}{% endblock %}
 </head>
 <body class="sf-density-{{ storefront_design.density }} sf-shape-{{ storefront_design.shape }} sf-hero-{{ storefront_design.hero_layout }} sf-menu-{{ storefront_design.menu_layout }}">
 {% if appearance_preview and not appearance_canvas %}<div class="sf-preview-bar" role="status"><strong>Draft preview</strong><span>Only your kitchen team can see these unpublished changes.</span><a href="{% url 'owner:appearance' %}">Back to Appearance →</a></div>{% endif %}
