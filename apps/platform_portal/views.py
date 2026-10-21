@@ -118,8 +118,11 @@ def create_kitchen(request):
 @account_required
 def workspace(request, slug):
     kitchen = get_object_or_404(services.accessible_kitchens(request.user).select_related("config", "billing_profile"), slug=slug)
+    progress = services.onboarding_progress(kitchen)
+    completed = sum(progress.values())
     return render(request, "platform_portal/workspace.html", {"kitchen": kitchen,
-        "progress": services.onboarding_progress(kitchen), "domain": kitchen.domains.filter(is_primary=True).first(),
+        "progress": progress, "completed": completed, "setup_total": len(progress),
+        "setup_percent": round(completed / len(progress) * 100), "domain": kitchen.domains.filter(is_primary=True).first(),
         "workspace_root": f"/platform/workspaces/{kitchen.slug}/"})
 
 
