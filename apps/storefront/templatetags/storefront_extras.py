@@ -118,3 +118,21 @@ def canvas_text(context, key, default=''):
 @register.simple_tag(takes_context=True)
 def canvas_image(context, key, default=''):
     return context.get('storefront_images', {}).get(key, '') or default
+
+
+@register.simple_tag(takes_context=True)
+def closing_photos(context):
+    """Keep the closing composition independent of later menu photo changes."""
+    picks = list(context.get('hero_picks', []))[:3]
+    images = context.get('storefront_images', {})
+    canvas = context.get('appearance_canvas', False)
+    keys = ['closing_1', 'closing_2', 'closing_3']
+    if len(picks) < 3 and not canvas and not any(images.get(key) for key in keys):
+        return []
+    slots = []
+    for index, (key, position) in enumerate(zip(keys, ['left', 'middle', 'right'])):
+        original = picks[index].image.url if index < len(picks) and picks[index].image else ''
+        url = images.get(key) or original
+        if url or canvas:
+            slots.append({'key': key, 'number': index + 1, 'position': position, 'url': url})
+    return slots

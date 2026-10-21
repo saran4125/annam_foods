@@ -64,4 +64,7 @@ COPY_FIELDS = {
     'closing.body': ('Closing message', 600, 'Choose today’s meal or fill a pantry box. We confirm your area, cook it fresh, and bring it to your door.'),
     'closing.cta': ('Order button', 60, 'Order today’s meals'),
 }
-IMAGE_FIELDS = {'hero': 'Welcome photo', 'offers': 'Offer photo', 'spotlight': 'Product spotlight photo', 'logo': 'Store logo'}
+IMAGE_FIELDS = {'hero': 'Welcome photo', 'offers': 'Offer photo', 'spotlight': 'Product spotlight photo', 'logo': 'Store logo',
+                'closing_1': 'Contact & visit · left photo',
+                'closing_2': 'Contact & visit · middle photo',
+                'closing_3': 'Contact & visit · right photo'}

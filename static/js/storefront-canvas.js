@@ -40,7 +40,7 @@
     el.addEventListener('paste',event=>{event.preventDefault();document.execCommand('insertText',false,event.clipboardData.getData('text/plain'));});
   });
   document.querySelectorAll('[data-canvas-image]').forEach(el=>{
-    el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label',`Replace ${el.dataset.canvasImage} photo`);
+    el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label',`Replace ${el.dataset.photoPosition || el.dataset.canvasImage} photo`);
     el.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();el.click();}});
   });
   document.addEventListener('submit',event=>event.preventDefault(),true);

@@ -174,3 +174,50 @@ def test_canvas_render_does_not_change_product_prices_or_create_orders(client, k
         item.refresh_from_db()
         assert item.price == Decimal('120')
         assert Order.objects.count() == 0
+
+
+def test_closing_photos_can_be_saved_published_and_reset_independently(client, kitchens, owner):
+    import re
+
+    def closing_sources(response):
+        closing = response.content.decode().split('class="closing"', 1)[1].split('</section>', 1)[0]
+        return re.findall(r'<img src="([^"]+)"', closing)
+
+    client.force_login(owner)
+    urls = [client.post('/manage/appearance/upload/', {'image': photo(f'{position}.png')},
+                        HTTP_HOST=HOST).json()['url'] for position in ['left', 'middle', 'right']]
+    data = payload(kitchens[0].config)
+    data.update({f'image_closing_{index}': url for index, url in enumerate(urls, 1)})
+    assert client.post('/manage/appearance/', data, HTTP_HOST=HOST).status_code == 302
+    assert closing_sources(client.get('/', HTTP_HOST=HOST)) == []
+    canvas = client.post('/manage/appearance/render/', data, HTTP_HOST=HOST)
+    assert canvas.status_code == 200
+    assert closing_sources(canvas) == urls
+    for index in range(1, 4):
+        assert f'data-canvas-image="closing_{index}"'.encode() in canvas.content
+    data.update(action='publish', revision=1)
+    assert client.post('/manage/appearance/', data, HTTP_HOST=HOST).status_code == 302
+    client.logout()
+    assert closing_sources(client.get('/', HTTP_HOST=HOST)) == urls
+    assert all(client.get(url, HTTP_HOST=HOST).status_code == 200 for url in urls)
+    client.force_login(owner)
+    data.update(image_closing_2='', revision=2)
+    assert client.post('/manage/appearance/', data, HTTP_HOST=HOST).status_code == 302
+    assert closing_sources(client.get('/', HTTP_HOST=HOST)) == [urls[0], urls[2]]
+    assert client.post('/manage/appearance/', {'action': 'restore', 'revision': 3}, HTTP_HOST=HOST).status_code == 302
+    assert closing_sources(client.get('/', HTTP_HOST=HOST)) == urls
+
+
+def test_closing_keeps_original_menu_photos_and_offers_empty_editor_slots():
+    from types import SimpleNamespace
+    from django.template import Context
+    from apps.storefront.templatetags.storefront_extras import closing_photos
+
+    picks = [SimpleNamespace(image=SimpleNamespace(url=f'/media/{i}.jpg')) for i in range(3)]
+    assert [slot['url'] for slot in closing_photos(Context({'hero_picks': picks}))] == [p.image.url for p in picks]
+    slots = closing_photos(Context({'hero_picks': picks, 'storefront_images': {'closing_2': '/replacement/'}}))
+    assert [slot['url'] for slot in slots] == ['/media/0.jpg', '/replacement/', '/media/2.jpg']
+    assert closing_photos(Context({'hero_picks': picks[:1]})) == []
+    empty = closing_photos(Context({'appearance_canvas': True}))
+    assert [slot['key'] for slot in empty] == ['closing_1', 'closing_2', 'closing_3']
+    assert all(not slot['url'] for slot in empty)

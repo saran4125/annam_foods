@@ -29,17 +29,20 @@
   const styleTab=style=>{document.querySelector('[data-content-panel]').hidden=style;document.querySelector('[data-style-panel]').hidden=!style;document.querySelectorAll('[data-inspector-tab]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.inspectorTab==='design')===style)));};
   const photoPreview=src=>{const img=document.querySelector('[data-current-photo]');img.hidden=!src;document.querySelector('[data-no-photo]').hidden=!!src;if(src)img.src=src;};
   const select=(section,{field=null,image=null,src=null,scroll=false,openPanel=true}={})=>{
-    selected=section;imageKey=image || (section==='brand'?'logo':['hero','offers','spotlight'].includes(section)?section:null);
+    const previousImage=imageKey;selected=section;imageKey=image || (section==='closing'?(previousImage?.startsWith('closing_')?previousImage:'closing_1'):section==='brand'?'logo':['hero','offers','spotlight'].includes(section)?section:null);
+    document.querySelector('[data-closing-photos]').hidden=section!=='closing';
+    document.querySelectorAll('[data-photo-slot]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.photoSlot===imageKey)));
     const row=rows().find(row=>row.dataset.layer===section);document.querySelector('[data-selection-title]').textContent=imageKey==='logo'?'Your store logo':row?.querySelector('[data-select-section]').textContent.trim() || (section==='brand'?'Your brand':'Your website');
     rows().forEach(row=>row.classList.toggle('is-selected',row.dataset.layer===section));
     document.querySelectorAll('[data-copy-group]').forEach(group=>group.classList.toggle('is-active',group.dataset.copyGroup===section));
     document.querySelectorAll('[data-copy-field]').forEach(label=>label.classList.toggle('is-focused',label.dataset.copyField===field));
     document.querySelector('[data-photo-panel]').hidden=!imageKey;
     document.querySelector('[data-catalog-note]').hidden=!['meals','popular','categories'].includes(section);
-    if(imageKey){document.querySelector('[data-photo-label]').textContent=imageKey==='logo'?'Store logo':'Section photo';const existing=frame.contentDocument?.querySelector(`[data-canvas-image="${imageKey}"]`);photoPreview(src || element('image_'+imageKey)?.value || existing?.getAttribute('src') || '');}
+    if(imageKey){document.querySelector('[data-photo-label]').textContent=({closing_1:'Left photo',closing_2:'Middle photo',closing_3:'Right photo',logo:'Store logo'})[imageKey] || 'Section photo';const existing=frame.contentDocument?.querySelector(`[data-canvas-image="${imageKey}"]`);photoPreview(src || element('image_'+imageKey)?.value || existing?.getAttribute('src') || '');}
     styleTab(false);send({type:'select',section,scroll});
     if(openPanel && matchMedia('(max-width:900px)').matches)mobilePanel('inspector');
   };
+  document.querySelectorAll('[data-photo-slot]').forEach(button=>button.addEventListener('click',()=>select('closing',{image:button.dataset.photoSlot})));
   const render=async()=>{
     clearTimeout(renderTimer);controller?.abort();controller=new AbortController();const current=++sequence;
     let scroll=0;try{scroll=frame.contentWindow?.scrollY || 0;}catch{}

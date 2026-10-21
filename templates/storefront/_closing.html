@@ -10,9 +10,12 @@
         {% if shop_enabled %}<a class="btn btn-lg" href="{% url 'storefront:shop' %}">Shop the pantry</a>{% endif %}
       </div>
     </div>
-    {% if hero_picks|length >= 3 %}
-    <div class="arches" aria-hidden="true">
-      {% for p in hero_picks|slice:":3" %}<span class="arch a{{ forloop.counter }}"><img src="{{ p.image.url }}" alt="" width="260" height="340" loading="lazy"></span>{% endfor %}
+    {% closing_photos as photos %}
+    {% if photos %}
+    <div class="arches"{% if not appearance_canvas %} aria-hidden="true"{% endif %}>
+      {% for photo in photos %}
+      <span class="arch a{{ photo.number }}">{% if photo.url %}<img src="{{ photo.url }}" data-canvas-image="{{ photo.key }}" data-photo-position="{{ photo.position }}" alt="" width="260" height="340" loading="lazy">{% elif appearance_canvas %}<span class="canvas-arch-empty" data-canvas-image="{{ photo.key }}" data-photo-position="{{ photo.position }}">Add {{ photo.position }} photo</span>{% endif %}</span>
+      {% endfor %}
     </div>
     {% endif %}
   </div>
