@@ -1,0 +1,42 @@
+{% load storefront_extras %}
+{% if highlights %}
+{% comment %}Three menu columns: every meal visible at once. The meal you can still
+order is highlighted (and moves first on phones); closed meals stay readable
+but quieter, with a link to order them for tomorrow.{% endcomment %}
+<section class="meals" aria-labelledby="meals-title">
+  <div class="section-head" data-reveal>
+    <div><p class="section-kicker">Daily food menu</p><h2 id="meals-title">From today’s kitchen</h2><span class="section-subtitle">Order before the cutoff and we cook it for your slot.</span></div>
+    <a class="arrow-link" href="{% url 'storefront:menu' %}">Full menu <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </div>
+  <div class="meal-cols" data-stagger>
+    {% for h in highlights %}
+    <article class="meal-col{% if h.open %} is-open{% else %} is-shut{% endif %}{% if h.slot.key == board_default %} is-next{% endif %}" aria-labelledby="meal-{{ h.slot.key }}">
+      <header class="meal-head">
+        <div>
+          <h3 id="meal-{{ h.slot.key }}">{{ h.slot.label }}</h3>
+          {% if h.slot.delivery_from and h.slot.delivery_to %}<p class="meal-time"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Delivered {{ h.slot.delivery_from|time:"g:i" }}–{{ h.slot.delivery_to|time:"g:i A" }}</p>{% endif %}
+        </div>
+        {% if h.open %}<span class="pill pill-open"><i aria-hidden="true"></i>Order by {{ h.slot.order_cutoff|time:"g:i A" }}</span>
+        {% else %}<span class="pill pill-shut">Closed today</span>{% endif %}
+      </header>
+      <ul class="meal-dishes">
+        {% for e in h.entries %}
+        <li>
+          <span class="meal-dish-img">{% if e.item.image %}<img src="{{ e.item.image.url }}" alt="" width="64" height="64" loading="lazy">{% else %}<span class="dish-tile tile-{{ e.item.name|tile_tint }}">{{ e.item.name|slice:":1"|upper }}</span>{% endif %}</span>
+          <span class="meal-dish-name"><span class="veg{% if not e.item.is_veg %} veg-no{% endif %}" aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>{{ e.item.name }}</span>
+          <span class="meal-dish-price">₹{{ e.price|money }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if h.open %}
+      <a class="btn btn-primary meal-cta" href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}">Order {{ h.slot.label|lower }} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      {% else %}
+      <a class="btn meal-cta" href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}&date={{ tomorrow|date:'Y-m-d' }}">Order for tomorrow <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% elif not shop_enabled %}
+<p class="empty">Today’s menu isn’t up yet. Please check back shortly.</p>
+{% endif %}

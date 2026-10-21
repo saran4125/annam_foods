@@ -1,0 +1,46 @@
+{% load storefront_extras %}
+{# ---- Offers: the owner's banners, now a contained card instead of the hero ---- #}
+<div class="wrap offers{% if not hero_slides %} is-empty{% endif %}">
+<section class="hero-slider{% if not hero_slides %} is-hidden{% endif %}" aria-label="Current offers" {% if not hero_slides %}hidden{% endif %} data-slider>
+  {% if hero_slides %}
+  <div class="hero-slides">
+    {% for b in hero_slides %}
+      <div class="hero-slide{% if forloop.first %} is-active{% endif %}" data-slide aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
+        <div class="offer">
+          <div class="offer-copy">
+            <span class="offer-badge"><svg class="ic" aria-hidden="true"><use href="#i-leaf"/></svg>Festival special</span>
+            <h2>{{ b.title }}</h2>
+            {% if b.subtitle %}<p>{{ b.subtitle }}</p>{% endif %}
+            <div class="offer-actions">
+              {% if b.link|safe_link|workspace_link:request %}<a class="btn btn-primary btn-lg" href="{{ b.link|safe_link|workspace_link:request }}"{% if not forloop.first %} tabindex="-1"{% endif %}>See the offer <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
+              {% if whatsapp_link %}<a class="btn btn-lg" href="{{ whatsapp_link }}" target="_blank" rel="noopener"{% if not forloop.first %} tabindex="-1"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>Pre-order on WhatsApp</a>{% endif %}
+            </div>
+          </div>
+          <div class="offer-art"><img src="{{ b.image.url }}" alt="{{ b.title }}" width="1920" height="900" loading="lazy"></div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% if hero_slides|length > 1 %}
+  <button class="slider-arrow slider-prev" type="button" aria-label="Previous offer" data-prev><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg></button>
+  <button class="slider-arrow slider-next" type="button" aria-label="Next offer" data-next><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+  <div class="slider-dots" role="group" aria-label="Choose offer">
+    {% for b in hero_slides %}
+      <button type="button" class="slider-dot{% if forloop.first %} is-active{% endif %}" aria-label="Show offer {{ forloop.counter }}" data-dot="{{ forloop.counter0 }}"><i></i></button>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+</section>
+</div>
+
+{% if promo_tiles %}
+<div class="promo-rail wrap" aria-label="Current offers" data-stagger>
+  {% for b in promo_tiles %}
+    <a class="promo-tile" href="{{ b.link|safe_link|workspace_link:request }}">
+      {% if b.image %}<img src="{{ b.image.url }}" alt="" width="720" height="220" loading="lazy">{% endif %}
+      <span><b>{{ b.title }}</b>{% if b.subtitle %}<small>{{ b.subtitle }}</small>{% endif %}</span>
+    </a>
+  {% endfor %}
+</div>
+{% endif %}

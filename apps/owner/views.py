@@ -368,7 +368,7 @@ def settings_view(request):
         features.update({"website_ordering": d["website_ordering"], "snacks_courier": d["snacks_courier"]})
         config.features = features
         config.full_clean()
-        config.save()
+        config.save(update_fields=["brand_name", "tagline", "support_phone", "theme", "home_sections", "features"])
         messages.success(request, "Store settings saved.")
         return redirect("owner:settings")
     return render(request, "owner/settings.html", {"form": form, "logo": theme.get("logo_url")})
@@ -429,3 +429,37 @@ def bill_detail(request, pk):
     from apps.billing.models import Invoice
     invoice = get_object_or_404(Invoice.objects.select_related("order"), pk=pk)
     return render(request, "owner/bill.html", {"invoice": invoice})
+
+
+@owner_required
+@never_cache
+def appearance(request):
+    from apps.content.services import change_storefront_design, storefront_design
+    config = TenantConfig.objects.get(tenant=request.tenant)
+    state = config.storefront_design or {}
+    form = forms.AppearanceForm(request.POST if request.method == "POST" else None,
+                                design=storefront_design(config, draft=True), revision=state.get("revision", 0))
+    if request.method == "POST":
+        action = request.POST.get("action", "save")
+        if action in {"restore", "discard"}:
+            try:
+                revision = int(request.POST.get("revision", ""))
+                change_storefront_design(request.tenant, action=action, revision=revision)
+            except (ValidationError, ValueError) as exc:
+                form.add_error(None, exc if isinstance(exc, ValidationError) else "Reload the page and try again.")
+            else:
+                messages.success(request, "Previous design restored." if action == "restore" else "Draft discarded.")
+                return redirect("owner:appearance")
+        elif form.is_valid():
+            try:
+                change_storefront_design(request.tenant, action=action, revision=form.cleaned_data["revision"],
+                                         design=form.cleaned_data["design"])
+            except ValidationError as exc:
+                form.add_error(None, exc)
+            else:
+                messages.success(request, "Appearance published. Customers now see this design." if action == "publish"
+                                 else "Draft saved. Preview it before publishing.")
+                return redirect("owner:appearance")
+    preview = getattr(request, "workspace_preview_url", "/") + "?design=draft"
+    return render(request, "owner/appearance.html", {"form": form, "has_draft": bool(state.get("draft")),
+                  "has_previous": bool(state.get("previous")), "preview_url": preview})

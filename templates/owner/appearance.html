@@ -1,0 +1,35 @@
+{% extends "owner/base.html" %}
+{% load storefront_extras %}
+{% block title %}Appearance{% endblock %}
+{% block body_class %}appearance-editor{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static_v 'css/appearance-editor.css' %}">{% endblock %}
+{% block heading %}<h1>Storefront appearance</h1><p>Shape your website. Preview first, publish when ready.</p>{% endblock %}
+{% block actions %}<a class="o-btn" href="{{ preview_url }}" target="_blank" rel="noopener"><svg class="o-ic" aria-hidden="true"><use href="#o-eye"/></svg>Preview draft</a>{% endblock %}
+{% block content %}
+<div class="ap-theme"><div class="ap-theme-art" aria-hidden="true"><i></i><span></span><b></b><b></b><b></b></div><div><span class="ap-kicker">YOUR STOREFRONT THEME</span><h2>Kitchen Classic</h2><p>The design you already use, with your own section order, colours and layouts.</p></div><span class="ap-state">{% if has_draft %}Draft saved{% else %}Published design{% endif %}</span></div>
+<form method="post" class="ap-form" novalidate data-appearance-form>
+{% csrf_token %}{{ form.revision }}
+{% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+<div class="ap-columns">
+<section class="o-card ap-sections" aria-labelledby="ap-sections-title"><header class="ap-card-head"><div><span class="ap-kicker">HOME PAGE</span><h2 id="ap-sections-title">Make room for what matters</h2><p>Move sections up or down and choose what customers see.</p></div></header>
+<p class="ap-help">Sections appear when their content is available. Hiding a section keeps its content saved.</p>
+<ol class="ap-section-list" data-section-list>
+{% for row in form.section_rows %}<li class="ap-section" data-section-row>
+<div class="ap-section-heading"><span class="ap-section-number" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span><div><h3>{{ row.label }}</h3><p>{{ row.description }}</p></div><label class="ap-visibility">{{ row.visible }}<span>Show<span class="o-sr"> {{ row.label }}</span></span></label></div>
+<div class="ap-section-controls"><label>{{ row.position.label }}{{ row.position }}</label><div class="ap-move"><button type="button" data-move="up" aria-label="Move {{ row.label }} up">↑ <span>Move up</span></button><button type="button" data-move="down" aria-label="Move {{ row.label }} down">↓ <span>Move down</span></button></div></div>
+{% for error in row.position.errors %}<p class="o-error">{{ error }}</p>{% endfor %}
+</li>{% endfor %}
+</ol><p class="ap-help">You can also enter unique positions from 1 to 10. These controls work without dragging.</p>
+</section>
+<aside class="ap-design">
+<section class="o-card"><header class="ap-card-head"><h2>Colours</h2><p>A palette that feels like your kitchen.</p></header><div class="ap-colours">{% for f in form %}{% if f.name == 'brand' or f.name == 'paper' or f.name == 'ink' or f.name == 'surface_alt' %}<label class="ap-colour"><span>{{ f.label }}</span><span class="ap-colour-input">{{ f }}<code data-colour-code>{{ f.value }}</code></span>{% for error in f.errors %}<em class="o-error">{{ error }}</em>{% endfor %}</label>{% endif %}{% endfor %}</div><p class="ap-help">Classic uses pale backgrounds and dark text. We check contrast before saving.</p></section>
+<section class="o-card"><header class="ap-card-head"><h2>Type &amp; layout</h2><p>Fine-tune the current design.</p></header><div class="ap-fields">{% with f=form.font %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.density %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.shape %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.hero_layout %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.menu_layout %}{% include "owner/_field.html" %}{% endwith %}</div></section>
+<section class="o-card ap-content-links"><h2>Looking for your content?</h2><p>Edit your words, photos and products in their usual places.</p><a href="{% url 'owner:settings' %}">Logo, contact details &amp; hero text →</a><a href="{% url 'owner:list' 'banners' %}">Offer banners →</a><a href="{% url 'owner:list' 'dishes' %}">Menu &amp; products →</a><a href="{% url 'owner:list' 'pages' %}">Website pages →</a></section>
+</aside>
+</div>
+<div class="ap-save-bar"><div><strong>{% if has_draft %}Your draft is saved{% else %}Make it yours{% endif %}</strong><small>Save before previewing. Customers see changes only after you publish.</small></div><div><button class="o-btn" name="action" value="save">Save draft</button><button class="o-btn o-btn-primary" name="action" value="publish">Publish changes <span aria-hidden="true">→</span></button></div></div>
+</form>
+{% if has_draft or has_previous %}<section class="ap-history"><div><h2>Design history</h2><p>Restore the previous published design or discard unpublished changes.</p></div><form method="post">{% csrf_token %}<input type="hidden" name="revision" value="{{ form.revision.value }}">{% if has_draft %}<button class="o-btn" name="action" value="discard">Discard draft</button>{% endif %}{% if has_previous %}<button class="o-btn" name="action" value="restore">Restore previous design</button>{% endif %}</form></section>{% endif %}
+<script src="{% static_v 'js/billing-selects.js' %}" defer></script>
+<script src="{% static_v 'js/appearance-editor.js' %}" defer></script>
+{% endblock %}

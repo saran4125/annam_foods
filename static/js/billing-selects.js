@@ -7,7 +7,7 @@
     if(text!==undefined) node.textContent=text;
     return node;
   };
-  document.querySelectorAll('.billing-ui select:not([multiple])').forEach((select,index) => {
+  document.querySelectorAll('.billing-ui select:not([multiple]), .appearance-editor select:not([multiple])').forEach((select,index) => {
     if(select.closest('[data-line]') || select.disabled) return;
     const originalLabels=[...select.labels];
     const label=originalLabels[0]?.cloneNode(true);

@@ -302,3 +302,53 @@ class BillingSettingsForm(StyledForm):
         except (ValueError, ValidationError) as exc:
             raise ValidationError(" ".join(exc.messages) if isinstance(exc, ValidationError) else str(exc)) from exc
         return data
+
+
+class AppearanceForm(forms.Form):
+    from apps.storefront.themes import FONT_CHOICES, DENSITY_CHOICES, SHAPE_CHOICES, HERO_CHOICES, MENU_CHOICES
+    revision = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
+    font = forms.ChoiceField(choices=FONT_CHOICES, label="Typography")
+    density = forms.ChoiceField(choices=DENSITY_CHOICES, label="Section spacing")
+    shape = forms.ChoiceField(choices=SHAPE_CHOICES, label="Card corners")
+    hero_layout = forms.ChoiceField(choices=HERO_CHOICES, label="Welcome hero layout")
+    menu_layout = forms.ChoiceField(choices=MENU_CHOICES, label="Daily menu layout")
+    brand = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Brand colour", widget=forms.TextInput(attrs={"type": "color"}))
+    paper = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Page background", widget=forms.TextInput(attrs={"type": "color"}))
+    ink = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Main text", widget=forms.TextInput(attrs={"type": "color"}))
+    surface_alt = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Feature backgrounds", widget=forms.TextInput(attrs={"type": "color"}))
+
+    def __init__(self, *args, design, revision=0, **kwargs):
+        from apps.storefront.themes import SECTIONS
+        initial = {key: design[key] for key in ("font", "density", "shape", "hero_layout", "menu_layout")}
+        initial.update(design["colors"])
+        initial["revision"] = revision
+        initial.update({f"show_{s['key']}": s["enabled"] for s in design["sections"]})
+        initial.update({f"order_{s['key']}": i for i, s in enumerate(design["sections"], 1)})
+        super().__init__(*args, initial=initial, **kwargs)
+        labels = {key: (label, description) for key, label, description in SECTIONS}
+        self.section_rows = []
+        for section in design["sections"]:
+            key = section["key"]
+            self.fields[f"show_{key}"] = forms.BooleanField(required=False, label=f"Show {labels[key][0]}")
+            self.fields[f"order_{key}"] = forms.IntegerField(min_value=1, max_value=len(SECTIONS), label=f"Position of {labels[key][0]}")
+            self.section_rows.append({"key": key, "label": labels[key][0], "description": labels[key][1],
+                                      "visible": self[f"show_{key}"], "position": self[f"order_{key}"]})
+        for field in self.fields.values():
+            if not isinstance(field.widget, (forms.HiddenInput, forms.CheckboxInput)):
+                field.widget.attrs.setdefault("class", "o-input")
+
+    def clean(self):
+        from apps.content.services import validate_storefront_design
+        from apps.storefront.themes import SECTIONS
+        data = super().clean()
+        if self.errors:
+            return data
+        positions = [data[f"order_{key}"] for key, _, _ in SECTIONS]
+        if len(set(positions)) != len(positions):
+            raise ValidationError("Give each section a different position, from 1 to 10.")
+        design = {key: data[key] for key in ("font", "density", "shape", "hero_layout", "menu_layout")}
+        design.update(theme="classic", colors={key: data[key] for key in ("brand", "paper", "ink", "surface_alt")},
+                      sections=[{"key": key, "enabled": data[f"show_{key}"]}
+                                for key, _, _ in sorted(SECTIONS, key=lambda section: data[f"order_{section[0]}"])])
+        data["design"] = validate_storefront_design(design)
+        return data

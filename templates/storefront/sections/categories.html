@@ -1,0 +1,27 @@
+{% load storefront_extras %}
+{% if shelves %}
+<section class="food-showcase" aria-labelledby="shelves-title">
+  <div class="section-head" data-reveal>
+    <div><p class="section-kicker">Shop by category</p><h2 id="shelves-title">Made in our kitchen</h2></div>
+    <div class="shelf-head-actions">
+      <a class="arrow-link" href="{% url 'storefront:shop' %}">Shop all <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <button class="icon-btn shelf-nav" type="button" aria-label="Previous categories" aria-controls="shelf-row" data-shelf-prev><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg></button>
+      <button class="icon-btn shelf-nav" type="button" aria-label="More categories" aria-controls="shelf-row" data-shelf-next><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+    </div>
+  </div>
+  {# One row the customer scrolls (swipe, trackpad or arrows) -- it never moves on its own #}
+  <div class="shelf-row-wrap" data-shelf-wrap>
+    <ul class="shelf-row" id="shelf-row" data-shelf-row data-stagger>
+      {% for c in shelves %}
+      <li>
+        <a class="shelf-card" href="{% url 'storefront:shop_category' c.slug %}">
+          <span class="food-photo">{% if c.image %}<img src="{{ c.image.url }}" alt="" width="400" height="400" loading="lazy">{% endif %}</span>
+          <span class="food-label">{{ c.name }}</span>
+          <small>{{ c.item_count }} item{{ c.item_count|pluralize }}</small>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}

@@ -1,0 +1,16 @@
+{% load storefront_extras %}
+{% if food_showcase %}
+<section class="food-showcase" aria-labelledby="food-showcase-title" data-reveal>
+  <div class="section-head">
+    <div><p class="section-kicker">Explore the kitchen</p><h2 id="food-showcase-title">Food favourites</h2></div>
+  </div>
+  <div class="food-category-grid" data-stagger>
+    {% for food in food_showcase %}
+    <a class="food-category" href="{{ food.link|default:'/menu/' }}">
+      <span class="food-photo"><img src="{{ food.image|root_media_url }}" alt="{{ food.label }}" width="500" height="500" loading="lazy"></span>
+      <span class="food-label">{{ food.label }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}

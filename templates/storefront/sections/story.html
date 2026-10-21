@@ -1,0 +1,14 @@
+{% load storefront_extras %}
+<section class="story-band" data-reveal>
+  <div class="story-copy">
+    <p class="section-kicker">Why order direct</p>
+    <h2>A shorter journey from the stove to your table.</h2>
+    <p>You choose the meal and delivery slot. The kitchen sees the same live menu, prepares against confirmed demand, and sends it straight to your area.</p>
+    <a class="arrow-link" href="{% url 'storefront:menu' %}">Build your order <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </div>
+  <ol class="steps" aria-label="How ordering works" data-stagger>
+    <li><b>Choose</b><span>Pick today or tomorrow and a meal slot{% if shop_enabled %} — or shop the pantry{% endif %}.</span></li>
+    <li><b>Check</b><span>Confirm delivery availability with your pincode.</span></li>
+    <li><b>Enjoy</b><span>We cook for the slot and deliver it fresh.</span></li>
+  </ol>
+</section>

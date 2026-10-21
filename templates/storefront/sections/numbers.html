@@ -1,0 +1,12 @@
+{% load storefront_extras %}
+{% if numbers %}
+{# Light stat strip: icon, count-up number, label. Sits just above the shop. #}
+<section class="stats" aria-label="{{ tenant.config.brand_name|default:tenant.name }} in numbers" data-stagger>
+  {% for n, label, sub, icon in numbers %}
+  <div class="stat">
+    <span class="stat-icon" aria-hidden="true"><svg class="ic"><use href="#i-{{ icon }}"/></svg></span>
+    <div><b data-count-to="{{ n }}">{{ n }}</b><span class="stat-label">{{ label }}</span><small>{{ sub }}</small></div>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}

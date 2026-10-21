@@ -5,35 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% block title %}{{ tenant.config.brand_name|default:tenant.name }}{% endblock %}</title>
 <meta name="description" content="{% block description %}{{ tenant.config.tagline }}{% endblock %}">
-<meta name="theme-color" content="{{ tenant.config.theme.brand|default:'#FF8507' }}">
+<meta name="theme-color" content="{{ storefront_theme.brand|default:'#FF8507' }}">
 <script>document.documentElement.classList.add('js')</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-{% if tenant.config.theme.google_fonts %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ tenant.config.theme.google_fonts }}&display=swap">
+{% if storefront_theme.google_fonts %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ storefront_theme.google_fonts }}&display=swap">
 {% else %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">{% endif %}
 <link rel="stylesheet" href="{% static_v 'css/storefront.css' %}">
+<link rel="stylesheet" href="{% static_v 'css/storefront-appearance.css' %}">
 <style>
   /* Every one of these is overridable per kitchen from TenantConfig.theme.
      A new client is a row change, never a stylesheet fork. Tints and the
      readable-on-white brand shade are derived in storefront.css. */
   :root{
-    --brand:{{ tenant.config.theme.brand|default:"#FF8507" }};
-    --brand-dark:{{ tenant.config.theme.brand_dark|default:"#1C1C1C" }};
-    {% if tenant.config.theme.on_brand %}--on-brand:{{ tenant.config.theme.on_brand }};{% endif %}
-    {% if tenant.config.theme.paper %}--paper:{{ tenant.config.theme.paper }};{% endif %}
-    {% if tenant.config.theme.ink %}--ink:{{ tenant.config.theme.ink }};{% endif %}
-    {% if tenant.config.theme.font_display %}--font-display:{{ tenant.config.theme.font_display }};{% endif %}
-    {% if tenant.config.theme.display_weight %}--display-weight:{{ tenant.config.theme.display_weight }};{% endif %}
-    {% if tenant.config.theme.header_bg %}--header-bg:{{ tenant.config.theme.header_bg }};--header-ink:{{ tenant.config.theme.header_ink|default:"#fff" }};--header-muted:{{ tenant.config.theme.header_muted|default:"rgba(255,255,255,.78)" }};{% endif %}
-    {% if tenant.config.theme.footer_bg %}--footer-bg:{{ tenant.config.theme.footer_bg }};--footer-ink:{{ tenant.config.theme.footer_ink|default:"#1A1410" }};--footer-muted:{{ tenant.config.theme.footer_muted|default:"#4A423B" }};{% endif %}
-    {% if tenant.config.theme.ticker_bg %}--ticker-bg:{{ tenant.config.theme.ticker_bg }};--ticker-ink:{{ tenant.config.theme.ticker_ink|default:"#1A1410" }};{% endif %}
-    {% if tenant.config.theme.band_bg %}--band-bg:{{ tenant.config.theme.band_bg }};--band-accent:{{ tenant.config.theme.band_accent|default:"#fff" }};{% endif %}
-    {% if tenant.config.theme.font_body %}--font-body:{{ tenant.config.theme.font_body }};{% endif %}
+    --brand:{{ storefront_theme.brand|default:"#FF8507" }};
+    --brand-dark:{{ storefront_theme.brand_dark|default:"#1C1C1C" }};
+    {% if storefront_theme.on_brand %}--on-brand:{{ storefront_theme.on_brand }};{% endif %}
+    {% if storefront_theme.paper %}--paper:{{ storefront_theme.paper }};{% endif %}
+    {% if storefront_theme.surface_alt %}--surface-alt:{{ storefront_theme.surface_alt }};{% endif %}
+    {% if storefront_theme.ink %}--ink:{{ storefront_theme.ink }};{% endif %}
+    {% if storefront_theme.font_display %}--font-display:{{ storefront_theme.font_display }};{% endif %}
+    {% if storefront_theme.display_weight %}--display-weight:{{ storefront_theme.display_weight }};{% endif %}
+    {% if storefront_theme.header_bg %}--header-bg:{{ storefront_theme.header_bg }};--header-ink:{{ storefront_theme.header_ink|default:"#fff" }};--header-muted:{{ storefront_theme.header_muted|default:"rgba(255,255,255,.78)" }};{% endif %}
+    {% if storefront_theme.footer_bg %}--footer-bg:{{ storefront_theme.footer_bg }};--footer-ink:{{ storefront_theme.footer_ink|default:"#1A1410" }};--footer-muted:{{ storefront_theme.footer_muted|default:"#4A423B" }};{% endif %}
+    {% if storefront_theme.ticker_bg %}--ticker-bg:{{ storefront_theme.ticker_bg }};--ticker-ink:{{ storefront_theme.ticker_ink|default:"#1A1410" }};{% endif %}
+    {% if storefront_theme.band_bg %}--band-bg:{{ storefront_theme.band_bg }};--band-accent:{{ storefront_theme.band_accent|default:"#fff" }};{% endif %}
+    {% if storefront_theme.font_body %}--font-body:{{ storefront_theme.font_body }};{% endif %}
   }
 </style>
 </head>
-<body>
+<body class="sf-density-{{ storefront_design.density }} sf-shape-{{ storefront_design.shape }} sf-hero-{{ storefront_design.hero_layout }} sf-menu-{{ storefront_design.menu_layout }}">
+{% if appearance_preview %}<div class="sf-preview-bar" role="status"><strong>Draft preview</strong><span>Only your kitchen team can see these unpublished changes.</span><a href="{% url 'owner:appearance' %}">Back to Appearance →</a></div>{% endif %}
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
@@ -68,9 +71,9 @@
 {% if tenant.can_take_orders %}
 <div class="ticker" role="note">
   <div class="ticker-track">
-    {% if tenant.config.theme.announcements %}
-      {% for a in tenant.config.theme.announcements %}<span>{{ a }}</span><i aria-hidden="true"></i>{% endfor %}
-      {% for a in tenant.config.theme.announcements %}<span class="ticker-dup" aria-hidden="true">{{ a }}</span><i aria-hidden="true" class="ticker-dup"></i>{% endfor %}
+    {% if storefront_theme.announcements %}
+      {% for a in storefront_theme.announcements %}<span>{{ a }}</span><i aria-hidden="true"></i>{% endfor %}
+      {% for a in storefront_theme.announcements %}<span class="ticker-dup" aria-hidden="true">{{ a }}</span><i aria-hidden="true" class="ticker-dup"></i>{% endfor %}
     {% else %}
     <span>Freshly prepared for each meal slot</span><i aria-hidden="true"></i>
     <span>Order before the cutoff</span><i aria-hidden="true"></i>
@@ -87,8 +90,8 @@
 <header class="site-head" data-header>
   <div class="wrap head-inner">
     <a class="brand" href="{{ home_url }}" aria-label="{{ tenant.config.brand_name|default:tenant.name }} — home">
-      {% if tenant.config.theme.logo_url %}
-        <img class="brand-logo" src="{{ tenant.config.theme.logo_url }}" alt="" width="160" height="72">
+      {% if storefront_theme.logo_url %}
+        <img class="brand-logo" src="{{ storefront_theme.logo_url }}" alt="" width="160" height="72">
       {% else %}
         <span class="brand-mark" aria-hidden="true">SK</span>
       {% endif %}
@@ -153,7 +156,7 @@
 </div>
 {% endif %}
 
-<main class="wrap" id="main">{% block content %}{% endblock %}</main>
+{% block main %}<main class="wrap" id="main">{% block content %}{% endblock %}</main>{% endblock %}
 
 <footer class="site-foot">
   <div class="wrap foot-inner">
@@ -162,7 +165,7 @@
       {% if tenant.config.tagline %}<p>{{ tenant.config.tagline }}</p>{% endif %}
       <div class="foot-contact">
         {% if tenant.config.support_phone %}<a class="foot-phone" href="tel:{{ tenant.config.support_phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>{{ tenant.config.support_phone }}</a>{% endif %}
-        {% if tenant.config.theme.contact_email %}<a href="mailto:{{ tenant.config.theme.contact_email }}"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>{{ tenant.config.theme.contact_email }}</a>{% endif %}
+        {% if storefront_theme.contact_email %}<a href="mailto:{{ storefront_theme.contact_email }}"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>{{ storefront_theme.contact_email }}</a>{% endif %}
         {% if tenant.billing_profile.address %}<span><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>{{ tenant.billing_profile.address|linebreaksbr }}</span></span>{% endif %}
       </div>
       {% if whatsapp_link %}<a class="btn btn-wa" href="{{ whatsapp_link }}" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>Order on WhatsApp</a>{% endif %}

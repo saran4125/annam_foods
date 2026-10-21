@@ -20,6 +20,7 @@ urlpatterns = [
     path("bills/<int:pk>/", views.bill_detail, name="bill"),
     path("orders/<int:pk>/bill/", views.order_bill, name="order_bill"),
     path("orders/<int:pk>/payment/", views.order_payment, name="order_payment"),
+    path("appearance/", views.appearance, name="appearance"),
     path("settings/", views.settings_view, name="settings"),
     path("<slug:key>/", views.resource_list, name="list"),
     path("<slug:key>/new/", views.resource_edit, name="new"),

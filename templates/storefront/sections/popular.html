@@ -1,0 +1,41 @@
+{% load storefront_extras %}
+{% if popular %}
+<div class="section-head section-head-spaced" data-reveal>
+  <div><p class="section-kicker">Loved by everyone</p><h2>Popular in the shop</h2><span class="section-subtitle">The podis, pakshanams and sweets our regulars reorder.</span></div>
+  <a class="arrow-link" href="{% url 'storefront:shop' %}">Shop all <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+</div>
+<ul class="dishes products" data-stagger>
+  {% for p in popular %}{% include "storefront/_product_card.html" %}{% endfor %}
+</ul>
+{% elif featured %}
+<div class="section-head section-head-spaced" data-reveal>
+  <div><p class="section-kicker">From today’s menu</p><h2>Featured dishes</h2><span class="section-subtitle">A selection from today’s menu.</span></div>
+  <a class="arrow-link" href="{% url 'storefront:menu' %}">View the full menu <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+</div>
+<ul class="dishes" data-stagger>
+  {% for e in featured %}
+  <li class="dish">
+    <a class="dish-media" href="{% url 'storefront:menu' %}?slot={{ e.slot.key }}" tabindex="-1" aria-hidden="true">
+      {% if e.item.image %}
+        <img src="{{ e.item.image.url }}" alt="" width="600" height="600" loading="lazy">
+      {% else %}
+        <span class="dish-tile tile-{{ e.item.name|tile_tint }}">{{ e.item.name|slice:":1"|upper }}</span>
+      {% endif %}
+    </a>
+    <span class="dish-veg">
+      <span class="veg{% if not e.item.is_veg %} veg-no{% endif %}"
+            aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
+    </span>
+    <div class="dish-body">
+      <h3>{{ e.item.name }}</h3>
+      <div class="dish-buy">
+        <span class="price">₹{{ e.price|money }}</span>
+        {% if ordering_enabled %}
+        <a class="btn btn-add" href="{% url 'storefront:menu' %}?slot={{ e.slot.key }}">Choose</a>
+        {% else %}<span class="pill">Ordering unavailable</span>{% endif %}
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}

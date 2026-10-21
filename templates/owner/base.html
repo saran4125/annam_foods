@@ -57,6 +57,7 @@
     <a href="{% url 'billing:dashboard' %}"><svg class="o-ic"><use href="#o-page"/></svg>Open billing portal</a>
     <a href="{% url 'owner:billing_settings' %}" class="{% if '/manage/billing' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-page"/></svg>Billing settings</a>
     <a href="{% url 'portal:domains' tenant.slug %}" class="{% if request.resolver_match.url_name == 'domains' %}on{% endif %}"{% if request.resolver_match.url_name == 'domains' %} aria-current="page"{% endif %}><svg class="o-ic"><use href="#o-pin"/></svg>Domains</a>
+    <a href="{% url 'owner:appearance' %}" class="{% if '/manage/appearance' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-eye"/></svg>Appearance</a>
     <a href="{% url 'owner:settings' %}" class="{% if '/manage/settings' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-cog"/></svg>Store settings</a>
   </nav>
   <div class="o-side-foot">

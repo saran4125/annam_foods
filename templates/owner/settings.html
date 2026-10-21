@@ -2,6 +2,7 @@
 {% block title %}Store settings{% endblock %}
 {% block heading %}<h1>Store settings</h1><p>Your name, logo, colours and the words on your home page.</p>{% endblock %}
 {% block content %}
+<p class="o-callout">Customize sections, fonts and layouts in <a href="{% url 'owner:appearance' %}">Appearance →</a></p>
 <form class="o-form" method="post" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
   {% if form.non_field_errors %}<div class="o-flash o-flash-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}

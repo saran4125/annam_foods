@@ -19,7 +19,9 @@ def storefront(request):
         from apps.catalog.services import shop_categories
 
         shelves = shop_categories()
+    from apps.content.services import storefront_appearance
     return {
+        **storefront_appearance(request),
         "shop_enabled": shop_enabled,
         "nav_shelves": shelves,
         # The footer lists every published page; the header only show_in_nav ones.

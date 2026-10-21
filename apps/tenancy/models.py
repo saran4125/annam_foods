@@ -120,6 +120,7 @@ class TenantConfig(models.Model):
     tagline = models.CharField(max_length=200, blank=True)
     theme = models.JSONField(default=dict, blank=True)  # colours, fonts, logo path
     home_sections = models.JSONField(default=list, blank=True)
+    storefront_design = models.JSONField(default=dict, blank=True)  # draft, published and previous appearance
     support_phone = models.CharField(max_length=20, blank=True)
 
     # Operations
