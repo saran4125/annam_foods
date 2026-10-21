@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth import logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 
 from apps.catalog.models import MenuCategory, MenuItem, Slot
 from apps.catalog.services import resolve_menu
@@ -32,7 +33,7 @@ from apps.orders.services import InvalidTransition, advance_status
 from apps.tenancy.models import TenantConfig
 
 from . import forms
-from .access import owner_required
+from .access import can_manage, owner_required
 
 
 @dataclass
@@ -147,18 +148,44 @@ class OwnerLoginForm(AuthenticationForm):
     }
 
 
+def _login_photos():
+    """Three distinct menu photos from the current kitchen only."""
+    photos, seen = [], set()
+    for item in MenuItem.objects.filter(active=True).exclude(image="").order_by("category__sort", "sort", "name"):
+        if item.category_id not in seen:
+            seen.add(item.category_id)
+            photos.append(item)
+        if len(photos) == 3:
+            break
+    return photos
+
+
+@never_cache
 def login_view(request):
-    """Compatibility URL only. All management authentication uses platform login."""
+    """Kitchen-domain sign-in stays local; private workspace URLs use SEER login."""
     if getattr(request, "tenant", None) is None:
         raise Http404
-    from apps.platform_portal.services import management_login_url
-    return redirect(management_login_url(request, request.POST.get("next", request.GET.get("next", ""))))
+    from apps.platform_portal.services import management_login_url, kitchen_login_target
+    target = request.POST.get("next", request.GET.get("next", ""))
+    if getattr(request, "workspace_slug", None):
+        return redirect(management_login_url(request, target))
+    destination = kitchen_login_target(request, target)
+    if can_manage(request.user, request.tenant):
+        return redirect(destination)
+    form = OwnerLoginForm(request, data=request.POST if request.method == "POST" else None)
+    if request.method == "POST" and form.is_valid():
+        user = form.get_user()
+        if can_manage(user, request.tenant):
+            login(request, user)
+            return redirect(destination)
+        form.add_error(None, "This account can’t manage this store. Use an account assigned to this kitchen, or sign in through the SEER platform.")
+    return render(request, "owner/login.html", {"form": form, "next": destination, "photos": _login_photos()})
 
 
 @require_POST
 def logout_view(request):
     logout(request)
-    return redirect("portal:login")
+    return redirect("portal:login" if getattr(request, "workspace_slug", None) else "owner:login")
 
 
 # -- dashboard ---------------------------------------------------------------

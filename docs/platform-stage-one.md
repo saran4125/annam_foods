@@ -36,16 +36,30 @@ A configured `PLATFORM_HOST` also serves the platform landing page at `/`.
 Do not change Annam's public hostname to the platform hostname merely to try this
 feature: use `/platform/` on its existing host instead.
 
-## One management login
+## Kitchen-domain and central platform login
 
-`/platform/login/` is the sole platform/kitchen management login. Existing
-credentials and roles are retained. `/manage/login/` and workspace-scoped
-management login URLs are compatibility redirects, not separate login forms.
-Old POSTs redirect without authenticating or copying credentials into a URL.
-Management logout returns to the shared login. Saved management links preserve
-their kitchen and query string only when the account is authorized for it;
-otherwise the account's normal destination is used. Unassigned accounts see
-an access-help screen, and inactive accounts cannot authenticate.
+Both entry points use the same Django accounts and kitchen memberships; there
+are no duplicate user/password databases.
+
+- On a kitchen's registered hostname, `/manage/` sends anonymous users to
+  `/manage/login/`, with that kitchen's logo, name and menu photos. Successful
+  login opens that host's `/manage/` dashboard or its saved management page.
+  Accounts without membership in this kitchen are refused, even if they own a
+  different kitchen. Platform superusers may enter for support, but still land
+  in the selected kitchen rather than platform administration.
+- `/platform/login/` retains the SEER design and credential-based destination:
+  platform superusers open platform administration; one assigned kitchen opens
+  its private admin directly; multiple kitchens show a picker. Accounts without
+  assignments see access help; inactive accounts cannot sign in.
+- Private workspace login URLs continue through the central SEER login. They do
+  not expose a kitchen-branded authentication screen on another kitchen's host.
+- Kitchen-domain logout returns to its branded login. Workspace logout returns
+  to the SEER login. A link from the branded page offers the SEER entry point.
+
+Local login return paths are limited to that hostname's management area. They
+cannot select another workspace, platform administration, billing or an external
+site. Central saved links are checked against the account's kitchen access.
+No customer's live domain or DNS is changed by this authentication update.
 
 Billing keeps its existing login/form and credentials at `/billing/login/`.
 Workspace billing links also use their own scoped billing login. That exact

@@ -6,10 +6,12 @@ else, or logged in as a customer, is not enough. Platform superusers may
 enter any kitchen, as they can through the super admin.
 """
 from functools import wraps
+from urllib.parse import urlencode
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect
+from django.urls import reverse
 
 from apps.tenancy.models import TenantUser
 
@@ -30,8 +32,7 @@ def owner_required(view):
         if tenant is None:
             raise Http404
         if not request.user.is_authenticated:
-            from apps.platform_portal.services import management_login_url
-            return redirect(management_login_url(request, request.get_full_path()))
+            return redirect(reverse("owner:login") + "?" + urlencode({"next": request.get_full_path()}))
         if not can_manage(request.user, tenant):
             raise PermissionDenied
         return view(request, *args, **kwargs)

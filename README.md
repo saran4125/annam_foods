@@ -178,11 +178,13 @@ window; the WhatsApp billing section remains separate from the inbox.
 
 ## Central platform workspace
 
-Use `/platform/login/` as the shared platform and kitchen-admin login. A
-superuser opens platform administration; an owner or staff account with one
-kitchen opens its admin directly; multiple kitchens show a picker. Old
-`/manage/login/` bookmarks redirect to this shared login. Billing retains its
-separate `/billing/login/` page. Django superusers use `/platform/admin/` to create
+Use `/platform/login/` for central SEER sign-in. A superuser opens platform
+administration; an owner/staff account with one kitchen opens its admin directly;
+multiple kitchens show a picker. Each kitchen's own hostname also retains a
+branded `/manage/login/` page: entering `/manage/` opens that login and successful
+sign-in stays in that kitchen's admin. Both entry points use the same accounts
+and membership checks. Billing retains its separate `/billing/login/` page.
+Django superusers use `/platform/admin/` to create
 kitchens, invite accounts, manage status and configure existing website features.
 The original Annam storefront at `/` and `/manage/` remain available.
 

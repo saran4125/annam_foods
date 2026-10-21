@@ -62,7 +62,7 @@ def _media(settings, tmp_path):
 
 def test_anonymous_is_sent_to_login(client, kitchens):
     r = client.get("/manage/", HTTP_HOST=HOST)
-    assert r.status_code == 302 and r["Location"].startswith("/platform/login/?next=")
+    assert r.status_code == 302 and r["Location"].startswith("/manage/login/?next=")
 
 
 def test_customer_account_without_membership_is_refused(client, kitchens):
@@ -76,10 +76,10 @@ def test_owner_of_one_kitchen_cannot_manage_another(signed_in, catalog):
     assert signed_in.get("/manage/", HTTP_HOST=OTHER).status_code == 403
 
 
-def test_old_admin_login_redirects_to_shared_login_without_authenticating(client, owner):
+def test_kitchen_domain_login_authenticates_and_opens_its_admin(client, owner):
     r = client.post("/manage/login/", {"username": "owner", "password": "pw-for-tests-only"}, HTTP_HOST=HOST)
-    assert r.status_code == 302 and r["Location"] == "/platform/login/"
-    assert "_auth_user_id" not in client.session
+    assert r.status_code == 302 and r["Location"] == "/manage/"
+    assert "_auth_user_id" in client.session
 
 
 def test_another_kitchens_dish_is_a_404(signed_in, catalog):

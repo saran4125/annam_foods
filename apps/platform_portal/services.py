@@ -3,7 +3,7 @@ import hashlib
 import ipaddress
 import re
 import secrets
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import urlencode, urlsplit, unquote
 from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -41,12 +41,27 @@ def login_destination(user):
 
 
 def management_login_url(request, target=""):
-    """Old management bookmarks use the one shared sign-in, without credentials."""
+    """Private workspace management links return to the central sign-in."""
     if target.startswith("/manage/") and getattr(request, "tenant", None):
         target = f"/platform/workspaces/{request.tenant.slug}" + target
     if not target.startswith("/platform/") or not url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure()):
         target = ""
     return reverse("portal:login") + ("?" + urlencode({"next": target}) if target else "")
+
+
+def kitchen_login_target(request, target):
+    """A kitchen-domain login can only enter that host's management area."""
+    root = reverse("owner:dashboard")
+    try:
+        path = unquote(urlsplit(target).path)
+    except ValueError:
+        return root
+    if (target.startswith(root) and path.startswith(root) and "\\" not in path
+            and not any(segment in (".", "..") for segment in path.split("/"))
+            and path.rstrip("/") not in (reverse("owner:login").rstrip("/"), reverse("owner:logout").rstrip("/"))
+            and url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure())):
+        return target
+    return root
 
 
 def authorized_login_target(request, user, target):
