@@ -55,6 +55,7 @@
     <a href="{% url 'owner:list' 'zones' %}" class="{% if '/manage/zones' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-pin"/></svg>Delivery areas</a>
     <a href="{% url 'billing:dashboard' %}"><svg class="o-ic"><use href="#o-page"/></svg>Open billing portal</a>
     <a href="{% url 'owner:billing_settings' %}" class="{% if '/manage/billing' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-page"/></svg>Billing settings</a>
+    <a href="{% url 'portal:domains' tenant.slug %}"><svg class="o-ic"><use href="#o-pin"/></svg>Domains</a>
     <a href="{% url 'owner:settings' %}" class="{% if '/manage/settings' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-cog"/></svg>Store settings</a>
   </nav>
   <div class="o-side-foot">

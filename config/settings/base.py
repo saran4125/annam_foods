@@ -25,6 +25,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "apps.tenancy.middleware.ManagedDomainHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -101,3 +102,11 @@ HUEY = {
 
 # Public subdomain base; DNS/hosting/TLS must also be configured externally.
 TENANT_BASE_DOMAIN = os.environ.get("TENANT_BASE_DOMAIN", "").strip().lower()
+
+# Preparing a domain never changes live routing. Enable connection only at cutover.
+DOMAIN_CONNECTIONS_ENABLED = os.environ.get("DOMAIN_CONNECTIONS_ENABLED", "0") == "1"
+DOMAIN_CNAME_TARGET = os.environ.get("DOMAIN_CNAME_TARGET", os.environ.get("RENDER_EXTERNAL_HOSTNAME", "")).strip().lower()
+DOMAIN_APEX_IPV4 = os.environ.get("DOMAIN_APEX_IPV4", "").strip()
+DOMAIN_HOSTING_PROVIDER = os.environ.get("DOMAIN_HOSTING_PROVIDER", "render").strip().lower()
+RENDER_API_KEY = os.environ.get("RENDER_API_KEY", "")
+RENDER_SERVICE_ID = os.environ.get("RENDER_SERVICE_ID", "")

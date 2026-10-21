@@ -337,6 +337,29 @@ class OwnerInvitation(TenantOwnedModel):
     created_at = models.DateTimeField(default=timezone.now)
 
 
+class CustomDomain(TenantOwnedModel):
+    """A claim is not a public routing entry until ownership and HTTPS pass."""
+    hostname = models.CharField(max_length=253, unique=True)
+    verification_token = models.CharField(max_length=64)
+    mapping = models.OneToOneField(TenantDomain, null=True, blank=True, on_delete=models.SET_NULL)
+    status = models.CharField(max_length=24, default="ownership_pending")
+    ownership_verified_at = models.DateTimeField(null=True, blank=True)
+    dns_verified_at = models.DateTimeField(null=True, blank=True)
+    connection_requested_at = models.DateTimeField(null=True, blank=True)
+    tls_verified_at = models.DateTimeField(null=True, blank=True)
+    checked_at = models.DateTimeField(null=True, blank=True)
+    provider_id = models.CharField(max_length=120, blank=True)
+    detail = models.CharField(max_length=300, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta(TenantOwnedModel.Meta):
+        ordering = ["created_at"]
+
+    @property
+    def txt_name(self):
+        return "_seerkitchen." + self.hostname
+
+
 class PlatformAuditEvent(TenantOwnedModel):
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     action = models.CharField(max_length=60)

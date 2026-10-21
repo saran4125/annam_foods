@@ -180,7 +180,9 @@ def test_expired_reply_window_and_console_sender_cannot_send(signed_in, client, 
 
 def test_forwarding_is_durable_deduped_and_not_looped_from_n8n(client, connection, kitchens):
     connection.n8n_receive_url="https://example.n8n.cloud/webhook/incoming";connection.save()
-    for _ in range(2):assert post_meta(client,incoming()).status_code == 200
+    # Replay the same webhook, including its timestamp, across second boundaries.
+    payload = incoming()
+    for _ in range(2):assert post_meta(client,payload).status_code == 200
     with tenant_context(kitchens[0]):assert WhatsAppForwardEvent.objects.count() == 1
     assert post_sync(client,{"event":"meta","payload":incoming("wamid.from-mirror")}).status_code == 200
     with tenant_context(kitchens[0]):assert WhatsAppForwardEvent.objects.count() == 1

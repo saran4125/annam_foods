@@ -92,8 +92,9 @@ is disabled until the administrator activates them.
   Django `ALLOWED_HOSTS` and HTTPS must also be configured. A database mapping
   alone is not a verified live domain or certificate.
 
-Domain ownership verification, automated provider registration, HTTPS automation
-and owner self-service custom-domain changes are later work. Existing tenant
+The subsequent [custom-domain settings](custom-domains.md) add ownership
+verification, owner DNS instructions and explicit hosting/HTTPS connection.
+Production connection stays disabled until the operator configures the edge. Existing tenant
 custom domains continue to work. Never map an arbitrary customer-entered domain
 without verification as a substitute for that later domain-management workflow.
 
@@ -140,5 +141,6 @@ users or migrations is not necessary for a code rollback and would discard data.
 Do not use `git reset --hard` or force-push `main` to restore the earlier version.
 
 This stage does not implement Razorpay checkout, subscriptions, a full theme
-builder, automated custom-domain onboarding or granular staff permissions. Those
+builder or granular staff permissions. Custom-domain onboarding is covered in
+[custom-domains.md](custom-domains.md). Those
 remain independent stages after review of the central platform workflow.

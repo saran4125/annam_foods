@@ -1535,6 +1535,15 @@ change — without SEER.
 **Done when:** a second, fictional kitchen is provisioned from nothing to a test
 order with a bill in under an hour, with no code change.
 
+**Custom-domain workflow update, 21 October 2026:** Owner domain settings now
+prepare claims, verify TXT ownership and DNS, check provider registration and
+HTTPS, and allow explicit primary selection/removal. Production connections
+default off; Annam’s live DNS is unchanged. Render registration and Caddy
+on-demand TLS integration require deployment configuration and staging-domain
+validation before cutover. See [custom-domains.md](custom-domains.md). Existing
+n8n automation remains in use; the earlier native-bot retirement plan is not
+a prerequisite for this domain feature.
+
 ### Phase H — Annam cutover and hardening (≈1 week)
 
 - Storefront on a staging subdomain, reviewed with Annam.

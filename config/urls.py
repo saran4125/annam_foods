@@ -5,6 +5,7 @@ from django.db import connection, DatabaseError
 from django.http import JsonResponse
 from django.urls import include, path
 from apps.platform_portal.views import root
+from apps.platform_portal.domain_views import probe
 
 
 def healthz(request):
@@ -18,6 +19,7 @@ def healthz(request):
 
 
 urlpatterns = [
+    path(".well-known/seerkitchen-domain", probe, name="domain_probe"),
     path("platform/", include("apps.platform_portal.urls")),
     path("healthz", healthz, name="healthz"),
     path("admin/", admin.site.urls),

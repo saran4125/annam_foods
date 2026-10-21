@@ -192,3 +192,14 @@ with `TENANT_BASE_DOMAIN`; actual DNS/HTTPS setup remains external.
 The pre-platform code is preserved at Git tag `pre-platform-2026-10-20`.
 See [docs/platform-stage-one.md](docs/platform-stage-one.md) for administrator
 setup, routing, invitation security, deployment limitations and rollback guidance.
+
+## Custom-domain settings
+
+Kitchen owners can open **Domains** in management or **Settings → Domains** in
+their workspace. The page provides ownership TXT records, website DNS
+instructions, verification, hosting/HTTPS status, explicit primary selection and
+disconnection. Preparation mode is the default: adding a domain does not change
+Annam's current website. Production connections support Render registration,
+Caddy on-demand TLS or an operator-configured edge, with a real HTTPS check
+before a public route is created. See [docs/custom-domains.md](docs/custom-domains.md)
+for launch-time configuration and limitations.

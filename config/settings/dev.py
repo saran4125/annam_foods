@@ -32,3 +32,11 @@ DATABASES = {"default": {
 }}
 
 TENANT_BASE_DOMAIN = os.environ.get("TENANT_BASE_DOMAIN", "localhost").strip().lower()
+
+# Development loads .env after base settings; honor domain configuration there too.
+DOMAIN_CONNECTIONS_ENABLED = os.environ.get("DOMAIN_CONNECTIONS_ENABLED", "0") == "1"
+DOMAIN_CNAME_TARGET = os.environ.get("DOMAIN_CNAME_TARGET", os.environ.get("RENDER_EXTERNAL_HOSTNAME", "")).strip().lower()
+DOMAIN_APEX_IPV4 = os.environ.get("DOMAIN_APEX_IPV4", "").strip()
+DOMAIN_HOSTING_PROVIDER = os.environ.get("DOMAIN_HOSTING_PROVIDER", "render").strip().lower()
+RENDER_API_KEY = os.environ.get("RENDER_API_KEY", "")
+RENDER_SERVICE_ID = os.environ.get("RENDER_SERVICE_ID", "")

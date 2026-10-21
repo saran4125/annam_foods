@@ -1,6 +1,7 @@
 """Resolve the tenant from the request's hostname."""
 from django.conf import settings
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, HttpResponsePermanentRedirect
+from django.http.request import split_domain_port, validate_host
 from django.shortcuts import redirect
 from django.urls import reverse
 from urllib.parse import urlencode
@@ -8,7 +9,25 @@ import re
 from django.utils import timezone
 
 from .context import reset_current_tenant, set_current_tenant
-from .models import TenantDomain, Tenant, TenantUser
+from .models import TenantDomain, Tenant, TenantUser, CustomDomain
+
+
+class ManagedDomainHostMiddleware:
+    """Admit exact verified custom hosts per request, never mutate ALLOWED_HOSTS."""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        raw = request._get_raw_host()
+        host, port = split_domain_port(raw)
+        if host and not validate_host(host, settings.ALLOWED_HOSTS) and port in ("", "80", "443"):
+            from django.db.models import Q
+            approved = CustomDomain.all_tenants.filter(hostname=host).filter(
+                Q(mapping__isnull=False) | Q(ownership_verified_at__isnull=False, connection_requested_at__isnull=False)
+            ).exists()
+            if approved:
+                request.get_host = lambda: raw
+        return self.get_response(request)
 
 
 class TenantMiddleware:
@@ -31,7 +50,7 @@ class TenantMiddleware:
 
         is_central = request.path == "/platform" or request.path.startswith("/platform/")
         domain = None
-        if host != platform_host and request.path != "/healthz":
+        if host != platform_host and request.path not in ("/healthz", "/.well-known/seerkitchen-domain"):
             domain = TenantDomain.objects.select_related("tenant", "tenant__config").filter(hostname=host).first()
             if domain is None:
                 return HttpResponseNotFound("No kitchen is configured for this address.")
@@ -56,6 +75,14 @@ class TenantMiddleware:
                     return HttpResponseNotFound("Kitchen not found.")
         elif domain:
             selected = domain.tenant
+            # Canonicalize public browsing only. Staff tools, webhooks and POSTs
+            # stay on their original host so credentials and integrations keep working.
+            public_page = request.path == "/" or request.path.startswith(("/menu/", "/shop/", "/item/", "/p/", "/about/"))
+            primary = selected.primary_domain
+            if public_page and request.method in ("GET", "HEAD") and primary and primary != host:
+                ready = CustomDomain.all_tenants.filter(tenant=selected, hostname=primary, status="active", mapping__is_primary=True, tls_verified_at__isnull=False).exists()
+                if ready:
+                    return HttpResponsePermanentRedirect("https://" + primary + request.get_full_path())
         if selected:
             request.tenant = selected
             token = set_current_tenant(selected)
