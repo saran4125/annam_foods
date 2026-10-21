@@ -1,0 +1,24 @@
+/* Domain settings share the owner shell and its typography, colour and spacing tokens. */
+.domain-settings{min-width:0}
+.d-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:18px;align-items:start}
+.d-layout>*,.d-layout .o-card{min-width:0}
+.domain-settings .o-card h2{font-size:1.1rem;overflow-wrap:anywhere}
+.domain-settings p{margin:10px 0 16px;overflow-wrap:anywhere;font-size:.94rem}
+.domain-settings .o-muted{font-size:.86rem}
+.d-kicker{display:block;font-size:.7rem;font-weight:750;letter-spacing:1.3px;color:var(--ink-3);margin-bottom:10px}
+.d-notice{border:1px solid var(--rule-2);border-left:3px solid var(--brand);background:var(--warn-bg);border-radius:var(--r-sm);padding:16px 18px;margin-bottom:18px;font-size:.9rem;color:var(--warn);line-height:1.65}
+.d-form{display:grid;gap:18px;margin-top:20px}.d-form .o-btn{margin-top:4px}.d-form .o-input{font-size:16px}
+.d-status{display:inline-flex;font-size:.73rem;font-weight:650;padding:4px 10px;background:var(--paper);border:1px solid var(--rule);color:var(--ink-2);border-radius:999px;line-height:1.6}
+.d-status-active{background:var(--ok-bg);border-color:transparent;color:var(--ok)}
+.d-existing,.d-domain-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.d-existing{border-top:1px solid var(--rule);padding-top:14px;margin-top:14px;font-size:.9rem;overflow-wrap:anywhere}
+.d-domain-heading h2{min-width:0}.d-steps{display:flex;flex-wrap:wrap;gap:12px 24px;list-style-position:inside;padding:16px 0;margin:18px 0;border-block:1px solid var(--rule);font-size:.85rem;color:var(--ink-3)}
+.d-steps li{margin:0}.d-done{color:var(--ok);font-weight:650}.domain-settings .d-detail{padding:13px 16px;background:var(--paper);border-radius:var(--r-sm);color:var(--ink-2)}
+.d-instructions{margin-top:20px}.d-instructions>summary,.d-remove>summary{min-height:44px;cursor:pointer;font-size:.9rem;font-weight:650;padding:10px 0}
+.d-record{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r-sm);padding:18px;margin:16px 0}
+.d-record dl{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);gap:12px;margin:0;font-size:.9rem}.d-record dt{color:var(--ink-3)}.d-record dd{margin:0;min-width:0}
+.d-record code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85rem;overflow-wrap:anywhere;user-select:all}
+.d-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;align-items:start}.d-actions form{margin:0}.d-actions .o-btn{min-height:44px;white-space:normal;text-align:center;padding-block:8px}
+.d-remove{flex-basis:100%}.d-remove>summary{color:var(--stop)}.d-remove p{max-width:540px}.d-empty{padding-block:30px}.d-layout aside ol{padding-left:20px;color:var(--ink-2);font-size:.9rem}.d-layout aside li{margin:10px 0}
+@media(max-width:1100px){.d-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.d-record{padding:14px}.d-record dl{grid-template-columns:minmax(0,1fr);gap:4px}.d-record dd{margin-bottom:12px}.d-actions form,.d-actions .o-btn{width:100%}.d-steps{gap:12px}.o-top-actions .o-btn{padding:0 12px;font-size:.8rem}.domain-settings .o-card h2{font-size:1.05rem}}

@@ -56,7 +56,7 @@ class TenantMiddleware:
                 return HttpResponseNotFound("No kitchen is configured for this address.")
         selected = None
         if is_central:
-            workspace = re.match(r"^/platform/workspaces/([a-z0-9-]+)/(manage|billing|preview)(?:/|$)", request.path)
+            workspace = re.match(r"^/platform/workspaces/([a-z0-9-]+)/(manage|billing|preview|domains)(?:/|$)", request.path)
             webhook = re.fullmatch(r"/platform/webhooks/([a-z0-9-]+)/whatsapp/(?:n8n/)?", request.path)
             if workspace:
                 if not request.user.is_authenticated:

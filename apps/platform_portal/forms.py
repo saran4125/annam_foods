@@ -49,7 +49,7 @@ class KitchenFeaturesForm(Styled, forms.Form):
 
 
 class AddDomainForm(Styled, forms.Form):
-    hostname = forms.CharField(max_length=253, label="Custom domain", help_text="For example, www.yourkitchen.com. Add the root domain separately if you also want it connected.", widget=forms.TextInput(attrs={"placeholder": "www.yourkitchen.com", "autocapitalize": "none", "spellcheck": "false", "autocomplete": "off"}))
+    hostname = forms.CharField(max_length=253, label="Custom domain", help_text="For example, www.yourkitchen.com. Add the root domain separately if you also want it connected.", widget=forms.TextInput(attrs={"class": "o-input", "placeholder": "www.yourkitchen.com", "autocapitalize": "none", "spellcheck": "false", "autocomplete": "off"}))
 
     def clean_hostname(self):
         from .domain_services import normalize_hostname
