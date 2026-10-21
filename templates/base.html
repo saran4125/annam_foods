@@ -159,39 +159,39 @@
 
 {% block main %}<main class="wrap" id="main">{% block content %}{% endblock %}</main>{% endblock %}
 
-<footer class="site-foot">
+<footer class="site-foot"{% if appearance_canvas %} data-canvas-section="footer"{% endif %}>
   <div class="wrap foot-inner">
     <div class="foot-brand">
-      <strong>{{ storefront_brand_name }}</strong>
-      {% if tenant.config.tagline %}<p>{{ tenant.config.tagline }}</p>{% endif %}
+      <strong>{% canvas_text 'brand.name' %}</strong>
+      {% if storefront_contact.description or appearance_canvas %}<p>{% canvas_text 'footer.description' %}</p>{% endif %}
       <div class="foot-contact">
-        {% if tenant.config.support_phone %}<a class="foot-phone" href="tel:{{ tenant.config.support_phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>{{ tenant.config.support_phone }}</a>{% endif %}
-        {% if storefront_theme.contact_email %}<a href="mailto:{{ storefront_theme.contact_email }}"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>{{ storefront_theme.contact_email }}</a>{% endif %}
-        {% if tenant.billing_profile.address %}<span><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>{{ tenant.billing_profile.address|linebreaksbr }}</span></span>{% endif %}
+        {% if storefront_contact.phone or appearance_canvas %}<a class="foot-phone" href="tel:{{ storefront_contact.phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>{% canvas_text 'footer.phone' %}</a>{% endif %}
+        {% if storefront_contact.email or appearance_canvas %}<a href="mailto:{{ storefront_contact.email }}"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>{% canvas_text 'footer.email' %}</a>{% endif %}
+        {% if storefront_contact.address or appearance_canvas %}<span><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span class="foot-address">{% canvas_text 'footer.address' %}</span></span>{% endif %}
       </div>
-      {% if whatsapp_link %}<a class="btn btn-wa" href="{{ whatsapp_link }}" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>Order on WhatsApp</a>{% endif %}
+      {% if whatsapp_link or appearance_canvas %}<a class="btn btn-wa" href="{{ whatsapp_link }}" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>{% canvas_text 'footer.whatsapp_cta' %}</a>{% endif %}
     </div>
     <div class="foot-links">
-      <b>Order</b>
+      <b>{% canvas_text 'footer.order_heading' %}</b>
       <a href="{{ menu_url }}">{% if shop_enabled %}Daily menu{% else %}Today’s menu{% endif %}</a>
       {% if shop_enabled %}<a href="{{ shop_url }}">Shop all</a>{% endif %}
       <a href="{{ cart_url }}">Your cart</a>
     </div>
     {% if nav_shelves %}
     <div class="foot-links">
-      <b>Shop</b>
+      <b>{% canvas_text 'footer.shop_heading' %}</b>
       {% for c in nav_shelves|slice:":7" %}<a href="{% url 'storefront:shop_category' c.slug %}">{{ c.name }}</a>{% endfor %}
     </div>
     {% endif %}
     <div class="foot-links">
-      <b>Information</b>
+      <b>{% canvas_text 'footer.info_heading' %}</b>
       {% for p in footer_pages %}<a href="{% url 'storefront:page' p.slug %}">{{ p.title }}</a>{% endfor %}
     </div>
   </div>
   <div class="foot-base">
     <div class="wrap foot-base-inner">
       <span>© {% now "Y" %} {{ storefront_brand_name }}</span>
-      {% if tenant.billing_profile.fssai_no %}<span class="fssai"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>FSSAI Lic. No. {{ tenant.billing_profile.fssai_no }}</span>{% endif %}
+      {% if storefront_contact.fssai or appearance_canvas %}<span class="fssai"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>FSSAI Lic. No. {% canvas_text 'footer.fssai' %}</span>{% endif %}
     </div>
   </div>
 </footer>

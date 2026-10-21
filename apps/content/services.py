@@ -216,6 +216,7 @@ def validate_storefront_design(design):
     if not isinstance(content, dict) or any(key not in COPY_FIELDS or not isinstance(value, str)
             or len(value) > COPY_FIELDS[key][1] for key, value in content.items()):
         raise ValidationError("Some website text is invalid or too long.")
+    validate_storefront_contact(content)
     if not isinstance(images, dict) or any(key not in IMAGE_FIELDS or not isinstance(value, str)
             or not re.fullmatch(r"/platform/assets/[a-z0-9-]+/[0-9a-f-]{36}/", value) for key, value in images.items()):
         raise ValidationError("Choose an image from this kitchen's image library.")
@@ -317,7 +318,9 @@ def storefront_appearance(request):
         theme["logo_url"] = design["images"]["logo"]
     copy = storefront_copy_defaults(config)
     copy.update(design.get("content", {}))
+    contact, whatsapp_link = storefront_contact(copy)
     result = {"storefront_brand_name": copy["brand.name"], "storefront_copy": copy, "appearance_canvas": canvas,
+              "storefront_contact": contact, "whatsapp_link": whatsapp_link,
               "storefront_images": design.get("images", {}),
               "storefront_design": design, "storefront_theme": theme, "appearance_preview": preview,
               "storefront_sections": [{**section, "template": SECTION_TEMPLATES[section["key"]]}
@@ -326,10 +329,47 @@ def storefront_appearance(request):
     return result
 
 
+def validate_storefront_contact(content):
+    """Website contacts are structured values, never arbitrary link targets."""
+    import re
+    from django.core.exceptions import ValidationError
+    from django.core.validators import validate_email
+
+    email = content.get('footer.email', '')
+    if email:
+        validate_email(email)
+    for key, label in [('footer.phone', 'Phone'), ('footer.whatsapp', 'WhatsApp')]:
+        value = content.get(key, '')
+        if value and (not re.fullmatch(r'\+?[0-9 ()-]+', value)
+                      or not 10 <= len(re.sub(r'\D', '', value)) <= 15):
+            raise ValidationError(f'{label}: enter 10–15 digits, including the country code for international numbers.')
+    licence = content.get('footer.fssai', '')
+    if licence and not re.fullmatch(r'[0-9]{14}', licence):
+        raise ValidationError('FSSAI licence number must contain exactly 14 digits.')
+
+
+def storefront_contact(copy):
+    import re
+    phone = re.sub(r'\D', '', copy['footer.whatsapp'])
+    if len(phone) == 10:
+        phone = '91' + phone
+    return {key: copy['footer.' + key] for key in ('description', 'phone', 'email', 'address', 'fssai')}, (
+        f'https://wa.me/{phone}' if 11 <= len(phone) <= 15 else '')
+
+
 def storefront_copy_defaults(config):
     from apps.storefront.themes import COPY_FIELDS
     result = {key: value[2] for key, value in COPY_FIELDS.items()}
     result['brand.name'] = config.brand_name or config.tenant.name
+    billing = getattr(config.tenant, 'billing_profile', None)
+    result.update({
+        'footer.description': config.tagline or '',
+        'footer.phone': config.support_phone or '',
+        'footer.email': (config.theme or {}).get('contact_email', ''),
+        'footer.address': getattr(billing, 'address', '') or '',
+        'footer.fssai': getattr(billing, 'fssai_no', '') or '',
+        'footer.whatsapp': config.support_phone or '',
+    })
     sections = config.home_sections or []
     hero = next((s for s in sections if isinstance(s, dict) and s.get('kind') == 'hero'), {})
     spotlight = next((s for s in sections if isinstance(s, dict) and s.get('kind') == 'spotlight'), {})

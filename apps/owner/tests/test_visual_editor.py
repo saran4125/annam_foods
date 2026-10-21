@@ -221,3 +221,92 @@ def test_closing_keeps_original_menu_photos_and_offers_empty_editor_slots():
     empty = closing_photos(Context({'appearance_canvas': True}))
     assert [slot['key'] for slot in empty] == ['closing_1', 'closing_2', 'closing_3']
     assert all(not slot['url'] for slot in empty)
+
+
+def test_footer_details_are_private_until_published_and_update_contact_links(client, kitchens, owner):
+    from apps.tenancy.models import BillingProfile
+    config = kitchens[0].config
+    config.support_phone = '+91 95510 79550'
+    config.tagline = 'Original kitchen description'
+    config.theme = {'contact_email': 'original@example.test'}
+    config.save()
+    billing, _ = BillingProfile.objects.get_or_create(tenant=kitchens[0])
+    billing.address = 'Original billing address'
+    billing.fssai_no = '12345678901234'
+    billing.save()
+    client.force_login(owner)
+    data = payload(config)
+    data.update({
+        'copy_footer.description': 'Freshly cooked in our family kitchen',
+        'copy_footer.phone': '+91 98765 43210',
+        'copy_footer.email': 'hello@example.test',
+        'copy_footer.address': '42 Kitchen Road\nChennai 600005',
+        'copy_footer.whatsapp': '+91 91234 56789',
+        'copy_footer.fssai': '98765432109876',
+        'copy_footer.whatsapp_cta': 'Message our kitchen',
+    })
+    canvas = client.post('/manage/appearance/render/', data, HTTP_HOST=HOST)
+    assert canvas.status_code == 200
+    for key in ('description', 'phone', 'email', 'address', 'fssai'):
+        assert f'data-canvas-text="footer.{key}"'.encode() in canvas.content
+    assert b'href="tel:+91 98765 43210"' in canvas.content
+    assert b'href="mailto:hello@example.test"' in canvas.content
+    assert b'https://wa.me/919123456789' in canvas.content
+    assert client.post('/manage/appearance/', data, HTTP_HOST=HOST).status_code == 302
+    public = client.get('/', HTTP_HOST=HOST)
+    assert b'hello@example.test' not in public.content
+    assert b'Original billing address' in public.content
+    assert b'hello@example.test' in client.get('/?design=draft', HTTP_HOST=HOST).content
+    data.update(action='publish', revision=1)
+    assert client.post('/manage/appearance/', data, HTTP_HOST=HOST).status_code == 302
+    client.logout()
+    public = client.get('/', HTTP_HOST=HOST)
+    assert b'hello@example.test' in public.content
+    assert b'Message our kitchen' in public.content
+    assert b'href="tel:+91 98765 43210"' in public.content
+    assert b'https://wa.me/919123456789' in public.content
+    assert b'data-canvas-text=' not in public.content
+    assert b'hello@example.test' not in client.get('/', HTTP_HOST=OTHER).content
+    config.refresh_from_db()
+    billing.refresh_from_db()
+    assert config.support_phone == '+91 95510 79550'
+    assert billing.address == 'Original billing address'
+    assert billing.fssai_no == '12345678901234'
+    client.force_login(owner)
+    assert client.post('/manage/appearance/', {'action': 'restore', 'revision': 2}, HTTP_HOST=HOST).status_code == 302
+    assert b'Original billing address' in client.get('/', HTTP_HOST=HOST).content
+
+
+@pytest.mark.parametrize('key,value', [
+    ('footer.email', 'not-an-email'),
+    ('footer.email', 'owner@example.test?subject=Injected'),
+    ('footer.phone', 'javascript:alert(1)'),
+    ('footer.phone', '123'),
+    ('footer.whatsapp', 'https://other.example/'),
+    ('footer.fssai', '1234'),
+])
+def test_footer_rejects_invalid_contact_values_in_both_render_and_publish(client, kitchens, owner, key, value):
+    client.force_login(owner)
+    data = payload(kitchens[0].config, action='publish')
+    data['copy_' + key] = value
+    assert client.post('/manage/appearance/render/', data, HTTP_HOST=HOST).status_code == 400
+    response = client.post('/manage/appearance/', data, HTTP_HOST=HOST)
+    assert response.status_code == 200
+    assert response.context['form'].errors
+    assert not TenantConfig.objects.get(tenant=kitchens[0]).storefront_design
+
+
+def test_footer_blank_details_hide_public_contacts_but_remain_editable_in_canvas(client, kitchens, owner):
+    config = kitchens[0].config
+    config.support_phone = '+91 95510 79550'
+    config.save()
+    client.force_login(owner)
+    data = payload(config, action='publish')
+    data.update({f'copy_footer.{key}': '' for key in ('description', 'phone', 'email', 'address', 'whatsapp', 'fssai')})
+    canvas = client.post('/manage/appearance/render/', data, HTTP_HOST=HOST)
+    assert canvas.status_code == 200 and b'data-canvas-text="footer.phone"' in canvas.content
+    assert client.post('/manage/appearance/', data, HTTP_HOST=HOST).status_code == 302
+    public = client.get('/', HTTP_HOST=HOST)
+    footer = public.content.split(b'<footer', 1)[1].split(b'</footer>', 1)[0]
+    assert b'tel:' not in footer and b'mailto:' not in footer and b'wa.me' not in footer
+    assert b'FSSAI Lic.' not in footer

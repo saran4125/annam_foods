@@ -1382,3 +1382,5 @@ h3{font-weight:600}
   .about-hero{grid-template-columns:1.05fr .95fr}
   .about-story-grid{grid-template-columns:1.1fr 1fr;gap:var(--s7);align-items:start}
 }
+
+.foot-address{white-space:pre-line}

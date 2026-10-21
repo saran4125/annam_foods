@@ -331,7 +331,7 @@ class AppearanceForm(forms.Form):
         self.old_content = design.get('content', {})
         self.old_images = design.get('images', {})
         self.content_groups = []
-        for section, section_label, _ in (*SECTIONS, ("brand", "Your brand", "")):
+        for section, section_label, _ in (*SECTIONS, ("brand", "Your brand", ""), ("footer", "Footer & business details", "")):
             fields = []
             for key, (label, limit, _) in COPY_FIELDS.items():
                 if key.split('.')[0] != section:

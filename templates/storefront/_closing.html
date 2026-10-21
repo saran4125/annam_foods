@@ -21,8 +21,8 @@
   </div>
   <ul class="closing-strip">
     {% if whatsapp_link %}<li><a href="{{ whatsapp_link }}" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><span><small>WhatsApp</small><b>Chat with the kitchen</b></span></a></li>{% endif %}
-    {% if tenant.config.support_phone %}<li><a href="tel:{{ tenant.config.support_phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span><small>Call</small><b>{{ tenant.config.support_phone }}</b></span></a></li>{% endif %}
-    {% if tenant.billing_profile.address %}<li><span class="strip-static"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span><small>Kitchen</small><b>{{ tenant.billing_profile.address }}</b></span></span></li>{% endif %}
-    {% if tenant.billing_profile.fssai_no %}<li><span class="strip-static"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span><small>FSSAI licensed</small><b>{{ tenant.billing_profile.fssai_no }}</b></span></span></li>{% endif %}
+    {% if storefront_contact.phone %}<li><a href="tel:{{ storefront_contact.phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span><small>Call</small><b>{{ storefront_contact.phone }}</b></span></a></li>{% endif %}
+    {% if storefront_contact.address %}<li><span class="strip-static"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span><small>Kitchen</small><b>{{ storefront_contact.address|linebreaksbr }}</b></span></span></li>{% endif %}
+    {% if storefront_contact.fssai %}<li><span class="strip-static"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span><small>FSSAI licensed</small><b>{{ storefront_contact.fssai }}</b></span></span></li>{% endif %}
   </ul>
 </section>

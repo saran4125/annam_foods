@@ -32,7 +32,7 @@
     const previousImage=imageKey;selected=section;imageKey=image || (section==='closing'?(previousImage?.startsWith('closing_')?previousImage:'closing_1'):section==='brand'?'logo':['hero','offers','spotlight'].includes(section)?section:null);
     document.querySelector('[data-closing-photos]').hidden=section!=='closing';
     document.querySelectorAll('[data-photo-slot]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.photoSlot===imageKey)));
-    const row=rows().find(row=>row.dataset.layer===section);document.querySelector('[data-selection-title]').textContent=imageKey==='logo'?'Your store logo':row?.querySelector('[data-select-section]').textContent.trim() || (section==='brand'?'Your brand':'Your website');
+    const row=rows().find(row=>row.dataset.layer===section);document.querySelector('[data-selection-title]').textContent=imageKey==='logo'?'Your store logo':row?.querySelector('[data-select-section]').textContent.trim() || (section==='footer'?'Footer & business details':section==='brand'?'Your brand':'Your website');
     rows().forEach(row=>row.classList.toggle('is-selected',row.dataset.layer===section));
     document.querySelectorAll('[data-copy-group]').forEach(group=>group.classList.toggle('is-active',group.dataset.copyGroup===section));
     document.querySelectorAll('[data-copy-field]').forEach(label=>label.classList.toggle('is-focused',label.dataset.copyField===field));
@@ -43,6 +43,7 @@
     if(openPanel && matchMedia('(max-width:900px)').matches)mobilePanel('inspector');
   };
   document.querySelectorAll('[data-photo-slot]').forEach(button=>button.addEventListener('click',()=>select('closing',{image:button.dataset.photoSlot})));
+  document.querySelector('[data-select-footer]').addEventListener('click',()=>select('footer',{scroll:true}));
   const render=async()=>{
     clearTimeout(renderTimer);controller?.abort();controller=new AbortController();const current=++sequence;
     let scroll=0;try{scroll=frame.contentWindow?.scrollY || 0;}catch{}
@@ -63,7 +64,7 @@
   const renderLibrary=()=>{const grid=document.querySelector('[data-image-library]');grid.replaceChildren();library.forEach(asset=>{const button=document.createElement('button');button.type='button';button.title=asset.name;button.setAttribute('aria-label','Use '+asset.name);const img=document.createElement('img');img.src=asset.url;img.alt=asset.name;img.loading='lazy';button.append(img);button.addEventListener('click',()=>{if(!imageKey)return;element('image_'+imageKey).value=asset.url;photoPreview(asset.url);remember();schedule();});grid.append(button);});};
   form.addEventListener('input',event=>{
     const input=event.target;if(!input.name)return;
-    if(input.name.startsWith('copy_')){const key=input.name.slice(5);send({type:'text',key,value:input.value});if(!frame.contentDocument?.querySelector(`[data-canvas-text="${key}"]`) || key==='spotlight.points')schedule();}
+    if(input.name.startsWith('copy_')){const key=input.name.slice(5);send({type:'text',key,value:input.value});if(!frame.contentDocument?.querySelector(`[data-canvas-text="${key}"]`) || key==='spotlight.points' || key.startsWith('footer.'))schedule();}
     if(['brand','paper','ink','surface_alt'].includes(input.name)){const code=input.closest('label')?.querySelector('[data-colour-code]');if(code)code.textContent=input.value;schedule();}
     remember();
   });
@@ -95,6 +96,7 @@
     if(event.source!==frame.contentWindow || event.origin!==location.origin || !event.data?.websiteCanvas)return;
     const message=event.data;
     if(message.type==='select')select(message.section,{field:message.field,image:message.image,src:message.src});
+    if(message.type==='refresh')schedule();
     if(message.type==='text'){const input=element('copy_'+message.key);if(!input)return;input.value=message.value;remember();}
     if(message.type==='hide'){const checkbox=element('show_'+message.section);if(checkbox){checkbox.checked=false;syncOrder();remember();render();}}
     if(message.type==='move')move(message.section,message.direction);
