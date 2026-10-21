@@ -2,11 +2,11 @@
 <section class="closing" aria-labelledby="closing-title" data-reveal>
   <div class="closing-main">
     <div class="closing-copy">
-      <p class="section-kicker">Ready when you are</p>
-      <h2 id="closing-title">Good food is <em>one tap</em> away.</h2>
-      <p>Choose today’s meal or fill a pantry box. We confirm your area, cook it fresh, and bring it to your door.</p>
+      <p class="section-kicker">{% canvas_text 'closing.kicker' %}</p>
+      <h2 id="closing-title">{% canvas_text 'closing.title' %}</h2>
+      <p>{% canvas_text 'closing.body' %}</p>
       <div class="closing-actions">
-        <a class="btn btn-primary btn-lg" href="{% url 'storefront:menu' %}">Order today’s meals <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-primary btn-lg" href="{% url 'storefront:menu' %}">{% canvas_text 'closing.cta' %} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
         {% if shop_enabled %}<a class="btn btn-lg" href="{% url 'storefront:shop' %}">Shop the pantry</a>{% endif %}
       </div>
     </div>

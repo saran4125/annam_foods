@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>{% block title %}{{ tenant.config.brand_name|default:tenant.name }}{% endblock %}</title>
+<title>{% block title %}{{ storefront_brand_name }}{% endblock %}</title>
 <meta name="description" content="{% block description %}{{ tenant.config.tagline }}{% endblock %}">
 <meta name="theme-color" content="{{ storefront_theme.brand|default:'#FF8507' }}">
 <script>document.documentElement.classList.add('js')</script>
@@ -14,6 +14,7 @@
 {% else %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">{% endif %}
 <link rel="stylesheet" href="{% static_v 'css/storefront.css' %}">
 <link rel="stylesheet" href="{% static_v 'css/storefront-appearance.css' %}">
+{% if appearance_canvas %}<link rel="stylesheet" href="{% static_v 'css/storefront-canvas.css' %}">{% endif %}
 <style>
   /* Every one of these is overridable per kitchen from TenantConfig.theme.
      A new client is a row change, never a stylesheet fork. Tints and the
@@ -36,7 +37,7 @@
 </style>
 </head>
 <body class="sf-density-{{ storefront_design.density }} sf-shape-{{ storefront_design.shape }} sf-hero-{{ storefront_design.hero_layout }} sf-menu-{{ storefront_design.menu_layout }}">
-{% if appearance_preview %}<div class="sf-preview-bar" role="status"><strong>Draft preview</strong><span>Only your kitchen team can see these unpublished changes.</span><a href="{% url 'owner:appearance' %}">Back to Appearance →</a></div>{% endif %}
+{% if appearance_preview and not appearance_canvas %}<div class="sf-preview-bar" role="status"><strong>Draft preview</strong><span>Only your kitchen team can see these unpublished changes.</span><a href="{% url 'owner:appearance' %}">Back to Appearance →</a></div>{% endif %}
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
@@ -89,13 +90,13 @@
 {% url 'storefront:home' as home_url %}{% url 'storefront:menu' as menu_url %}{% url 'storefront:cart' as cart_url %}{% url 'storefront:shop' as shop_url %}
 <header class="site-head" data-header>
   <div class="wrap head-inner">
-    <a class="brand" href="{{ home_url }}" aria-label="{{ tenant.config.brand_name|default:tenant.name }} — home">
+    <a class="brand" href="{{ home_url }}" aria-label="{{ storefront_brand_name }} — home">
       {% if storefront_theme.logo_url %}
-        <img class="brand-logo" src="{{ storefront_theme.logo_url }}" alt="" width="160" height="72">
+        <img class="brand-logo" data-canvas-image="logo" src="{{ storefront_theme.logo_url }}" alt="" width="160" height="72">
       {% else %}
-        <span class="brand-mark" aria-hidden="true">SK</span>
+        <span class="brand-mark" data-canvas-image="logo" aria-hidden="true">SK</span>
       {% endif %}
-      <span class="brand-name">{{ tenant.config.brand_name|default:tenant.name }}</span>
+      <span class="brand-name">{% canvas_text 'brand.name' %}</span>
     </a>
     <nav class="site-nav" id="site-nav" aria-label="Main">
       <a class="{% if request.path == home_url %}is-current{% endif %}" href="{{ home_url }}"{% if request.path == home_url %} aria-current="page"{% endif %}>Home</a>
@@ -161,7 +162,7 @@
 <footer class="site-foot">
   <div class="wrap foot-inner">
     <div class="foot-brand">
-      <strong>{{ tenant.config.brand_name|default:tenant.name }}</strong>
+      <strong>{{ storefront_brand_name }}</strong>
       {% if tenant.config.tagline %}<p>{{ tenant.config.tagline }}</p>{% endif %}
       <div class="foot-contact">
         {% if tenant.config.support_phone %}<a class="foot-phone" href="tel:{{ tenant.config.support_phone }}"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>{{ tenant.config.support_phone }}</a>{% endif %}
@@ -189,7 +190,7 @@
   </div>
   <div class="foot-base">
     <div class="wrap foot-base-inner">
-      <span>© {% now "Y" %} {{ tenant.config.brand_name|default:tenant.name }}</span>
+      <span>© {% now "Y" %} {{ storefront_brand_name }}</span>
       {% if tenant.billing_profile.fssai_no %}<span class="fssai"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>FSSAI Lic. No. {{ tenant.billing_profile.fssai_no }}</span>{% endif %}
     </div>
   </div>
@@ -204,6 +205,6 @@
 <div class="toasts" data-toasts aria-live="polite" aria-atomic="false"></div>
 
 {% block scripts %}{% endblock %}
-<script src="{% static_v 'js/storefront.js' %}" defer></script>
+{% if appearance_canvas %}<script src="{% static_v 'js/storefront-canvas.js' %}" defer></script>{% else %}<script src="{% static_v 'js/storefront.js' %}" defer></script>{% endif %}
 </body>
 </html>

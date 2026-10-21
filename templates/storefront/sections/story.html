@@ -1,14 +1,14 @@
 {% load storefront_extras %}
 <section class="story-band" data-reveal>
   <div class="story-copy">
-    <p class="section-kicker">Why order direct</p>
-    <h2>A shorter journey from the stove to your table.</h2>
-    <p>You choose the meal and delivery slot. The kitchen sees the same live menu, prepares against confirmed demand, and sends it straight to your area.</p>
-    <a class="arrow-link" href="{% url 'storefront:menu' %}">Build your order <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    <p class="section-kicker">{% canvas_text 'story.kicker' %}</p>
+    <h2>{% canvas_text 'story.title' %}</h2>
+    <p>{% canvas_text 'story.body' %}</p>
+    <a class="arrow-link" href="{% url 'storefront:menu' %}">{% canvas_text 'story.cta' %} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
   </div>
   <ol class="steps" aria-label="How ordering works" data-stagger>
-    <li><b>Choose</b><span>Pick today or tomorrow and a meal slot{% if shop_enabled %} — or shop the pantry{% endif %}.</span></li>
-    <li><b>Check</b><span>Confirm delivery availability with your pincode.</span></li>
-    <li><b>Enjoy</b><span>We cook for the slot and deliver it fresh.</span></li>
+    <li><b>{% canvas_text 'story.step1_title' %}</b><span>{% canvas_text 'story.step1_body' %}</span></li>
+    <li><b>{% canvas_text 'story.step2_title' %}</b><span>{% canvas_text 'story.step2_body' %}</span></li>
+    <li><b>{% canvas_text 'story.step3_title' %}</b><span>{% canvas_text 'story.step3_body' %}</span></li>
   </ol>
 </section>

@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
 from . import domain_views
+from apps.content.image_views import storefront_image
 
 app_name = "portal"
 urlpatterns = [
+    path("assets/<slug:slug>/<uuid:pk>/", storefront_image, name="storefront_image"),
     path("", views.home, name="home"),
     path("about/", views.landing, name="landing"),
     path("login/", views.login_view, name="login"),

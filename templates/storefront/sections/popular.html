@@ -1,7 +1,7 @@
 {% load storefront_extras %}
 {% if popular %}
 <div class="section-head section-head-spaced" data-reveal>
-  <div><p class="section-kicker">Loved by everyone</p><h2>Popular in the shop</h2><span class="section-subtitle">The podis, pakshanams and sweets our regulars reorder.</span></div>
+  <div><p class="section-kicker">{% canvas_text 'popular.kicker' %}</p><h2>{% canvas_text 'popular.title' %}</h2><span class="section-subtitle">{% canvas_text 'popular.body' %}</span></div>
   <a class="arrow-link" href="{% url 'storefront:shop' %}">Shop all <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
 </div>
 <ul class="dishes products" data-stagger>

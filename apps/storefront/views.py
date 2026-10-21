@@ -4,6 +4,7 @@ from datetime import date as date_cls, timedelta
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -78,6 +79,9 @@ def _split_home_sections(sections):
 
 
 def home(request):
+    from apps.content.services import storefront_appearance
+    appearance = storefront_appearance(request)
+    design = appearance["storefront_design"]
     tenant = request.tenant
     today = timezone.localdate()
     slots = list(Slot.objects.filter(active=True))
@@ -115,6 +119,15 @@ def home(request):
         picked = [i for i in items if "featured" in (i.tags or [])][:12]
         popular = picked + [i for i in items if i not in picked][:12 - len(picked)]  # 12 fills 2, 3, 4 or 6 columns
     tiles, spotlight, hero = _split_home_sections(tenant.config.home_sections)
+    if spotlight or design.get('content', {}).get('spotlight.title') or design.get('images', {}).get('spotlight'):
+        spotlight = dict(spotlight or {'title': appearance['storefront_copy']['spotlight.title'], 'link': reverse('storefront:menu')})
+        spotlight['points'] = [line.strip() for line in appearance['storefront_copy']['spotlight.points'].splitlines() if line.strip()][:30]
+    hero_slides = resolve_hero_slides()
+    if not hero_slides and design.get('images', {}).get('offers'):
+        from types import SimpleNamespace
+        hero_slides = [SimpleNamespace(id=0, title=appearance['storefront_copy']['offers.title'],
+            subtitle=appearance['storefront_copy']['offers.body'], link=reverse('storefront:menu'),
+            image=SimpleNamespace(url=design['images']['offers']))]
 
     # The hero's plate and side dishes: photographed meals first (they look
     # like a meal), then the shop's popular lines.
@@ -142,7 +155,7 @@ def home(request):
         request,
         "storefront/home.html",
         {
-            "hero_slides": resolve_hero_slides(),
+            "hero_slides": hero_slides,
             "promo_tiles": resolve_promo_tiles(),
             "highlights": highlights,
             "next_cutoff": next_cutoff,

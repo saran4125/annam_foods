@@ -307,17 +307,17 @@ class BillingSettingsForm(StyledForm):
 class AppearanceForm(forms.Form):
     from apps.storefront.themes import FONT_CHOICES, DENSITY_CHOICES, SHAPE_CHOICES, HERO_CHOICES, MENU_CHOICES
     revision = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
-    font = forms.ChoiceField(choices=FONT_CHOICES, label="Typography")
-    density = forms.ChoiceField(choices=DENSITY_CHOICES, label="Section spacing")
-    shape = forms.ChoiceField(choices=SHAPE_CHOICES, label="Card corners")
-    hero_layout = forms.ChoiceField(choices=HERO_CHOICES, label="Welcome hero layout")
-    menu_layout = forms.ChoiceField(choices=MENU_CHOICES, label="Daily menu layout")
+    font = forms.ChoiceField(choices=FONT_CHOICES, label="Font style")
+    density = forms.ChoiceField(choices=DENSITY_CHOICES, label="Space between sections")
+    shape = forms.ChoiceField(choices=SHAPE_CHOICES, label="Corner style")
+    hero_layout = forms.ChoiceField(choices=HERO_CHOICES, label="Welcome layout")
+    menu_layout = forms.ChoiceField(choices=MENU_CHOICES, label="Menu arrangement")
     brand = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Brand colour", widget=forms.TextInput(attrs={"type": "color"}))
     paper = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Page background", widget=forms.TextInput(attrs={"type": "color"}))
     ink = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Main text", widget=forms.TextInput(attrs={"type": "color"}))
     surface_alt = forms.RegexField(r"^#[0-9a-fA-F]{6}$", label="Feature backgrounds", widget=forms.TextInput(attrs={"type": "color"}))
 
-    def __init__(self, *args, design, revision=0, **kwargs):
+    def __init__(self, *args, design, revision=0, config=None, **kwargs):
         from apps.storefront.themes import SECTIONS
         initial = {key: design[key] for key in ("font", "density", "shape", "hero_layout", "menu_layout")}
         initial.update(design["colors"])
@@ -325,6 +325,29 @@ class AppearanceForm(forms.Form):
         initial.update({f"show_{s['key']}": s["enabled"] for s in design["sections"]})
         initial.update({f"order_{s['key']}": i for i, s in enumerate(design["sections"], 1)})
         super().__init__(*args, initial=initial, **kwargs)
+        from apps.storefront.themes import COPY_FIELDS, IMAGE_FIELDS
+        from apps.content.services import storefront_copy_defaults
+        self.copy_defaults = storefront_copy_defaults(config) if config else {key: value[2] for key, value in COPY_FIELDS.items()}
+        self.old_content = design.get('content', {})
+        self.old_images = design.get('images', {})
+        self.content_groups = []
+        for section, section_label, _ in (*SECTIONS, ("brand", "Your brand", "")):
+            fields = []
+            for key, (label, limit, _) in COPY_FIELDS.items():
+                if key.split('.')[0] != section:
+                    continue
+                name = 'copy_' + key
+                self.fields[name] = forms.CharField(required=False, max_length=limit, label=label,
+                    initial=self.old_content.get(key, self.copy_defaults[key]),
+                    widget=forms.Textarea(attrs={'rows': 3 if limit > 300 else 2}) if limit > 300 or key.endswith('.title') else forms.TextInput())
+                fields.append({'key': key, 'field': self[name]})
+            self.content_groups.append({'key': section, 'label': section_label, 'fields': fields})
+        self.image_fields = []
+        for key, label in IMAGE_FIELDS.items():
+            name = 'image_' + key
+            self.fields[name] = forms.CharField(required=False, widget=forms.HiddenInput,
+                                               initial=self.old_images.get(key, ''))
+            self.image_fields.append({'key': key, 'label': label, 'field': self[name]})
         labels = {key: (label, description) for key, label, description in SECTIONS}
         self.section_rows = []
         for section in design["sections"]:
@@ -350,5 +373,23 @@ class AppearanceForm(forms.Form):
         design.update(theme="classic", colors={key: data[key] for key in ("brand", "paper", "ink", "surface_alt")},
                       sections=[{"key": key, "enabled": data[f"show_{key}"]}
                                 for key, _, _ in sorted(SECTIONS, key=lambda section: data[f"order_{section[0]}"])])
+        content, images = dict(self.old_content), dict(self.old_images)
+        from apps.storefront.themes import COPY_FIELDS, IMAGE_FIELDS
+        for key in COPY_FIELDS:
+            name = 'copy_' + key
+            if name in self.data:
+                value = data[name]
+                if value != self.copy_defaults[key]:
+                    content[key] = value
+                else:
+                    content.pop(key, None)
+        for key in IMAGE_FIELDS:
+            name = 'image_' + key
+            if name in self.data:
+                if data[name]:
+                    images[key] = data[name]
+                else:
+                    images.pop(key, None)
+        design.update(content=content, images=images)
         data["design"] = validate_storefront_design(design)
         return data

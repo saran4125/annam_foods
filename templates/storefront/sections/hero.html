@@ -4,38 +4,40 @@
   <div class="hero2-bg" aria-hidden="true"><i class="hero2-blob b1"></i><i class="hero2-blob b2"></i><i class="hero2-grain"></i></div>
   <div class="wrap hero2-grid">
     <div class="hero2-copy">
-      <p class="hero2-kicker"><span class="hero2-dot" aria-hidden="true"></span>{{ hero.kicker|default:tenant.config.tagline|default:"Home-made, every day" }}</p>
-      {% with title=hero.title|default:"Home-made food, cooked fresh for your table." %}
+      <p class="hero2-kicker"><span class="hero2-dot" aria-hidden="true"></span>{% canvas_text 'hero.kicker' %}</p>
+      {% design_value 'hero.title' as title %}
       <h1 id="hero-title" class="hero2-title" aria-label="{{ title }}">
-        {% for w in title|words %}<span class="w" aria-hidden="true"><span style="--w:{{ forloop.counter0 }}">{{ w }}</span></span> {% endfor %}
+        {% if appearance_canvas %}{% canvas_text 'hero.title' %}{% else %}{% for w in title|words %}<span class="w" aria-hidden="true"><span style="--w:{{ forloop.counter0 }}">{{ w }}</span></span> {% endfor %}{% endif %}
       </h1>
-      {% endwith %}
-      <p class="hero2-body">{{ hero.body|default:"Breakfast, lunch and dinner cooked to your slot — plus podis, pakshanams, sweets and pickles made in small batches and shipped fresh." }}</p>
+
+      <p class="hero2-body">{% canvas_text 'hero.body' %}</p>
       <div class="hero2-actions">
-        <a class="btn btn-primary btn-lg" href="{% url 'storefront:menu' %}">Order today’s meals <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-        {% if shop_enabled %}<a class="btn btn-lg" href="{% url 'storefront:shop' %}">Shop the pantry</a>{% endif %}
+        <a class="btn btn-primary btn-lg" href="{% url 'storefront:menu' %}">{% canvas_text 'hero.cta' %} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        {% if shop_enabled %}<a class="btn btn-lg" href="{% url 'storefront:shop' %}">{% canvas_text 'hero.shop_cta' %}</a>{% endif %}
       </div>
       <ul class="hero2-proof">
-        <li><svg class="ic" aria-hidden="true"><use href="#i-leaf"/></svg>Pure vegetarian</li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-leaf"/></svg>{% canvas_text 'hero.proof' %}</li>
         {% if tenant.billing_profile.fssai_no %}<li><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>FSSAI licensed</li>{% endif %}
         {% if whatsapp_link %}<li><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg><a href="{{ whatsapp_link }}" target="_blank" rel="noopener">Order on WhatsApp</a></li>{% endif %}
       </ul>
     </div>
 
-    {% if hero_picks %}
+    {% if hero_picks or storefront_images.hero %}
     <div class="hero2-art" aria-hidden="true">
       <div class="hero2-plate" data-depth="0.4">
         <svg class="hero2-ring" viewBox="0 0 200 200"><defs><path id="ring" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs>
           <text><textPath href="#ring">FRESH TODAY • HOME-MADE • PURE VEG • COOKED TO ORDER •</textPath></text></svg>
-        <span class="hero2-plate-img"><img src="{{ hero_picks.0.image.url }}" alt="" width="520" height="520"></span>
+        <span class="hero2-plate-img"><img data-canvas-image="hero" src="{% canvas_image 'hero' hero_picks.0.image.url %}" alt="" width="520" height="520"></span>
       </div>
       {% for p in hero_picks|slice:"1:" %}
       <span class="hero2-side s{{ forloop.counter }}" data-depth="{% cycle '1.1' '0.8' '1.4' %}"><img src="{{ p.image.url }}" alt="" width="200" height="200"></span>
       {% endfor %}
-      <span class="hero2-tag t1" data-depth="1.2"><b>{{ hero_picks.0.name }}</b>₹{{ hero_picks.0.price|money }}</span>
+      {% if hero_picks and not storefront_images.hero %}<span class="hero2-tag t1" data-depth="1.2"><b>{{ hero_picks.0.name }}</b>₹{{ hero_picks.0.price|money }}</span>
       {% if next_cutoff %}<span class="hero2-tag t2" data-depth="0.9"><i class="live" aria-hidden="true"></i>{{ next_cutoff.label }} orders close {{ next_cutoff.order_cutoff|time:"g:i A" }}</span>
       {% elif hero_picks.1 %}<span class="hero2-tag t2" data-depth="0.9"><b>{{ hero_picks.1.name }}</b>₹{{ hero_picks.1.price|money }}</span>{% endif %}
+      {% endif %}
     </div>
+    {% elif appearance_canvas %}<div class="hero2-art canvas-empty-photo" data-canvas-image="hero">Click to add your welcome photo</div>
     {% endif %}
   </div>
 

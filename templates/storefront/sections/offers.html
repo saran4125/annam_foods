@@ -8,15 +8,15 @@
       <div class="hero-slide{% if forloop.first %} is-active{% endif %}" data-slide aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
         <div class="offer">
           <div class="offer-copy">
-            <span class="offer-badge"><svg class="ic" aria-hidden="true"><use href="#i-leaf"/></svg>Festival special</span>
-            <h2>{{ b.title }}</h2>
-            {% if b.subtitle %}<p>{{ b.subtitle }}</p>{% endif %}
+            <span class="offer-badge"><svg class="ic" aria-hidden="true"><use href="#i-leaf"/></svg>{% if forloop.first %}{% canvas_text 'offers.kicker' %}{% else %}Festival special{% endif %}</span>
+            <h2>{% if forloop.first %}{% canvas_text 'offers.title' b.title %}{% else %}{{ b.title }}{% endif %}</h2>
+            {% if forloop.first %}<p>{% canvas_text 'offers.body' b.subtitle %}</p>{% elif b.subtitle %}<p>{{ b.subtitle }}</p>{% endif %}
             <div class="offer-actions">
-              {% if b.link|safe_link|workspace_link:request %}<a class="btn btn-primary btn-lg" href="{{ b.link|safe_link|workspace_link:request }}"{% if not forloop.first %} tabindex="-1"{% endif %}>See the offer <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
+              {% if b.link|safe_link|workspace_link:request %}<a class="btn btn-primary btn-lg" href="{{ b.link|safe_link|workspace_link:request }}"{% if not forloop.first %} tabindex="-1"{% endif %}>{% if forloop.first %}{% canvas_text 'offers.cta' %}{% else %}See the offer{% endif %} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
               {% if whatsapp_link %}<a class="btn btn-lg" href="{{ whatsapp_link }}" target="_blank" rel="noopener"{% if not forloop.first %} tabindex="-1"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>Pre-order on WhatsApp</a>{% endif %}
             </div>
           </div>
-          <div class="offer-art"><img src="{{ b.image.url }}" alt="{{ b.title }}" width="1920" height="900" loading="lazy"></div>
+          <div class="offer-art"><img {% if forloop.first %}data-canvas-image="offers" src="{% canvas_image 'offers' b.image.url %}"{% else %}src="{{ b.image.url }}"{% endif %} alt="{{ b.title }}" width="1920" height="900" loading="lazy"></div>
         </div>
       </div>
     {% endfor %}

@@ -2,7 +2,7 @@
 {% if food_showcase %}
 <section class="food-showcase" aria-labelledby="food-showcase-title" data-reveal>
   <div class="section-head">
-    <div><p class="section-kicker">Explore the kitchen</p><h2 id="food-showcase-title">Food favourites</h2></div>
+    <div><p class="section-kicker">{% canvas_text 'showcase.kicker' %}</p><h2 id="food-showcase-title">{% canvas_text 'showcase.title' %}</h2></div>
   </div>
   <div class="food-category-grid" data-stagger>
     {% for food in food_showcase %}

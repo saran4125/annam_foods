@@ -5,7 +5,7 @@ order is highlighted (and moves first on phones); closed meals stay readable
 but quieter, with a link to order them for tomorrow.{% endcomment %}
 <section class="meals" aria-labelledby="meals-title">
   <div class="section-head" data-reveal>
-    <div><p class="section-kicker">Daily food menu</p><h2 id="meals-title">From today’s kitchen</h2><span class="section-subtitle">Order before the cutoff and we cook it for your slot.</span></div>
+    <div><p class="section-kicker">{% canvas_text 'meals.kicker' %}</p><h2 id="meals-title">{% canvas_text 'meals.title' %}</h2><span class="section-subtitle">{% canvas_text 'meals.body' %}</span></div>
     <a class="arrow-link" href="{% url 'storefront:menu' %}">Full menu <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
   </div>
   <div class="meal-cols" data-stagger>

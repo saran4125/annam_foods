@@ -99,3 +99,22 @@ def root_media_url(value):
     if isinstance(value, str) and value.startswith("media/"):
         return "/" + value
     return value
+
+
+@register.simple_tag(takes_context=True)
+def design_value(context, key, default=''):
+    return context.get('storefront_copy', {}).get(key, default)
+
+
+@register.simple_tag(takes_context=True)
+def canvas_text(context, key, default=''):
+    from django.utils.html import format_html
+    value = context.get('storefront_copy', {}).get(key, default)
+    if context.get('appearance_canvas'):
+        return format_html('<span data-canvas-text="{}">{}</span>', key, value)
+    return format_html('<span>{}</span>', value)
+
+
+@register.simple_tag(takes_context=True)
+def canvas_image(context, key, default=''):
+    return context.get('storefront_images', {}).get(key, '') or default

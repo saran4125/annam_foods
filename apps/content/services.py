@@ -211,8 +211,21 @@ def validate_storefront_design(design):
         background = luminance(colors[key])
         if (max(ink, background) + .05) / (min(ink, background) + .05) < 4.5:
             raise ValidationError("Choose text and background colors with enough contrast to read clearly.")
-    return deepcopy({key: design[key] for key in
-                     ("theme", "font", "density", "shape", "hero_layout", "menu_layout", "colors", "sections")})
+    from apps.storefront.themes import COPY_FIELDS, IMAGE_FIELDS
+    content, images = design.get("content", {}), design.get("images", {})
+    if not isinstance(content, dict) or any(key not in COPY_FIELDS or not isinstance(value, str)
+            or len(value) > COPY_FIELDS[key][1] for key, value in content.items()):
+        raise ValidationError("Some website text is invalid or too long.")
+    if not isinstance(images, dict) or any(key not in IMAGE_FIELDS or not isinstance(value, str)
+            or not re.fullmatch(r"/platform/assets/[a-z0-9-]+/[0-9a-f-]{36}/", value) for key, value in images.items()):
+        raise ValidationError("Choose an image from this kitchen's image library.")
+    result = deepcopy({key: design[key] for key in
+                       ("theme", "font", "density", "shape", "hero_layout", "menu_layout", "colors", "sections")})
+    if content:
+        result["content"] = deepcopy(content)
+    if images:
+        result["images"] = deepcopy(images)
+    return result
 
 
 def storefront_design(config, *, draft=False):
@@ -237,6 +250,7 @@ def change_storefront_design(tenant, *, action, revision, design=None):
         raise ValidationError("Choose a valid appearance action.")
     if action in {"save", "publish"}:
         design = validate_storefront_design(design)
+        validate_design_images(tenant, design)
     with transaction.atomic():
         config = TenantConfig.objects.select_for_update().get(tenant=tenant)
         state = deepcopy(config.storefront_design or {})
@@ -275,13 +289,15 @@ def storefront_appearance(request):
         return request._storefront_appearance
     config = request.tenant.config
     home_path = getattr(request, "workspace_preview_url", "/")
-    preview = request.path == home_path and request.GET.get("design") == "draft"
+    override = getattr(request, "_appearance_override", None)
+    canvas = getattr(request, "_appearance_canvas", False)
+    preview = override is not None or (request.path == home_path and request.GET.get("design") == "draft")
     if preview and not can_manage(request.user, request.tenant):
         raise PermissionDenied("Only this kitchen's team can preview its draft.")
-    design = storefront_design(config, draft=preview)
+    design = override if override is not None else storefront_design(config, draft=preview)
     state = config.storefront_design or {}
     theme = dict(config.theme or {})
-    if state.get("published") or (preview and state.get("draft")):
+    if override is not None or state.get("published") or (preview and state.get("draft")):
         theme.update(design["colors"])
         if not preview:
             theme["brand"] = (config.theme or {}).get("brand", design["colors"]["brand"])
@@ -297,8 +313,94 @@ def storefront_appearance(request):
                                      'clean': 'system-ui,sans-serif', 'editorial': 'Georgia,serif'}[design["font"]]
             if design["font"] == "clean":
                 theme["font_body"] = "system-ui,sans-serif"
-    result = {"storefront_design": design, "storefront_theme": theme, "appearance_preview": preview,
+    if design.get("images", {}).get("logo"):
+        theme["logo_url"] = design["images"]["logo"]
+    copy = storefront_copy_defaults(config)
+    copy.update(design.get("content", {}))
+    result = {"storefront_brand_name": copy["brand.name"], "storefront_copy": copy, "appearance_canvas": canvas,
+              "storefront_images": design.get("images", {}),
+              "storefront_design": design, "storefront_theme": theme, "appearance_preview": preview,
               "storefront_sections": [{**section, "template": SECTION_TEMPLATES[section["key"]]}
                                       for section in design["sections"] if section["enabled"]]}
     request._storefront_appearance = result
     return result
+
+
+def storefront_copy_defaults(config):
+    from apps.storefront.themes import COPY_FIELDS
+    result = {key: value[2] for key, value in COPY_FIELDS.items()}
+    result['brand.name'] = config.brand_name or config.tenant.name
+    sections = config.home_sections or []
+    hero = next((s for s in sections if isinstance(s, dict) and s.get('kind') == 'hero'), {})
+    spotlight = next((s for s in sections if isinstance(s, dict) and s.get('kind') == 'spotlight'), {})
+    for key in ('kicker', 'title', 'body'):
+        if hero.get(key):
+            result['hero.' + key] = hero[key]
+    if not hero.get('kicker') and config.tagline:
+        result['hero.kicker'] = config.tagline
+    for key in ('kicker', 'title', 'body', 'cta'):
+        if spotlight.get(key):
+            result['spotlight.' + key] = spotlight[key]
+    result['spotlight.points'] = '\n'.join(spotlight.get('points', []))
+    from apps.tenancy.context import tenant_context
+    with tenant_context(config.tenant):
+        slides = resolve_hero_slides()
+    if slides:
+        result['offers.title'] = slides[0].title
+        result['offers.body'] = slides[0].subtitle
+    if config.tenant.feature('snacks_courier'):
+        result['story.step1_body'] = 'Pick today or tomorrow and a meal slot — or shop the pantry.'
+    return result
+
+
+def storefront_image_url(tenant, image):
+    return f'/platform/assets/{tenant.slug}/{image.pk}/'
+
+
+def validate_design_images(tenant, design):
+    from apps.content.models import StorefrontImage
+    from apps.tenancy.context import tenant_context
+    from django.core.exceptions import ValidationError
+    with tenant_context(tenant):
+        for url in design.get('images', {}).values():
+            prefix = f'/platform/assets/{tenant.slug}/'
+            if not url.startswith(prefix):
+                raise ValidationError("This photo belongs to a different kitchen.")
+            try:
+                image_id = url[len(prefix):].strip('/')
+                exists = StorefrontImage.objects.filter(pk=image_id, tenant=tenant).exists()
+            except (ValueError, ValidationError):
+                exists = False
+            if not exists:
+                raise ValidationError("This photo is no longer available. Choose another photo.")
+
+
+def save_storefront_image(tenant, upload):
+    from io import BytesIO
+    from pathlib import PurePath
+    from PIL import Image, UnidentifiedImageError
+    from django.core.exceptions import ValidationError
+    from django.db import transaction
+    from apps.content.models import StorefrontImage
+    from apps.tenancy.models import TenantConfig
+    from apps.tenancy.context import tenant_context
+    if upload.size > 3 * 1024 * 1024:
+        raise ValidationError('Choose a photo smaller than 3 MB.')
+    data = upload.read(3 * 1024 * 1024 + 1)
+    if len(data) > 3 * 1024 * 1024:
+        raise ValidationError('Choose a photo smaller than 3 MB.')
+    try:
+        with Image.open(BytesIO(data)) as image:
+            content_type = {'JPEG': 'image/jpeg', 'PNG': 'image/png', 'WEBP': 'image/webp'}.get(image.format)
+            width, height = image.size
+            if not content_type or width * height > 25_000_000:
+                raise ValidationError('Choose a JPG, PNG or WebP photo up to 25 megapixels.')
+            image.verify()
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError, ValueError) as exc:
+        raise ValidationError('This file is not a valid photo. Choose a JPG, PNG or WebP image.') from exc
+    with transaction.atomic(), tenant_context(tenant):
+        TenantConfig.objects.select_for_update().get(tenant=tenant)
+        if StorefrontImage.objects.count() >= 100:
+            raise ValidationError('Your photo library is full. Reuse a photo from the library or contact support.')
+        return StorefrontImage.objects.create(name=PurePath(upload.name).name[:160], data=data,
+                        content_type=content_type, width=width, height=height)

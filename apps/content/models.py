@@ -63,3 +63,22 @@ class Banner(TenantOwnedModel):
 
     def __str__(self):
         return self.title
+
+
+class StorefrontImage(TenantOwnedModel):
+    """Small website-editor uploads persist even on an ephemeral demo server.
+
+    Only current published references are public. Draft images require kitchen
+    management access. Image bytes never enter the design JSON or editor HTML.
+    """
+    import uuid
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=160)
+    content_type = models.CharField(max_length=30)
+    data = models.BinaryField()
+    width = models.PositiveIntegerField()
+    height = models.PositiveIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta(TenantOwnedModel.Meta):
+        ordering = ['-created_at']

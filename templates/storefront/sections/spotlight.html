@@ -2,22 +2,22 @@
 {% if spotlight %}
 {# Feature product: the artwork shown whole on a soft panel, the recipe as a checklist #}
 <section class="feature" data-reveal>
-  {% if spotlight.image %}
+  {% if spotlight.image or storefront_images.spotlight %}
   <div class="feature-art">
     <span class="feature-glow" aria-hidden="true"></span>
-    <img src="{{ spotlight.image|root_media_url }}" alt="{{ spotlight.title }}" width="700" height="756" loading="lazy">
+    <img data-canvas-image="spotlight" src="{% canvas_image 'spotlight' spotlight.image|root_media_url %}" alt="{{ spotlight.title }}" width="700" height="756" loading="lazy">
     {% if spotlight.badge %}<span class="feature-badge">{{ spotlight.badge }}</span>{% endif %}
   </div>
   {% endif %}
   <div class="feature-copy">
-    {% if spotlight.kicker %}<p class="section-kicker">{{ spotlight.kicker }}</p>{% endif %}
-    <h2>{{ spotlight.title }}</h2>
-    {% if spotlight.body %}<p class="feature-body">{{ spotlight.body }}</p>{% endif %}
+    <p class="section-kicker">{% canvas_text 'spotlight.kicker' %}</p>
+    <h2>{% canvas_text 'spotlight.title' %}</h2>
+    <p class="feature-body">{% canvas_text 'spotlight.body' %}</p>
     {% if spotlight.points %}
     <p class="feature-list-title">What goes in <span>{{ spotlight.points|length }} ingredients</span></p>
-    <ul class="feature-list">{% for point in spotlight.points %}<li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>{{ point }}</li>{% endfor %}</ul>
+    <ul class="feature-list" data-canvas-list="spotlight.points">{% for point in spotlight.points %}<li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>{{ point }}</li>{% endfor %}</ul>
     {% endif %}
-    {% if spotlight.link|safe_link|workspace_link:request %}<a class="btn btn-primary btn-lg" href="{{ spotlight.link|safe_link|workspace_link:request }}">{{ spotlight.cta|default:"Order now" }} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
+    {% if spotlight.link|safe_link|workspace_link:request %}<a class="btn btn-primary btn-lg" href="{{ spotlight.link|safe_link|workspace_link:request }}">{% canvas_text 'spotlight.cta' %} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>{% endif %}
   </div>
 </section>
 {% endif %}

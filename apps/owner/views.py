@@ -438,7 +438,7 @@ def appearance(request):
     config = TenantConfig.objects.get(tenant=request.tenant)
     state = config.storefront_design or {}
     form = forms.AppearanceForm(request.POST if request.method == "POST" else None,
-                                design=storefront_design(config, draft=True), revision=state.get("revision", 0))
+                                design=storefront_design(config, draft=True), revision=state.get("revision", 0), config=config)
     if request.method == "POST":
         action = request.POST.get("action", "save")
         if action in {"restore", "discard"}:
@@ -461,5 +461,45 @@ def appearance(request):
                                  else "Draft saved. Preview it before publishing.")
                 return redirect("owner:appearance")
     preview = getattr(request, "workspace_preview_url", "/") + "?design=draft"
-    return render(request, "owner/appearance.html", {"form": form, "has_draft": bool(state.get("draft")),
+    from apps.content.models import StorefrontImage
+    from apps.content.services import storefront_image_url
+    library = [{'url': storefront_image_url(request.tenant, image), 'name': image.name}
+               for image in StorefrontImage.objects.only('id', 'name').order_by('-created_at')[:100]]
+    return render(request, "owner/appearance.html", {"image_library": library, "form": form, "has_draft": bool(state.get("draft")),
                   "has_previous": bool(state.get("previous")), "preview_url": preview})
+
+
+@owner_required
+@require_POST
+@never_cache
+def appearance_render(request):
+    from apps.content.services import storefront_design, validate_design_images
+    from apps.storefront.views import home
+    from django.http import JsonResponse
+    config = request.tenant.config
+    form = forms.AppearanceForm(request.POST, design=storefront_design(config, draft=True), config=config)
+    if not form.is_valid():
+        return JsonResponse({'errors': form.errors.get_json_data()}, status=400)
+    try:
+        validate_design_images(request.tenant, form.cleaned_data['design'])
+    except ValidationError as exc:
+        return JsonResponse({'errors': {'__all__': [{'message': m} for m in exc.messages]}}, status=400)
+    request._appearance_override = form.cleaned_data['design']
+    request._appearance_canvas = True
+    return home(request)
+
+
+@owner_required
+@require_POST
+@never_cache
+def appearance_upload(request):
+    from apps.content.services import save_storefront_image, storefront_image_url
+    from django.http import JsonResponse
+    upload = request.FILES.get('image')
+    if upload is None:
+        return JsonResponse({'error': 'Choose a photo to upload.'}, status=400)
+    try:
+        image = save_storefront_image(request.tenant, upload)
+    except ValidationError as exc:
+        return JsonResponse({'error': ' '.join(exc.messages)}, status=400)
+    return JsonResponse({'url': storefront_image_url(request.tenant, image), 'name': image.name}, status=201)
