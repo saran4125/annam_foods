@@ -53,6 +53,7 @@
     <p class="o-nav-label">Website</p>
     <a href="{% url 'owner:list' 'banners' %}" class="{% if '/manage/banners' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-image"/></svg>Offer banners</a>
     <a href="{% url 'owner:list' 'pages' %}" class="{% if '/manage/pages' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-page"/></svg>Pages</a>
+    <a href="{% url 'owner:razorpay_settings' %}" class="{% if request.resolver_match.url_name == 'razorpay_settings' %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>Razorpay payments</a>
     <a href="{% url 'owner:checkout_settings' %}" class="{% if request.resolver_match.url_name == 'checkout_settings' %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>Checkout &amp; courier</a>
     <a href="{% url 'owner:list' 'zones' %}" class="{% if '/manage/zones' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-pin"/></svg>Delivery areas</a>
     <a href="{% url 'billing:dashboard' %}"><svg class="o-ic"><use href="#o-page"/></svg>Open billing portal</a>

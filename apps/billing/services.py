@@ -97,6 +97,8 @@ def issue_bill(order, *, gst_details=None, force=False):
         existing = Invoice.objects.filter(order=order).exclude(kind=InvoiceKind.CREDIT_NOTE).first()
         if existing:
             return existing
+        if hasattr(order, "online_payment") and order.online_payment.mode == "test":
+            raise ValueError("Test payments do not issue real bills. Switch to live mode for production payments.")
         if order.payment_status != PaymentStatus.PAID:
             raise ValueError("Payment must be confirmed before issuing a bill.")
         try:
@@ -308,6 +310,8 @@ def confirm_payment(order, *, actor, reference=""):
     """Record staff-confirmed receipt once; settings errors never undo real payment."""
     from apps.orders.models import OrderEvent, OrderStatus
     order = Order.objects.select_for_update().get(pk=order.pk)
+    if order.payment_mode == "online" and hasattr(order, "online_payment") and actor != "razorpay":
+        raise ValueError("Verify this payment through Razorpay; it cannot be manually marked paid.")
     if order.payment_status == PaymentStatus.PAID:
         return order
     if order.status == OrderStatus.CANCELLED or order.payment_status == PaymentStatus.REFUNDED:

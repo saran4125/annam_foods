@@ -72,7 +72,7 @@ def channel_orders(request, channel):
         raise Http404
     query = request.GET.get("q", "").strip()[:80]
     status = request.GET.get("status", "")
-    orders = Order.objects.filter(channel=channel).select_related("customer").prefetch_related(
+    orders = Order.objects.filter(channel=channel).select_related("customer", "online_payment").prefetch_related(
         Prefetch("invoices", queryset=Invoice.objects.exclude(kind="credit_note"), to_attr="billing_invoices"))
     if query:
         orders = orders.filter(Q(order_no__icontains=query) | Q(customer__name__icontains=query) | Q(customer__phone__icontains=query) | Q(address__recipient_name__icontains=query))

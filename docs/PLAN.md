@@ -2096,3 +2096,22 @@ staff must confirm receipt before a bill can be issued.
 Before testing on Render, let the deployment apply the two migrations. In the
 Annam admin, review **Delivery areas**, **Checkout & courier**, **Meal times** and
 **Billing settings**. Do not enable courier ordering with unconfirmed coverage.
+
+### Razorpay implementation update — 21 October 2026
+
+The Django checkout now offers Razorpay alongside configured manual payment.
+Mode-specific encrypted connections, signed checkout verification, independent
+capture fetches, signed/deduplicated webhooks, retry-safe provider orders, private
+customer bills, full owner-authorized refunds and refund/credit-note reconciliation
+are implemented. Test payments never issue real fiscal bills. Payment mode and
+account are frozen when the reviewed website order is placed.
+
+The implementation uses tenant-owned `apps.payments` records rather than one
+mutable test/live credential slot. Previously saved TenantSecrets credentials
+are preserved as disabled mode-specific connections; owners explicitly verify
+and enable them. See [razorpay.md](razorpay.md) for setup and recovery details.
+
+Actual sandbox verification awaits Annam's keys and its Razorpay webhook setup.
+Production collection needs activated live credentials and explicit live-mode
+confirmation. n8n message synchronization and automatic WhatsApp bill delivery
+remain separate; this change does not move the storefront's production domain.

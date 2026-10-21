@@ -35,8 +35,12 @@ def browser_key(request, create=True):
 def checkout_quote(tenant, cart, details, *, now=None):
     if not tenant.can_take_orders or not tenant.feature('website_ordering'):
         raise OrderError('This kitchen is not accepting website orders right now.')
-    if not tenant.feature('manual_payments'):
-        raise OrderError('Online checkout payments are not available yet. Please contact the kitchen.')
+    from apps.payments.services import payment_choices, active_connection, _paise
+    from apps.payments.provider import PaymentError
+    choices = payment_choices(tenant)
+    method = details.get('payment_method') or ('manual' if tenant.feature('manual_payments') else 'online')
+    if method not in dict(choices):
+        raise OrderError('The selected payment method is not available. Please choose another payment method.')
     try:
         validate_checkout_settings(tenant.config.checkout_settings or {})
     except ValidationError:
@@ -74,7 +78,14 @@ def checkout_quote(tenant, cart, details, *, now=None):
     if subtotal < zone.min_order:
         raise OrderError(f'This delivery requires an items subtotal of ₹{zone.min_order:.2f}. Add ₹{zone.min_order - subtotal:.2f} more.')
     amounts = checkout_totals(tenant, lines, zone.delivery_fee)
-    return {**amounts, 'lines': lines, 'zone': zone, 'slot': slot,
+    connection = active_connection() if method == 'online' else None
+    if connection:
+        try:
+            _paise(amounts['total'])
+        except PaymentError as exc:
+            raise OrderError(str(exc))
+    return {**amounts, 'online_mode': connection.mode if connection else '',
+            'online_key_id': connection.key_id if connection else '', 'lines': lines, 'zone': zone, 'slot': slot,
             'delivery_date': cart.delivery_date if slot else None,
             'minimum': zone.min_order, 'kind': 'courier' if cart.is_courier else 'scheduled'}
 
@@ -83,6 +94,7 @@ def fingerprint(quote, details):
     data = {'details': details, 'lines': quote['lines'], 'total': str(quote['total']),
             'fee': str(quote['delivery_fee']), 'date': str(quote['delivery_date']),
             'slot': quote['slot'].pk if quote['slot'] else None, 'kind': quote['kind'],
+            'online_mode': quote['online_mode'], 'online_key_id': quote['online_key_id'],
             'pricing': quote['pricing'], 'area': quote['zone'].area_name, 'minimum': str(quote['minimum'])}
     return hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
 
@@ -128,8 +140,13 @@ def place_checkout(request, cart, details, token):
     order = create_order(request.tenant, customer=customer,
         requested=[RequestedLine(int(pk), qty) for pk, qty in cart.items.items()],
         slot=quote['slot'], delivery_date=quote['delivery_date'], address_snapshot=snapshot,
-        channel=Channel.WEB, payment_mode=PaymentMode.MANUAL,
+        channel=Channel.WEB, payment_mode=details.get('payment_method') or PaymentMode.MANUAL,
         external_ref=external_ref(data), website_checkout=True)
     if order.total != quote['total'] or order.items != quote['lines']:
         raise OrderError('Prices changed while placing your order. Please review again.')
+    if order.payment_mode == 'online':
+        from apps.payments.models import PaymentIntent, RazorpayConnection
+        connection = RazorpayConnection.objects.get(enabled=True, mode=quote['online_mode'], key_id=quote['online_key_id'])
+        PaymentIntent.objects.create(order=order, connection=connection, mode=connection.mode,
+            key_id=connection.key_id, amount=int(order.total * 100))
     return order, data['ref'], True

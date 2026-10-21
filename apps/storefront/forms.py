@@ -14,8 +14,15 @@ class CheckoutForm(forms.Form):
     city = forms.CharField(max_length=80, label='Town / city', widget=forms.TextInput(attrs={'autocomplete': 'address-level2'}))
     landmark = forms.CharField(max_length=120, required=False)
 
+    payment_method = forms.ChoiceField(required=False, label="Payment method")
+
     def __init__(self, *args, cart, **kwargs):
         super().__init__(*args, **kwargs)
+        self.cart_tenant = cart.request.tenant
+        from apps.payments.services import payment_choices
+        choices = payment_choices(cart.request.tenant)
+        self.fields["payment_method"].choices = choices
+        self.fields["payment_method"].initial = choices[0][0] if choices else ""
         from apps.delivery.services import zones_for_pincode
         pin = self.data.get('pincode', cart.pincode) if self.is_bound else cart.pincode
         zones = [] if cart.is_courier else zones_for_pincode(pin, cart.slot_key)
@@ -26,6 +33,11 @@ class CheckoutForm(forms.Form):
             self.fields['zone_id'] = forms.CharField(required=False, widget=forms.HiddenInput())
         for field in self.fields.values():
             field.widget.attrs.setdefault('class', 'checkout-input')
+
+    def clean_payment_method(self):
+        from apps.payments.services import payment_choices
+        choices = payment_choices(self.cart_tenant)
+        return self.cleaned_data.get("payment_method") or (choices[0][0] if choices else "")
 
     def clean_zone_id(self):
         return self.cleaned_data['zone_id'] if self.multiple_areas else ''

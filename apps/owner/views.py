@@ -299,7 +299,7 @@ def resource_toggle(request, key, pk):
 
 @owner_required
 def orders(request):
-    qs = Order.objects.select_related("customer", "slot").order_by("-placed_at")
+    qs = Order.objects.select_related("customer", "slot", "online_payment").order_by("-placed_at")
     status = request.GET.get("status", "")
     if status in OrderStatus.values:
         qs = qs.filter(status=status)

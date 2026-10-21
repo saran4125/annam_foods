@@ -166,6 +166,11 @@ class Order(TenantOwnedModel):
         return self.order_no
 
     @property
+    def is_test_payment(self):
+        payment = getattr(self, 'online_payment', None)
+        return bool(payment and payment.mode == 'test')
+
+    @property
     def buyer_name(self):
         return self.address.get('recipient_name') or self.customer.name
 

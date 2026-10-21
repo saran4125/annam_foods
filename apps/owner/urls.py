@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from apps.payments import views as payment_views
 from apps.messaging import inbox_views
 
 app_name = "owner"
@@ -23,6 +24,8 @@ urlpatterns = [
     path("appearance/render/", views.appearance_render, name="appearance_render"),
     path("appearance/upload/", views.appearance_upload, name="appearance_upload"),
     path("appearance/", views.appearance, name="appearance"),
+    path("payments/razorpay/", payment_views.connection_settings, name="razorpay_settings"),
+    path("orders/<int:pk>/refund/", payment_views.refund, name="razorpay_refund"),
     path("checkout-settings/", views.checkout_settings, name="checkout_settings"),
     path("settings/", views.settings_view, name="settings"),
     path("<slug:key>/", views.resource_list, name="list"),

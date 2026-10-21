@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "apps.storefront",
     "apps.messaging",
     "apps.orders",
+    "apps.payments",
     "apps.billing",
     "apps.jobs",
     "apps.owner",

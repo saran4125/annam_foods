@@ -19,7 +19,7 @@
   <tbody data-stagger>
   {% for o in page %}
   <tr>
-    <td><a class="o-row-title" href="{% url 'owner:order' o.pk %}">{{ o.order_no }}</a><small class="o-sub">{{ o.placed_at|date:"j M, g:i A" }}</small></td>
+    <td><a class="o-row-title" href="{% url 'owner:order' o.pk %}">{{ o.order_no }}{% if o.is_test_payment %} <span class="o-pill">TEST</span>{% endif %}</a><small class="o-sub">{{ o.placed_at|date:"j M, g:i A" }}</small></td>
     <td>{{ o.buyer_name|default:"—" }}<small class="o-sub">{{ o.buyer_phone }}</small></td>
     <td>{% if o.slot %}{{ o.slot.label }} · {{ o.delivery_date|date:"j M" }}{% else %}Shop order{% endif %}</td>
     <td><span class="o-pill o-pill-{{ o.status }}">{{ o.get_status_display }}</span></td>

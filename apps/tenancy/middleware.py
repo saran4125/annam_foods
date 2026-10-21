@@ -58,6 +58,7 @@ class TenantMiddleware:
         if is_central:
             workspace = re.match(r"^/platform/workspaces/([a-z0-9-]+)/(manage|billing|preview|domains)(?:/|$)", request.path)
             webhook = re.fullmatch(r"/platform/webhooks/([a-z0-9-]+)/whatsapp/(?:n8n/)?", request.path)
+            payment_webhook = re.fullmatch(r"^/platform/webhooks/([a-z0-9-]+)/razorpay/(?:test|live)/", request.path)
             if workspace:
                 billing_login = f"/platform/workspaces/{workspace.group(1)}/billing/login/"
                 if not request.user.is_authenticated:
@@ -77,9 +78,9 @@ class TenantMiddleware:
                 request.urlconf = workspace_urlconf(selected.slug)
                 request.workspace_slug = selected.slug
                 request.workspace_preview_url = f"/platform/workspaces/{selected.slug}/preview/"
-            elif webhook:
+            elif webhook or payment_webhook:
                 # Public only for these exact signed/authenticated webhook paths.
-                selected = Tenant.objects.select_related("config").filter(slug=webhook.group(1)).first()
+                selected = Tenant.objects.select_related("config").filter(slug=(webhook or payment_webhook).group(1)).first()
                 if selected is None:
                     return HttpResponseNotFound("Kitchen not found.")
         elif domain:

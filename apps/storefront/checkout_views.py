@@ -53,4 +53,8 @@ def complete(request, reference):
         raise Http404
     order = get_object_or_404(Order.objects.select_related('slot'), external_ref=f'web:{browser}:{reference.hex}')
     instructions = (request.tenant.config.checkout_settings or {}).get('payment_instructions', '')
-    return render(request, 'storefront/checkout_complete.html', {'order': order, 'payment_instructions': instructions})
+    from apps.payments.models import PaymentIntent
+    from apps.billing.models import Invoice, InvoiceKind
+    intent = PaymentIntent.objects.filter(order=order).first()
+    return render(request, 'storefront/checkout_complete.html', {'order': order, 'payment_instructions': instructions, 'online': intent, 'reference': reference,
+        'customer_invoice': Invoice.objects.filter(order=order).exclude(kind=InvoiceKind.CREDIT_NOTE).first()})
