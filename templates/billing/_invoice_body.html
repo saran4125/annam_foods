@@ -21,15 +21,14 @@
     {% if invoice.buyer.business_name %}<p>{{ invoice.buyer.business_name }}</p>{% endif %}
     {% if invoice.buyer.billing_address %}<p>{{ invoice.buyer.billing_address|linebreaksbr }}</p>{% endif %}
     {% if invoice.buyer.gstin %}<p>GSTIN: {{ invoice.buyer.gstin }}</p>{% endif %}
-    {% if bill.collection %}<p class="af-fulfilment">Collection</p>{% elif bill.address_lines %}<p class="af-delivery-address">{% for line in bill.address_lines %}{{ line }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</p>{% endif %}
+    {% if bill.collection %}<p class="af-fulfilment">Collection</p>{% elif bill.address_lines %}<p class="af-delivery-address">{% for line in bill.address_lines %}{{ line }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
     {% if bill.delivery_date %}<p class="af-delivery-date">{% if bill.collection %}Collection{% else %}Delivery{% endif %}: {{ bill.delivery_date|date:"j M Y" }}</p>{% endif %}
   </section>
   <table class="af-receipt-items">
     <caption class="af-visually-hidden">{{ invoice.get_kind_display }} item details</caption>
     <thead><tr><th scope="col">{% if bill.is_credit %}Credited items{% else %}Your order{% endif %}</th><th scope="col">Amount</th></tr></thead>
     <tbody>{% for line in bill.lines %}
-      <tr><td><strong>{{ line.description }}</strong><span class="af-item-detail">{% if bill.is_credit %}Original order: {% endif %}{{ line.quantity }} × ₹{{ line.unit_price|floatformat:2 }}</span>
-        {% if line.sac %}<span class="af-item-detail af-item-sac">SAC / HSN: {{ line.sac }}</span>{% endif %}
+      <tr><td><strong>{{ line.description }}</strong><span class="af-item-detail">{% if bill.is_credit %}Original order: {% endif %}{{ line.quantity }} × ₹{{ line.unit_price|floatformat:2 }}{% if line.sac %}<span class="af-item-sac"> · SAC / HSN: {{ line.sac }}</span>{% endif %}</span>
         {% if line.discount_amount %}<span class="af-item-detail">Discount: ₹{{ line.discount_amount|floatformat:2 }}</span>{% endif %}
         {% if bill.tax_registered %}<span class="af-item-detail">Taxable: ₹{{ line.taxable|floatformat:2 }} · GST {{ line.tax_rate }}%: ₹{{ line.tax|floatformat:2 }}</span>{% endif %}
       </td><td>₹{{ line.amount|floatformat:2 }}</td></tr>

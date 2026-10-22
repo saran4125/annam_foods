@@ -30,3 +30,8 @@ assumption remains for this preview only: it is not evidence of money received.
 All temporary local records were rolled back; no live order, payment, profile or
 production invoice sequence was changed. The recreated user-supplied logo is
 embedded in the HTML and PDF, with no external image dependency.
+
+The compact revision is verified to fit the complete bill on one A4 page. Quantity,
+unit price and SAC / HSN share one detail line. The image preview is rendered from
+the PDF itself so it matches the printed output. No items or legal details were
+removed to achieve the single-page layout.
