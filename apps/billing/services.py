@@ -88,7 +88,8 @@ def _seller_snapshot(tenant, profile):
             "state": profile.state, "state_code": profile.state_code,
             "gstin": profile.gstin, "fssai_no": profile.fssai_no,
             "gst_mode": profile.gst_mode, "sac": profile.sac, "footer": profile.footer,
-            "logo_url": logo_url((tenant.config.theme or {}).get("logo_url", ""))}
+            "logo_url": logo_url((tenant.config.theme or {}).get("logo_url", "")),
+            "tagline": tenant.config.tagline}
 
 
 @transaction.atomic

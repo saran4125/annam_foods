@@ -1,4 +1,5 @@
 """Receipt display values derived only from the issued invoice snapshots."""
+from datetime import date
 from decimal import Decimal
 from urllib.parse import urlsplit
 
@@ -54,7 +55,13 @@ def receipt_details(invoice):
                    PaymentMode.COD: 'Cash on delivery'}[PaymentMode(invoice.payment_mode)]
     except ValueError:
         payment = invoice.payment_mode
-    return {'logo_url': logo_url(image), 'address_lines': address_lines,
+    try:
+        delivery_date = date.fromisoformat(str(buyer.get('delivery_date') or ''))
+    except ValueError:
+        delivery_date = None
+    tagline = seller.get('tagline', invoice.tenant.config.tagline)
+    return {'logo_url': logo_url(image), 'tagline': tagline, 'delivery_date': delivery_date,
+            'address_lines': address_lines,
             'collection': address.get('fulfilment') == 'Collection',
             'lines': lines, 'discount': discount, 'payment_label': payment,
             'is_credit': invoice.kind == 'credit_note',

@@ -4,34 +4,32 @@
   <header class="af-receipt-head">
     {% if bill.logo_url %}<img class="af-receipt-logo" src="{{ bill.logo_url }}" alt="{{ invoice.seller.name }} logo" width="120" height="80">{% endif %}
     <h2>{{ invoice.seller.name }}</h2>
-    <p class="af-receipt-seller">{{ invoice.seller.address|linebreaksbr }}<br>{{ invoice.seller.state }} · State code {{ invoice.seller.state_code }}</p>
-    <p class="af-receipt-licence">FSSAI: {{ invoice.seller.fssai_no }}{% if invoice.seller.gstin %}<br>GSTIN: {{ invoice.seller.gstin }}{% endif %}</p>
-    <h3 class="af-document-title">{{ invoice.get_kind_display }}</h3>
-    {% if bill.is_credit %}<span class="af-receipt-badge af-receipt-credit">Credit note issued</span>{% else %}<span class="af-receipt-badge">Payment received</span>{% endif %}
+    {% if bill.tagline %}<p class="af-receipt-tagline">{{ bill.tagline }}</p>{% endif %}
+    {% if invoice.kind != 'bill' %}<h3 class="af-document-title">{{ invoice.get_kind_display }}</h3>{% endif %}
+    {% if bill.is_credit %}<span class="af-receipt-badge af-receipt-credit">Credit note issued</span>{% else %}<span class="af-receipt-badge">✓ Payment received</span>{% endif %}
   </header>
   <dl class="af-receipt-meta">
     <div><dt>{{ invoice.get_kind_display }} number</dt><dd>{{ invoice.number }}</dd></div>
     <div><dt>Issued</dt><dd>{{ invoice.issued_at|date:"j M Y, g:i A" }}</dd></div>
-    <div><dt>Order</dt><dd>{{ invoice.buyer.order_no }}</dd></div>
-    {% if invoice.buyer.channel %}<div><dt>Order source</dt><dd>{{ invoice.buyer.channel }}</dd></div>{% endif %}
-    {% if invoice.buyer.slot or invoice.buyer.delivery_date %}<div><dt>Meal / delivery date</dt><dd>{{ invoice.buyer.slot }}{% if invoice.buyer.slot and invoice.buyer.delivery_date %} · {% endif %}{{ invoice.buyer.delivery_date }}</dd></div>{% endif %}
+    <div><dt>Order / meal</dt><dd>{{ invoice.buyer.order_no }}{% if invoice.buyer.slot %} · {{ invoice.buyer.slot }}{% endif %}</dd></div>
     {% if bill.is_credit and invoice.original_id %}<div><dt>Original bill</dt><dd>{{ invoice.original.number }}</dd></div>{% endif %}
   </dl>
   <section class="af-receipt-customer" aria-label="Customer and delivery">
-    <h3>Bill to</h3>
+    <h3>Customer &amp; delivery</h3>
     {% if invoice.buyer.name %}<p class="af-customer-name">{{ invoice.buyer.name }}</p>{% endif %}
     {% if invoice.buyer.phone %}<p>{{ invoice.buyer.phone }}</p>{% endif %}
     {% if invoice.buyer.business_name %}<p>{{ invoice.buyer.business_name }}</p>{% endif %}
     {% if invoice.buyer.billing_address %}<p>{{ invoice.buyer.billing_address|linebreaksbr }}</p>{% endif %}
     {% if invoice.buyer.gstin %}<p>GSTIN: {{ invoice.buyer.gstin }}</p>{% endif %}
-    {% if bill.collection %}<h3>Collection</h3>{% elif bill.address_lines %}<h3>Delivery address</h3><p>{% for line in bill.address_lines %}{{ line }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</p>{% endif %}
+    {% if bill.collection %}<p class="af-fulfilment">Collection</p>{% elif bill.address_lines %}<p class="af-delivery-address">{% for line in bill.address_lines %}{{ line }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</p>{% endif %}
+    {% if bill.delivery_date %}<p class="af-delivery-date">{% if bill.collection %}Collection{% else %}Delivery{% endif %}: {{ bill.delivery_date|date:"j M Y" }}</p>{% endif %}
   </section>
   <table class="af-receipt-items">
     <caption class="af-visually-hidden">{{ invoice.get_kind_display }} item details</caption>
     <thead><tr><th scope="col">{% if bill.is_credit %}Credited items{% else %}Your order{% endif %}</th><th scope="col">Amount</th></tr></thead>
     <tbody>{% for line in bill.lines %}
       <tr><td><strong>{{ line.description }}</strong><span class="af-item-detail">{% if bill.is_credit %}Original order: {% endif %}{{ line.quantity }} × ₹{{ line.unit_price|floatformat:2 }}</span>
-        {% if line.sac %}<span class="af-item-detail">SAC / HSN: {{ line.sac }}</span>{% endif %}
+        {% if line.sac %}<span class="af-item-detail af-item-sac">SAC / HSN: {{ line.sac }}</span>{% endif %}
         {% if line.discount_amount %}<span class="af-item-detail">Discount: ₹{{ line.discount_amount|floatformat:2 }}</span>{% endif %}
         {% if bill.tax_registered %}<span class="af-item-detail">Taxable: ₹{{ line.taxable|floatformat:2 }} · GST {{ line.tax_rate }}%: ₹{{ line.tax|floatformat:2 }}</span>{% endif %}
       </td><td>₹{{ line.amount|floatformat:2 }}</td></tr>
@@ -54,5 +52,6 @@
     {% if not bill.is_credit %}<h3>Thank you for ordering with us!</h3>{% endif %}
     {% if invoice.seller.footer %}<p>{{ invoice.seller.footer|linebreaksbr }}</p>{% endif %}
     <p class="af-receipt-signature">Authorised signatory</p>
+    <div class="af-receipt-legal"><p><strong>{{ invoice.seller.name }}</strong> · {{ invoice.seller.address|linebreaksbr }}</p><p>{{ invoice.seller.state }} · State code {{ invoice.seller.state_code }}<br>FSSAI: {{ invoice.seller.fssai_no }}{% if invoice.seller.gstin %}<br>GSTIN: {{ invoice.seller.gstin }}{% endif %}</p></div>
   </footer>
 </article>

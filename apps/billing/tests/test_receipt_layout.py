@@ -16,9 +16,11 @@ def test_receipt_uses_issued_logo_and_seller_after_branding_changes(billing_orde
     with tenant_context(tenant):
         config = tenant.config
         config.theme = {'logo_url': '/media/brand/original.png'}
+        config.tagline = 'Our original store tagline'
         config.save()
         invoice = issue_bill(order)
         config.theme = {'logo_url': '/media/brand/replacement.png'}
+        config.tagline = 'Replacement tagline'
         config.save()
         profile = BillingProfile.objects.get(tenant=tenant)
         profile.legal_name = 'Changed legal identity'
@@ -27,6 +29,8 @@ def test_receipt_uses_issued_logo_and_seller_after_branding_changes(billing_orde
         receipt = receipt_details(invoice)
         html = render_to_string('billing/_invoice_body.html', {'invoice': invoice})
     assert receipt['logo_url'] == '/media/brand/original.png'
+    assert receipt['tagline'] == 'Our original store tagline'
+    assert 'Our original store tagline' in html and 'Replacement tagline' not in html
     assert invoice.seller['logo_url'] == '/media/brand/original.png'
     assert 'Changed legal identity' not in html
     assert 'Payment received' in html and invoice.number in html
