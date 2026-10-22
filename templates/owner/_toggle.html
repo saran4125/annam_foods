@@ -1,0 +1,6 @@
+<label class="o-check{% if f.errors %} has-error{% endif %}">
+  {{ f }}<span class="o-switch-ui" aria-hidden="true"><i></i></span>
+  <span class="o-toggle-copy"><b>{{ f.label }}</b>{% if f.help_text %}<small>{{ f.help_text }}</small>{% endif %}</span>
+  {% include "owner/_toggle_state.html" %}
+</label>
+{% for error in f.errors %}<p class="o-error" role="alert">{{ error }}</p>{% endfor %}

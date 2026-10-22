@@ -13,8 +13,8 @@
   {% with f=form.courier_enabled %}
   <label class="o-check o-courier-toggle{% if f.errors %} has-error{% endif %}">
     {{ f }}<span class="o-switch-ui" aria-hidden="true"><i></i></span>
-    <span class="o-courier-toggle-copy"><b>{{ f.label }}</b><small>Accept courier orders only for the approved pincodes below.</small></span>
-    <span class="o-courier-toggle-state" aria-hidden="true"><span class="when-on">On</span><span class="when-off">Off</span></span>
+    <span class="o-toggle-copy"><b>{{ f.label }}</b><small>Accept courier orders only for the approved pincodes below.</small></span>
+    {% include "owner/_toggle_state.html" %}
   </label>
   {% for error in f.errors %}<p class="o-error" role="alert">{{ error }}</p>{% endfor %}
   {% endwith %}

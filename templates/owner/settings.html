@@ -50,7 +50,7 @@
   <section class="o-card" data-reveal>
     <header class="o-card-head"><h2>Selling</h2></header>
     {% for f in form %}{% if f.name == "website_ordering" or f.name == "snacks_courier" %}
-    <label class="o-check">{{ f }}<span class="o-switch-ui" aria-hidden="true"><i></i></span><span><b>{{ f.label }}</b></span></label>
+    {% include "owner/_toggle.html" %}
     {% endif %}{% endfor %}
   </section>
 

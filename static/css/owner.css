@@ -197,12 +197,7 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 .o-check input:checked+.o-switch-ui i{transform:translateX(18px)}
 .o-check input:focus-visible+.o-switch-ui{outline:3px solid var(--brand);outline-offset:2px}
 .o-daypicker{display:flex;flex-wrap:wrap;gap:6px}
-.o-daypicker label{position:relative;cursor:pointer}
-.o-daypicker input{position:absolute;opacity:0}
-.o-daypicker span{display:inline-grid;place-items:center;min-width:52px;height:40px;padding:0 12px;border-radius:999px;border:1.5px solid var(--rule-2);font-weight:650;font-size:.86rem;
-  transition:background .15s ease,border-color .15s ease,color .15s ease}
-.o-daypicker input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
-.o-daypicker input:focus-visible+span{outline:3px solid var(--brand);outline-offset:2px}
+
 .o-drop{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;min-height:150px;padding:16px;border:2px dashed var(--rule-2);border-radius:var(--r);
   background:var(--paper);cursor:pointer;text-align:center;transition:border-color .15s ease,background .15s ease}
 .o-drop:hover,.o-drop.is-over{border-color:var(--brand);background:var(--brand-soft)}
@@ -382,19 +377,41 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 .o-courier-heading h2{font-size:21px}
 .o-courier-heading p{margin:5px 0 0;color:var(--ink-2);font-size:14px}
 .o-courier-tag{margin-left:auto;flex-shrink:0;border:1px solid var(--rule);border-radius:999px;padding:5px 11px;color:var(--ink-2);font-size:12px;font-weight:650}
-.o-check.o-courier-toggle{gap:14px;padding:18px;background:var(--paper)}
-.o-courier-toggle:has(input:checked){background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 35%,var(--rule))}
-.o-courier-toggle-copy{min-width:0;flex:1}
-.o-courier-toggle-copy b{font-size:15px}
-.o-courier-toggle-copy small{display:block;margin-top:3px;color:var(--ink-2)}
-.o-courier-toggle-state{padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;background:var(--rule);color:var(--ink-2)}
-.o-courier-toggle-state .when-on{display:none}
-.o-courier-toggle:has(input:checked) .o-courier-toggle-state{background:var(--ok);color:#fff}
-.o-courier-toggle:has(input:checked) .when-on{display:inline}
-.o-courier-toggle:has(input:checked) .when-off{display:none}
+.o-check{gap:14px;padding:18px;background:var(--paper)}
+.o-check:has(input:checked){background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 35%,var(--rule))}
+.o-toggle-copy{min-width:0;flex:1}
+.o-toggle-copy b{font-size:15px}
+.o-toggle-copy small{display:block;margin-top:3px;color:var(--ink-2)}
+.o-toggle-state{padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;background:var(--rule);color:var(--ink-2)}
+.o-toggle-state .when-on{display:none}
+.o-check:has(input:checked) .o-toggle-state{background:var(--ok);color:#fff}
+.o-check:has(input:checked) .when-on{display:inline}
+.o-check:has(input:checked) .when-off{display:none}
 .o-courier-card .o-pincode-sheet{margin-top:24px}
 .o-courier-rates{border-top:1px solid var(--rule);padding-top:20px;margin-top:24px}
 .o-courier-rates h3{font-size:16px;margin-bottom:14px}
 .o-courier-rates p{font-size:13px;color:var(--ink-2);margin:10px 0 0}
 .o-courier-note{display:flex;align-items:start;gap:10px;padding:13px 15px;border-radius:10px;background:var(--brand-soft);font-size:13px;color:var(--ink-2);margin:20px 0 0}
-@media(max-width:600px){.o-courier-heading{flex-wrap:wrap;gap:10px}.o-courier-heading>div{flex:1;min-width:0}.o-courier-tag{margin-left:56px}.o-courier-heading h2{font-size:19px}.o-check.o-courier-toggle{padding:14px;gap:10px}.o-courier-toggle-copy b{font-size:14px}.o-courier-toggle-state{padding:3px 8px}}
+@media(max-width:600px){.o-courier-heading{flex-wrap:wrap;gap:10px}.o-courier-heading>div{flex:1;min-width:0}.o-courier-tag{margin-left:56px}.o-courier-heading h2{font-size:19px}}
+
+/* Compact choices use the same native checkbox and visual switch. */
+.o-toggle-copy{display:block}
+.o-toggle-copy small{display:block}
+.o-check+.o-check{margin-top:10px}
+.o-grid-form>.o-check+.o-check,.o-day-dishes>.o-check+.o-check{margin-top:0}
+.o-check:has(input:disabled),.o-choice-toggle:has(input:disabled){opacity:.6;cursor:not-allowed}
+.o-check.has-error{border-color:var(--stop)}
+.o-check .o-switch-ui,.o-day-dish .o-switch-ui{flex:0 0 44px}
+.o-choice-toggle{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer}
+.o-choice-toggle input{position:absolute;opacity:0;pointer-events:none}
+.o-choice-toggle input:checked+.o-switch-ui{background:var(--ok)}
+.o-choice-toggle input:checked+.o-switch-ui i{transform:translateX(18px)}
+.o-choice-toggle input:focus-visible+.o-switch-ui{outline:3px solid var(--brand);outline-offset:2px}
+.o-choice-toggle .o-choice-label{font-size:14px;font-weight:600}
+.o-daypicker .o-choice-toggle{padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+.o-daypicker .o-choice-toggle:has(input:checked){background:var(--ok-bg);border-color:var(--ok)}
+.o-day-dish .o-switch-ui{width:44px;height:26px}
+.o-day-dish>span:not(.o-switch-ui){overflow-wrap:anywhere}
+.o-day-dish strong{flex-shrink:0}
+.billing-ui .b-remove.o-choice-toggle{padding-top:0;align-self:center;min-height:44px}
+@media(max-width:600px){.o-check{padding:14px;gap:10px}.o-toggle-copy b{font-size:14px}.o-toggle-state{padding:3px 8px}.o-day-dish{flex-wrap:wrap}.o-day-dish>span:not(.o-switch-ui){flex-basis:calc(100% - 60px)}.o-day-dish strong{margin-left:54px}}

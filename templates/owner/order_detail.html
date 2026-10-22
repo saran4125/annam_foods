@@ -11,7 +11,7 @@
 {% elif online %}<p>Online payments are verified through Razorpay and cannot be marked paid manually.</p>{% elif order.payment_status != 'refunded' and order.status != 'cancelled' %}
 <p>Confirm only after receiving the full payment of ₹{{ order.total|money }}. For COD, confirm after collecting cash.</p>
 <form method="post" action="{% url 'owner:order_payment' order.pk %}">{% csrf_token %}
-<label><input type="checkbox" name="confirmed" value="yes" required> Full payment received</label>
+<label class="o-check"><input type="checkbox" name="confirmed" value="yes" required><span class="o-switch-ui" aria-hidden="true"><i></i></span><span class="o-toggle-copy"><b>Full payment received</b></span>{% include "owner/_toggle_state.html" %}</label>
 <input class="o-input" name="reference" maxlength="120" placeholder="Payment reference / collection note (optional)">
 <button class="o-btn o-btn-primary">Confirm payment &amp; issue bill</button></form>
 {% endif %}

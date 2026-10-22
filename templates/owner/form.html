@@ -13,11 +13,8 @@
   {% for field in form %}
     {% if field.is_hidden %}{{ field }}
     {% elif field.name == 'weekdays' and menu_selection.on_date %}
-    {% elif field.field.widget.input_type == "checkbox" %}
-      <label class="o-check{% if field.errors %} has-error{% endif %}">
-        {{ field }}<span class="o-switch-ui" aria-hidden="true"><i></i></span>
-        <span><b>{{ field.label }}</b>{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}</span>
-      </label>
+    {% elif field.field.widget.input_type == "checkbox" and not field.field.widget.allow_multiple_selected %}
+      {% include "owner/_toggle.html" with f=field %}
     {% elif field.field.widget.input_type == "file" %}
       <div class="o-field o-field-wide{% if field.errors %} has-error{% endif %}">
         <span>{{ field.label }}</span>
@@ -26,13 +23,13 @@
           <span class="o-drop-hint"><svg class="o-ic"><use href="#o-upload"/></svg><b>Drop a photo here</b> or click to choose<small>{{ field.help_text|default:"JPG or PNG, up to 5 MB" }}</small></span>
           <input type="file" name="{{ field.html_name }}" accept="image/*" id="{{ field.id_for_label }}">
         </label>
-        {% if field.value and field.value.url %}<label class="o-inline-check"><input type="checkbox" name="{{ field.html_name }}-clear"> Remove current photo</label>{% endif %}
+        {% if field.value and field.value.url %}<label class="o-check"><input type="checkbox" name="{{ field.html_name }}-clear"><span class="o-switch-ui" aria-hidden="true"><i></i></span><span class="o-toggle-copy"><b>Remove current photo</b></span>{% include "owner/_toggle_state.html" %}</label>{% endif %}
         {% for e in field.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
       </div>
     {% elif field.name == "weekdays" or field.name == "slot_keys" %}
       <fieldset class="o-field o-field-wide{% if field.errors %} has-error{% endif %}"{% if field.name == 'weekdays' %} data-meal-only{% endif %}>
         <legend>{{ field.label }}</legend>
-        <div class="o-daypicker">{% for cb in field %}<label>{{ cb.tag }}<span>{{ cb.choice_label }}</span></label>{% endfor %}</div>
+        <div class="o-daypicker">{% for cb in field %}<label class="o-choice-toggle">{{ cb.tag }}<span class="o-switch-ui" aria-hidden="true"><i></i></span><span class="o-choice-label">{{ cb.choice_label }}</span></label>{% endfor %}</div>
         {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
         {% for e in field.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
       </fieldset>
