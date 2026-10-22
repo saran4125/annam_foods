@@ -6,11 +6,14 @@
 <form class="o-form o-card" method="post" enctype="multipart/form-data" novalidate data-reveal>
   {% csrf_token %}
   <input type="hidden" name="next" value="{{ return_url }}">
-  {% if menu_selection %}<p class="o-catalog-form-context">{% if menu_selection.kind == 'courier' %}Other items{% else %}Meals / {{ menu_selection.label }}{% endif %}</p>{% endif %}
+  {% if menu_selection %}<p class="o-catalog-form-context">{% if menu_selection.kind == 'courier' %}Other items{% else %}Meals / {{ menu_selection.label }}{% if menu_selection.on_date %} / {{ menu_selection.on_date|date:"l, j F Y" }}{% endif %}{% endif %}</p>{% endif %}
   {% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  {% if obj and menu_selection.on_date %}<p class="o-callout">Name, photo, price and global visibility update the dish everywhere. The dated availability below changes only this menu date.</p>{% endif %}
   <div class="o-grid-form">
   {% for field in form %}
-    {% if field.field.widget.input_type == "checkbox" %}
+    {% if field.is_hidden %}{{ field }}
+    {% elif field.name == 'weekdays' and menu_selection.on_date %}
+    {% elif field.field.widget.input_type == "checkbox" %}
       <label class="o-check{% if field.errors %} has-error{% endif %}">
         {{ field }}<span class="o-switch-ui" aria-hidden="true"><i></i></span>
         <span><b>{{ field.label }}</b>{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}</span>

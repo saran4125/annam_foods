@@ -1,15 +1,16 @@
 {% extends "owner/base.html" %}
 {% block title %}Delete {{ obj }}{% endblock %}
-{% block heading %}<a class="o-crumb" href="{{ return_url }}">← {{ res.title }}</a><h1>Delete {{ res.singular }}?</h1>{% endblock %}
+{% block heading %}<a class="o-crumb" href="{{ return_url }}">← {{ res.title }}</a><h1>{% if day_selection %}Remove from this menu?{% else %}Delete {{ res.singular }}?{% endif %}</h1>{% endblock %}
 {% block content %}
 <div class="o-card o-confirm" data-reveal>
-  <p>You’re about to permanently delete <b>“{{ obj }}”</b>. This can’t be undone.</p>
+  {% if day_selection %}<p>Remove <b>“{{ obj }}”</b> from <b>{{ day_selection.on_date|date:"l, j F Y" }} {{ day_selection.label|lower }}</b>?</p><p class="o-muted">The dish stays in your catalog. Other dates and meals stay unchanged.</p>{% else %}<p>You’re about to permanently delete <b>“{{ obj }}”</b>. This can’t be undone.</p>
   {% if res.key == "dishes" or res.key == "categories" or res.key == "banners" %}
   <p class="o-muted">Just want it off the website for now? Switch it off in the list instead — you can bring it back any time.</p>
   {% endif %}
-  <form method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ return_url }}">
+  {% endif %}
+  <form method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ return_url }}">{% if day_selection %}<input type="hidden" name="day_revision" value="{{ day_revision }}">{% endif %}
     <a class="o-btn" href="{{ edit_url }}">Keep it</a>
-    <button class="o-btn o-danger-btn" type="submit"><svg class="o-ic"><use href="#o-trash"/></svg>Yes, delete</button>
+    <button class="o-btn o-danger-btn" type="submit"><svg class="o-ic"><use href="#o-trash"/></svg>{% if day_selection %}Remove from this menu{% else %}Yes, delete{% endif %}</button>
   </form>
 </div>
 {% endblock %}

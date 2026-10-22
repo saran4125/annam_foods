@@ -164,3 +164,14 @@ class MenuSchedule(TenantOwnedModel):
     @property
     def is_on_sale(self) -> bool:
         return self.available and self.item.active and not self.is_sold_out
+
+
+class MenuDay(TenantOwnedModel):
+    """An explicitly saved full menu for one meal/date, including an empty menu."""
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='menu_days')
+    on_date = models.DateField()
+    revision = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta(TenantOwnedModel.Meta):
+        constraints = [models.UniqueConstraint(fields=['tenant', 'slot', 'on_date'], name='uniq_menu_day')]

@@ -1,0 +1,18 @@
+{% extends "owner/base.html" %}
+{% load storefront_extras %}
+{% block title %}{{ selection.on_date|date:"l, j F" }} {{ selection.label }} menu{% endblock %}
+{% block heading %}<a class="o-crumb" href="{{ return_url }}">← Back to menu</a><h1>{{ selection.label }} menu</h1><p>{{ selection.on_date|date:"l, j F Y" }}</p>{% endblock %}
+{% block content %}
+<form method="post" class="o-card o-daily-menu">
+{% csrf_token %}{{ form.revision }}
+<h2>Choose dishes for {{ selection.on_date|date:"l, j F" }}</h2>
+<p>Select the dishes customers can order for this meal and date. Saving replaces this date’s menu only. Uncheck every dish to offer no {{ selection.label|lower }} that day.</p>
+{% if not plan %}<p class="o-menu-day-note needs-review">The initial selection comes from your existing schedule. Review it against Annam's actual menu before saving this date.</p>{% endif %}
+{{ form.non_field_errors }}{{ form.items.errors }}{{ form.revision.errors }}
+<label class="o-search"><svg class="o-ic" aria-hidden="true"><use href="#o-search"/></svg><input type="search" placeholder="Find a dish…" aria-label="Find a dish" data-daily-search></label>
+<div class="o-day-dishes">
+{% for checkbox in form.items %}<label class="o-day-dish" data-daily-choice data-name="{{ checkbox.choice_label|lower }}">{{ checkbox.tag }}<span><b>{{ checkbox.choice_label }}</b>{% if not checkbox.data.value.instance.active %}<small>Hidden globally — enable the dish in Edit before customers can order it.</small>{% endif %}</span><strong>₹{{ checkbox.data.value.instance.price|money }}</strong></label>{% empty %}<p>No meal dishes yet. Add a dish from the menu list first.</p>{% endfor %}
+</div>
+<div class="o-form-bar"><a class="o-btn" href="{{ return_url }}">Cancel</a><button type="submit" class="o-btn o-btn-primary">Save {{ selection.on_date|date:"l" }} {{ selection.label|lower }} menu</button></div>
+</form>
+{% endblock %}

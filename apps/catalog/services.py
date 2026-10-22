@@ -9,7 +9,7 @@ from decimal import Decimal
 
 from django.utils import timezone
 
-from .models import MenuCategory, MenuItem, MenuSchedule, ScheduleMode, Slot
+from .models import MenuCategory, MenuItem, MenuSchedule, ScheduleMode, Slot, MenuDay
 
 
 @dataclass(frozen=True)
@@ -28,24 +28,21 @@ class MenuEntry:
         return self.available and not self.sold_out
 
 
-def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = False):
+def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = False, *, include_inactive=False):
     """The menu for one date and slot.
 
-    A dated row always beats the weekday template, which is what lets a kitchen
-    that plans by week pull one dish on one day without editing the template.
+    An explicitly saved MenuDay uses only dated rows, including an empty menu.
+    Otherwise dated rows override the weekday template dish by dish. Existing
+    schedules are preserved until staff save the actual date's full menu.
     An item with neither row is simply not on the menu.
 
     Runs inside the current tenant's scope; callers must already be in one.
     """
     weekday = on_date.weekday()
 
-    rows = (
-        MenuSchedule.objects.filter(slot=slot)
-        .filter(
-            models_q_date(on_date) | models_q_weekday(weekday)
-        )
-        .select_related("item", "slot")
-    )
+    date_only = MenuDay.objects.filter(slot=slot, on_date=on_date).exists()
+    condition = models_q_date(on_date) if date_only else models_q_date(on_date) | models_q_weekday(weekday)
+    rows = MenuSchedule.objects.filter(slot=slot).filter(condition).select_related("item", "slot")
 
     dated, weekly = {}, {}
     for row in rows:
@@ -58,7 +55,7 @@ def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = Fals
 
     entries = []
     for item_id, row in chosen.items():
-        if not row.item.active:
+        if row.item.fulfilment != "scheduled" or (not row.item.active and not include_inactive):
             continue
         entry = MenuEntry(
             item=row.item,

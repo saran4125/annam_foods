@@ -173,6 +173,7 @@ erDiagram
     Tenant ||--o{ MenuItem : offers
     MenuItem ||--o{ MenuSchedule : schedules
     Slot ||--o{ MenuSchedule : groups
+    Slot ||--o{ MenuDay : plans_actual_dates
     Tenant ||--o{ DeliveryZone : serves
     Tenant ||--o{ StorefrontImage : preserves
     Tenant ||--o{ Customer : knows
@@ -234,14 +235,27 @@ seller details.
 
 ## 8. Catalog, cart and delivery rules
 
-The admin catalog separates **Meals** from **Other items**. Meal tabs use saved
-weekly/dated schedule membership, defaulting to Breakfast when configured; a Not
-assigned group retains meals without schedules. Counts include hidden dishes,
-without duplicating products that have multiple schedule rows. Search, status,
-category, pagination and add/edit/delete navigation retain the selected group.
-New forms preselect the group’s fulfilment/meal. Editing a shared dish’s meal
-schedule preserves its other meal schedules and dated overrides. The On sale
-switch still controls the product across the website.
+The admin catalog separates **Meals** from **Other items**. Breakfast/Lunch/Dinner
+can be planned for an actual calendar date (Today/Tomorrow/date picker). Staff use
+**Choose dishes** to select existing meals and save a full date menu without
+creating duplicate products. Date-specific additions/removals change that date
+only; a date removal never deletes the catalog item or disables it globally.
+**All dishes** retains catalog/weekly editing, and Not assigned retains dishes
+without schedules. Imported category names remain historical labels.
+
+`MenuDay` records the explicitly saved date/meal and revision. When present,
+`resolve_menu` uses dated schedule rows only: an empty saved menu never falls
+back to weekly rows. Without a saved plan, existing weekly/dated schedules continue
+with a review notice in management. Existing live menus are not bulk rewritten
+based on imported Tuesday/Friday labels. New imports create no guessed seven-day
+schedules; staff select and save real menus. Publication is transactional under
+the store configuration lock, validates store ownership and rejects stale saves.
+Existing dated price overrides, stock limits and sold counters are preserved.
+
+The shared resolver drives the customer website, cart and order pricing, so an
+item removed from a saved day's menu cannot be ordered for that date. Order and
+invoice history remains unchanged. Product name/base price/global visibility are
+still catalog settings; the dated availability control is separate.
 
 | Fulfilment | Rules |
 | --- | --- |
@@ -502,6 +516,7 @@ uv run python manage.py makemigrations --check --dry-run
 | [apps/platform_portal/integration_views.py](apps/platform_portal/integration_views.py) | Stable integration wrappers and retired-bookmark redirects |
 | [apps/content/services.py](apps/content/services.py) | Preserved published design and image services |
 | [apps/storefront/checkout.py](apps/storefront/checkout.py) | Signed review and transactional order placement |
+| [apps/catalog/daily_menus.py](apps/catalog/daily_menus.py) | Date-menu publication, revisions and day-only availability |
 | [apps/delivery/checkout.py](apps/delivery/checkout.py) | Exact courier coverage policy |
 | [apps/billing/services.py](apps/billing/services.py) | Invoices, payments and credits |
 | [apps/payments/services.py](apps/payments/services.py) | Verified capture/refund/reconciliation |

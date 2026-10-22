@@ -49,7 +49,7 @@ from django.conf import settings  # noqa: E402
 from django.utils.html import strip_tags  # noqa: E402
 
 from apps.catalog.models import (  # noqa: E402
-    MenuCategory, MenuItem, MenuSchedule, ScheduleMode, Slot,
+    MenuCategory, MenuItem, Slot,
 )
 from apps.content.models import Banner, Page  # noqa: E402
 from apps.delivery.models import DeliveryZone  # noqa: E402
@@ -77,8 +77,8 @@ OWNER_PASSWORD = os.environ.get("SEED_OWNER_PASSWORD") or (
 if not OWNER_PASSWORD:
     sys.exit("SEED_OWNER_PASSWORD is required outside config.settings.local.")
 
-# Meal categories in the export are dated ("29th Tuesday Lunch"); the slot
-# is in the name. Demo cutoffs: the owner sets the real ones.
+# Exported category names are dated snapshots, never recurring availability.
+# Staff prepare actual-date menus after import. Cutoffs below are initial values.
 SLOTS = [
     ("breakfast", "Breakfast", time(6, 30), time(7, 30), time(9, 30)),
     ("lunch", "Lunch", time(10, 30), time(12, 30), time(14, 0)),
@@ -167,14 +167,6 @@ def clean_name(raw: str) -> str:
     if name in ("With Rice", "Without Rice"):
         name = f"Full meals {name.lower()}"
     return name[:120]
-
-
-def slot_for(category_name: str) -> str:
-    lowered = category_name.lower()
-    for key in ("breakfast", "dinner", "lunch"):
-        if key in lowered:
-            return key
-    return "lunch"
 
 
 # -- tenant -------------------------------------------------------------------
@@ -321,9 +313,8 @@ with tenant_context(tenant):
             if item.retailer_id == "HM2":
                 health_mix = item
         elif item.active:
-            slot = slots[slot_for(shelf.name if shelf else p["name"])]
-            for weekday in range(7):
-                MenuSchedule.objects.create(item=item, slot=slot, mode=ScheduleMode.WEEKDAY, weekday=weekday)
+            # This export is one dated snapshot, not evidence of a recurring menu.
+            # Staff choose and save each actual date's menu in management.
             meals += 1
 
     # Shelves without their own photo borrow their first product's.

@@ -7,7 +7,7 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils.text import capfirst, slugify
 
 from apps.catalog.models import MenuCategory, MenuItem, MenuSchedule, ScheduleMode, Slot
@@ -77,8 +77,9 @@ class DishForm(StyledForm):
         help_texts = {"fulfilment": "Daily meal = cooked for a slot. Shop item = packed and shipped.",
                       "active": "Untick to hide it from the website (sold out, seasonal…)."}
 
-    def __init__(self, *args, menu_slot=None, **kwargs):
+    def __init__(self, *args, menu_slot=None, menu_date=None, **kwargs):
         self.menu_slot = menu_slot
+        self.menu_date = menu_date
         super().__init__(*args, **kwargs)
         self.fields["fulfilment"].choices = [("scheduled", "Daily meal"), ("courier", "Shop item")]
         self.fields["category"].queryset = MenuCategory.objects.all()
@@ -97,15 +98,34 @@ class DishForm(StyledForm):
             if menu_slot:
                 self.fields["slot"].initial = menu_slot.pk
 
+        if menu_date:
+            from apps.catalog.models import MenuDay
+            plan = MenuDay.objects.filter(slot=menu_slot, on_date=menu_date).first() if menu_slot else None
+            self.fields['day_revision'] = forms.IntegerField(min_value=0, initial=plan.revision if plan else 0, widget=forms.HiddenInput)
+            self.fields['weekdays'].disabled = True
+            self.fields['weekdays'].initial = []
+            if menu_slot:
+                self.fields['slot'].initial = menu_slot.pk
+            initial_available = True
+            if self.instance.pk and menu_slot:
+                from apps.catalog.services import resolve_menu
+                entry = next((e for e in resolve_menu(menu_date, menu_slot, include_unavailable=True, include_inactive=True)
+                              if e.item.pk == self.instance.pk), None)
+                initial_available = entry.available if entry else False
+            self.fields['day_available'] = forms.BooleanField(required=False, initial=initial_available,
+                label='Available on ' + menu_date.strftime('%A, %d %B %Y'),
+                help_text='Changes this date only. Other dates and recurring schedules stay unchanged.')
+
     def clean_image(self):
         return _check_image(self.cleaned_data.get("image"))
 
     def clean(self):
         data = super().clean()
-        if data.get("fulfilment") == "scheduled" and data.get("weekdays") and not data.get("slot"):
+        if data.get("fulfilment") == "scheduled" and (data.get("weekdays") or self.menu_date) and not data.get("slot"):
             self.add_error("slot", "Choose the meal this dish is served at.")
         return data
 
+    @transaction.atomic
     def save(self, commit=True):
         item = super().save(commit=False)
         tags = [t for t in (item.tags or []) if t != "featured"]
@@ -118,8 +138,13 @@ class DishForm(StyledForm):
 
     def _sync_schedule(self, item):
         """Weekly menu rows follow the form; dated overrides are left alone."""
-        weekly = MenuSchedule.objects.filter(item=item, mode=ScheduleMode.WEEKDAY)
         slot = self.cleaned_data.get("slot")
+        if self.menu_date and item.fulfilment == 'scheduled':
+            from apps.catalog.daily_menus import set_daily_availability
+            set_daily_availability(slot=slot, on_date=self.menu_date, item=item,
+                                   available=self.cleaned_data.get('day_available', False), revision=self.cleaned_data['day_revision'])
+            return
+        weekly = MenuSchedule.objects.filter(item=item, mode=ScheduleMode.WEEKDAY)
         days = set(self.cleaned_data.get("weekdays") or [])
         if item.fulfilment != "scheduled":
             weekly.delete()
@@ -346,3 +371,13 @@ class CheckoutSettingsForm(forms.Form):
             courier_pincodes=sorted(set(data['courier_pincodes'].split())), closed_dates=sorted(set(data['closed_dates'].split())))
         data['settings'] = validate_checkout_settings(settings)
         return data
+
+
+class DailyMenuForm(forms.Form):
+    items = forms.ModelMultipleChoiceField(queryset=MenuItem.all_tenants.none(), required=False,
+        widget=forms.CheckboxSelectMultiple, label='Dishes for this menu')
+    revision = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
+
+    def __init__(self, *args, selected, revision=0, **kwargs):
+        super().__init__(*args, initial={'items': selected, 'revision': revision}, **kwargs)
+        self.fields['items'].queryset = MenuItem.objects.filter(fulfilment='scheduled').order_by('-active', 'name')

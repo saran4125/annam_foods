@@ -7,6 +7,7 @@ from apps.messaging import inbox_views
 app_name = "owner"
 
 urlpatterns = [
+    path("dishes/menu/", views.daily_menu, name="daily_menu"),
     path("whatsapp/", inbox_views.inbox, name="whatsapp"),
     path("whatsapp/settings/", inbox_views.connection_settings, name="whatsapp_settings"),
     path("whatsapp/<int:pk>/", inbox_views.inbox, name="whatsapp_conversation"),

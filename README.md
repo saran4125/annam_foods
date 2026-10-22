@@ -53,7 +53,11 @@ models in isolation tests; it does not restore the retired platform routes.
 - `/manage/settings/`: existing store settings.
 - Dishes & products opens Meals with Breakfast/Lunch/Dinner groups; Other items
   keeps shop products separate. Unscheduled meals appear under Not assigned.
-  Adding/editing retains the selected group and prefills the meal/type.
+  Choose the actual menu date, then **Choose dishes** and save that meal's menu.
+  Saved date menus are independent: removing a dish does not delete its product
+  or change another date. Empty saved menus stay empty. **All dishes** opens the
+  underlying catalog/recurring schedules. Imported menus need staff review; new
+  imports no longer guess seven-day availability from source category labels.
 - Categories, meal times, banners, pages and delivery areas remain editable.
 - `/billing/`: separate manual, website and WhatsApp billing screens.
 

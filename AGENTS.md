@@ -178,3 +178,12 @@ uses `STORE_SLUG=annam`; background work respects that configured store.
 Run the full PostgreSQL test suite before every commit. Real Razorpay sandbox
 verification, live n8n synchronization, durable storage and launch acceptance
 remain external work; never claim those completed solely from simulated tests.
+
+## Daily menus
+
+MenuDay identifies a saved full menu for one meal/date. Its dated rows override
+weekly fallback completely, including when the chosen menu is empty. Date-only
+removal must preserve the product, other dates, stock counters and historical
+orders. Never infer recurring availability from imported category names such as
+Tuesday Breakfast. Existing inherited schedules remain until staff review/save
+an actual date. Use the shared resolver for storefront and order eligibility.

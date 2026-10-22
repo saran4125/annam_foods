@@ -222,10 +222,12 @@ def resource_list(request, key):
         from .menu_services import menu_selection, menu_items, menu_group_counts, menu_categories
         menu = menu_selection(request.GET)
         qs = menu_items(menu)
-        counts = menu_group_counts()
+        counts = menu_group_counts(menu['on_date'])
         def group_url(kind, meal=""):
             params = {key: request.GET[key] for key in ("q", "status") if request.GET.get(key)}
             params["type"] = kind
+            if kind == 'scheduled':
+                params['date'] = menu['on_date'].isoformat() if menu['on_date'] else 'all'
             if meal:
                 params["meal"] = meal
             return reverse("owner:list", args=["dishes"]) + "?" + urlencode(params)
@@ -239,6 +241,19 @@ def resource_list(request, key):
                    "meals_url": group_url("scheduled"), "other_url": group_url("courier"),
                    "title": "Other items" if menu["kind"] == "courier" else menu["label"],
                    "categories": list(menu_categories(qs))}
+        if menu['kind'] == 'scheduled' and menu['slot'] and menu['on_date']:
+            from apps.catalog.models import MenuDay
+            plan = MenuDay.objects.filter(slot=menu['slot'], on_date=menu['on_date']).first()
+            menu_ui.update(day_plan=plan, revision=plan.revision if plan else 0)
+            menu_ui['choose_url'] = reverse('owner:daily_menu') + '?' + urlencode({'type': 'scheduled', 'meal': menu['meal'], 'date': menu['on_date'].isoformat()})
+    if menu and menu['kind'] == 'scheduled' and menu['slot']:
+        day_base = reverse('owner:list', args=['dishes'])
+        base_params = {'type': 'scheduled', 'meal': menu['meal']}
+        menu_ui.update(date_input=(menu['on_date'] or timezone.localdate()).isoformat(),
+            today_url=day_base + '?' + urlencode({**base_params, 'date': timezone.localdate().isoformat()}),
+            tomorrow_url=day_base + '?' + urlencode({**base_params, 'date': (timezone.localdate() + timedelta(days=1)).isoformat()}),
+            all_url=day_base + '?' + urlencode({**base_params, 'date': 'all'}))
+    columns = [column for column in res.columns if not (menu_ui.get('choose_url') and column[1] == 'category')]
     if res.order_by:
         qs = qs.order_by(*res.order_by)
     query = request.GET.get("q", "").strip()[:80]
@@ -249,7 +264,7 @@ def resource_list(request, key):
         qs = qs.filter(cond)
     active_filters, filter_ui = {}, []
     for param, (label, choices, lookup) in res.filters.items():
-        if menu and param == "type":
+        if menu and (param == "type" or (menu_ui.get('choose_url') and param == 'category')):
             continue
         value = request.GET.get(param, "")
         opts = [(c.pk, c.name) for c in menu_ui["categories"]] if menu and param == "category" else choices()
@@ -268,16 +283,23 @@ def resource_list(request, key):
         params = {"type": menu["kind"], "next": return_url}
         if menu["kind"] == "scheduled":
             params["meal"] = menu["meal"]
+            params['date'] = menu['on_date'].isoformat() if menu['on_date'] else 'all'
         return url + "?" + urlencode(params)
-    rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in res.columns],
+    rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in columns],
              "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk)} for o in page]
+    if menu and menu['on_date'] and menu['slot'] and menu['kind'] == 'scheduled':
+        entries = {e.item.pk: e for e in resolve_menu(menu['on_date'], menu['slot'], include_unavailable=True, include_inactive=True)}
+        for row in rows:
+            for cell in row['cells']:
+                if cell['kind'] == 'toggle':
+                    cell['value'] = entries[row['obj'].pk].available
     params = request.GET.copy()
     params.pop("page", None)
     return render(request, "owner/list.html", {
         "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui,
         "menu_ui": menu_ui, "new_url": action_url("owner:new"),
         "add_label": ("Add item" if menu["kind"] == "courier" else "Add meal" if menu["meal"] == "unassigned" else "Add " + menu["label"].lower() + " dish") if menu else "Add " + res.singular,
-        "headers": [label for label, _, _ in res.columns], "querystring": params.urlencode(),
+        "headers": [('Available this day' if label == 'On sale' and menu_ui.get('choose_url') else label) for label, _, _ in columns], "querystring": params.urlencode(),
         "toggle_field": TOGGLE_FIELDS.get(key), "total": qs.count(),
     })
 
@@ -295,21 +317,27 @@ def resource_edit(request, key, pk=None):
         group_params = {"type": menu["kind"]}
         if menu["kind"] == "scheduled":
             group_params["meal"] = menu["meal"]
+            group_params['date'] = menu['on_date'].isoformat() if menu['on_date'] else 'all'
         return_url = _safe_next(request, reverse("owner:list", args=[key]) + "?" + urlencode(group_params))
         form_kwargs["menu_slot"] = menu["slot"] if menu["kind"] == "scheduled" else None
+        form_kwargs['menu_date'] = menu['on_date'] if menu['slot'] and menu['kind'] == 'scheduled' else None
         if obj is None:
             form_kwargs["initial"] = {"fulfilment": menu["kind"]}
     form = res.form(request.POST or None, request.FILES or None, instance=obj, **form_kwargs)
     next_query = {"next": return_url}
     if menu:
-        next_query.update(type=menu["kind"], meal=menu["meal"])
+        next_query.update(type=menu["kind"], meal=menu["meal"], date=menu['on_date'].isoformat() if menu['on_date'] else 'all')
     form_query = "?" + urlencode(next_query)
     if request.method == "POST" and form.is_valid():
-        saved = form.save()
-        messages.success(request, f"Saved “{saved}”.")
-        if "save_add" in request.POST:
-            return redirect(reverse("owner:new", args=[key]) + (form_query if menu else ""))
-        return redirect(return_url)
+        try:
+            saved = form.save()
+        except ValidationError as exc:
+            form.add_error(None, exc)
+        else:
+            messages.success(request, f"Saved “{saved}”.")
+            if "save_add" in request.POST:
+                return redirect(reverse("owner:new", args=[key]) + (form_query if menu else ""))
+            return redirect(return_url)
     return render(request, "owner/form.html", {"res": res, "form": form, "obj": obj,
         "return_url": return_url, "menu_selection": menu,
         "entry_label": "item" if menu and menu["kind"] == "courier" else res.singular,
@@ -322,12 +350,29 @@ def resource_delete(request, key, pk):
     obj = get_object_or_404(res.model, pk=pk)
     return_url = _safe_next(request, reverse("owner:list", args=[key]))
     back_params = {"next": return_url}
+    selected = None
     if key == "dishes" and request.GET.get("type") in ("scheduled", "courier"):
         from .menu_services import menu_selection
         selected = menu_selection(request.GET)
-        back_params.update(type=selected["kind"], meal=selected["meal"])
+        back_params.update(type=selected["kind"], meal=selected["meal"], date=selected['on_date'].isoformat() if selected['on_date'] else 'all')
     edit_url = reverse("owner:edit", args=[key, pk]) + "?" + urlencode(back_params)
+    day_selection = selected if selected and selected['kind'] == 'scheduled' and selected['slot'] and selected['on_date'] else None
+    day_revision = 0
+    if day_selection:
+        from apps.catalog.models import MenuDay
+        plan = MenuDay.objects.filter(slot=selected['slot'], on_date=selected['on_date']).first()
+        day_revision = plan.revision if plan else 0
     if request.method == "POST":
+        if day_selection:
+            from apps.catalog.daily_menus import set_daily_availability
+            try:
+                set_daily_availability(slot=selected['slot'], on_date=selected['on_date'], item=obj, available=False,
+                                       revision=int(request.POST['day_revision']))
+            except (ValidationError, ValueError, KeyError) as exc:
+                messages.error(request, ' '.join(exc.messages) if isinstance(exc, ValidationError) else 'Reload the menu and try again.')
+            else:
+                messages.success(request, f'“{obj}” removed from {selected["on_date"]:%A, %d %B} {selected["label"].lower()}. Other dates are unchanged.')
+            return redirect(return_url)
         name = str(obj)
         try:
             obj.delete()
@@ -337,7 +382,7 @@ def resource_delete(request, key, pk):
             return redirect(edit_url)
         messages.success(request, f"Deleted “{name}”.")
         return redirect(return_url)
-    return render(request, "owner/confirm_delete.html", {"res": res, "obj": obj, "return_url": return_url,
+    return render(request, "owner/confirm_delete.html", {"res": res, "obj": obj, "return_url": return_url, "day_selection": day_selection, "day_revision": day_revision,
         "edit_url": edit_url})
 
 
@@ -350,6 +395,21 @@ def resource_toggle(request, key, pk):
     if not field_name:
         raise Http404
     obj = get_object_or_404(res.model, pk=pk)
+    if key == 'dishes' and request.POST.get('menu_date'):
+        from .menu_services import menu_selection
+        from apps.catalog.daily_menus import set_daily_availability
+        selected = menu_selection({'type': 'scheduled', 'meal': request.POST.get('menu_meal'), 'date': request.POST['menu_date']})
+        if not selected['slot'] or not selected['on_date'] or request.POST.get('enabled') not in ('0', '1'):
+            raise Http404
+        try:
+            revision = int(request.POST['revision'])
+            set_daily_availability(slot=selected['slot'], on_date=selected['on_date'], item=obj,
+                                   available=request.POST['enabled'] == '1', revision=revision)
+        except (ValidationError, ValueError, KeyError) as exc:
+            messages.error(request, ' '.join(exc.messages) if isinstance(exc, ValidationError) else 'Reload the menu and try again.')
+        else:
+            messages.success(request, f'“{obj}” availability updated for {selected["on_date"]:%A, %d %B} only.')
+        return redirect(_safe_next(request, reverse('owner:list', args=[key])))
     setattr(obj, field_name, not getattr(obj, field_name))
     obj.save(update_fields=[field_name])
     state = "on" if getattr(obj, field_name) else "off"
@@ -503,3 +563,30 @@ def checkout_settings(request):
         messages.success(request, 'Checkout and courier delivery settings saved.')
         return redirect('owner:checkout_settings')
     return render(request, 'owner/checkout_settings.html', {'form': form})
+
+
+@owner_required
+@never_cache
+def daily_menu(request):
+    from .menu_services import menu_selection
+    from apps.catalog.models import MenuDay
+    from apps.catalog.daily_menus import save_daily_menu
+    selected = menu_selection(request.GET)
+    if selected['kind'] != 'scheduled' or not selected['slot'] or not selected['on_date']:
+        raise Http404
+    plan = MenuDay.objects.filter(slot=selected['slot'], on_date=selected['on_date']).first()
+    entries = resolve_menu(selected['on_date'], selected['slot'], include_unavailable=True, include_inactive=True)
+    form = forms.DailyMenuForm(request.POST if request.method == 'POST' else None,
+        selected=[e.item.pk for e in entries if e.available], revision=plan.revision if plan else 0)
+    return_url = reverse('owner:list', args=['dishes']) + '?' + urlencode({
+        'type': 'scheduled', 'meal': selected['meal'], 'date': selected['on_date'].isoformat()})
+    if request.method == 'POST' and form.is_valid():
+        try:
+            save_daily_menu(slot=selected['slot'], on_date=selected['on_date'],
+                item_ids=[item.pk for item in form.cleaned_data['items']], revision=form.cleaned_data['revision'])
+        except ValidationError as exc:
+            form.add_error(None, exc)
+        else:
+            messages.success(request, f'{selected["on_date"]:%A, %d %B} {selected["label"].lower()} menu saved. Other dates are unchanged.')
+            return redirect(return_url)
+    return render(request, 'owner/daily_menu.html', {'form': form, 'selection': selected, 'return_url': return_url, 'plan': plan})

@@ -344,3 +344,10 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 @media(max-width:600px){.o-catalog-groups{gap:8px}.o-catalog-groups a{min-width:0;flex:1;padding:12px;font-size:16px;gap:8px}.o-meal-groups a{padding:9px 12px}.o-catalog-hint{font-size:13px}}
 
 [data-meal-only][hidden]{display:none}
+/* Menus are planned for actual dates, with catalog editing kept separate. */
+.o-menu-date{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0}.o-menu-date label{display:flex;align-items:center;gap:10px;font-weight:600}.o-menu-date .o-input{width:auto}.o-menu-date a{font-weight:600;font-size:14px}
+.o-menu-day-note{padding:12px 16px;border:1px solid var(--rule);border-radius:10px;margin:14px 0;background:var(--ok-bg);font-size:14px}.o-menu-day-note.needs-review{background:var(--warn-bg)}
+.o-daily-menu{max-width:1000px}.o-daily-menu>p{color:var(--ink-2)}.o-day-dishes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.o-day-dish{display:flex;align-items:center;gap:12px;border:1px solid var(--rule);padding:14px;border-radius:10px;cursor:pointer}.o-day-dish input{accent-color:var(--brand);width:18px;height:18px;flex-shrink:0}.o-day-dish span{flex:1;min-width:0}.o-day-dish small{display:block;color:var(--ink-3)}.o-day-dish strong{white-space:nowrap}.o-day-dish:has(input:checked){border-color:var(--brand);background:var(--brand-soft)}.o-day-dish[hidden]{display:none}
+@media(max-width:600px){.o-day-dishes{grid-template-columns:1fr}.o-menu-date{gap:12px}.o-menu-date label{width:100%}}
+
+@media(max-width:600px){.o-catalog-page .o-top{flex-wrap:wrap}.o-catalog-page .o-top-actions{width:100%;flex-wrap:wrap}.o-catalog-page .o-top-actions .o-btn{flex:1;justify-content:center;padding:10px 12px}}

@@ -33,6 +33,12 @@
     fulfilment.addEventListener('change', updateMealFields);
   }
 
+  const daySearch = $('[data-daily-search]');
+  daySearch?.addEventListener('input', () => {
+    const query = daySearch.value.trim().toLowerCase();
+    $$('[data-daily-choice]').forEach(row => { row.hidden = !row.dataset.name.includes(query); });
+  });
+
   /* Photo drop zones: drag-over state and instant preview */
   $$('[data-drop]').forEach(zone => {
     const input = $('input[type=file]', zone), preview = $('[data-preview]', zone);

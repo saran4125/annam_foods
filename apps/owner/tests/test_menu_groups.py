@@ -49,7 +49,7 @@ def test_default_list_shows_breakfast_once_and_separates_other_items(signed_in, 
 
 @pytest.mark.parametrize(('meal', 'expected'), [('breakfast', ('b', 'shared')), ('lunch', ('l',)), ('dinner', ('d', 'shared')), ('unassigned', ('unassigned',))])
 def test_each_meal_uses_saved_schedule_membership(signed_in, grouped, meal, expected):
-    page = signed_in.get('/manage/dishes/', {'type': 'scheduled', 'meal': meal}, HTTP_HOST=HOST)
+    page = signed_in.get('/manage/dishes/', {'type': 'scheduled', 'meal': meal, 'date': 'all'}, HTTP_HOST=HOST)
     assert set(row_ids(page)) == {grouped[key].pk for key in expected}
     assert b'name="type" value="scheduled"' in page.content
     assert ('name="meal" value="' + meal + '"').encode() in page.content
@@ -79,12 +79,12 @@ def test_disabled_and_dated_only_dishes_remain_manageable(signed_in, grouped, ki
     with tenant_context(kitchens[0]):
         item = MenuItem.objects.create(name='Dated lunch', price='150', active=False)
         MenuSchedule.objects.create(item=item, slot=grouped['lunch'], mode='date', on_date=date(2026, 11, 1), available=False)
-    page = signed_in.get('/manage/dishes/?meal=lunch', HTTP_HOST=HOST)
+    page = signed_in.get('/manage/dishes/?meal=lunch&date=all', HTTP_HOST=HOST)
     assert set(row_ids(page)) == {grouped['l'].pk, item.pk}
 
 
 def test_new_dish_prefills_the_selected_meal_and_other_item_type(signed_in, grouped):
-    page = signed_in.get('/manage/dishes/new/?type=scheduled&meal=dinner', HTTP_HOST=HOST)
+    page = signed_in.get('/manage/dishes/new/?type=scheduled&meal=dinner&date=all', HTTP_HOST=HOST)
     assert page.context['form']['slot'].value() == grouped['dinner'].pk
     assert page.context['form']['fulfilment'].value() == 'scheduled'
     assert page.context['form']['weekdays'].value() == list(range(7))
@@ -100,7 +100,7 @@ def dish_data(item=None, **overrides):
 
 def test_add_and_add_another_return_to_selected_meal(signed_in, grouped, kitchens):
     target = '/manage/dishes/?type=scheduled&meal=dinner'
-    url = '/manage/dishes/new/?' + urlencode({'type': 'scheduled', 'meal': 'dinner', 'next': target})
+    url = '/manage/dishes/new/?' + urlencode({'type': 'scheduled', 'meal': 'dinner', 'date': 'all', 'next': target})
     response = signed_in.post(url, dish_data(slot=grouped['dinner'].pk, next=target), HTTP_HOST=HOST)
     assert response.status_code == 302 and response['Location'] == target
     with tenant_context(kitchens[0]):
@@ -117,7 +117,7 @@ def test_editing_shared_breakfast_dish_preserves_its_dinner_and_dated_overrides(
         override = MenuSchedule.objects.create(item=item, slot=grouped['dinner'], mode='date', on_date=date(2026, 11, 3), price_override='95')
         dinner_rows = list(item.schedule.filter(slot=grouped['dinner']).values_list('pk', flat=True))
     target = '/manage/dishes/?type=scheduled&meal=breakfast'
-    url = f'/manage/dishes/{item.pk}/?' + urlencode({'type': 'scheduled', 'meal': 'breakfast', 'next': target})
+    url = f'/manage/dishes/{item.pk}/?' + urlencode({'type': 'scheduled', 'meal': 'breakfast', 'date': 'all', 'next': target})
     page = signed_in.get(url, HTTP_HOST=HOST)
     assert page.context['form']['slot'].value() == grouped['breakfast'].pk
     response = signed_in.post(url, dish_data(item, slot=grouped['breakfast'].pk, weekdays=[0, 2], next=target), HTTP_HOST=HOST)
