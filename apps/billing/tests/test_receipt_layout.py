@@ -123,3 +123,19 @@ def test_collection_receipt_does_not_print_empty_delivery_section(billing_order)
         invoice = issue_bill(order)
         html = render_to_string('billing/_invoice_body.html', {'invoice': invoice})
     assert 'Collection' in html and 'Delivery address' not in html
+
+
+@pytest.mark.django_db
+def test_dedicated_bill_logo_is_snapshotted_without_changing_the_website_logo(billing_order):
+    tenant, order = billing_order
+    with tenant_context(tenant):
+        config = tenant.config
+        config.theme = {'logo_url': '/media/website-original.png',
+                        'billing_logo_url': '/static/branding/annam-bill-logo.png'}
+        config.save()
+        invoice = issue_bill(order)
+        html = render_to_string('billing/_invoice_body.html', {'invoice': invoice})
+    assert invoice.seller['logo_url'] == '/static/branding/annam-bill-logo.png'
+    assert 'src="/static/branding/annam-bill-logo.png"' in html
+    config.refresh_from_db()
+    assert config.theme['logo_url'] == '/media/website-original.png'

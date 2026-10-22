@@ -31,7 +31,8 @@ def receipt_details(invoice):
     # logo without rewriting any issued financial or legal information.
     image = seller.get('logo_url')
     if 'logo_url' not in seller:
-        image = (invoice.tenant.config.theme or {}).get('logo_url', '')
+        theme = invoice.tenant.config.theme or {}
+        image = theme.get('billing_logo_url') or theme.get('logo_url', '')
     address = buyer.get('delivery_address') or {}
     address_lines = []
     for key in ('line1', 'line2', 'address', 'street', 'area', 'landmark'):
