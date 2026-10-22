@@ -83,10 +83,12 @@ def allocate_number(tenant, series=InvoiceSeries.BILL, *, day=None):
 
 
 def _seller_snapshot(tenant, profile):
+    from .presentation import logo_url
     return {"name": profile.legal_name or tenant.name, "address": profile.address,
             "state": profile.state, "state_code": profile.state_code,
             "gstin": profile.gstin, "fssai_no": profile.fssai_no,
-            "gst_mode": profile.gst_mode, "sac": profile.sac, "footer": profile.footer}
+            "gst_mode": profile.gst_mode, "sac": profile.sac, "footer": profile.footer,
+            "logo_url": logo_url((tenant.config.theme or {}).get("logo_url", ""))}
 
 
 @transaction.atomic

@@ -1,0 +1,72 @@
+/* Shared compact receipt for staff, customer receipts and A4 printing. */
+.af-receipt{box-sizing:border-box;max-width:640px;margin:24px auto;padding:30px 32px;background:#fff;color:#241c17;border:1px solid #e6dacc;border-radius:16px;font:14px/1.5 Arial,Helvetica,sans-serif;overflow-wrap:anywhere}
+.af-receipt *{box-sizing:border-box}
+.af-receipt h2,.af-receipt h3,.af-receipt p{margin:0;font-family:inherit;letter-spacing:normal;line-height:inherit}
+.af-receipt-head{text-align:center}
+.af-receipt-logo{display:block;object-fit:contain;width:auto;max-width:150px;height:80px;margin:0 auto 12px}
+.af-receipt-head h2{font-size:26px;font-weight:750;line-height:1.2}
+.af-receipt-seller,.af-receipt-licence{color:#655b52;font-size:12px;margin-top:8px!important}
+.af-document-title{font-size:16px;margin-top:14px!important}
+.af-receipt-badge{display:inline-block;margin-top:10px;padding:5px 13px;border-radius:999px;background:#e5f2e9;color:#146936;font-size:12px;font-weight:700}
+.af-receipt-credit{background:#f3eaf9;color:#744392}
+.af-receipt-meta{border-top:1px dashed #d7c9b9;border-bottom:1px dashed #d7c9b9;padding:16px 0;margin:20px 0}
+.af-receipt dl div{display:flex;justify-content:space-between;gap:18px;margin:6px 0}
+.af-receipt dt{color:#655b52;font-size:12px}
+.af-receipt dd{margin:0;text-align:right;font-size:12px;font-weight:650;max-width:65%;font-variant-numeric:tabular-nums}
+.af-receipt-customer{padding-bottom:18px;border-bottom:1px dashed #d7c9b9;font-size:13px}
+.af-receipt-customer h3{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#655b52;margin:12px 0 6px}
+.af-receipt-customer h3:first-child{margin-top:0}
+.af-customer-name{font-weight:700}
+.af-receipt-items{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px;font-size:13px}
+.af-receipt-items th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#655b52;padding:12px 0;border-bottom:1px solid #e9dfd3}
+.af-receipt-items td{vertical-align:top;padding:13px 0;border-bottom:1px solid #e9dfd3}
+.af-receipt-items th:last-child,.af-receipt-items td:last-child{width:30%;text-align:right;padding-left:12px;font-variant-numeric:tabular-nums}
+.af-item-detail{display:block;color:#655b52;font-size:11px;line-height:1.6;margin-top:3px}
+.af-receipt-summary{margin:16px 0}
+.af-receipt-total{display:flex;justify-content:space-between;align-items:center;gap:16px;background:#fff0dd;border:1px solid #efd4ae;border-radius:10px;padding:16px;font-size:16px;font-weight:700;break-inside:avoid}
+.af-receipt-total strong{font-size:28px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.af-receipt-words{text-align:center;font-size:11px;color:#655b52;margin-top:8px!important}
+.af-receipt-payment{text-align:center;font-size:11px;color:#655b52;margin-top:16px}
+.af-receipt-notice{font-size:11px;margin-top:14px!important}
+.af-receipt-footer{text-align:center;border-top:1px dashed #d7c9b9;margin-top:20px;padding-top:16px;font-size:11px;color:#655b52}
+.af-receipt-footer h3{font-size:14px;color:#241c17;margin-bottom:8px}
+.af-receipt-signature:before{content:'';display:block;width:150px;border-top:1px solid #b7a897;margin:32px auto 8px}
+.af-visually-hidden{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.bill-actions{display:flex;align-items:center;gap:16px;max-width:640px;margin:0 auto 20px}
+@media(max-width:600px){.af-receipt{padding:22px 18px;margin:16px auto;border-radius:12px}.af-receipt-head h2{font-size:23px}.af-receipt-total{padding:13px}.af-receipt-total strong{font-size:24px}.bill-actions{flex-wrap:wrap}}
+@media print{
+ @page{size:A4;margin:12mm}
+ .af-receipt{max-width:174mm;margin:0 auto;padding:6mm;border:1px solid #ddd;border-radius:0;font-size:12px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .af-receipt-logo{height:65px}
+ .af-receipt-head h2{font-size:22px}
+ .af-receipt-items{font-size:12px}
+ .af-receipt-items td{padding:9px 0}
+ .af-receipt-items thead{display:table-header-group}
+ .af-receipt-items tr,.af-receipt-total,.af-receipt-meta,.af-receipt-footer{break-inside:avoid}
+ .af-receipt-meta{margin:14px 0;padding:10px 0}
+ .af-receipt-footer{margin-top:14px;padding-top:12px}
+ .bill-actions{display:none!important}
+}
+@media print{
+ .af-receipt{padding:4mm;line-height:1.3}
+ .af-receipt-logo{height:52px;margin-bottom:8px}
+ .af-receipt-head h2{font-size:20px}
+ .af-receipt-seller,.af-receipt-licence{font-size:10px;margin-top:5px!important}
+ .af-document-title{font-size:13px;margin-top:8px!important}
+ .af-receipt-badge{font-size:10px;margin-top:6px;padding:4px 10px}
+ .af-receipt-meta{margin:12px 0;padding:8px 0}
+ .af-receipt dl div{margin:4px 0}
+ .af-receipt dt,.af-receipt dd{font-size:10px}
+ .af-receipt-customer{font-size:11px;padding-bottom:10px}
+ .af-receipt-customer h3{font-size:10px;margin:8px 0 4px}
+ .af-receipt-items{margin-top:8px;font-size:11px}
+ .af-receipt-items th{font-size:10px;padding:8px 0}
+ .af-receipt-items td{padding:8px 0}
+ .af-item-detail{font-size:10px;line-height:1.4;margin-top:2px}
+ .af-receipt-summary{margin:12px 0}
+ .af-receipt-total{padding:12px;font-size:14px}
+ .af-receipt-total strong{font-size:23px}
+ .af-receipt-words,.af-receipt-payment,.af-receipt-footer{font-size:10px}
+ .af-receipt-payment{margin-top:10px}
+ .af-receipt-signature:before{margin-top:22px}
+}

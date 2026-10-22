@@ -376,6 +376,11 @@ snapshots seller/buyer/lines/payment, allocates a financial-year/series number
 under a row lock and reuses that invoice on retries. Issued documents retain their
 original values. Credits correct/refund documents rather than silently editing
 old bills. View/print uses a shared layout and browser Print / Save as PDF.
+Staff, billing and customer views share a compact receipt layout with the saved
+store logo, readable delivery address, item amounts and registered-tax breakdown.
+New invoices snapshot the logo URL; older invoices may display their store's
+current logo without rewriting financial or seller data. Credit notes retain
+separate labels and credit totals. Long bills paginate for A4 printing.
 Automatic generated-PDF WhatsApp delivery remains separate work.
 
 ## 12. WhatsApp and n8n
