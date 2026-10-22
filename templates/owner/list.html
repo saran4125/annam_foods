@@ -21,7 +21,11 @@
   <input type="hidden" name="type" value="scheduled"><input type="hidden" name="meal" value="{{ menu_ui.selection.meal }}">
   <label>Menu date <input class="o-input" type="date" name="date" value="{{ menu_ui.date_input }}" required></label>
   <button class="o-btn" type="submit">View menu</button>
-  <a href="{{ menu_ui.today_url }}">Today</a><a href="{{ menu_ui.tomorrow_url }}">Tomorrow</a><a href="{{ menu_ui.all_url }}">All dishes</a>
+  <nav class="o-menu-date-options" aria-label="Quick menu dates">
+    <a class="o-btn{% if menu_ui.selected_today %} is-selected{% endif %}" href="{{ menu_ui.today_url }}"{% if menu_ui.selected_today %} aria-current="date"{% endif %}>Today</a>
+    <a class="o-btn{% if menu_ui.selected_tomorrow %} is-selected{% endif %}" href="{{ menu_ui.tomorrow_url }}"{% if menu_ui.selected_tomorrow %} aria-current="date"{% endif %}>Tomorrow</a>
+    <a class="o-btn{% if menu_ui.selected_all %} is-selected{% endif %}" href="{{ menu_ui.all_url }}"{% if menu_ui.selected_all %} aria-current="page"{% endif %}>All dishes</a>
+  </nav>
 </form>
 {% endif %}
 {% if menu_ui.choose_url %}<div class="o-menu-day-note{% if not menu_ui.day_plan %} needs-review{% endif %}">{% if menu_ui.day_plan %}<strong>{{ menu_ui.selection.on_date|date:"l, j F" }} {{ menu_ui.title|lower }}</strong> · Saved menu. Availability changes affect this date only.{% else %}<strong>Review this date’s menu.</strong> Showing existing scheduled dishes. <a href="{{ menu_ui.choose_url }}">Choose dishes and save this date</a>. Until saved, the existing schedule applies.{% endif %}</div>{% endif %}

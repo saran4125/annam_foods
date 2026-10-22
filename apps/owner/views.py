@@ -249,9 +249,14 @@ def resource_list(request, key):
     if menu and menu['kind'] == 'scheduled' and menu['slot']:
         day_base = reverse('owner:list', args=['dishes'])
         base_params = {'type': 'scheduled', 'meal': menu['meal']}
+        today = timezone.localdate()
+        tomorrow = today + timedelta(days=1)
         menu_ui.update(date_input=(menu['on_date'] or timezone.localdate()).isoformat(),
-            today_url=day_base + '?' + urlencode({**base_params, 'date': timezone.localdate().isoformat()}),
-            tomorrow_url=day_base + '?' + urlencode({**base_params, 'date': (timezone.localdate() + timedelta(days=1)).isoformat()}),
+            selected_today=menu['on_date'] == today,
+            selected_tomorrow=menu['on_date'] == tomorrow,
+            selected_all=menu['on_date'] is None,
+            today_url=day_base + '?' + urlencode({**base_params, 'date': today.isoformat()}),
+            tomorrow_url=day_base + '?' + urlencode({**base_params, 'date': tomorrow.isoformat()}),
             all_url=day_base + '?' + urlencode({**base_params, 'date': 'all'}))
     columns = [column for column in res.columns if not (menu_ui.get('choose_url') and column[1] == 'category')]
     if res.order_by:
