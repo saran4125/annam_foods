@@ -375,3 +375,26 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 .o-pincode-table .o-btn{min-height:34px;font-size:12px;padding:0 10px}
 .o-pincode-summary{font-size:13px;font-weight:600;margin:10px 0 4px}
 @media(max-width:600px){.o-pincode-toolbar{align-items:start;flex-direction:column}.o-pincode-table th:first-child{width:40px}.o-pincode-table th:last-child{width:95px}.o-pincode-table input{padding:14px 10px}}
+
+/* Courier setup: keep the delivery switch beside its label. */
+.o-courier-heading{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.o-courier-icon{display:grid;place-items:center;flex-shrink:0;width:46px;height:46px;border-radius:13px;background:var(--brand-soft);color:var(--brand-deep)}
+.o-courier-heading h2{font-size:21px}
+.o-courier-heading p{margin:5px 0 0;color:var(--ink-2);font-size:14px}
+.o-courier-tag{margin-left:auto;flex-shrink:0;border:1px solid var(--rule);border-radius:999px;padding:5px 11px;color:var(--ink-2);font-size:12px;font-weight:650}
+.o-check.o-courier-toggle{gap:14px;padding:18px;background:var(--paper)}
+.o-courier-toggle:has(input:checked){background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 35%,var(--rule))}
+.o-courier-toggle-copy{min-width:0;flex:1}
+.o-courier-toggle-copy b{font-size:15px}
+.o-courier-toggle-copy small{display:block;margin-top:3px;color:var(--ink-2)}
+.o-courier-toggle-state{padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;background:var(--rule);color:var(--ink-2)}
+.o-courier-toggle-state .when-on{display:none}
+.o-courier-toggle:has(input:checked) .o-courier-toggle-state{background:var(--ok);color:#fff}
+.o-courier-toggle:has(input:checked) .when-on{display:inline}
+.o-courier-toggle:has(input:checked) .when-off{display:none}
+.o-courier-card .o-pincode-sheet{margin-top:24px}
+.o-courier-rates{border-top:1px solid var(--rule);padding-top:20px;margin-top:24px}
+.o-courier-rates h3{font-size:16px;margin-bottom:14px}
+.o-courier-rates p{font-size:13px;color:var(--ink-2);margin:10px 0 0}
+.o-courier-note{display:flex;align-items:start;gap:10px;padding:13px 15px;border-radius:10px;background:var(--brand-soft);font-size:13px;color:var(--ink-2);margin:20px 0 0}
+@media(max-width:600px){.o-courier-heading{flex-wrap:wrap;gap:10px}.o-courier-heading>div{flex:1;min-width:0}.o-courier-tag{margin-left:56px}.o-courier-heading h2{font-size:19px}.o-check.o-courier-toggle{padding:14px;gap:10px}.o-courier-toggle-copy b{font-size:14px}.o-courier-toggle-state{padding:3px 8px}}
