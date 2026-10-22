@@ -1,0 +1,15 @@
+<div data-pincode-editor>
+  <div data-pincode-fallback>{% with f=form.courier_pincodes %}{% include "owner/_field.html" %}{% endwith %}</div>
+  <section class="o-pincode-sheet" data-pincode-sheet hidden aria-labelledby="pincode-heading">
+    <div class="o-pincode-toolbar">
+      <div><h3 id="pincode-heading">Approved Tamil Nadu courier pincodes</h3><p id="pincode-help">Enter one pincode per row, or paste a single column from Excel. Confirm courier coverage before adding it.</p></div>
+      <button class="o-btn" type="button" data-pincode-add>+ Add row</button>
+    </div>
+    <div class="o-pincode-scroll">
+      <table class="o-pincode-table"><thead><tr><th scope="col">#</th><th scope="col">Delivery pincode</th><th scope="col">Action</th></tr></thead><tbody data-pincode-rows></tbody></table>
+    </div>
+    <p class="o-pincode-summary" data-pincode-status role="status"></p>
+    {% for error in form.courier_pincodes.errors %}<p class="o-error" role="alert">{{ error }}</p>{% endfor %}
+    <small>Unlisted pincodes are blocked. Changes apply after you save checkout settings.</small>
+  </section>
+</div>

@@ -354,3 +354,24 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 @media(max-width:600px){.o-day-dishes{grid-template-columns:1fr}.o-menu-date{gap:12px}.o-menu-date label{width:100%}}
 
 @media(max-width:600px){.o-catalog-page .o-top{flex-wrap:wrap}.o-catalog-page .o-top-actions{width:100%;flex-wrap:wrap}.o-catalog-page .o-top-actions .o-btn{flex:1;justify-content:center;padding:10px 12px}}
+
+/* Spreadsheet-style courier coverage editor. */
+.o-pincode-sheet{margin:16px 0 22px}
+.o-pincode-sheet[hidden]{display:none}
+.o-pincode-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+.o-pincode-toolbar h3{font-size:16px;margin:0 0 5px}
+.o-pincode-toolbar p,.o-pincode-sheet small{font-size:13px;color:var(--ink-3);margin:0}
+.o-pincode-scroll{max-height:360px;overflow:auto;border:1px solid var(--rule-2);border-radius:12px}
+.o-pincode-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+.o-pincode-table thead th{position:sticky;top:0;background:var(--paper);z-index:1;text-align:left;font-size:12px;padding:12px 14px;color:var(--ink-2)}
+.o-pincode-table th:first-child{width:56px;text-align:center}
+.o-pincode-table th:last-child{width:115px}
+.o-pincode-table tbody th{font-size:13px;color:var(--ink-3);background:var(--paper);font-weight:500}
+.o-pincode-table td,.o-pincode-table tbody th{border-top:1px solid var(--rule);border-right:1px solid var(--rule)}
+.o-pincode-table td:last-child{border-right:0;padding:5px 10px}
+.o-pincode-table input{width:100%;min-width:0;border:0;padding:14px;background:var(--card);color:var(--ink);font:inherit;font-variant-numeric:tabular-nums}
+.o-pincode-table input:focus{outline:2px solid var(--brand);outline-offset:-2px;background:var(--brand-soft)}
+.o-pincode-table input[aria-invalid="true"]{box-shadow:inset 3px 0 var(--stop);background:var(--stop-bg)}
+.o-pincode-table .o-btn{min-height:34px;font-size:12px;padding:0 10px}
+.o-pincode-summary{font-size:13px;font-weight:600;margin:10px 0 4px}
+@media(max-width:600px){.o-pincode-toolbar{align-items:start;flex-direction:column}.o-pincode-table th:first-child{width:40px}.o-pincode-table th:last-child{width:95px}.o-pincode-table input{padding:14px 10px}}
