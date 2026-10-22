@@ -2,7 +2,10 @@
 {% block title %}Razorpay payments{% endblock %}
 {% block heading %}<h1>Razorpay payments</h1><p>Connect this kitchen’s account. Test and live keys are stored separately and encrypted.</p>{% endblock %}
 {% block content %}
-<p><a class="o-btn" href="?mode=test">Test mode</a> <a class="o-btn" href="?mode=live">Live mode</a></p>
+<nav class="o-btn-row" aria-label="Razorpay account mode">
+  <a class="o-btn{% if mode == 'test' %} o-btn-primary{% endif %}" href="?mode=test"{% if mode == 'test' %} aria-current="page"{% endif %}>Test mode</a>
+  <a class="o-btn{% if mode == 'live' %} o-btn-primary{% endif %}" href="?mode=live"{% if mode == 'live' %} aria-current="page"{% endif %}>Live mode</a>
+</nav>
 <form method="post" class="o-form" novalidate>{% csrf_token %}{% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}<section class="o-card"><h2>{{ mode|title }} account</h2><p>Use keys from the same mode in this kitchen’s Razorpay Dashboard. Leave saved secrets blank to keep them. Only one mode can be enabled for new website payments at a time.</p>{% for f in form %}{% if f.is_hidden %}{{ f }}{% else %}{% include "owner/_field.html" %}{% endif %}{% endfor %}<button class="o-btn o-btn-primary">Save &amp; verify connection</button></section></form>
 <section class="o-card"><h2>Connect the Razorpay webhook</h2><p>In Razorpay Dashboard, select <strong>{{ mode }} mode</strong>, open Webhooks and add this URL:</p><p style="overflow-wrap:anywhere"><code>{{ webhook_url }}</code></p><p>Enter the same webhook secret saved above. Enable:</p><ul><li><code>payment.captured</code></li><li><code>payment.failed</code></li><li><code>order.paid</code></li><li><code>refund.processed</code></li><li><code>refund.failed</code></li><li><code>refund.created</code></li></ul><p>Use automatic payment capture in Razorpay. Authorised payments stay unpaid here until capture is verified. Test payments are labelled clearly and do not issue real bills.</p><p>Existing manual payments remain available when enabled in your store. Complete <a href="{% url 'owner:billing_settings' %}">Billing settings</a> before taking live payments so bills can be generated after capture.</p></section>
 {% endblock %}
