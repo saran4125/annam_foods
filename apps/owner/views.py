@@ -8,6 +8,7 @@ is simply a 404.
 import os
 from dataclasses import dataclass, field
 from datetime import timedelta
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -59,13 +60,12 @@ def _yes(v):
 
 
 def _schedule_label(item):
-    rows = list(item.schedule.filter(mode="weekday").select_related("slot"))
     if item.fulfilment != "scheduled":
-        return "Shop"
-    if not rows:
-        return "Not on menu"
-    days = len({r.weekday for r in rows})
-    return f"{rows[0].slot.label} · {'daily' if days == 7 else f'{days} days/wk'}"
+        return "Other item"
+    rows = list(item.schedule.all())
+    labels = list(dict.fromkeys(row.slot.label for row in rows))
+    return ", ".join(labels) if labels else "Not assigned"
+
 
 
 RESOURCES = {
@@ -217,6 +217,28 @@ def dashboard(request):
 def resource_list(request, key):
     res = _resource(key)
     qs = res.model.objects.all()
+    menu, menu_ui = None, {}
+    if key == "dishes":
+        from .menu_services import menu_selection, menu_items, menu_group_counts, menu_categories
+        menu = menu_selection(request.GET)
+        qs = menu_items(menu)
+        counts = menu_group_counts()
+        def group_url(kind, meal=""):
+            params = {key: request.GET[key] for key in ("q", "status") if request.GET.get(key)}
+            params["type"] = kind
+            if meal:
+                params["meal"] = meal
+            return reverse("owner:list", args=["dishes"]) + "?" + urlencode(params)
+        tabs = [{"label": slot.label, "count": counts["slots"].get(slot.pk, 0),
+                 "url": group_url("scheduled", slot.key), "selected": menu["meal"] == slot.key}
+                for slot in menu["slots"]]
+        if counts["unassigned"] or menu["meal"] == "unassigned":
+            tabs.append({"label": "Not assigned", "count": counts["unassigned"],
+                         "url": group_url("scheduled", "unassigned"), "selected": menu["meal"] == "unassigned"})
+        menu_ui = {"selection": menu, "counts": counts, "tabs": tabs,
+                   "meals_url": group_url("scheduled"), "other_url": group_url("courier"),
+                   "title": "Other items" if menu["kind"] == "courier" else menu["label"],
+                   "categories": list(menu_categories(qs))}
     if res.order_by:
         qs = qs.order_by(*res.order_by)
     query = request.GET.get("q", "").strip()[:80]
@@ -227,8 +249,10 @@ def resource_list(request, key):
         qs = qs.filter(cond)
     active_filters, filter_ui = {}, []
     for param, (label, choices, lookup) in res.filters.items():
+        if menu and param == "type":
+            continue
         value = request.GET.get(param, "")
-        opts = choices()
+        opts = [(c.pk, c.name) for c in menu_ui["categories"]] if menu and param == "category" else choices()
         if value and str(value) in {str(v) for v, _ in opts}:
             qs = qs.filter(**{lookup: (value == "1") if lookup == "active" else value})
             active_filters[param] = value
@@ -236,11 +260,23 @@ def resource_list(request, key):
     if key == "dishes":
         qs = qs.select_related("category").prefetch_related("schedule__slot")
     page = Paginator(qs, 30).get_page(request.GET.get("page"))
-    rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in res.columns]} for o in page]
+    return_url = request.get_full_path()
+    def action_url(name, pk=None):
+        url = reverse(name, args=[key, pk] if pk is not None else [key])
+        if not menu:
+            return url
+        params = {"type": menu["kind"], "next": return_url}
+        if menu["kind"] == "scheduled":
+            params["meal"] = menu["meal"]
+        return url + "?" + urlencode(params)
+    rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in res.columns],
+             "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk)} for o in page]
     params = request.GET.copy()
     params.pop("page", None)
     return render(request, "owner/list.html", {
         "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui,
+        "menu_ui": menu_ui, "new_url": action_url("owner:new"),
+        "add_label": ("Add item" if menu["kind"] == "courier" else "Add meal" if menu["meal"] == "unassigned" else "Add " + menu["label"].lower() + " dish") if menu else "Add " + res.singular,
         "headers": [label for label, _, _ in res.columns], "querystring": params.urlencode(),
         "toggle_field": TOGGLE_FIELDS.get(key), "total": qs.count(),
     })
@@ -250,20 +286,47 @@ def resource_list(request, key):
 def resource_edit(request, key, pk=None):
     res = _resource(key)
     obj = get_object_or_404(res.model, pk=pk) if pk else None
-    form = res.form(request.POST or None, request.FILES or None, instance=obj)
+    return_url = _safe_next(request, reverse("owner:list", args=[key]))
+    form_kwargs = {}
+    menu = None
+    if key == "dishes" and request.GET.get("type") in ("scheduled", "courier"):
+        from .menu_services import menu_selection
+        menu = menu_selection(request.GET)
+        group_params = {"type": menu["kind"]}
+        if menu["kind"] == "scheduled":
+            group_params["meal"] = menu["meal"]
+        return_url = _safe_next(request, reverse("owner:list", args=[key]) + "?" + urlencode(group_params))
+        form_kwargs["menu_slot"] = menu["slot"] if menu["kind"] == "scheduled" else None
+        if obj is None:
+            form_kwargs["initial"] = {"fulfilment": menu["kind"]}
+    form = res.form(request.POST or None, request.FILES or None, instance=obj, **form_kwargs)
+    next_query = {"next": return_url}
+    if menu:
+        next_query.update(type=menu["kind"], meal=menu["meal"])
+    form_query = "?" + urlencode(next_query)
     if request.method == "POST" and form.is_valid():
         saved = form.save()
         messages.success(request, f"Saved “{saved}”.")
         if "save_add" in request.POST:
-            return redirect("owner:new", key=key)
-        return redirect(_safe_next(request, reverse("owner:list", args=[key])))
-    return render(request, "owner/form.html", {"res": res, "form": form, "obj": obj})
+            return redirect(reverse("owner:new", args=[key]) + (form_query if menu else ""))
+        return redirect(return_url)
+    return render(request, "owner/form.html", {"res": res, "form": form, "obj": obj,
+        "return_url": return_url, "menu_selection": menu,
+        "entry_label": "item" if menu and menu["kind"] == "courier" else res.singular,
+        "delete_url": reverse("owner:delete", args=[key, obj.pk]) + form_query if obj else ""})
 
 
 @owner_required
 def resource_delete(request, key, pk):
     res = _resource(key)
     obj = get_object_or_404(res.model, pk=pk)
+    return_url = _safe_next(request, reverse("owner:list", args=[key]))
+    back_params = {"next": return_url}
+    if key == "dishes" and request.GET.get("type") in ("scheduled", "courier"):
+        from .menu_services import menu_selection
+        selected = menu_selection(request.GET)
+        back_params.update(type=selected["kind"], meal=selected["meal"])
+    edit_url = reverse("owner:edit", args=[key, pk]) + "?" + urlencode(back_params)
     if request.method == "POST":
         name = str(obj)
         try:
@@ -271,10 +334,11 @@ def resource_delete(request, key, pk):
         except ProtectedError:
             messages.error(request, f"“{name}” is still in use (for example, products are filed under it). "
                                     "Move or delete those first, or just hide it.")
-            return redirect("owner:edit", key=key, pk=pk)
+            return redirect(edit_url)
         messages.success(request, f"Deleted “{name}”.")
-        return redirect("owner:list", key=key)
-    return render(request, "owner/confirm_delete.html", {"res": res, "obj": obj})
+        return redirect(return_url)
+    return render(request, "owner/confirm_delete.html", {"res": res, "obj": obj, "return_url": return_url,
+        "edit_url": edit_url})
 
 
 @owner_required

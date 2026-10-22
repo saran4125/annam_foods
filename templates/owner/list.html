@@ -1,12 +1,26 @@
 {% extends "owner/base.html" %}
 {% load storefront_extras %}
 {% block title %}{{ res.title }}{% endblock %}
-{% block heading %}<h1>{{ res.title }}</h1><p>{{ total }} {% if total == 1 %}{{ res.singular }}{% else %}{{ res.plural }}{% endif %}</p>{% endblock %}
-{% block actions %}<a class="o-btn o-btn-primary" href="{% url 'owner:new' res.key %}"><svg class="o-ic"><use href="#o-plus"/></svg>Add {{ res.singular }}</a>{% endblock %}
+{% block heading %}<h1>{{ res.title }}</h1><p>{% if menu_ui %}{{ menu_ui.title }} · {% endif %}{{ total }} {% if menu_ui.selection.kind == 'courier' %}item{% if total != 1 %}s{% endif %}{% elif total == 1 %}{{ res.singular }}{% else %}{{ res.plural }}{% endif %}</p>{% endblock %}
+{% block actions %}<a class="o-btn o-btn-primary" href="{{ new_url }}"><svg class="o-ic"><use href="#o-plus"/></svg>{{ add_label }}</a>{% endblock %}
 {% block content %}
+
+{% if menu_ui %}
+<nav class="o-catalog-groups" aria-label="Product groups">
+  <a href="{{ menu_ui.meals_url }}"{% if menu_ui.selection.kind == 'scheduled' %} class="is-selected" aria-current="page"{% endif %}><svg class="o-ic" aria-hidden="true"><use href="#o-dish"/></svg><span>Meals</span><b>{{ menu_ui.counts.meals }}</b></a>
+  <a href="{{ menu_ui.other_url }}"{% if menu_ui.selection.kind == 'courier' %} class="is-selected" aria-current="page"{% endif %}><svg class="o-ic" aria-hidden="true"><use href="#o-bag"/></svg><span>Other items</span><b>{{ menu_ui.counts.other }}</b></a>
+</nav>
+{% if menu_ui.selection.kind == 'scheduled' %}
+<nav class="o-meal-groups" aria-label="Meals">
+{% for tab in menu_ui.tabs %}<a href="{{ tab.url }}"{% if tab.selected %} class="is-selected" aria-current="page"{% endif %}>{{ tab.label }} <span>{{ tab.count }}</span></a>{% endfor %}
+</nav>
+{% endif %}
+<p class="o-catalog-hint">{% if menu_ui.selection.kind == 'courier' %}Packed products such as podis, sweets and pickles.{% elif menu_ui.selection.meal == 'unassigned' %}Choose a meal time when editing these dishes to put them on the menu.{% else %}Manage your {{ menu_ui.title|lower }} dishes here. Switch a dish off to hide it from the website; edit it to change its menu days.{% endif %}</p>
+{% endif %}
 
 {% if res.search or filters %}
 <form class="o-tools" method="get">
+  {% if menu_ui %}<input type="hidden" name="type" value="{{ menu_ui.selection.kind }}">{% if menu_ui.selection.kind == 'scheduled' %}<input type="hidden" name="meal" value="{{ menu_ui.selection.meal }}">{% endif %}{% endif %}
   {% if res.search %}
   <label class="o-search">
     <svg class="o-ic" aria-hidden="true"><use href="#o-search"/></svg>
@@ -31,7 +45,7 @@
   <thead><tr>{% for h in headers %}<th scope="col">{{ h }}</th>{% endfor %}<th scope="col"><span class="o-sr">Actions</span></th></tr></thead>
   <tbody data-stagger>
   {% for row in rows %}
-    {% url 'owner:edit' res.key row.obj.pk as edit_url %}
+    {% with edit_url=row.edit_url %}
     <tr>
       {% for c in row.cells %}
       <td class="o-cell-{{ c.kind }}">
@@ -51,9 +65,10 @@
       {% endfor %}
       <td class="o-cell-actions">
         <a class="o-icon-btn" href="{{ edit_url }}" aria-label="Edit {{ row.obj }}"><svg class="o-ic"><use href="#o-edit"/></svg></a>
-        <a class="o-icon-btn o-danger" href="{% url 'owner:delete' res.key row.obj.pk %}" aria-label="Delete {{ row.obj }}"><svg class="o-ic"><use href="#o-trash"/></svg></a>
+        <a class="o-icon-btn o-danger" href="{{ row.delete_url }}" aria-label="Delete {{ row.obj }}"><svg class="o-ic"><use href="#o-trash"/></svg></a>
       </td>
     </tr>
+    {% endwith %}
   {% endfor %}
   </tbody>
 </table>
@@ -69,8 +84,8 @@
 {% else %}
 <div class="o-empty" data-reveal>
   <svg class="o-ic"><use href="#o-search"/></svg>
-  <p>{% if query %}Nothing matches “{{ query }}”.{% else %}No {{ res.title|lower }} yet.{% endif %}</p>
-  <a class="o-btn o-btn-primary" href="{% url 'owner:new' res.key %}">Add {{ res.singular }}</a>
+  <p>{% if query %}Nothing matches “{{ query }}”.{% elif menu_ui %}No {{ menu_ui.title|lower }} {% if menu_ui.selection.kind == 'courier' %}yet{% else %}dishes yet{% endif %}.{% else %}No {{ res.title|lower }} yet.{% endif %}</p>
+  <a class="o-btn o-btn-primary" href="{{ new_url }}">{{ add_label }}</a>
 </div>
 {% endif %}
 {% endblock %}

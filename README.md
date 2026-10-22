@@ -51,7 +51,10 @@ models in isolation tests; it does not restore the retired platform routes.
 - `/manage/checkout-settings/`: courier pincode list, fees, minimums and closures.
 - `/manage/billing/`: shared legal/tax settings.
 - `/manage/settings/`: existing store settings.
-- Catalog, categories, meal times, banners, pages and delivery areas remain editable.
+- Dishes & products opens Meals with Breakfast/Lunch/Dinner groups; Other items
+  keeps shop products separate. Unscheduled meals appear under Not assigned.
+  Adding/editing retains the selected group and prefills the meal/type.
+- Categories, meal times, banners, pages and delivery areas remain editable.
 - `/billing/`: separate manual, website and WhatsApp billing screens.
 
 Old Annam workspace management/billing/preview GET bookmarks redirect to the

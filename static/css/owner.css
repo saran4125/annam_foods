@@ -141,7 +141,7 @@ h1,h2,h3{font-family:var(--font-display);letter-spacing:-.02em;line-height:1.15;
 .o-search:focus-within{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
 .o-search input{border:0;outline:0;background:none;width:100%;min-width:0}
 .o-filter select{height:44px;border-radius:999px;padding:0 14px}
-.o-table-wrap{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);overflow-x:auto}
+.o-table-wrap{position:relative;max-width:100%;background:var(--card);border:1px solid var(--rule);border-radius:var(--r);overflow-x:auto}
 .o-table{width:100%;border-collapse:collapse;font-size:.9rem}
 .o-table th{text-align:left;padding:11px 14px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--rule);white-space:nowrap}
 .o-table td{padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:middle}
@@ -327,3 +327,20 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
   .lg-brand h1{font-size:1.7rem;margin:0}
   .lg-form-side{align-items:start}
 }
+
+/* Catalog groups: work on one meal at a time, with shop products separate. */
+.o-catalog-groups{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.o-catalog-groups a{display:flex;align-items:center;gap:12px;min-width:190px;padding:15px 20px;border:1px solid var(--rule);border-radius:var(--r);background:var(--card);color:var(--ink-2);text-decoration:none;font-weight:700;font-size:17px}
+.o-catalog-groups a b{margin-left:auto;font-size:13px;padding:2px 9px;border-radius:20px;background:var(--paper)}
+.o-catalog-groups a.is-selected{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.o-catalog-groups a.is-selected b{background:rgba(255,255,255,.6)}
+.o-meal-groups{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.o-meal-groups a{display:flex;align-items:center;gap:10px;padding:10px 16px;border:1px solid var(--rule);border-radius:10px;text-decoration:none;color:var(--ink-2);background:var(--card);font-weight:600}
+.o-meal-groups a span{font-size:12px;color:var(--ink-3)}
+.o-meal-groups a.is-selected{background:var(--ink);border-color:var(--ink);color:#fff}
+.o-meal-groups a.is-selected span{color:#e5d9cb}
+.o-catalog-hint{font-size:14px;color:var(--ink-3);margin:0 0 20px}
+.o-catalog-form-context{margin:0 0 18px;color:var(--brand-deep);font-weight:700}
+@media(max-width:600px){.o-catalog-groups{gap:8px}.o-catalog-groups a{min-width:0;flex:1;padding:12px;font-size:16px;gap:8px}.o-meal-groups a{padding:9px 12px}.o-catalog-hint{font-size:13px}}
+
+[data-meal-only][hidden]{display:none}

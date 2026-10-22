@@ -77,7 +77,8 @@ class DishForm(StyledForm):
         help_texts = {"fulfilment": "Daily meal = cooked for a slot. Shop item = packed and shipped.",
                       "active": "Untick to hide it from the website (sold out, seasonal…)."}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, menu_slot=None, **kwargs):
+        self.menu_slot = menu_slot
         super().__init__(*args, **kwargs)
         self.fields["fulfilment"].choices = [("scheduled", "Daily meal"), ("courier", "Shop item")]
         self.fields["category"].queryset = MenuCategory.objects.all()
@@ -86,13 +87,15 @@ class DishForm(StyledForm):
         if self.instance.pk:
             self.fields["featured"].initial = "featured" in (self.instance.tags or [])
             rows = MenuSchedule.objects.filter(item=self.instance, mode=ScheduleMode.WEEKDAY)
-            first = rows.first()
+            first = rows.filter(slot=menu_slot).first() if menu_slot else rows.first()
             if first:
                 self.fields["slot"].initial = first.slot_id
                 self.fields["weekdays"].initial = sorted(
                     rows.filter(slot=first.slot).values_list("weekday", flat=True))
         else:
             self.fields["weekdays"].initial = [0, 1, 2, 3, 4, 5, 6]
+            if menu_slot:
+                self.fields["slot"].initial = menu_slot.pk
 
     def clean_image(self):
         return _check_image(self.cleaned_data.get("image"))
@@ -118,10 +121,17 @@ class DishForm(StyledForm):
         weekly = MenuSchedule.objects.filter(item=item, mode=ScheduleMode.WEEKDAY)
         slot = self.cleaned_data.get("slot")
         days = set(self.cleaned_data.get("weekdays") or [])
-        if item.fulfilment != "scheduled" or not slot:
+        if item.fulfilment != "scheduled":
+            weekly.delete()
+            return
+        if self.menu_slot:
+            # Only the meal being edited may change; preserve other meal rows.
+            weekly = weekly.filter(slot=self.menu_slot)
+        if not slot:
             weekly.delete()
             return
         weekly.exclude(slot=slot).delete()
+        weekly = MenuSchedule.objects.filter(item=item, mode=ScheduleMode.WEEKDAY)
         weekly.filter(slot=slot).exclude(weekday__in=days).delete()
         have = set(weekly.filter(slot=slot).values_list("weekday", flat=True))
         for day in sorted(days - have):

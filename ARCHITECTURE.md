@@ -234,6 +234,15 @@ seller details.
 
 ## 8. Catalog, cart and delivery rules
 
+The admin catalog separates **Meals** from **Other items**. Meal tabs use saved
+weekly/dated schedule membership, defaulting to Breakfast when configured; a Not
+assigned group retains meals without schedules. Counts include hidden dishes,
+without duplicating products that have multiple schedule rows. Search, status,
+category, pagination and add/edit/delete navigation retain the selected group.
+New forms preselect the group’s fulfilment/meal. Editing a shared dish’s meal
+schedule preserves its other meal schedules and dated overrides. The On sale
+switch still controls the product across the website.
+
 | Fulfilment | Rules |
 | --- | --- |
 | Scheduled breakfast/lunch/dinner | Mandatory pincode in an active delivery zone for that meal, chosen slot/date, live schedule, cutoff, closed dates, zone minimum/fee |

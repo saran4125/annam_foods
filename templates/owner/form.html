@@ -1,10 +1,12 @@
 {% extends "owner/base.html" %}
-{% block title %}{% if obj %}Edit {{ obj }}{% else %}Add {{ res.singular }}{% endif %}{% endblock %}
-{% block heading %}<a class="o-crumb" href="{% url 'owner:list' res.key %}">← {{ res.title }}</a><h1>{% if obj %}{{ obj }}{% else %}New {{ res.singular }}{% endif %}</h1>{% endblock %}
-{% block actions %}{% if obj %}<a class="o-btn o-danger-btn" href="{% url 'owner:delete' res.key obj.pk %}"><svg class="o-ic"><use href="#o-trash"/></svg>Delete</a>{% endif %}{% endblock %}
+{% block title %}{% if obj %}Edit {{ obj }}{% else %}Add {{ entry_label }}{% endif %}{% endblock %}
+{% block heading %}<a class="o-crumb" href="{{ return_url }}">← {{ res.title }}</a><h1>{% if obj %}{{ obj }}{% else %}New {{ entry_label }}{% endif %}</h1>{% endblock %}
+{% block actions %}{% if obj %}<a class="o-btn o-danger-btn" href="{{ delete_url }}"><svg class="o-ic"><use href="#o-trash"/></svg>Delete</a>{% endif %}{% endblock %}
 {% block content %}
 <form class="o-form o-card" method="post" enctype="multipart/form-data" novalidate data-reveal>
   {% csrf_token %}
+  <input type="hidden" name="next" value="{{ return_url }}">
+  {% if menu_selection %}<p class="o-catalog-form-context">{% if menu_selection.kind == 'courier' %}Other items{% else %}Meals / {{ menu_selection.label }}{% endif %}</p>{% endif %}
   {% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
   <div class="o-grid-form">
   {% for field in form %}
@@ -25,14 +27,14 @@
         {% for e in field.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
       </div>
     {% elif field.name == "weekdays" or field.name == "slot_keys" %}
-      <fieldset class="o-field o-field-wide{% if field.errors %} has-error{% endif %}">
+      <fieldset class="o-field o-field-wide{% if field.errors %} has-error{% endif %}"{% if field.name == 'weekdays' %} data-meal-only{% endif %}>
         <legend>{{ field.label }}</legend>
         <div class="o-daypicker">{% for cb in field %}<label>{{ cb.tag }}<span>{{ cb.choice_label }}</span></label>{% endfor %}</div>
         {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
         {% for e in field.errors %}<em class="o-error">{{ e }}</em>{% endfor %}
       </fieldset>
     {% else %}
-      <label class="o-field{% if field.field.widget.input_type == None or field.name == 'description' or field.name == 'body_md' %} o-field-wide{% endif %}{% if field.errors %} has-error{% endif %}">
+      <label {% if field.name == 'slot' %}data-meal-only {% endif %}class="o-field{% if field.field.widget.input_type == None or field.name == 'description' or field.name == 'body_md' %} o-field-wide{% endif %}{% if field.errors %} has-error{% endif %}">
         <span>{{ field.label }}{% if field.field.required %} <i class="o-req" aria-hidden="true">*</i>{% endif %}</span>
         {{ field }}
         {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
@@ -42,9 +44,9 @@
   {% endfor %}
   </div>
   <div class="o-form-bar">
-    <a class="o-btn" href="{% url 'owner:list' res.key %}">Cancel</a>
+    <a class="o-btn" href="{{ return_url }}">Cancel</a>
     {% if not obj %}<button class="o-btn" type="submit" name="save_add">Save and add another</button>{% endif %}
-    <button class="o-btn o-btn-primary" type="submit">Save {{ res.singular }}</button>
+    <button class="o-btn o-btn-primary" type="submit">Save {{ entry_label }}</button>
   </div>
 </form>
 {% endblock %}

@@ -25,6 +25,14 @@
   /* Filters apply as soon as they change */
   $$('select[data-autosubmit]').forEach(s => s.addEventListener('change', () => s.form.requestSubmit ? s.form.requestSubmit() : s.form.submit()));
 
+  /* Packed shop products do not need a meal time or menu days. */
+  const fulfilment = $('select[name="fulfilment"]');
+  if (fulfilment) {
+    const updateMealFields = () => $$('[data-meal-only]').forEach(field => { field.hidden = fulfilment.value !== 'scheduled'; });
+    updateMealFields();
+    fulfilment.addEventListener('change', updateMealFields);
+  }
+
   /* Photo drop zones: drag-over state and instant preview */
   $$('[data-drop]').forEach(zone => {
     const input = $('input[type=file]', zone), preview = $('[data-preview]', zone);
