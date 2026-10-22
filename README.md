@@ -1,213 +1,119 @@
-# SeerKitchen
+# Annam Foods
 
-Multi-tenant ordering platform for cloud kitchens. One codebase, one database,
-many kitchens — each on its own domain, differing only by configuration.
+Annam Foods' website and store-management application: meals, shop products,
+pincode-checked checkout, Razorpay, orders, WhatsApp inbox and billing.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the current system architecture,
-implemented workflows, deployment boundaries and remaining launch setup.
+The SEER platform login, kitchen picker/provisioning screens, domain-management
+screens and Appearance editor were retired on **22 October 2026**. The existing
+storefront design, published copy, uploaded images and business data are retained.
+Use **`/manage/`** to sign in directly to Annam's admin. Billing keeps its separate
+**`/billing/`** entry point using the existing staff accounts.
 
-## Running it
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the current architecture and remaining
+live integration/setup requirements. Older multi-kitchen roadmap documents are
+historical references, not the active product scope.
+
+## Local development
 
 ```bash
-cp .env.example .env                  # replace the example secrets
+cp .env.example .env
+# Replace example secrets.
 docker compose up -d postgres redis
 uv sync
 uv run python manage.py migrate
-uv run python manage.py createsuperuser     # your SEER platform login
 uv run python manage.py runserver 127.0.0.1:8000
-# in another terminal:
-uv run python manage.py run_huey
 ```
 
-Then add to `/etc/hosts`:
+Add `127.0.0.1 annam.localhost` to your hosts file. Open
+`http://annam.localhost:8000/` for the website and `/manage/` for admin.
+An existing account must have membership in Annam or be an active superuser.
+There is no public signup, SEER login or web-based tenant provisioning.
 
-```
-127.0.0.1  annam.localhost
-127.0.0.1  admin.localhost
-```
-
-- `http://annam.localhost:8000/` — a tenant storefront
-- `http://admin.localhost:8000/admin/` — the SEER super admin (no tenant context)
-
-## Adding a kitchen
+Initial installation can use the existing management command to create Annam's
+store record; do not recreate it when upgrading an existing database:
 
 ```bash
-uv run python manage.py provision_tenant \
-  --slug example-kitchen --name "Example Kitchen" \
-  --domain example.localhost \
-  --owner-email owner@example.test \
-  --preset daily-meals
+uv run python manage.py provision_tenant --slug annam --name "Annam Foods" \
+  --domain annam.localhost --owner-email owner@annamfood.in
 ```
 
-Onboarding a client should never be more than this plus pasting their
-credentials. If it starts needing code, that's the signal something belongs in
-`TenantConfig` instead.
+Production defaults to `STORE_SLUG=annam`. Registered hostnames must map to that
+existing store. Development without `STORE_SLUG` can exercise the retained scoped
+models in isolation tests; it does not restore the retired platform routes.
 
-## The one rule
+## Store management
 
-Every model that belongs to a kitchen subclasses `TenantOwnedModel`. That gives
-it two managers:
+- `/manage/`: direct admin login/dashboard.
+- `/manage/orders/`: website/manual/WhatsApp orders and fulfilment.
+- `/manage/whatsapp/`: conversation inbox.
+- `/manage/whatsapp/settings/`: phone-number ID and encrypted n8n sync token.
+- `/manage/payments/razorpay/`: owner-only test/live payment settings.
+- `/manage/checkout-settings/`: courier pincode list, fees, minimums and closures.
+- `/manage/billing/`: shared legal/tax settings.
+- `/manage/settings/`: existing store settings.
+- Catalog, categories, meal times, banners, pages and delivery areas remain editable.
+- `/billing/`: separate manual, website and WhatsApp billing screens.
 
-```python
-Order.objects.all()      # scoped to the current tenant; RAISES if none is set
-Order.all_tenants.all()  # deliberately across every tenant — platform code only
+Old Annam workspace management/billing/preview GET bookmarks redirect to the
+corresponding local tools or website. Old SEER login GET links redirect to
+`/manage/login/`. Removed domain/editor/provisioning pages return 404; old POST
+operations are not replayed into a different endpoint.
+
+## Payment and messaging setup
+
+The Razorpay integration verifies signed callbacks/webhooks and fetched provider
+state before recording capture. It supports private customer receipts/bills,
+live invoice issuance and owner-only full refunds. **A real sandbox payment still
+needs Annam's keys, public webhook configuration and end-to-end testing.** See
+[docs/razorpay.md](docs/razorpay.md).
+
+Keep the existing n8n automation. Connect incoming, outgoing and status-copy nodes
+to the inbox using [docs/n8n/inbox-sync.md](docs/n8n/inbox-sync.md). Mirroring does
+not automatically create a billable order; staff can create a WhatsApp booking.
+Live n8n sync needs verification. Automatic WhatsApp bill delivery is separate work.
+
+The existing `/platform/webhooks/annam/...` integration URLs and
+`/platform/assets/annam/...` published-image URLs remain for compatibility.
+These technical paths do not provide a SEER platform interface.
+
+## Deployment and storage
+
+`build.sh` installs dependencies and collects static files. `start.sh` applies
+migrations and supervises Gunicorn plus the database inbox worker. `render.yaml`
+is the free demo configuration; `render.paid.yaml` defines durable disk/database
+infrastructure. Actual infrastructure and plan activation remain external.
+
+Keep database IDs, `SECRET_KEY` and `SECRETS_KEY` unchanged when upgrading. No
+schema migration/data deletion is required for the Annam-only conversion.
+Published editor images remain in PostgreSQL. Legacy catalog/banner uploads still
+need durable public storage; `/tmp` on the free service is ephemeral.
+
+Optional background processes:
+
+```bash
+uv run python manage.py run_whatsapp_worker
+uv run python manage.py run_huey
+uv run python manage.py reconcile_razorpay
 ```
 
-Queries fail closed. Forgetting the tenant raises `TenantContextMissing`
-instead of quietly returning another kitchen's data.
+The Render supervisor already runs the inbox worker. Huey/Redis and periodic
+payment reconciliation require separate deployment if used. Configure the latter
+with an external scheduler; the command does not create a charge or refund.
 
-Outside a web request — management commands, background jobs, tests — set the
-tenant yourself:
+## Engineering invariants and checks
 
-```python
-from apps.tenancy.context import tenant_context, all_tenants
+Retained tenant foreign keys/managers protect existing records and financial
+history; removing the platform UI does not justify dropping isolation. Missing
+context fails closed. Shared services own pricing/business rules. Money uses
+Decimal and orders/invoices retain their original snapshots. Secrets are encrypted
+and never returned in forms/logs. See [AGENTS.md](AGENTS.md).
 
-with tenant_context(annam):
-    Order.objects.count()        # just Annam's
-
-with all_tenants():
-    Tenant.objects.count()       # billing sweeps, the super admin
+```bash
+uv run python -m pytest -q
+uv run python manage.py check
+uv run python manage.py makemigrations --check --dry-run
 ```
 
-`test_every_tenant_owned_model_uses_the_scoped_manager` fails the build if a
-model with a `tenant` field skips this. A model may opt out only by declaring
-`tenant_scoping_exempt = "reason"` on itself.
-
-## Database
-
-Dev and production now use PostgreSQL. Docker Compose exposes development
-PostgreSQL only on `127.0.0.1:5439` and Redis only on `127.0.0.1:6389`.
-`scripts/migrate_local_data.sh` copies any existing
-`~/.seerkitchen/dev.sqlite3` into the empty PostgreSQL database after taking
-a temporary SQLite backup; it never edits or deletes the source file.
-Run `uv run python -m pytest -q` and `uv run python manage.py check` after
-changes. The suite uses PostgreSQL and includes a real row-lock test.
-
-## Layout
-
-```
-config/settings/   base + per-environment settings
-apps/tenancy/      tenants, domains, config, scoping, middleware
-```
-
-## Where this is going
-
-**The whole plan is in [`docs/PLAN.md`](docs/PLAN.md)** — the single source of
-truth. `AGENTS.md` carries the coding conventions.
-
-Built: tenancy and fail-closed scoping, catalog and daily/weekly menus,
-delivery zones, content pages, storefront and cart, the messaging spine,
-orders, and Phase A's PostgreSQL foundation. Next, in order (PLAN.md §17):
-
-- **A. Foundation** — complete
-- **B. Bills** — billing engine, bills on WhatsApp, bill on request, catalog
-  orders, owner backend v0 · *first release to Annam*
-- **C. WhatsApp assistant** — the full bot in the app, parity with Annam's
-- **D. Payments and updates** — Razorpay, WhatsApp Pay, every order update on
-  WhatsApp
-- **E. Storefront** — checkout, hero campaigns, collections, Annam's photos
-- **F. Owner backend** — menus, zones, content, connections, reports
-- **G. Platform** — provisioning in under an hour, subscriptions, extensions
-- **H. Annam cutover**
-
-An image-led WordPress/WooCommerce storefront prototype is running separately
-on `http://annam.localhost:8090/`, with its owner editor at `/wp-admin/` and
-local credentials in the ignored `wordpress/.env`. It is a review prototype;
-the master plan's Django order/billing architecture does not use its catalog.
-
-## Owner billing (local workflow)
-
-Sign in on the kitchen domain at `/manage/`. Open **Billing settings** and
-save the client's legal name, address, state/code, 14-digit FSSAI number,
-invoice prefix and accountant-confirmed GST settings. These settings are reused;
-issued bills retain their original seller, buyer, line and payment snapshots.
-No example business credentials or registration details are populated by setup.
-
-Open an order under **Orders**. After receiving its full payment (including
-collecting cash for COD), tick **Full payment received** and choose **Confirm
-payment & issue bill**. This is staff confirmation of actual receipt, not a
-payment gateway or bank verification. Delivery alone never makes an order billable.
-If settings are incomplete, the payment remains recorded; complete the settings
-and use **Generate bill** on that paid order. Repeated requests reuse its bill.
-Use **View / print bill**, then **Print / Save as PDF** for the browser print dialog.
-Automatic WhatsApp delivery and payment gateway integration are separate work.
-
-Bills must match the paid order total. If tax or rounding settings would change
-that amount, issuance stops with an explanation instead of producing a bill for
-a different amount. Apply the included migrations before starting the server.
-
-## Separate billing portal
-
-Open `/billing/` on the kitchen's domain and sign in with the existing staff
-account. This portal is separate from `/manage/`; the management sidebar links
-to it. Its Manual, Website and WhatsApp sections share the same billing profile,
-invoice numbering, payment checks and immutable issued bills.
-
-- **Manual:** choose New order, enter the customer and select catalog items with
-  quantities. Prices are re-read on the server. Leave delivery area empty for
-  collection; otherwise select an active area and enter an address. The area's
-  minimum and delivery fee apply. Save, review the total, then confirm actual
-  payment receipt to issue and print the bill.
-- **Website:** existing orders whose channel is Website appear here. Customer
-  checkout and online payment collection still require integration.
-- **WhatsApp:** existing WhatsApp orders appear here; staff can also enter a
-  WhatsApp booking using New order. Automatic automation imports are not connected.
-
-A saved booking starts unpaid. COD also requires explicit confirmation of cash
-collection. Retrying the same booking submission reuses its order; repeated bill
-requests reuse its invoice. Billing settings are available at `/billing/settings/`
-and continue to be shared with the previous management screens. No new database
-migration is needed for this portal.
-
-Booking item selection offers searchable Breakfast, Lunch, Dinner and Other
-filters. Meal groups follow each item's available schedules and active meal slots;
-courier goods and items without a matching meal schedule appear under Other.
-An item assigned to more than one meal appears in each applicable filter.
-The live booking summary is an estimate; final prices remain server-calculated.
-
-## WhatsApp staff inbox
-
-`/manage/whatsapp/` shows tenant-scoped customer conversations, incoming text,
-attachments and catalog order requests, app/n8n outgoing messages, and delivery
-statuses. Set the Meta phone number ID and inbox sync token, and find the single
-n8n sync endpoint at `/manage/whatsapp/settings/`. Keep the existing n8n automation and add incoming and
-outgoing sync nodes as documented in [docs/n8n/inbox-sync.md](docs/n8n/inbox-sync.md).
-No live Meta subscription or n8n workflow is changed by deploying this code.
-
-The Render start script now supervises the web server and a database-backed inbox
-worker. Apply the included tenancy/messaging migrations on startup. Old chat
-history is not automatically imported. Staff replies require an open 24-hour
-window; the WhatsApp billing section remains separate from the inbox.
-
-## Central platform workspace
-
-Use `/platform/login/` for central SEER sign-in. A superuser opens platform
-administration; an owner/staff account with one kitchen opens its admin directly;
-multiple kitchens show a picker. Each kitchen's own hostname also retains a
-branded `/manage/login/` page: entering `/manage/` opens that login and successful
-sign-in stays in that kitchen's admin. Both entry points use the same accounts
-and membership checks. Billing retains its separate `/billing/login/` page.
-Django superusers use `/platform/admin/` to create
-kitchens, invite accounts, manage status and configure existing website features.
-The original Annam storefront at `/` and `/manage/` remain available.
-
-Each kitchen gets a private setup dashboard, management/billing tools and website
-preview at `/platform/workspaces/<slug>/`. It works before public DNS is ready.
-Owners activate new accounts through single-use invitations shared by the platform
-administrator. Email is not sent automatically. Public subdomains can be reserved
-with `TENANT_BASE_DOMAIN`; actual DNS/HTTPS setup remains external.
-
-The pre-platform code is preserved at Git tag `pre-platform-2026-10-20`.
-See [docs/platform-stage-one.md](docs/platform-stage-one.md) for administrator
-setup, routing, invitation security, deployment limitations and rollback guidance.
-
-## Custom-domain settings
-
-Kitchen owners can open **Domains** in management or **Settings → Domains** in
-their workspace. The page provides ownership TXT records, website DNS
-instructions, verification, hosting/HTTPS status, explicit primary selection and
-disconnection. Preparation mode is the default: adding a domain does not change
-Annam's current website. Production connections support Render registration,
-Caddy on-demand TLS or an operator-configured edge, with a real HTTPS check
-before a public route is created. See [docs/custom-domains.md](docs/custom-domains.md)
-for launch-time configuration and limitations.
+The separate `wordpress/` prototype is not the Django storefront/order database.
+Git history preserves the previous SEER implementation if it is ever needed for
+review; it is no longer the active application experience.

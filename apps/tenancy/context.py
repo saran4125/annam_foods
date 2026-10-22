@@ -70,5 +70,4 @@ def tenant(request):
     """Template context processor: exposes `tenant` on every page."""
     tenant = get_current_tenant()
     return {"tenant": tenant,
-            "tenant_home_url": getattr(request, "workspace_preview_url", "/"),
-            "workspace_overview_url": f"/platform/workspaces/{request.workspace_slug}/" if hasattr(request, "workspace_slug") else ""}
+            "tenant_home_url": "/", "workspace_overview_url": ""}

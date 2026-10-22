@@ -37,8 +37,6 @@ MIDDLEWARE = [
     # Resolves Host -> Tenant. Must sit after auth so admin/staff views
     # can still resolve a tenant from the session when on the admin host.
     "apps.tenancy.middleware.TenantMiddleware",
-    # /admin/ only on the platform host (FIX-11).
-    "apps.tenancy.middleware.PlatformAdminGuard",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -90,7 +88,7 @@ CSRF_FAILURE_VIEW = "apps.storefront.views.csrf_failure"
 # doesn't change under us at upgrade time.
 FORMS_URLFIELD_ASSUME_HTTPS = True
 
-# Host that serves the SEER super-admin, not any tenant storefront.
+# Historical provider-callback host; no platform or Django admin UI is exposed.
 PLATFORM_HOST = os.environ.get("PLATFORM_HOST", "admin.localhost").strip().lower()
 
 HUEY = {
@@ -111,3 +109,6 @@ DOMAIN_APEX_IPV4 = os.environ.get("DOMAIN_APEX_IPV4", "").strip()
 DOMAIN_HOSTING_PROVIDER = os.environ.get("DOMAIN_HOSTING_PROVIDER", "render").strip().lower()
 RENDER_API_KEY = os.environ.get("RENDER_API_KEY", "")
 RENDER_SERVICE_ID = os.environ.get("RENDER_SERVICE_ID", "")
+
+# Production is dedicated to Annam; development can exercise scoped model isolation.
+STORE_SLUG = os.environ.get("STORE_SLUG", "").strip().lower()

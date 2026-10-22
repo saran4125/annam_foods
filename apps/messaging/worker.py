@@ -4,6 +4,7 @@ from django.db import transaction
 from django.utils import timezone
 from apps.tenancy.context import all_tenants, tenant_context
 from .models import WhatsAppForwardEvent, OutboundMessage
+from apps.tenancy.deployment import deployment_rows
 from .senders.inbox_io import forward_to_n8n
 from .services import deliver
 
@@ -11,11 +12,11 @@ from .services import deliver
 def process_inbox_work(limit=20):
     now = timezone.now()
     with all_tenants():
-        WhatsAppForwardEvent.objects.filter(status="sending", claimed_at__lt=now-timedelta(minutes=5)).update(status="pending", claimed_at=None)
-        event_ids = list(WhatsAppForwardEvent.objects.filter(status="pending", next_attempt_at__lte=now).order_by("created_at").values_list("pk", flat=True)[:limit])
+        deployment_rows(WhatsAppForwardEvent.objects.all()).filter(status="sending", claimed_at__lt=now-timedelta(minutes=5)).update(status="pending", claimed_at=None)
+        event_ids = list(deployment_rows(WhatsAppForwardEvent.objects.all()).filter(status="pending", next_attempt_at__lte=now).order_by("created_at").values_list("pk", flat=True)[:limit])
     for pk in event_ids:
         with all_tenants(), transaction.atomic():
-            event = WhatsAppForwardEvent.objects.select_for_update().select_related("tenant").get(pk=pk)
+            event = deployment_rows(WhatsAppForwardEvent.objects.all()).select_for_update().select_related("tenant").get(pk=pk)
             if event.status != "pending":
                 continue
             event.status = "sending"
@@ -31,8 +32,8 @@ def process_inbox_work(limit=20):
             event.save(update_fields=["status", "last_error", "claimed_at", "next_attempt_at"])
     # Only inbox replies; existing transactional jobs retain their own dispatcher.
     with all_tenants():
-        messages = list(OutboundMessage.objects.filter(purpose="inbox_reply", status__in=["pending", "failed"], next_attempt_at__lte=now).select_related("tenant").order_by("created_at")[:limit])
-        OutboundMessage.objects.filter(purpose="inbox_reply", status="sending", claimed_at__lt=now-timedelta(minutes=5)).update(status="failed", claimed_at=None, next_attempt_at=now)
+        messages = list(deployment_rows(OutboundMessage.objects.all()).filter(purpose="inbox_reply", status__in=["pending", "failed"], next_attempt_at__lte=now).select_related("tenant").order_by("created_at")[:limit])
+        deployment_rows(OutboundMessage.objects.all()).filter(purpose="inbox_reply", status="sending", claimed_at__lt=now-timedelta(minutes=5)).update(status="failed", claimed_at=None, next_attempt_at=now)
     for message in messages:
         with tenant_context(message.tenant):
             from .models import WhatsAppConversation

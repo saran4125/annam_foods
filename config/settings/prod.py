@@ -3,7 +3,7 @@ import os
 from django.core.exceptions import ImproperlyConfigured
 from .base import *  # noqa: F401,F403
 
-required = ["SECRET_KEY", "SECRETS_KEY", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "ALLOWED_HOSTS", "PLATFORM_HOST"]
+required = ["SECRET_KEY", "SECRETS_KEY", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "ALLOWED_HOSTS"]
 missing = [name for name in required if not os.environ.get(name)]
 if missing:
     raise ImproperlyConfigured("Missing required production settings: " + ", ".join(missing))
@@ -25,9 +25,7 @@ except Exception:
         raise ImproperlyConfigured("SECRETS_KEY must be a Fernet key or a random string of 32+ characters.")
     SECRETS_KEY = base64.urlsafe_b64encode(hashlib.sha256(SECRETS_KEY.encode()).digest()).decode()
 ALLOWED_HOSTS = [x.strip() for x in os.environ["ALLOWED_HOSTS"].split(",") if x.strip()]
-PLATFORM_HOST = os.environ["PLATFORM_HOST"].strip().lower()
-if "*" not in ALLOWED_HOSTS and PLATFORM_HOST not in ALLOWED_HOSTS:
-    raise ImproperlyConfigured("PLATFORM_HOST must also appear in ALLOWED_HOSTS")
+PLATFORM_HOST = os.environ.get("PLATFORM_HOST", PLATFORM_HOST).strip().lower()
 DATABASES = {"default": {
     "ENGINE": "django.db.backends.postgresql", "NAME": os.environ["POSTGRES_DB"],
     "USER": os.environ["POSTGRES_USER"], "PASSWORD": os.environ["POSTGRES_PASSWORD"],
@@ -84,3 +82,6 @@ STORAGES = {
 # the files stay on the disk across deploys. Set SERVE_MEDIA=0 once a CDN or
 # bucket serves /media/ instead.
 SERVE_MEDIA = os.environ.get("SERVE_MEDIA", "1") == "1"
+
+# Never expose historical/demo kitchens from the production service.
+STORE_SLUG = os.environ.get("STORE_SLUG", "annam").strip().lower() or "annam"

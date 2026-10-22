@@ -1,3 +1,8 @@
+> **Historical roadmap — superseded 22 October 2026.** The active product is
+> Annam Foods only. SEER login/workspaces/provisioning, domain-management screens
+> and the Appearance editor are retired. Follow [current architecture](../ARCHITECTURE.md)
+> and the user's current scope; preserve existing data and published content.
+
 # SeerKitchen — Master Plan
 
 **Version 2 · 28 September 2026 · the single source of truth**

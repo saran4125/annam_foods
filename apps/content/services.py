@@ -282,20 +282,15 @@ def change_storefront_design(tenant, *, action, revision, design=None):
 
 
 def storefront_appearance(request):
-    """Resolve once per request; unpublished designs need this kitchen's access."""
-    from django.core.exceptions import PermissionDenied
-    from apps.owner.access import can_manage
+    """Render the preserved published site; the visual editor is retired."""
     from apps.storefront.themes import SECTION_TEMPLATES
     if hasattr(request, "_storefront_appearance"):
         return request._storefront_appearance
     config = request.tenant.config
-    home_path = getattr(request, "workspace_preview_url", "/")
-    override = getattr(request, "_appearance_override", None)
-    canvas = getattr(request, "_appearance_canvas", False)
-    preview = override is not None or (request.path == home_path and request.GET.get("design") == "draft")
-    if preview and not can_manage(request.user, request.tenant):
-        raise PermissionDenied("Only this kitchen's team can preview its draft.")
-    design = override if override is not None else storefront_design(config, draft=preview)
+    canvas = False
+    preview = False
+    override = None
+    design = storefront_design(config)
     state = config.storefront_design or {}
     theme = dict(config.theme or {})
     if override is not None or state.get("published") or (preview and state.get("draft")):

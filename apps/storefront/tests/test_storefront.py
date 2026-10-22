@@ -506,7 +506,7 @@ def test_saved_spotlight_image_resolves_at_the_site_root_in_both_storefronts(
         user = django_user_model.objects.create_user(username="preview-operator", is_superuser=True)
         client.force_login(user)
         path = f"/platform/workspaces/{kitchen.slug}/preview/"
-    response = client.get(path, HTTP_HOST=HOST)
+    response = client.get(path, HTTP_HOST=HOST, follow=True)
     assert response.status_code == 200
     assert f'src="{expected}" alt="Health Mix"' in response.content.decode()
     config.refresh_from_db()

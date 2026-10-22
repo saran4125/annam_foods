@@ -7,6 +7,7 @@ from django.utils import timezone
 from apps.tenancy.context import all_tenants, tenant_context
 from apps.tenancy.models import Tenant, TenantConfig, TenantStatus
 from .models import DailyKitchenRun
+from apps.tenancy.deployment import deployment_rows
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ def due_local_kitchens(at: datetime):
     row makes repeat delivery safe when multiple workers wake together.
     """
     with all_tenants():
-        tenants = list(Tenant.objects.all())
+        tenants = list(deployment_rows(Tenant.objects.all(), "slug"))
     for tenant in tenants:
         try:
             config = _config_for(tenant)
@@ -47,7 +48,7 @@ def run_daily_handoff(at=None):
 def send_due_messages():
     from apps.messaging.services import dispatch_pending
     with all_tenants():
-        tenants = list(Tenant.objects.all())
+        tenants = list(deployment_rows(Tenant.objects.all(), "slug"))
     for tenant in tenants:
         if tenant.status in {TenantStatus.SUSPENDED, TenantStatus.CANCELLED}:
             continue

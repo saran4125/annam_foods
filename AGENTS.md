@@ -1,17 +1,14 @@
 # AGENTS.md — read this before writing any code
 
-SeerKitchen is a multi-tenant ordering platform for cloud kitchens. One Django
-codebase, one database, many kitchens — each on its own domain, differing only
-by configuration. It is sold as a subscription (₹5,000/month per kitchen), so
-adding a client must never mean adding code.
+Annam Foods is now a dedicated storefront and store-management application.
+The SEER platform, domain-management UI and Appearance editor were retired on
+22 October 2026 at the user's request. Do not reintroduce these screens or treat
+the older multi-kitchen subscription roadmap as the active product scope.
 
-**[`docs/PLAN.md`](docs/PLAN.md) is the whole plan in one file and the single
-source of truth** — the why, the WhatsApp and billing specifications, the
-customisation model, and the build order (§17, Phases A–H). This file is the
-how: the conventions and invariants you must not break. The older
-`docs/phase-*.md` files are supporting detail; where they differ, PLAN.md wins.
-The built apps (tenancy, catalog, delivery, content, storefront, messaging,
-orders) are the reference for how everything else should look.
+**[ARCHITECTURE.md](ARCHITECTURE.md) describes the current implementation.**
+`docs/PLAN.md` and older phase documents are historical reference material.
+Tenant foreign keys/scoped managers, existing data and published storefront
+content remain: removing the platform UI must not drop those safety boundaries.
 
 ---
 
@@ -35,8 +32,7 @@ Local hosts — add to `/etc/hosts`:
 127.0.0.1  admin.localhost
 ```
 
-`annam.localhost` is a tenant storefront. `admin.localhost` is the SEER super
-admin and deliberately carries **no** tenant.
+`annam.localhost` is a tenant storefront. `admin.localhost` is only a historical callback hostname; it has no login UI.
 
 Seed data:
 
@@ -128,9 +124,8 @@ tenant (`TenantSecrets.wa_provider`). See `docs/adr/0001-messaging-architecture.
 Meta's limits — 20-character `cta_url` label, 3 buttons, 10 list rows — are
 enforced in `payloads.py` and nowhere else.
 
-**Customisation is configuration.** Anything that differs between kitchens goes
-in `TenantConfig` (a field, or a key in `features`). If a client asks for
-something new, it becomes a flag every client can use. Never fork per client.
+**Customisation is configuration.** Store-specific policy remains in `TenantConfig`; preserve existing fields and
+feature behavior rather than rewriting data or hardcoding customer prices.
 
 **Tests are behavioural, named as sentences.** `test_dated_row_overrides_the_weekly_template`,
 not `test_resolver_2`. Every phase doc lists the behaviours that must be
@@ -174,12 +169,12 @@ docs/                  phase specs; work them in order
 
 ## Current state
 
-`docs/PLAN.md` §17 is authoritative for phase names, order, and status. Phase A
-(foundation, including PostgreSQL and worker infrastructure) is complete. Phase
-B (bills and the first Annam release) is next. The older `docs/phase-*.md`
-files remain implementation references only; PLAN.md wins when they differ.
+Annam's `/manage/` login opens its admin directly. Billing retains `/billing/`.
+Catalog/content/delivery, checkout, Razorpay, orders and WhatsApp inbox remain.
+Provider callbacks and published image URLs retain compatible technical paths.
+No SEER login, kitchen picker, domain setup or editor UI is exposed. Production
+uses `STORE_SLUG=annam`; background work respects that configured store.
 
-The plan records 189 passing tests at the Phase A completion checkpoint. Keep
-the suite green: a sender that can no longer decrypt a secret (rotated
-`SECRETS_KEY`) must land the message `abandoned`, never leave it stuck in
-`sending`.
+Run the full PostgreSQL test suite before every commit. Real Razorpay sandbox
+verification, live n8n synchronization, durable storage and launch acceptance
+remain external work; never claim those completed solely from simulated tests.

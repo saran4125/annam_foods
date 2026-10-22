@@ -36,32 +36,6 @@ def connect(owner, kitchens, claim, settings):
         return services.connect_domain(actor=owner, tenant=kitchens[0], pk=claim.pk)
 
 
-def test_domain_settings_are_private_and_only_owners_can_change_domains(client, signed_in, owner, kitchens):
-    path = '/platform/workspaces/annam/domains/'
-    assert Client().get(path, HTTP_HOST=HOST).status_code == 302
-    assert signed_in.get(path, HTTP_HOST=HOST).status_code == 200
-    assert signed_in.get('/platform/workspaces/rival/domains/', HTTP_HOST=HOST).status_code == 404
-    with tenant_context(kitchens[0]):
-        TenantUser.objects.filter(user=owner).update(role='staff')
-    assert signed_in.get(path, HTTP_HOST=HOST).status_code == 403
-    assert signed_in.post(path, {'action':'add','hostname':'shop.staff-example.com'}, HTTP_HOST=HOST).status_code == 403
-
-
-def test_adding_domain_shows_records_without_changing_live_mapping(signed_in, kitchens):
-    response = signed_in.post('/platform/workspaces/annam/domains/', {'action':'add','hostname':' WWW.CUSTOMER-KITCHEN.COM. '}, HTTP_HOST=HOST)
-    assert response.status_code == 302
-    with tenant_context(kitchens[0]):
-        domain = CustomDomain.objects.get()
-        assert domain.hostname == 'www.customer-kitchen.com'
-        assert domain.txt_name == '_seerkitchen.www.customer-kitchen.com'
-        assert PlatformAuditEvent.objects.filter(action='domain_added').exists()
-    assert not TenantDomain.objects.filter(hostname=domain.hostname).exists()
-    page = signed_in.get(response['Location'], HTTP_HOST=HOST)
-    assert b'Prepare now. Connect at launch.' in page.content
-    assert domain.verification_token.encode() in page.content
-    assert signed_in.get('/', HTTP_HOST=domain.hostname).status_code == 404
-
-
 @pytest.mark.parametrize('hostname', ['https://customer.com/path','customer.com:443','*.customer.com','127.0.0.1','[::1]','localhost','x.local','x.internal','x.onrender.com','bad..com','-bad.com','evil.com/path','user@customer.com','admin.localhost'])
 def test_invalid_or_platform_domains_cannot_be_claimed(hostname):
     with pytest.raises(ValidationError):
@@ -118,67 +92,11 @@ def test_https_failure_keeps_domain_unrouted_and_primary_unchanged(owner, kitche
     assert TenantDomain.objects.get(hostname=HOST).is_primary
 
 
-def test_https_activation_and_explicit_primary_change_preserve_tools_and_post_routes(owner, kitchens, claim, dns_ok, settings, signed_in):
-    result = connect(owner, kitchens, claim, settings)
-    assert result.status == 'active' and result.mapping.tenant_id == kitchens[0].pk and result.tls_verified_at
-    assert not result.mapping.is_primary
-    assert signed_in.get('/', HTTP_HOST=claim.hostname).status_code == 200
-    services.make_primary(actor=owner, tenant=kitchens[0], pk=claim.pk)
-    page = signed_in.get('/menu/?date=2026-10-21', HTTP_HOST=HOST)
-    assert page.status_code == 301 and page['Location'] == 'https://'+claim.hostname+'/menu/?date=2026-10-21'
-    assert signed_in.get('/manage/', HTTP_HOST=HOST).status_code == 200
-    assert signed_in.get('/billing/', HTTP_HOST=HOST).status_code == 200
-    assert signed_in.get('/platform/', HTTP_HOST=HOST).status_code == 200
-    assert signed_in.post('/menu/', HTTP_HOST=HOST).status_code != 301
-    assert signed_in.get('/', HTTP_HOST=claim.hostname).status_code == 200
-    assert signed_in.get('/', HTTP_HOST=OTHER).status_code == 200
-    with pytest.raises(ValidationError): services.remove_domain(actor=owner, tenant=kitchens[0], pk=claim.pk)
-
-
 def test_only_active_recent_https_domain_can_be_primary(owner, kitchens, claim, dns_ok, settings):
     with pytest.raises(ValidationError): services.make_primary(actor=owner, tenant=kitchens[0], pk=claim.pk)
     connect(owner, kitchens, claim, settings)
     with tenant_context(kitchens[0]): CustomDomain.objects.filter(pk=claim.pk).update(tls_verified_at=timezone.now()-timedelta(days=2))
     with pytest.raises(ValidationError): services.make_primary(actor=owner, tenant=kitchens[0], pk=claim.pk)
-
-
-def test_owner_cannot_check_or_remove_other_kitchens_claim(signed_in, owner, kitchens, claim):
-    other = get_user_model().objects.create_user('other-owner')
-    with tenant_context(kitchens[1]): TenantUser.objects.create(user=other,role='owner')
-    other_domain = services.add_domain(actor=other, tenant=kitchens[1], hostname='shop.other-kitchen.com')
-    for action in ('verify','connect','primary','remove'):
-        page=signed_in.post('/platform/workspaces/annam/domains/', {'action':action,'domain_id':other_domain.pk},HTTP_HOST=HOST)
-        assert page.status_code == 404
-
-
-def test_domain_forms_keep_csrf_protection(owner, kitchens):
-    strict=Client(enforce_csrf_checks=True);strict.force_login(owner)
-    assert strict.post('/platform/workspaces/annam/domains/', {'action':'add','hostname':'customer.com'},HTTP_HOST=HOST).status_code == 403
-
-
-def test_pending_domain_serves_only_nonce_proof_and_is_admitted_without_global_wildcard(owner, kitchens, claim, dns_ok, settings, client):
-    settings.DOMAIN_CONNECTIONS_ENABLED=True;settings.DOMAIN_HOSTING_PROVIDER='manual'
-    with patch.object(network,'check_https',side_effect=network.DomainCheckError('pending')):
-        services.connect_domain(actor=owner,tenant=kitchens[0],pk=claim.pk)
-    settings.ALLOWED_HOSTS = [HOST]
-    nonce='a'*32
-    response=client.get('/.well-known/seerkitchen-domain',{'nonce':nonce},HTTP_HOST=claim.hostname)
-    assert response.status_code == 200
-    assert response.json()['proof']==network.domain_proof(claim.hostname,claim.verification_token,nonce)
-    assert client.get('/',HTTP_HOST=claim.hostname).status_code==404
-    assert client.get('/.well-known/seerkitchen-domain',{'nonce':nonce},HTTP_HOST='unapproved-customer.com').status_code==400
-    assert settings.ALLOWED_HOSTS == [HOST]
-    assert client.get('/.well-known/seerkitchen-domain',{'nonce':'invalid'},HTTP_HOST=claim.hostname).status_code==404
-
-
-def test_caddy_certificate_requests_require_explicit_verified_connection(owner, kitchens, claim, dns_ok, settings, client):
-    settings.DOMAIN_CONNECTIONS_ENABLED=True;settings.DOMAIN_HOSTING_PROVIDER='caddy'
-    url='/platform/domains/allow-certificate/'
-    assert client.get(url,{'domain':claim.hostname},HTTP_HOST=HOST).status_code==403
-    with patch.object(network,'check_https',side_effect=network.DomainCheckError('pending')):
-        services.connect_domain(actor=owner,tenant=kitchens[0],pk=claim.pk)
-    assert client.get(url,{'domain':claim.hostname},HTTP_HOST=HOST).status_code==200
-    assert client.get(url,{'domain':'unapproved.com'},HTTP_HOST=HOST).status_code==403
 
 
 def test_removing_non_primary_domain_removes_route_and_records_audit(owner, kitchens, claim, dns_ok, settings):
@@ -270,12 +188,3 @@ def test_dns_txt_split_records_and_trailing_cname_dots_are_normalized():
         assert network.dns_records('_seerkitchen.customer.com','TXT')==['seerkitchen=abc']
     with patch.object(network,'_json_request',return_value={'Status':0,'Answer':[{'type':5,'data':'HOST.ONRENDER.COM.'}]}):
         assert network.dns_records('www.customer.com','CNAME')==['host.onrender.com']
-
-
-def test_bad_hosting_configuration_and_invalid_action_ids_do_not_break_settings(signed_in,settings):
-    settings.DOMAIN_CNAME_TARGET='https://invalid.example.com/path'
-    path='/platform/workspaces/annam/domains/'
-    page=signed_in.get(path,HTTP_HOST=HOST)
-    assert page.status_code==200 and b'hosting destination configuration' in page.content
-    for identifier in ('not-an-id','²','9'*100):
-        assert signed_in.post(path,{'action':'remove','domain_id':identifier},HTTP_HOST=HOST).status_code==400

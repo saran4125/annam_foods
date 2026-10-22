@@ -47,10 +47,10 @@ def test_django_admin_is_blocked_on_tenant_hosts(client, annam):
     assert response.status_code == 404
 
 
-def test_django_admin_still_worlds_on_the_platform_host(client, annam, settings):
+def test_retired_django_admin_is_not_available_on_the_old_platform_host(client, annam, settings):
     settings.PLATFORM_HOST = "admin.localhost"
     response = client.get("/admin/login/", HTTP_HOST="admin.localhost")
-    assert response.status_code == 200
+    assert response.status_code == 404
 
 
 def test_a_kitchens_clock_is_its_own_while_serving(client, annam):

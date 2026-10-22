@@ -176,10 +176,6 @@ def home(request):
             "cart_quantities": cart.items if cart.is_courier else {},
         },
     )
-    if getattr(request, "_storefront_appearance", {}).get("appearance_preview"):
-        from django.utils.cache import patch_cache_control
-        patch_cache_control(response, private=True, no_store=True)
-        response["X-Robots-Tag"] = "noindex, nofollow"
     return response
 
 

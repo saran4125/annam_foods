@@ -1,188 +1,168 @@
-# SeerKitchen platform architecture
+# Annam Foods application architecture
 
-Implementation snapshot: **21 October 2026**, based on application commit
-`bef0f9e` and its migrations. Annam Foods is the first tenant.
+Current scope: **22 October 2026**. This application now serves **Annam Foods
+only**, following the decision to retire the SEER cloud-kitchen platform product.
+This document describes repository behavior; it does not certify a live Render
+release, actual provider credentials, payment transaction or DNS change.
 
-This document describes the code that exists, its boundaries, and the remaining
-external setup. It does not certify the current Render deployment, live payment
-account, DNS, or n8n workflow. The product roadmap is [docs/PLAN.md](docs/PLAN.md);
-engineering invariants are in [AGENTS.md](AGENTS.md). Historical phase/status
-notes may describe earlier checkpoints; this document is the current architecture
-snapshot, not a declaration that every roadmap feature is finished.
+## 1. Scope and conversion
 
-## 1. Product and architectural shape
+The application remains a modular Django monolith with PostgreSQL, server-rendered
+pages and progressive JavaScript. It is Annam's storefront and management system.
 
-SeerKitchen is a hosted, multi-tenant platform for cloud kitchens. A platform
-operator provisions kitchens. Kitchen owners manage their own storefront,
-catalog, delivery coverage, orders, conversations, bills and settings. Customers
-browse and order on the kitchen's website.
+| Kept | Removed from the active application |
+| --- | --- |
+| Annam storefront and saved published design | SEER login, branding and marketing pages |
+| Menu/shop, cart and pincode-checked checkout | Kitchen picker and workspace dashboard |
+| Existing admin accounts and store membership | Browser tenant provisioning and owner-invitation screens |
+| Catalog, banners, pages and normal store settings | Domain-management/verification/activation screens and certificate/proof endpoints |
+| Delivery/courier policy, orders and fulfilment | Appearance visual editor, render/upload/publish endpoints and editor assets |
+| Razorpay, private receipts/bills and full refunds | Workspace-based access that could select another store |
+| WhatsApp inbox/n8n sync and billing | Exposed Django `/admin/` interface |
 
-The architecture is a **modular Django monolith**: one application codebase,
-shared PostgreSQL database, tenant-scoped models, server-rendered pages and
-progressively enhanced JavaScript. There is no separate SPA, per-client code fork,
-per-tenant deployment requirement, or WordPress runtime dependency.
+There is **no destructive database migration**. Existing store IDs, scoped foreign
+keys, users, catalog, published text/photos, payment references, invoices and
+history remain. Preserved tenant-scoping infrastructure is an internal data
+boundary, not a customer-facing multi-kitchen product.
+
+## 2. System overview
 
 ```mermaid
 flowchart TB
-    Customer[Customer browser] --> Edge[HTTPS hosting edge]
-    Owner[Kitchen owner or staff] --> Edge
-    Operator[Platform operator] --> Edge
+    Customer[Customer browser] --> Edge[HTTPS edge / Render]
+    Staff[Annam admin or staff browser] --> Edge
     Edge --> Web[Django / Gunicorn]
-    Web --> Resolve[Host or authorized workspace resolution]
-    Resolve --> Public[Storefront and checkout]
-    Resolve --> Manage[Kitchen admin and billing]
-    Resolve --> Portal[SEER platform portal]
-    Public --> Services[Shared application services]
-    Manage --> Services
-    Portal --> Services
+    Web --> Host[Resolve registered Annam hostname]
+    Host --> Site[Storefront and checkout]
+    Host --> Admin[Store management /manage/]
+    Host --> Bills[Billing /billing/]
+    Site --> Services[Shared application services]
+    Admin --> Services
+    Bills --> Services
     Services --> DB[(PostgreSQL)]
-    Services --> Media[Public and private storage]
-    Services --> RZP[Razorpay API]
-    RZP --> Hooks[Signed payment webhooks]
+    Services --> Media[Public / private storage]
+    Services --> Gateway[Razorpay]
+    Gateway --> Hooks[Signed payment webhook]
     Hooks --> Services
     Meta[Meta WhatsApp] <--> N8N[Existing n8n automation]
-    N8N --> Sync[Authenticated inbox sync]
+    N8N --> Sync[Authenticated inbox copies]
     Sync --> DB
-    Worker[Database inbox worker] --> DB
-    Worker --> Senders[Messaging sender drivers]
+    Inbox[Database inbox worker] --> DB
+    Inbox --> Senders[Messaging sender drivers]
     Senders --> N8N
     Senders --> Meta
-    Huey[Optional deployed Huey consumer] --> Redis[(Redis)]
+    Huey[Separately deployed optional Huey consumer] --> Redis[(Redis)]
     Huey --> Services
 ```
 
-Razorpay handles payment instruments; the platform stores provider references
-and verified financial state, not card, UPI PIN or bank login credentials.
-Existing n8n automation can remain responsible for WhatsApp replies while the
-platform mirrors incoming messages, outgoing replies and delivery/read statuses.
+There is no separate SPA or requirement for WordPress/WooCommerce. The
+`wordpress/` directory is an older independent review prototype, not the live
+Django catalog/order/billing database.
 
-## 2. Users, permissions and entry points
+## 3. Access and routing
 
-| Actor | Main access | Boundary |
-| --- | --- | --- |
-| Customer | Public storefront, cart, checkout, private receipt/bill | No kitchen administration; receipt belongs to the purchasing browser session |
-| Kitchen staff/manager | Assigned kitchen management, inbox, order and billing tools | Membership scoped to that kitchen; sensitive owner actions are separately restricted |
-| Kitchen owner | Kitchen management plus custom domains, payment credentials and refunds | Cannot administer another kitchen without membership |
-| Platform superuser | Central kitchen provisioning and administration | Explicit cross-tenant access; not an ordinary customer role |
+### Login and authorization
 
-Django user accounts are shared between the central and kitchen login entry
-points. `TenantUser` connects an account to a kitchen with `owner`, `manager` or
-`staff` role. Separate screens do not imply separate account databases.
+Annam's admin login is `/manage/login/`; opening `/manage/` while signed out
+redirects there. Valid credentials lead directly to `/manage/` or a safe local
+management destination. There is no SEER account picker or platform login form.
 
-- **SEER login:** `/platform/login/`. Superusers go to platform administration;
-  an ordinary account assigned one kitchen opens that kitchen's admin; multiple
-  memberships show the kitchen picker.
-- **Kitchen branded login:** `/manage/login/` on its own hostname. Opening
-  `/manage/` while signed out reaches that login and successful authentication
-  stays in that kitchen's admin.
-- **Billing login:** `/billing/login/` remains a separate entry point using the
-  existing accounts and kitchen access rules.
-- **Django admin:** `/admin/` is limited to `PLATFORM_HOST`. The custom kitchen
-  management interface is `/manage/`, not Django's unscoped admin.
+Existing Django users and `TenantUser` membership remain. Active owner, manager
+and staff memberships authorize appropriate store tools. Active superusers can
+use the same login; sensitive payment/refund actions still require owner or
+superuser permission. An unrelated/inactive account does not gain store access.
+Billing retains its separate `/billing/login/` entry point with the existing
+accounts. Browser mutations require CSRF protection.
 
-Permission checks are enforced on the server. Knowing a slug, changing a URL or
-hiding/showing a sidebar link does not grant kitchen membership. Domain changes,
-Razorpay credentials and refund requests require owner/superuser permission.
+### Current routes
 
-### Route map
-
-| Surface | Route pattern |
+| Surface | Route |
 | --- | --- |
-| Public kitchen website | `/`, `/menu/`, `/shop/`, `/item/<id>/`, `/p/<slug>/`, `/about/` |
-| Cart and checkout | `/cart/`, `/checkout/` |
+| Storefront | `/`, `/menu/`, `/shop/`, `/item/<id>/`, `/about/`, `/p/<slug>/` |
+| Cart / checkout | `/cart/`, `/checkout/` |
 | Private receipt | `/checkout/complete/<uuid>/` |
-| Private online payment and verification | Receipt path plus `payment/`, `pay/`, `verify/`, `status/` |
+| Payment begin/page/verify/status | Receipt path plus `pay/`, `payment/`, `verify/`, `status/` |
 | Customer bill | Receipt path plus `bill/` |
-| Kitchen admin | `/manage/` |
-| Visual website editor | `/manage/appearance/` |
-| Checkout coverage settings | `/manage/checkout-settings/` |
+| Store admin | `/manage/` |
+| Orders | `/manage/orders/` |
+| WhatsApp inbox/settings | `/manage/whatsapp/`, `/manage/whatsapp/settings/` |
 | Razorpay settings | `/manage/payments/razorpay/` |
-| WhatsApp inbox and connection | `/manage/whatsapp/`, `/manage/whatsapp/settings/` |
+| Checkout/courier settings | `/manage/checkout-settings/` |
+| Legal billing settings | `/manage/billing/` |
+| Store settings | `/manage/settings/` |
 | Billing portal | `/billing/` |
-| Central kitchen picker | `/platform/` |
-| Platform administration | `/platform/admin/` |
-| Kitchen workspace | `/platform/workspaces/<slug>/` |
-| Scoped management/billing | Workspace path plus `manage/` or `billing/` |
-| Private storefront preview | Workspace path plus `preview/` |
-| Kitchen domain settings | Workspace path plus `domains/` |
-| Editor image asset | `/platform/assets/<slug>/<uuid>/` |
-| Stable Razorpay webhook | `/platform/webhooks/<slug>/razorpay/test/` or `/live/` |
-| Stable WhatsApp endpoints | `/platform/webhooks/<slug>/whatsapp/` and its `n8n/` suffix |
-| Kitchen-host WhatsApp endpoints | `/webhooks/whatsapp/`, `/webhooks/whatsapp/n8n/` |
-| Domain proof | `/.well-known/seerkitchen-domain` |
-| Caddy certificate authorization | `/platform/domains/allow-certificate/` |
 | Database health probe | `/healthz` |
 
-The existing hosting address is `https://annam-foods.onrender.com/`. Its Annam
-workspace is `/platform/workspaces/annam/`. These are existing addresses, not a
-claim that a deployment was verified when writing this file.
+### Compatibility URLs
 
-## 3. Application boundaries
+The previously configured provider and image URLs remain stable:
 
-| Module | Responsibilities |
-| --- | --- |
-| `apps.tenancy` | Tenant identity/status, host mappings, configuration, encrypted legacy connections, billing profile, memberships, invitations, audit events, context and scoped managers |
-| `apps.platform_portal` | Central login, provisioning, workspaces, private previews, custom-domain lifecycle and hosting adapters |
-| `apps.catalog` | Categories, products/dishes, meal slots, weekly/dated schedules, availability and current prices |
-| `apps.delivery` | Meal delivery zones, serviceable pincodes and separate courier checkout rules |
-| `apps.content` | Pages, banners, design validation/publication, editor image storage and public-media fallback |
-| `apps.storefront` | Public pages, theme registry, cart, checkout, private receipts and website context |
-| `apps.orders` | Customer/address records, shared order creation/pricing, snapshots and fulfilment events |
-| `apps.billing` | Staff booking entry, billing settings, payment confirmation, invoices, numbering, tax and credit notes |
-| `apps.payments` | Razorpay account settings, provider adapter, payment verification, webhook handling, refunds and reconciliation |
-| `apps.messaging` | Conversations, messages/receipts, authenticated ingestion, outbound queue, payload validation and sender drivers |
-| `apps.owner` | Kitchen dashboard and management forms/views for catalog, content, orders and appearance |
-| `apps.jobs` | Periodic message dispatch and per-kitchen local business-day handoff |
-| `config` | Settings, root routing, WSGI and health checks |
+- `/platform/webhooks/annam/razorpay/test/` and `/live/`.
+- `/platform/webhooks/annam/whatsapp/` and `/whatsapp/n8n/`.
+- `/webhooks/whatsapp/` and `/webhooks/whatsapp/n8n/` on the store hostname.
+- `/platform/assets/annam/<uuid>/` for existing published editor images.
 
-Business services are Python calls shared by views and jobs. Internal modules
-must not call each other through internal HTTP endpoints. Views parse/authorize
-input and render responses; pricing, financial verification and state changes
-belong in services. Templates must not calculate money or decide eligibility.
+The `platform` segment in these technical paths does not expose a platform UI.
+Callbacks authenticate independently. The former configured platform hostname can
+still accept exact signed/authenticated callbacks for the configured store, but
+cannot show a login, storefront or administration page without a store mapping.
 
-The `wordpress/` directory contains a separate review prototype. Its catalog,
-plugins and database are not part of the Django production order/billing system.
+Old SEER login/home GET bookmarks redirect to `/manage/login/`. Annam workspace
+GET bookmarks translate to local `/manage/`, `/billing/` or storefront routes.
+Cross-store workspace slugs, traversal/external redirect attempts and removed
+domain/editor/provisioning routes are refused. Old POST submissions receive no
+redirect/replay into replacement endpoints. Login never accepts an external
+`next` destination.
 
-## 4. Tenant isolation and request resolution
+## 4. Store resolution and retained data isolation
 
-All kitchens share PostgreSQL. Most kitchen-owned records inherit
-`TenantOwnedModel`, which provides a tenant foreign key and two managers:
+`TenantMiddleware` resolves the registered hostname to the existing store record.
+Production defaults to `STORE_SLUG=annam`; a hostname mapped to a historical other
+store is refused. URL slugs cannot switch the browser's store. Background inbox,
+periodic jobs and payment reconciliation also filter to `STORE_SLUG`.
+
+Missing/unknown hosts fail closed; `/healthz` is the host-independent exception.
+Existing connected custom hosts may retain admission through their saved mapping;
+pending claims no longer admit traffic. No automatic custom-domain setup, primary
+switch or certificate issuance is exposed. Future DNS/hosting configuration is an
+operator task.
+
+Tenant-owned models still inherit `TenantOwnedModel`:
 
 ```python
-Order.objects.all()      # current tenant only; raises without context
-Order.all_tenants.all()  # deliberate cross-tenant query
+Order.objects.all()      # scoped to the active store; raises without context
+Order.all_tenants.all()  # explicit internal cross-store operation
 ```
 
-The context uses `ContextVar`; background work uses `tenant_context(kitchen)`.
-Missing context raises `TenantContextMissing` rather than silently returning
-another kitchen's rows. Global registry and explicitly exempt one-to-one models
-are handled separately; exemptions require a stated reason. A test checks the
-scoped-manager invariant across models.
+The context uses `ContextVar`; requests/jobs set it deliberately and restore it
+and the active timezone afterward. Scope checks are enforced in application code
+and tests, not PostgreSQL row-level security. Development without `STORE_SLUG`
+can test preserved isolation with multiple fixture stores; it never re-enables
+removed UI routes.
 
-Request resolution proceeds as follows:
+## 5. Module responsibilities
 
-1. Admit configured hosts, or an exact approved custom host through managed-domain
-   admission. Never enable unrestricted wildcard customer hosts.
-2. For a kitchen hostname, resolve `TenantDomain` to one kitchen. An unknown host
-   does not select a default kitchen.
-3. Central `/platform/` pages deliberately carry no implicit kitchen. Authorized
-   workspace routes resolve the explicit slug and check membership.
-4. Workspace management/billing/preview routes reuse their applications through
-   a generated scoped URL configuration.
-5. Exact public webhook routes resolve the explicit kitchen slug, then require
-   their integration-specific authentication/signature.
-6. Activate the kitchen context and configured timezone; restore both after the
-   request, including exception paths.
+| Module | Responsibility |
+| --- | --- |
+| `apps.tenancy` | Existing store/configuration/membership, scoped managers/context, encrypted connections and deployment filtering |
+| `apps.catalog` | Meal slots, categories/items, weekly/dated schedules and availability |
+| `apps.delivery` | Meal zones and separate exact-pincode courier policy |
+| `apps.content` | Pages/banners, published-design rendering, stored images and media fallback |
+| `apps.storefront` | Public pages, cart, guest checkout, private confirmation and trusted theme templates |
+| `apps.orders` | Customers/addresses, pricing/order snapshots and fulfilment events |
+| `apps.billing` | Staff bookings, payment confirmation, tax, invoice/credit numbering and printing |
+| `apps.payments` | Razorpay settings, provider adapter, capture/webhook verification, refunds and reconciliation |
+| `apps.messaging` | Inbox ingestion/receipts, authenticated sync, outbound queue and sender drivers |
+| `apps.owner` | Annam's login/dashboard/catalog/content/order/settings UI |
+| `apps.jobs` | Periodic message dispatch and local business-day handoff |
+| `apps.platform_portal` | Retained compatibility asset/webhook routes and safe old-bookmark redirects; internal historical services remain unexposed |
+| `config` | Settings, root routing, WSGI and health check |
 
-Isolation is enforced by application code and tests, **not PostgreSQL row-level
-security**. Explicit cross-tenant operations must remain narrowly scoped to
-platform administration, dispatch/reconciliation sweeps and host lookup.
+Services own business rules; views authorize/parse and render. Modules call shared
+Python services instead of internal HTTP endpoints. Templates do not calculate
+financial totals or decide whether a delivery address is eligible.
 
-A verified primary custom domain can canonicalize public GET/HEAD browsing.
-Staff tools, payment callbacks, webhooks and mutation requests retain their
-original route so domain changes do not move credentials or replay operations.
-
-## 5. Data model and sources of truth
+## 6. Persistence model
 
 ```mermaid
 erDiagram
@@ -190,14 +170,12 @@ erDiagram
     Tenant ||--|| TenantConfig : configures
     Tenant ||--|| BillingProfile : identifies_seller
     Tenant ||--o{ TenantUser : authorizes
-    Tenant ||--o{ CustomDomain : claims
     Tenant ||--o{ MenuItem : offers
     MenuItem ||--o{ MenuSchedule : schedules
     Slot ||--o{ MenuSchedule : groups
     Tenant ||--o{ DeliveryZone : serves
-    Tenant ||--o{ StorefrontImage : stores
+    Tenant ||--o{ StorefrontImage : preserves
     Tenant ||--o{ Customer : knows
-    Customer ||--o{ Address : records
     Customer ||--o{ Order : places
     Order ||--o{ OrderEvent : records
     Order ||--o{ Invoice : bills_or_credits
@@ -206,591 +184,299 @@ erDiagram
     PaymentIntent ||--o{ Refund : refunds
     Tenant ||--o{ WhatsAppConversation : hosts
     WhatsAppConversation ||--o{ WhatsAppMessage : contains
-    Tenant ||--o{ OutboundMessage : queues
 ```
 
-The diagram shows major relationships; it is not a complete database schema.
-Every tenant-owned relationship must refer to records in the same kitchen.
+The diagram shows principal relationships, not every field. Important sources of
+truth:
 
-| Record/group | Source of truth |
+- `TenantConfig`: store identity/theme/features, saved design and checkout policy.
+- `BillingProfile`: legal seller, address, FSSAI/GST, tax and rounding rules.
+- `Order`: placed customer/address/line/pricing snapshots, channel/source,
+  fulfilment and payment state. Historical prices do not follow catalog edits.
+- `InvoiceSequence` / `Invoice`: locked financial-year numbering and immutable
+  issued bill/credit snapshots.
+- `RazorpayConnection` / `PaymentIntent` / `Refund` / `PaymentEvent`: encrypted
+  account settings, mode-bound provider references, financial state and deduplication.
+- `WhatsAppMessage` / `WhatsAppReceipt` / outbound/forward queues: conversation
+  bodies, status history and durable delivery work.
+
+Money uses `Decimal` and decimal database fields. Conversion to integer paise
+occurs only at the payment boundary. Historical domain claims, invitations and
+audit rows are retained, but have no public management/activation interface.
+
+## 7. Storefront, published content and media
+
+The existing Kitchen Classic templates continue rendering Annam's published
+section order, visibility, text, colors, footer and photo references. No reset or
+replacement theme is applied. The Appearance UI, live canvas, editor upload,
+render/save/publish routes and SEER/editor assets are removed.
+
+`TenantConfig.storefront_design` remains because it contains the existing public
+website. Only its **published** state is rendered; an old `?design=draft` query
+cannot reveal unpublished content, even for signed-in staff. Saved draft/previous
+records remain untouched. Existing catalog, banners, pages and normal store
+settings remain editable in their own forms.
+
+Published editor images remain `StorefrontImage` database binary records with
+their existing UUID URLs. Public references stay readable after deployment;
+unpublished images remain staff-protected. A cross-store image slug is not a
+browser store selector. Existing upload validation/services remain internal for
+data compatibility, not an exposed editor.
+
+Legacy dish/banner/brand files use public media storage. Selected recovered files
+under `static/public-media/` are fallback assets, including Health Mix. An owner's
+existing uploaded replacement takes precedence. A fallback file set does not make
+every upload durable on an ephemeral hosting disk.
+
+Published customer-facing footer overrides remain separate from the legal
+`BillingProfile`; retaining a marketing address must not rewrite issued invoice
+seller details.
+
+## 8. Catalog, cart and delivery rules
+
+| Fulfilment | Rules |
 | --- | --- |
-| `Tenant`, `TenantDomain` | Kitchen identity/status and active hostname routing |
-| `TenantConfig` | Branding, timezone, feature flags, design versions and checkout policy |
-| `TenantUser`, `OwnerInvitation` | Membership and single-use owner activation |
-| `BillingProfile` | Legal seller identity, FSSAI/GST, tax/rounding and invoice setup |
-| `TenantSecrets` | Encrypted messaging/provider settings and legacy connection values |
-| `CustomDomain`, `PlatformAuditEvent` | Pending domain claims, proofs, connection state and audit trail |
-| `Slot`, `MenuCategory`, `MenuItem`, `MenuSchedule` | Live catalog and scheduled meal availability |
-| `DeliveryZone` | Active local meal coverage, fees and minimums |
-| `Page`, `Banner` | Kitchen-written pages and offers |
-| `StorefrontImage` | Tenant editor images stored as database binary content |
-| `Order` | Placed line, customer/address, pricing, source and payment snapshots |
-| `OrderEvent` | Fulfilment transition history |
-| `InvoiceSequence`, `Invoice`, `InvoiceRequest` | Financial-year numbering, immutable bills/credits and bill requests |
-| `RazorpayConnection`, `PaymentIntent`, `Refund`, `PaymentEvent` | Mode-bound provider account, verified payment/refund state and event deduplication |
-| `WhatsAppConversation`, `WhatsAppMessage`, `WhatsAppReceipt` | Inbox history and delivery/read state |
-| `OutboundMessage`, `WhatsAppForwardEvent` | Durable queued sending and automation forwarding |
-| `DailyKitchenRun` | One local business-day handoff per kitchen/date |
+| Scheduled breakfast/lunch/dinner | Mandatory pincode in an active delivery zone for that meal, chosen slot/date, live schedule, cutoff, closed dates, zone minimum/fee |
+| Courier shop items | Courier feature/configuration enabled, exact approved Tamil Nadu pincode, courier minimum and shipping fee |
 
-Catalog data can change after an order. Historical order and invoice snapshots
-must not be recomputed from today's product prices or seller details. Money uses
-`Decimal`/decimal database fields. Conversion to integer paise is confined to the
-payment-provider boundary.
+Dated schedules override weekday schedules. Inactive/unavailable/sold-out items
+cannot be ordered. Prices and eligibility are re-read on the server.
 
-## 6. Catalog, availability, cart and delivery
+The session cart is namespaced by store (`cart.<id>`), validates quantities/types
+and caps quantities at 99 per line. One cart contains one meal slot/date or
+courier goods; mixed fulfilment is refused. Checkout supports its implemented
+today/tomorrow meal selection.
 
-`MenuItem.fulfilment` separates two checkout models:
+Out-of-zone customers cannot place a meal order. Courier delivery uses an
+explicit exact-pincode allowlist, not a guessed statewide prefix. It fails closed
+until configured. Website checkout offers no silent pickup/coverage bypass;
+staff collection booking remains a separate workflow.
 
-| Type | Coverage | Scheduling and pricing |
-| --- | --- | --- |
-| `scheduled` meals | Active kitchen delivery-zone pincodes | Meal slot/date, live schedule, cutoff, zone minimum and fee |
-| `courier` shop goods | Explicit configured approved Tamil Nadu pincode list | Courier enabled, courier minimum and flat shipping fee |
-
-Dated menu rows override recurring weekday rows. Inactive, unavailable or sold-out
-items cannot be ordered. Checkout rechecks current prices, availability, slot
-cutoffs and closed dates/windows. A visible product card is not an order promise.
-
-The session cart is namespaced by tenant (`cart.<tenant_id>`). Its shape and
-quantities are validated; quantity is capped at 99 per line. Prices are read
-again from the live catalog/schedule. A cart contains one meal slot/date or
-courier goods; mixed fulfilment is rejected.
-
-Pincode is mandatory at checkout:
-
-- Meals outside an active, matching delivery zone are rejected before order
-  creation. Where a pincode matches multiple areas, the customer selects one.
-- Shop delivery uses a separate approved exact-pincode allowlist. It does not
-  assume every pincode starting with a Tamil Nadu prefix is serviceable.
-- Courier checkout fails closed until enabled and configured. The owner must
-  confirm actual courier coverage, fees and minimums.
-- Website checkout does not silently offer pickup or bypass coverage for an
-  out-of-zone customer. Staff booking collection is a separate workflow.
-
-Feature definitions live in `apps/tenancy/features.py`; configured presets/flags
-are not proof that every advertised future feature has an implemented workflow.
-
-## 7. Visual storefront editor and themes
-
-All tenants currently share the **Kitchen Classic** theme and trusted Django
-section templates. Per-tenant settings customize that design without creating a
-client-specific code branch. A second selectable storefront theme is future work.
-
-The theme registry defines these sections: welcome hero, offers, daily menu,
-kitchen highlights, shop categories, food favourites, popular products, product
-spotlight, ordering story and contact/visit. Visibility and order are configurable.
-
-The visual editor provides:
-
-- A rendered website canvas with direct text/photo selection and side-panel editing.
-- Allowlisted plain-text headlines, descriptions, button labels and footer copy.
-- Upload/library image replacement, including independent left/middle/right
-  contact-section photos, logo, hero, offer and product spotlight images.
-- Section ordering/visibility, approved color/type/spacing/corner/layout choices.
-- Desktop/phone previews, undo/redo, draft saving, publication and previous-design
-  restoration.
-
-`TenantConfig.storefront_design` stores draft, published, previous and revision
-state. Concurrent saves use an optimistic revision check. Customers see the
-published version; private rendering can show draft changes before publication.
-The canvas renders actual Django storefront templates, not a disconnected mockup.
-Its iframe messaging checks source/origin and the rendering endpoints require
-kitchen access.
-
-Customization selects trusted options; tenants cannot upload executable
-JavaScript, arbitrary templates or an unrestricted HTML page builder. Operational
-catalog, prices, availability and delivery policy remain in their own forms.
-
-Footer phone, email, address, WhatsApp number and FSSAI copy can be edited through
-the website editor. These customer-facing design overrides do **not** overwrite
-the legal accounting `BillingProfile`. Contact links resolve the configured
-website contact values consistently.
-
-### Image persistence
-
-Editor uploads are `StorefrontImage` database records, validated as JPG/PNG/WebP,
-up to 3 MB and 25 megapixels, with a 100-image kitchen limit. Published design
-references can be served publicly. Draft/unpublished images require authorized
-kitchen access; another kitchen's image ID cannot be assigned to a design.
-
-Legacy catalog, banner and brand uploads still use configured public media
-storage. Selected imported recovery assets are bundled under
-`static/public-media/`, including the restored Health Mix image. An existing
-uploaded replacement takes precedence over that fallback. Bundling selected
-files does not make every legacy upload durable on an ephemeral Render disk.
-
-## 8. Website checkout lifecycle
+## 9. Guest checkout and order creation
 
 ```mermaid
 sequenceDiagram
     participant Browser
-    participant Checkout as Checkout services
+    participant Checkout
     participant DB as PostgreSQL
-    participant Pay as Payment services
-    Browser->>Checkout: Customer details, pincode and cart
-    Checkout->>DB: Re-read catalog, coverage, fees and tax
-    Checkout-->>Browser: Review with signed, expiring token
+    Browser->>Checkout: Cart, contact, full address and pincode
+    Checkout->>DB: Re-read availability, coverage, prices, fees and tax
+    Checkout-->>Browser: Signed 30-minute review
     Browser->>Checkout: Place reviewed order
-    Checkout->>DB: Lock config, validate review, create/reuse order
-    alt Online selected
+    Checkout->>DB: Lock, revalidate and create/reuse order
+    alt Online payment
         Checkout->>DB: Reserve mode/account-bound PaymentIntent
-        Checkout-->>Browser: Private receipt/payment page
-        Browser->>Pay: Begin Razorpay payment
-    else Manual selected and enabled
+        Checkout-->>Browser: Private payment/receipt URL
+    else Enabled manual payment
         Checkout-->>Browser: Private unpaid receipt
     end
 ```
 
-Checkout collects customer name, Indian phone number, optional email, complete
-address, city and pincode. Meals use the supported today/tomorrow selection and
-slot rules. Server-side review includes delivery charges and billing tax/rounding.
+The review binds store, browser identity, customer/cart details, coverage/prices,
+tax/fees and payment mode/account. Changes require a new review. Duplicate
+submission reuses the order via transactional locking and a unique external
+reference; replay must not clear a newer cart.
 
-The 30-minute signed review binds the kitchen, browser identity, cart/customer
-input, pricing/coverage/tax snapshot and selected payment mode/key ID. A changed
-cart, price, fee, policy or account requires a fresh review. Browser totals or
-claims that payment succeeded are never accepted as financial evidence.
+Customers provide name, Indian phone, optional email, complete address, city and
+pincode. A phone number does not grant access to a previous customer's history
+or private details. Receipt/bill URLs are UUID-based and bound to the purchasing
+browser session and store. No customer OTP/account history is implemented.
 
-Order creation is transactional and idempotent through the review reference,
-`Order.external_ref` uniqueness and locking. Duplicate submission returns the same
-order. Replaying an old submission must not clear a newly changed cart.
-Website orders use channel `web` and source `storefront`, then appear in the
-shared orders list and Website billing section.
+Website orders use `channel=web`, `source=storefront`. Staff manual and WhatsApp
+bookings share the same `Order`, pricing and billing services.
 
-Receipt references are UUID-based and tied to a tenant-specific purchasing
-browser session. There is no public order-number lookup or guest order history
-unlocked merely by supplying a phone number. Customer/address snapshots avoid
-exposing an existing customer's private account information to another guest.
-Customer OTP/account login has not been implemented.
+Fulfilment follows `placed → confirmed → preparing → out_for_delivery → delivered`,
+with cancellation before terminal states and event history. Payment state is
+separate: pending/COD pending, paid, failed or refunded. Delivery never proves
+payment; cancellation does not automatically refund money.
 
-## 9. Order and fulfilment state
+## 10. Razorpay architecture
 
-All entry channels share `Order`, pricing and billing:
+Owner-only settings hold separate encrypted test/live connections, with one
+active mode offered to new customers. Enabling verifies credentials through a
+read-only provider request. Saved legacy credentials migrate disabled.
 
-- Website checkout.
-- Staff-entered manual bookings.
-- Staff-entered WhatsApp bookings, including the inbox's prefilled customer link.
+Each intent preserves store, order, connection/mode/Key ID, exact paise amount
+and INR currency. Existing orders retain their original mode when settings change.
+Replacing keys while open provider orders require them is blocked.
 
-The normal fulfilment progression is:
+Payment flow:
 
-```text
-placed → confirmed → preparing → out_for_delivery → delivered
-   └──────── cancellation before a terminal state ───────→ cancelled
-```
+1. Claim provider-order creation transactionally and call the bounded HTTPS
+   adapter outside the database lock.
+2. Use a stable receipt/reference. Unknown creation outcomes reconcile by receipt
+   rather than blindly creating another provider order.
+3. Load Razorpay Checkout with public options and customer-entered prefill only.
+4. Verify browser HMAC against the stored order reference, then independently fetch
+   exact order/amount/INR/captured status before recording payment.
+5. Verify raw webhook HMAC with mode-specific secrets; deduplicate event IDs and
+   fetch independent provider evidence. Delayed failures cannot downgrade paid or
+   refunded state.
 
-Transitions record `OrderEvent` history. Payment state is separate:
-`pending`, `cod_pending`, `paid`, `failed`, `refunded`.
-Delivery or acceptance alone never means payment was received. Cancelling an
-order does not itself refund a payment. A capture arriving after cancellation
-still records the funds and flags refund review without reopening fulfilment.
+Supported events: `payment.captured`, `payment.failed`, `order.paid`,
+`refund.created`, `refund.processed`, `refund.failed`. Authorization alone remains
+unpaid. Capture after cancellation records funds without reopening fulfilment and
+flags refund review. Staff cannot manually bypass online verification.
 
-The services and staff order screens support status changes. Automatic customer
-notifications for every operational transition and all production fulfilment
-procedures still require completion/verification; feature flags alone do not
-establish that those notifications are running.
+Live capture attempts one invoice. Billing failure leaves verified funds recorded
+and surfaces a repairable billing notice. Test orders have TEST labels and cannot
+issue real numbered bills. No card, UPI PIN or bank credentials are stored.
 
-## 10. Razorpay payments, verification and refunds
+Full refunds require owner permission, reason and confirmation. Request UUIDs,
+provider idempotency and lookups reconcile pending/unknown results without a new
+refund action. Only fetched `processed` refund records prove completion; a
+reported refunded amount alone is insufficient. External partial refunds require
+review and block a blind additional full refund. Full processed refunds create
+remaining eligible credit-note value, accounting for prior credits.
 
-Each kitchen connects its own account. `RazorpayConnection` has separate test/live
-rows, encrypted API/webhook secrets, a public Key ID and at most one enabled mode.
-Only owners/superusers manage it. Legacy saved credentials are migrated into
-**disabled** connections; migration does not silently enable payments.
+Customers/owners can refresh payment state. `reconcile_razorpay` is a bounded
+read/reconciliation command for an external scheduler; it does not create a charge
+or refund. It is not automatically installed as Render cron.
 
-Enabling a connection performs a read-only credential check. A new order's
-`PaymentIntent` preserves its connection, mode, Key ID, exact paise amount and INR
-currency. Switching the mode offered to new customers does not change old orders.
-Replacing keys is blocked while open provider orders still need them.
+Actual Annam sandbox/live verification still needs secure keys, public webhook
+configuration and acceptance. Live use additionally requires activation/KYC and
+explicit enabling. See [docs/razorpay.md](docs/razorpay.md).
 
-### Payment flow
+## 11. Billing
 
-1. Reserve an intent for the website order.
-2. Claim provider-order creation in the database; perform provider I/O outside
-   the locked transaction.
-3. Create the Razorpay order with the exact server total, a stable receipt and
-   platform intent reference. An ambiguous timeout is reconciled by receipt;
-   retry must not blindly create another provider order.
-4. Render Razorpay Checkout using only public options and customer-entered prefill.
-   The browser loads `https://checkout.razorpay.com/v1/checkout.js`.
-5. Verify the browser signature against the **stored** provider order reference.
-6. Independently fetch provider payment state and require the correct order,
-   exact amount, INR, captured flag and captured status.
-7. Serialize the financial transition. Authorization alone remains unpaid;
-   delayed failure callbacks cannot downgrade a paid/refunded order.
+The separate Manual/Website/WhatsApp billing screens share legal profile,
+numbering, payment checks and issued documents. Staff bookings start unpaid;
+manual/COD confirmation records actual receipt, not bank verification.
 
-Raw webhooks use mode-specific HMAC-SHA256 verification and a tenant/mode/event-ID
-deduplication record. They independently fetch provider evidence before changing
-financial state. Supported events are `payment.captured`, `payment.failed`,
-`order.paid`, `refund.created`, `refund.processed` and `refund.failed`.
+Billing supports regular GST invoices, composition bills of supply and
+unregistered bills. Configured tax rules cover inclusive/exclusive prices,
+item/default rates, CGST/SGST or IGST, delivery tax and rounding. Seller settings
+must reflect actual accountant-approved details.
 
-Payment intent states cover creation and ambiguous outcomes (`new`, `creating`,
-`uncertain`, `error`, `ready`) and financial outcomes (`captured`, `refund_pending`,
-`part_refunded`, `refunded`). These are service states; fulfilment remains separate.
+Issuance requires an eligible paid order, validates the total against payment,
+snapshots seller/buyer/lines/payment, allocates a financial-year/series number
+under a row lock and reuses that invoice on retries. Issued documents retain their
+original values. Credits correct/refund documents rather than silently editing
+old bills. View/print uses a shared layout and browser Print / Save as PDF.
+Automatic generated-PDF WhatsApp delivery remains separate work.
 
-The REST adapter uses fixed HTTPS provider endpoints, server-side authentication,
-bounded timeouts, no redirects and sanitized errors. Secrets never enter browser
-options, query strings or returned settings forms.
+## 12. WhatsApp and n8n
 
-### Bills and test mode
+The existing n8n automation remains. Inbox sync requires Meta phone number ID and
+an encrypted bearer sync token. n8n keeps its existing Meta callback and posts
+incoming/status copies plus each successfully sent outgoing body/provider ID to
+the inbox. Delivery callbacks alone do not contain outgoing reply text.
 
-Verified **live** capture attempts automatic invoice issuance. Incomplete billing
-settings leave the verified payment recorded and a visible billing error; the
-owner fixes the profile and generates the bill afterward. Test payments show
-TEST labels and cannot produce real numbered bills. Staff cannot manually mark
-an order with an online Razorpay intent as paid to bypass verification.
+Sync deduplicates provider IDs and reconciles receipts arriving before message
+bodies. Retry copy nodes, not the actual send operation. The sync route does not
+forward copies back to n8n, avoiding loops. Direct Meta ingestion is separately
+signed; media/sending connections have their own requirements. An app secret is
+not required merely for n8n-to-inbox mirroring.
 
-### Refunds
+The inbox stores messages/attachments and delivery/read/failed status. Staff
+replies require an open 24-hour customer window and configured sender. Media
+previews require server-side connection access. Old history is not auto-imported.
 
-The owner-only UI requests a **full refund**, with an explicit reason and
-confirmation. A `Refund` UUID identifies the request and provider idempotency key.
-Preflight checks verify the payment and existing refunds. Unknown/pending outcomes
-are reconciled rather than submitted as a fresh refund.
+The database inbox worker handles staff replies/forward events without Redis.
+Other outbound transactional dispatch uses the separately deployed Huey periodic
+consumer. Sender drivers own provider I/O and payload constraints; queue records,
+leases, backoff and bounded retries preserve delivery history.
 
-Refund state progresses through `requested`, `submitting`, `uncertain`, `pending`
-and `processed` or `failed`. A provider payment's refunded amount alone does not
-prove completion: fetched refund records must say `processed`. External partial
-refunds are tracked for review and prevent a blind additional full refund.
-A processed full refund creates the remaining credit-note balance when a real
-bill exists, accounting for prior credits and repeated callbacks.
+Mirroring does not automatically create a billable order. Staff can open a
+WhatsApp booking with contact details prefilled. Structured automatic order import,
+complete native chat ordering and automatic bill delivery remain separate work.
+Live incoming/outgoing/status sync still needs verification.
+See [docs/n8n/inbox-sync.md](docs/n8n/inbox-sync.md).
 
-### Reconciliation and integration status
+## 13. Runtime, storage and operations
 
-Customers can check status on their private receipt; owners can refresh provider
-state from the order. The bounded management command below is available for an
-external scheduler, suggested every 15 minutes:
-
-```bash
-python manage.py reconcile_razorpay
-```
-
-It reads/reconciles provider state and retries eligible bill completion; it does
-not request a new charge or refund. The repository's Render blueprint does not
-automatically deploy this cron job.
-
-The integration has automated simulated provider tests and browser checks.
-**A real Razorpay sandbox transaction has not been verified with Annam's keys.**
-The kitchen must supply keys in secure admin settings, register the public test
-webhook and validate end to end. Live use additionally requires account
-activation/KYC, live credentials/webhook and explicit activation.
-See [docs/razorpay.md](docs/razorpay.md).
-
-## 11. Billing architecture
-
-The billing portal separates Manual, Website and WhatsApp entry views but shares
-orders, legal seller profile, tax rules, invoice numbering and issued documents.
-A staff booking starts unpaid. Manual/COD payment confirmation records actual
-receipt of funds; it is not bank or gateway verification.
-
-Billing supports regular GST tax invoices, composition bill of supply and
-unregistered bills, according to the configured profile. Pricing supports
-inclusive/exclusive item tax, defaults/item rates, intra-state CGST/SGST,
-inter-state IGST, delivery taxation and rounding. Configure accountant-approved
-settings; existing business identity must not be populated with fake registrations.
-
-Invoice issuance:
-
-1. Requires an eligible paid order and complete seller settings.
-2. Uses order/pricing data and immutable seller/buyer/line/payment snapshots.
-3. Checks that the bill matches the paid order total; a settings change must not
-   manufacture a different invoice amount.
-4. Allocates the financial-year/series number in a transaction under a row lock.
-5. Reuses the existing invoice on repeated issuance requests.
-
-Issued numbered documents are not editable live catalog views. Corrections and
-refund accounting use credit documents, not silent edits to old invoices.
-Staff and eligible customers can view/print a shared bill layout; the browser's
-Print / Save as PDF provides download. Private bill storage is configured, but a
-complete background PDF-generation and automatic WhatsApp-bill-delivery pipeline
-must not be inferred from that storage setting.
-
-## 12. WhatsApp, n8n and messaging workers
-
-The chosen integration retains the existing n8n automation. The minimum inbox
-sync settings are **Meta phone number ID** and an encrypted **sync bearer token**.
-When n8n keeps the Meta callback, an app secret/access token/new Meta callback is
-not required merely to mirror messages into this inbox. Direct Meta webhook
-verification or authenticated attachment/sending paths have their own connection
-requirements; those are separate from the minimal sync form.
-
-```mermaid
-sequenceDiagram
-    participant Customer
-    participant Meta
-    participant n8n
-    participant Sync as Inbox sync endpoint
-    participant DB as Tenant inbox
-    Customer->>Meta: Incoming WhatsApp message
-    Meta->>n8n: Existing callback
-    n8n->>Sync: Authenticated incoming/status copy
-    Sync->>DB: Deduplicate and store
-    n8n->>Meta: Existing automated reply
-    Meta-->>n8n: Sent provider message ID
-    n8n->>Sync: Outgoing body plus provider ID
-    Sync->>DB: Store reply and reconcile receipts
-```
-
-The outgoing copy is essential: delivery callbacks do not contain the reply body.
-Status receipts can arrive before the outgoing message; persisted receipt state
-is applied when its body arrives. Retry the copy node, not the actual send node.
-The n8n sync endpoint never forwards the copy back into n8n, avoiding a loop.
-
-The inbox displays tenant-scoped text, supported attachments, structured message
-content and sent/delivered/read/failed states. Staff replies require the customer's
-open 24-hour reply window and a configured sending connection. Media previews
-need a server-side media connection; mirroring alone does not grant attachment
-access. Old history is not automatically imported.
-
-`apps.messaging` owns outbound payload validation, queue records and delivery
-history. Its sender drivers support console/development, n8n and Meta Cloud.
-Provider constraints are validated in payload builders. Failed delivery uses
-bounded retries/backoff and stale-claim recovery; exhausted/permanent failures
-are recorded rather than left indefinitely sending.
-
-The database inbox worker processes forwarding events and staff inbox replies
-without Redis. The broader outbound transactional dispatcher is a separate Huey
-periodic job. Do not assume running the inbox worker also runs all scheduled
-platform messages.
-
-**Message mirroring does not create a billable order.** The inbox can open a
-WhatsApp booking with customer details prefilled; staff select items and confirm
-payment. Automatic structured n8n order import, full native chat ordering and
-automatic bill delivery remain separate implementation/integration work.
-Live sync of Annam's incoming/outgoing/status nodes still needs verification.
-See [docs/n8n/inbox-sync.md](docs/n8n/inbox-sync.md) and the
-[messaging ADR](docs/adr/0001-messaging-architecture.md).
-
-## 13. Kitchen provisioning and custom domains
-
-Platform superusers create kitchens, assign presets/configuration and create
-single-use owner activation invitations. Invitations are shared by the operator;
-automatic invitation email delivery is not established. Private workspace admin,
-billing and preview work before public DNS is ready.
-
-`TENANT_BASE_DOMAIN` can reserve a platform subdomain, but application records do
-not themselves create wildcard DNS or certificates. Tenant lifecycle/status and
-feature settings exist; automated SaaS subscription charging, commercial plan
-limits and a full self-service signup/billing product are not completed merely
-because kitchens have status fields.
-
-### Domain lifecycle
-
-Domain settings are WordPress-like owner-facing configuration with staged
-activation:
+Local development uses PostgreSQL and optional Redis via `compose.yaml`.
+Production uses Django/Gunicorn and WhiteNoise static files.
 
 ```text
-Add hostname → Verify ownership TXT → Prepare website DNS
-→ Explicit connection request → Hosting registration + HTTPS proof
-→ Active route → Explicit primary selection
+build.sh: install requirements → collectstatic
+start.sh: migrate → optional background seed/media restore → supervisor
+scripts/serve_with_inbox.py:
+  ├─ Gunicorn: 2 workers, timeout 60 seconds, PORT or 10000
+  └─ manage.py run_whatsapp_worker
 ```
 
-Preparation is the default: `DOMAIN_CONNECTIONS_ENABLED=0`. Adding/verifying a
-claim does not replace Annam's current website or immediately create public
-routing. Annam's actual domain move remains deferred to the production launch.
+The supervisor exits/restarts when either child fails. It does not run Huey or
+payment reconciliation. `/healthz` checks `SELECT 1`; it cannot prove external
+payment/n8n/media/worker health.
 
-- Each hostname (`example.com`, `www.example.com`) is a separate claim.
-- Random TXT ownership tokens reserve/verify a hostname for one kitchen.
-- DNS destination checks reject private/loopback/link-local targets.
-- Hosting supports Render registration, Caddy on-demand TLS authorization or a
-  manually configured edge.
-- A bounded certificate-verified HTTPS probe uses checked public addresses,
-  correct hostname/SNI and a nonce/HMAC application proof, without redirects.
-- Only verified HTTPS activates `TenantDomain` routing. Making primary is another
-  explicit action requiring a recent successful TLS check.
-- Provider tokens remain platform secrets; owners do not receive the Render API key.
-- Registrar DNS records, MX/email configuration and external CDN settings remain
-  outside the application's automatic control.
-
-The Render/Caddy adapters have simulated tests. A staging-domain check in the
-actual hosting account is still required before production customer cutovers.
-See [docs/custom-domains.md](docs/custom-domains.md).
-
-## 14. Persistence, secrets and security boundaries
-
-| Data | Storage | Operational requirement |
-| --- | --- | --- |
-| Tenant/catalog/order/bill/inbox/payment records | PostgreSQL | Durable database, backup and restore testing |
-| Visual-editor uploaded photos | PostgreSQL binary records | Included in database backups; monitor size |
-| Legacy dish/banner/brand uploads | Public media storage | Persistent disk or configured storage backend |
-| Selected recovered images | Repository static assets | Fallback only, not general upload storage |
-| CSS/JS/icons | Collected static files | Build `collectstatic`; WhiteNoise in production |
-| Private bill artifacts if used | Private storage alias/root | Never expose as public media |
-| Sessions | Django session backend | Browser session is part of private receipt access |
-| API/webhook credentials | Encrypted database fields | Preserve `SECRETS_KEY`; never echo decrypted values |
-| Huey broker | Redis | Deploy consumer/broker for scheduled jobs |
-
-`SECRET_KEY` signs application tokens/cookies. `SECRETS_KEY` encrypts tenant
-credentials using Fernet; supported long random environment strings are converted
-to a deterministic valid key. Keep both stable across restarts. Losing/changing
-the encryption key breaks decryption; a database backup without the key is not a
-usable connection-credential backup.
-
-Security controls include CSRF-protected browser mutations, server-side membership
-checks, tenant scoping, signed checkout reviews, private receipt authorization,
-raw-body webhook HMAC verification, event deduplication, safe provider errors,
-validated content/image fields and hostname/DNS/HTTPS domain checks. Production
-uses secure session/CSRF cookies, HTTPS redirect and HSTS. The provider-facing
-webhooks are exceptions to browser CSRF because they authenticate separately.
-
-No customer payment instrument credentials are stored. Avoid placing secrets,
-private receipt URLs, raw provider payloads or customer details in logs. Gunicorn's
-configured access format omits query strings; application/operator logging still
-needs the same discipline. A comprehensive retention/deletion and operational
-security policy remains a production responsibility.
-
-## 15. Runtime and deployment
-
-### Local development
-
-The supported development stack is PostgreSQL plus Redis, not SQLite as the
-normal application database. `compose.yaml` exposes PostgreSQL on
-`127.0.0.1:5439` and Redis on `127.0.0.1:6389` with persistent Docker volumes.
-Dependencies are defined in `pyproject.toml`/lock files and deployment requirements.
-Django is in the supported 5.x range; Render declares Python 3.12.7.
-
-```bash
-cp .env.example .env
-# Replace example secrets before use.
-docker compose up -d postgres redis
-uv sync
-uv run python manage.py migrate
-uv run python manage.py runserver 127.0.0.1:8000
-# Separate consumers when needed:
-uv run python manage.py run_whatsapp_worker
-uv run python manage.py run_huey
-```
-
-Use `annam.localhost` for the kitchen and `admin.localhost` for the platform;
-see [README.md](README.md) for local host and provisioning commands. Test data
-is not a substitute for real kitchen registration/payment credentials.
-
-### Render runtime currently defined by the repository
-
-```text
-build.sh
-  ├─ install requirements
-  └─ collectstatic
-start.sh
-  ├─ migrate database
-  ├─ optionally launch seed/media restoration in background
-  └─ scripts/serve_with_inbox.py
-       ├─ Gunicorn: 2 workers, 60-second timeout, PORT or 10000
-       └─ manage.py run_whatsapp_worker
-```
-
-The supervisor terminates the remaining child and exits if either child fails,
-allowing the hosting service to restart the instance. It does not launch Huey or
-the payment reconciliation scheduler. Optional seed jobs depend on seed variables;
-review/disable bootstrap settings for production rather than treating import as
-an ordinary customer request.
-
-`/healthz` performs `SELECT 1` against the database and returns 503 on database
-failure. A healthy probe does not prove payment, n8n, media storage, the inbox
-worker or scheduled consumers are functioning.
-
-| Deployment file | Intended role | Important limit |
-| --- | --- | --- |
-| `render.yaml` | Free demo web service and PostgreSQL | Service can sleep; `/tmp` media/private paths are ephemeral; verify current provider limits |
-| `render.paid.yaml` | Paid service/database with persistent disk | Defines `/var/data` media/private storage; does not prove it has been deployed |
-| `compose.yaml` | Local PostgreSQL/Redis foundation | Not a complete production web/proxy deployment |
-| `deploy/Caddyfile.example` | Static/media serving and reverse-proxy example | Requires actual hosts, TLS/deployment setup and private-storage separation |
-
-Production settings refuse startup without explicit database credentials,
-`SECRET_KEY`, `SECRETS_KEY`, `ALLOWED_HOSTS` and `PLATFORM_HOST`. WhiteNoise serves
-compressed manifest static assets. Public media can be served by the Django
-handler or replaced by a deliberately configured external backend.
-
-Free Render service sleep can delay storefront and webhook requests. The
-repository does not establish an always-on production deployment or reliable
-payment/webhook delivery simply by successfully pushing code.
-
-### Configuration ownership
-
-| Setting group | Where it belongs |
+| Storage | Contents and requirement |
 | --- | --- |
-| Database, signing/encryption keys, allowed hosts, platform host | Server environment |
-| Redis URL and consumer process | Deployment environment/process manager |
-| Domain connection gate/target/provider and Render credentials | Server environment controlled by platform operator |
-| Kitchen brand, theme, feature flags and timezone | Tenant configuration/admin |
-| Local delivery zones and courier pincode/fee policy | Kitchen delivery/checkout settings |
-| Legal identity, GST/FSSAI and invoice rules | Kitchen billing settings |
-| Razorpay test/live keys and webhook secrets | Owner-only encrypted payment settings |
-| Meta phone number ID and n8n mirror token | Kitchen inbox settings |
-| Actual n8n copy nodes and Meta/Razorpay subscriptions | External service configuration |
+| PostgreSQL | Store/catalog/orders/invoices/payment/inbox records, sessions and editor image bytes; back up and test restore |
+| Public media | Legacy dish/banner/brand files; durable disk/shared storage required |
+| Static assets | Collected CSS/JS/icons and selected bundled recovery files |
+| Private storage | Bill artifacts if used; never mount as public media |
+| Redis | Optional Huey broker; needs a consumer to run periodic jobs |
+| Encrypted database fields | Provider secrets; preserve the matching encryption key |
 
-Do not copy secret values into this document, Git or workflow exports.
+`render.yaml` is a free demo blueprint with ephemeral `/tmp` media and sleeping
+service behavior. `render.paid.yaml` defines a paid database and persistent
+`/var/data` disk; this does not claim it is deployed. Both configure
+`STORE_SLUG=annam`. Existing database names/encryption keys are not renamed.
+Provider availability/cost/lifecycle limits require account-level verification.
 
-## 16. Operations, failure handling and scaling
+Production needs database settings, `SECRET_KEY`, `SECRETS_KEY`, `ALLOWED_HOSTS`
+and trusted HTTPS origins. `PLATFORM_HOST` is optional legacy callback support,
+not a login surface. Domain automation credentials/settings are no longer needed
+for normal Annam operation; registrar/hosting changes remain external.
 
-### Failure and recovery rules
+Keep keys stable across deployments. Lost encryption keys make saved provider
+connections unreadable even if the database is restored. Use durable storage,
+monitor queues/provider callbacks, schedule reconciliation if desired and test
+restoration of records, images, credentials and invoice history.
 
-| Failure | Expected behavior/recovery |
+Before horizontal scaling, legacy files must use storage shared between instances;
+a single mounted disk does not provide that automatically. Database image storage
+also increases database/backup size.
+
+## 14. Security and failure handling
+
+- Preserve scoped managers, server-side membership checks and context cleanup.
+- Protect browser mutations with CSRF; provider webhooks authenticate separately.
+- Never trust browser prices, payment flags or arbitrary receipt references.
+- Keep secrets encrypted/write-only; sanitize provider failures and avoid secrets
+  or customer/receipt data in logs.
+- Require exact provider evidence, financial uniqueness and row locks for captures,
+  invoices and refunds; ambiguous outcomes require reconciliation.
+- Refuse unknown hosts, other-store routes, unsafe old bookmark redirects and
+  retired mutations. Published content remains escaped/validated.
+- Production uses secure cookies, HTTPS redirect and HSTS. A retention/deletion
+  policy, monitoring and restore runbook remain operational responsibilities.
+
+| Failure | Recovery |
 | --- | --- |
-| Missing tenant context | Fail closed; repair caller context, never disable scoping |
-| Stale checkout review | Re-review current cart/policy before placement |
-| Duplicate order submission | Return the original order |
-| Provider creation/refund timeout | Preserve uncertain state; reconcile reference, avoid new financial action |
-| Bad/duplicate/stale payment callback | Reject or reuse safely; never trust browser state or downgrade verified payment |
-| Paid order with incomplete bill settings | Keep paid state, surface billing error, repair profile and generate bill |
-| Failed inbox copy | Retry copy using the same provider ID; do not resend the customer's reply |
-| Worker crash | Recover stale claims; bounded retries and visible terminal failures |
-| Encryption key mismatch | Fail closed; restore correct key, never expose/decrypt with a fallback guess |
-| Failed domain DNS/TLS proof | Leave pending; keep existing primary/routing |
-| Lost ephemeral upload | Recover from durable backup/bundled asset where available; fix storage |
+| Stale checkout review | Re-review current prices/coverage before ordering |
+| Duplicate submission | Return the existing order |
+| Provider timeout | Preserve uncertain state; reconcile instead of new financial action |
+| Verified payment / invalid billing profile | Keep paid state, repair profile and generate bill |
+| Failed n8n copy | Retry only the copy using its provider ID |
+| Worker interruption | Recover stale claims, bounded retry and visible terminal failure |
+| Lost legacy upload | Restore durable backup/fallback, then fix storage |
+| Encryption-key mismatch | Restore correct key; fail closed |
 
-### Backup and production operations
+## 15. Remaining Annam launch work
 
-Back up PostgreSQL, public/private file storage and encryption/signing keys under
-appropriate access controls. Test restoration into an isolated environment,
-including image access, credential decryption, invoice history and tenant
-isolation. Record deployment/migration versions and provider configuration.
-Payment reconciliation and queued work require monitoring beyond HTTP uptime.
+| Area | Still required |
+| --- | --- |
+| Razorpay | Real test credentials/webhook/auto-capture, actual sandbox payment/failure/retry/refund checks; later live KYC/activation |
+| Checkout/delivery | Confirm actual meal zones/cutoffs/holidays and exact courier coverage, fees and minimums |
+| Billing | Confirm real legal/GST/FSSAI/tax settings and sample invoices/credits |
+| WhatsApp | Connect and verify n8n incoming/outgoing/status copies; decide any structured automatic order import |
+| Fulfilment | Accept/prepare/dispatch/deliver/cancel acceptance and customer notifications |
+| Bill delivery | Automatic WhatsApp bill delivery if required |
+| Website | Final contact/policy/photo/mobile review; current published design stays |
+| Hosting | Reliable always-on service, durable uploads, backups/restore and monitoring |
+| Domain | Configure Annam's actual domain externally when ready; no domain-management product |
 
-The current modular monolith can scale by separating web, inbox worker, Huey
-consumer and scheduled reconciliation processes; using durable shared media;
-scaling PostgreSQL appropriately; and adding observability. Financial row locks,
-unique constraints and message leases remain necessary with multiple workers.
-Do not move to per-tenant code copies as a scaling strategy.
+Selectable themes, tenant subscriptions and a cloud-kitchen SaaS portal are no
+longer part of this application scope.
 
-A persistent disk is not automatically shared between multiple web instances.
-Before horizontal scaling, move legacy public/private uploads to a compatible
-shared storage design and verify asset permissions. Database-backed editor images
-increase database/backup size and should be monitored.
+## 16. Verification and source map
 
-## 17. What is implemented and what remains
-
-### Whole cloud-kitchen platform
-
-| Area | Current implementation | Remaining launch/product work |
-| --- | --- | --- |
-| Multi-tenancy | Shared database, scoped managers, host/workspace resolution, membership | Continue isolation checks on every new feature |
-| Platform portal | Central login, kitchen picker/provisioning, owner activation, workspace preview | Complete production onboarding/operational procedures; invitations are manually shared |
-| Kitchen management | Dashboard, catalog/content/delivery/settings, orders and inbox | Validate permissions and workflows with real kitchen staff |
-| Website customization | Visual editor, text/photos/footer, draft/publish/restore, Classic layouts | Second theme; broader reusable section/template system if required |
-| Custom domains | Preparation, TXT/DNS checks, hosting adapters, TLS proof, primary selection | Staging-provider verification and production cutover configuration |
-| Payments | Tenant Razorpay test/live integration, verified captures and full refunds | Actual sandbox/live acceptance and deployed reconciliation/monitoring |
-| Messaging | Inbox, authenticated n8n mirroring, sending infrastructure/workers | Live workflow validation, structured automatic order import and bill delivery |
-| SaaS commercial controls | Tenant lifecycle/configuration foundation | Subscription collection, plan enforcement, self-service signup and commercial reporting |
-| Infrastructure | Render blueprints, supervisor, PostgreSQL/Redis foundation | Always-on production service, durable storage, backup/restore and observability |
-
-### Annam Foods, the first tenant
-
-| Area | Finished in code | Still needed from configuration/acceptance or further work |
-| --- | --- | --- |
-| Storefront | Menu/shop/cart, offers, policies/pages, editable content/photos/footer | Final photo/copy/contact/policy and mobile review |
-| Website checkout | Customer/address review, mandatory pincode, local/courier coverage, duplicate protection, private confirmation | Owner-confirmed pincodes, fees, cutoffs, holidays and courier rules; end-to-end acceptance |
-| Razorpay | Secure settings, online checkout, verification/webhooks, live billing, full refund workflow | Enter real test keys, configure webhook/auto-capture and test; later live activation/KYC |
-| Billing | Manual/website/WhatsApp bookings, payment confirmation, tax/numbering, printable bills/credits | Confirm actual legal/GST/FSSAI details and sample documents; automatic WhatsApp delivery remains |
-| WhatsApp | Conversation inbox and n8n sync endpoints | Add/verify incoming, outgoing and status-copy nodes in the existing automation |
-| WhatsApp orders | Staff booking from a conversation | Automatic structured import is not supplied by mirroring |
-| Fulfilment | Order status services and admin controls | Validate actual accept/prepare/dispatch/deliver/cancel procedures and customer updates |
-| Custom domain | Owner-facing setup/verification workflow | Deliberately defer mapping Annam's actual domain until production launch |
-| Persistence | Database editor photos and selected recovered catalog assets | Durable legacy upload storage and tested restoration |
-
-No real customer domain, n8n workflow or money movement is asserted to have been
-changed merely because these features are implemented in the repository.
-
-## 18. Verification and developer navigation
-
-The preceding application checkpoint had **495 passing automated tests**,
-including simulated Razorpay behavior. Those are code tests, not proof of a live
-payment transaction. Run the suite and Django checks for the current checkout:
+Run PostgreSQL regression tests, Django checks and migration consistency before
+committing. Retired UI behavior tests are replaced by removal/redirect/access/data
+preservation tests; financial, checkout, billing, catalog, messaging and scoped-data
+coverage remains. Internal historical data services retain regression coverage.
 
 ```bash
 uv run python -m pytest -q
@@ -798,35 +484,21 @@ uv run python manage.py check
 uv run python manage.py makemigrations --check --dry-run
 ```
 
-Tests cover tenant isolation, catalog resolution, domain authentication/lifecycle,
-editor draft/publication/image access, checkout eligibility/idempotency/privacy,
-order/billing behavior, messaging ingestion/retries and payment capture/refund
-verification. Before customer release, additionally verify the public deployment,
-real provider sandbox, webhook retry behavior and production storage/restore.
-
-| Read this source | For |
+| File | Purpose |
 | --- | --- |
-| [config/urls.py](config/urls.py) | Top-level routes and health check |
-| [apps/tenancy/middleware.py](apps/tenancy/middleware.py) | Host/workspace resolution and context cleanup |
-| [apps/tenancy/managers.py](apps/tenancy/managers.py) | Fail-closed query invariant |
-| [apps/platform_portal/workspace_urls.py](apps/platform_portal/workspace_urls.py) | Reused scoped applications |
-| [apps/storefront/themes.py](apps/storefront/themes.py) | Trusted theme/section/copy/image registry |
-| [apps/content/services.py](apps/content/services.py) | Design validation, revisions, images and publication |
-| [apps/storefront/checkout.py](apps/storefront/checkout.py) | Signed review and transactional placement |
-| [apps/delivery/checkout.py](apps/delivery/checkout.py) | Explicit courier coverage policy |
-| [apps/orders/services.py](apps/orders/services.py) | Shared order creation and transitions |
-| [apps/billing/services.py](apps/billing/services.py) | Invoice issuance and financial documents |
-| [apps/payments/services.py](apps/payments/services.py) | Verified captures, refunds and reconciliation |
-| [apps/payments/provider.py](apps/payments/provider.py) | Bounded Razorpay HTTP adapter |
-| [apps/messaging/worker.py](apps/messaging/worker.py) | Database inbox worker |
-| [apps/jobs/tasks.py](apps/jobs/tasks.py) | Huey periodic entry points |
-| [apps/platform_portal/domain_services.py](apps/platform_portal/domain_services.py) | Custom-domain lifecycle |
-| [scripts/serve_with_inbox.py](scripts/serve_with_inbox.py) | Render process supervision |
-| [docs/platform-stage-one.md](docs/platform-stage-one.md) | Platform operation and rollback context |
-| [docs/custom-domains.md](docs/custom-domains.md) | DNS, provider and HTTPS setup |
-| [docs/n8n/inbox-sync.md](docs/n8n/inbox-sync.md) | Existing automation mirroring instructions |
-| [docs/razorpay.md](docs/razorpay.md) | Test/live setup and financial acceptance steps |
+| [config/urls.py](config/urls.py) | Active top-level routing |
+| [apps/tenancy/middleware.py](apps/tenancy/middleware.py) | Host/store resolution and callback compatibility |
+| [apps/tenancy/deployment.py](apps/tenancy/deployment.py) | Configured-store background filtering |
+| [apps/owner/access.py](apps/owner/access.py) | Admin authorization and safe local login targets |
+| [apps/platform_portal/integration_views.py](apps/platform_portal/integration_views.py) | Stable integration wrappers and retired-bookmark redirects |
+| [apps/content/services.py](apps/content/services.py) | Preserved published design and image services |
+| [apps/storefront/checkout.py](apps/storefront/checkout.py) | Signed review and transactional order placement |
+| [apps/delivery/checkout.py](apps/delivery/checkout.py) | Exact courier coverage policy |
+| [apps/billing/services.py](apps/billing/services.py) | Invoices, payments and credits |
+| [apps/payments/services.py](apps/payments/services.py) | Verified capture/refund/reconciliation |
+| [apps/messaging/worker.py](apps/messaging/worker.py) | Database inbox processing |
+| [scripts/serve_with_inbox.py](scripts/serve_with_inbox.py) | Web/inbox process supervision |
+| [apps/owner/tests/test_annam_only.py](apps/owner/tests/test_annam_only.py) | Conversion acceptance/security/data-preservation tests |
 
-Update this architecture whenever a feature changes tenant boundaries, a source
-of truth, a financial state transition, storage, deployment processes or an
-external integration contract.
+Update this document when routing, financial state, storage or integration
+contracts change. Older SEER roadmap/domain/editor documents are historical only.

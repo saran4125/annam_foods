@@ -162,13 +162,11 @@ def _login_photos():
 
 @never_cache
 def login_view(request):
-    """Kitchen-domain sign-in stays local; private workspace URLs use SEER login."""
+    """The single store-management sign-in; successful login stays under /manage/."""
     if getattr(request, "tenant", None) is None:
         raise Http404
-    from apps.platform_portal.services import management_login_url, kitchen_login_target
+    from .access import kitchen_login_target
     target = request.POST.get("next", request.GET.get("next", ""))
-    if getattr(request, "workspace_slug", None):
-        return redirect(management_login_url(request, target))
     destination = kitchen_login_target(request, target)
     if can_manage(request.user, request.tenant):
         return redirect(destination)
@@ -178,14 +176,14 @@ def login_view(request):
         if can_manage(user, request.tenant):
             login(request, user)
             return redirect(destination)
-        form.add_error(None, "This account can’t manage this store. Use an account assigned to this kitchen, or sign in through the SEER platform.")
+        form.add_error(None, "This account can’t manage this store. Use an account assigned to this store.")
     return render(request, "owner/login.html", {"form": form, "next": destination, "photos": _login_photos()})
 
 
 @require_POST
 def logout_view(request):
     logout(request)
-    return redirect("portal:login" if getattr(request, "workspace_slug", None) else "owner:login")
+    return redirect("owner:login")
 
 
 # -- dashboard ---------------------------------------------------------------
@@ -429,80 +427,6 @@ def bill_detail(request, pk):
     from apps.billing.models import Invoice
     invoice = get_object_or_404(Invoice.objects.select_related("order"), pk=pk)
     return render(request, "owner/bill.html", {"invoice": invoice})
-
-
-@owner_required
-@never_cache
-def appearance(request):
-    from apps.content.services import change_storefront_design, storefront_design
-    config = TenantConfig.objects.get(tenant=request.tenant)
-    state = config.storefront_design or {}
-    form = forms.AppearanceForm(request.POST if request.method == "POST" else None,
-                                design=storefront_design(config, draft=True), revision=state.get("revision", 0), config=config)
-    if request.method == "POST":
-        action = request.POST.get("action", "save")
-        if action in {"restore", "discard"}:
-            try:
-                revision = int(request.POST.get("revision", ""))
-                change_storefront_design(request.tenant, action=action, revision=revision)
-            except (ValidationError, ValueError) as exc:
-                form.add_error(None, exc if isinstance(exc, ValidationError) else "Reload the page and try again.")
-            else:
-                messages.success(request, "Previous design restored." if action == "restore" else "Draft discarded.")
-                return redirect("owner:appearance")
-        elif form.is_valid():
-            try:
-                change_storefront_design(request.tenant, action=action, revision=form.cleaned_data["revision"],
-                                         design=form.cleaned_data["design"])
-            except ValidationError as exc:
-                form.add_error(None, exc)
-            else:
-                messages.success(request, "Appearance published. Customers now see this design." if action == "publish"
-                                 else "Draft saved. Preview it before publishing.")
-                return redirect("owner:appearance")
-    preview = getattr(request, "workspace_preview_url", "/") + "?design=draft"
-    from apps.content.models import StorefrontImage
-    from apps.content.services import storefront_image_url
-    library = [{'url': storefront_image_url(request.tenant, image), 'name': image.name}
-               for image in StorefrontImage.objects.only('id', 'name').order_by('-created_at')[:100]]
-    return render(request, "owner/appearance.html", {"image_library": library, "form": form, "has_draft": bool(state.get("draft")),
-                  "has_previous": bool(state.get("previous")), "preview_url": preview})
-
-
-@owner_required
-@require_POST
-@never_cache
-def appearance_render(request):
-    from apps.content.services import storefront_design, validate_design_images
-    from apps.storefront.views import home
-    from django.http import JsonResponse
-    config = request.tenant.config
-    form = forms.AppearanceForm(request.POST, design=storefront_design(config, draft=True), config=config)
-    if not form.is_valid():
-        return JsonResponse({'errors': form.errors.get_json_data()}, status=400)
-    try:
-        validate_design_images(request.tenant, form.cleaned_data['design'])
-    except ValidationError as exc:
-        return JsonResponse({'errors': {'__all__': [{'message': m} for m in exc.messages]}}, status=400)
-    request._appearance_override = form.cleaned_data['design']
-    request._appearance_canvas = True
-    return home(request)
-
-
-@owner_required
-@require_POST
-@never_cache
-def appearance_upload(request):
-    from apps.content.services import save_storefront_image, storefront_image_url
-    from django.http import JsonResponse
-    upload = request.FILES.get('image')
-    if upload is None:
-        return JsonResponse({'error': 'Choose a photo to upload.'}, status=400)
-    try:
-        image = save_storefront_image(request.tenant, upload)
-    except ValidationError as exc:
-        return JsonResponse({'error': ' '.join(exc.messages)}, status=400)
-    return JsonResponse({'url': storefront_image_url(request.tenant, image), 'name': image.name}, status=201)
 
 
 @owner_required

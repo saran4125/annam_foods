@@ -38,3 +38,20 @@ def owner_required(view):
         return view(request, *args, **kwargs)
 
     return wrapper
+
+
+def kitchen_login_target(request, target):
+    """Accept only local management destinations, with no traversal or login loop."""
+    from urllib.parse import unquote, urlsplit
+    from django.utils.http import url_has_allowed_host_and_scheme
+    root = reverse("owner:dashboard")
+    try:
+        path = unquote(urlsplit(target).path)
+    except ValueError:
+        return root
+    if (target.startswith(root) and path.startswith(root) and "\\" not in path
+            and not any(segment in (".", "..") for segment in path.split("/"))
+            and path.rstrip("/") not in (reverse("owner:login").rstrip("/"), reverse("owner:logout").rstrip("/"))
+            and url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure())):
+        return target
+    return root

@@ -14,7 +14,6 @@
 {% else %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">{% endif %}
 <link rel="stylesheet" href="{% static_v 'css/storefront.css' %}">
 <link rel="stylesheet" href="{% static_v 'css/storefront-appearance.css' %}">
-{% if appearance_canvas %}<link rel="stylesheet" href="{% static_v 'css/storefront-canvas.css' %}">{% endif %}
 <style>
   /* Every one of these is overridable per kitchen from TenantConfig.theme.
      A new client is a row change, never a stylesheet fork. Tints and the
@@ -38,7 +37,6 @@
 {% block extra_head %}{% endblock %}
 </head>
 <body class="sf-density-{{ storefront_design.density }} sf-shape-{{ storefront_design.shape }} sf-hero-{{ storefront_design.hero_layout }} sf-menu-{{ storefront_design.menu_layout }}">
-{% if appearance_preview and not appearance_canvas %}<div class="sf-preview-bar" role="status"><strong>Draft preview</strong><span>Only your kitchen team can see these unpublished changes.</span><a href="{% url 'owner:appearance' %}">Back to Appearance →</a></div>{% endif %}
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
@@ -206,6 +204,6 @@
 <div class="toasts" data-toasts aria-live="polite" aria-atomic="false"></div>
 
 {% block scripts %}{% endblock %}
-{% if appearance_canvas %}<script src="{% static_v 'js/storefront-canvas.js' %}" defer></script>{% else %}<script src="{% static_v 'js/storefront.js' %}" defer></script>{% endif %}
+<script src="{% static_v 'js/storefront.js' %}" defer></script>
 </body>
 </html>

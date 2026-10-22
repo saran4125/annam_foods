@@ -41,12 +41,12 @@ def test_a_filled_input_replaces_it(secrets):
     assert form.save().wa_token == "rotated-token"
 
 
-def test_the_admin_change_page_never_renders_a_secret(client, secrets, db):
+def test_the_retired_admin_page_does_not_expose_saved_secrets(client, secrets, db):
     admin_user = User.objects.create_superuser("root", "root@example.com", "pw")
     client.force_login(admin_user)
     r = client.get(
         f"/admin/tenancy/tenantsecrets/{secrets.pk}/change/",
         HTTP_HOST="admin.localhost",
     )
-    assert r.status_code == 200
+    assert r.status_code == 404
     assert b"EAFZBpLx8ZChvQ-very-secret" not in r.content

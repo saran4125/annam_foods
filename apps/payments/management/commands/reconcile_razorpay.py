@@ -6,6 +6,7 @@ from django.utils import timezone
 from apps.tenancy.context import all_tenants, tenant_context
 from apps.payments.models import PaymentIntent, Refund
 from apps.payments.provider import PaymentError
+from apps.tenancy.deployment import deployment_rows
 from apps.payments.services import reconcile_payment, refresh_refund
 
 
@@ -14,11 +15,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with all_tenants():
-            intents = list(PaymentIntent.objects.filter(
+            intents = list(deployment_rows(PaymentIntent.objects.all()).filter(
                 Q(created_at__gte=timezone.now() - timedelta(days=2), order__payment_status__in=['pending', 'failed']) |
                 ~Q(bill_error='') | Q(state='refund_pending')).exclude(state__in=['new', 'error', 'refunded'])
                 .select_related('tenant', 'order').order_by('updated_at')[:100])
-            refunds = list(Refund.objects.exclude(state__in=['processed', 'failed'])
+            refunds = list(deployment_rows(Refund.objects.all()).exclude(state__in=['processed', 'failed'])
                 .select_related('tenant', 'intent').order_by('updated_at')[:100])
         checked = failed = 0
         for intent in intents:

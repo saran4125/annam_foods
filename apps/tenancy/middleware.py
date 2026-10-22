@@ -1,19 +1,16 @@
 """Resolve the tenant from the request's hostname."""
 from django.conf import settings
-from django.http import HttpResponseNotFound, HttpResponsePermanentRedirect
+from django.http import HttpResponseNotFound
 from django.http.request import split_domain_port, validate_host
-from django.shortcuts import redirect
-from django.urls import reverse
-from urllib.parse import urlencode
 import re
 from django.utils import timezone
 
 from .context import reset_current_tenant, set_current_tenant
-from .models import TenantDomain, Tenant, TenantUser, CustomDomain
+from .models import TenantDomain, Tenant, CustomDomain
 
 
 class ManagedDomainHostMiddleware:
-    """Admit exact verified custom hosts per request, never mutate ALLOWED_HOSTS."""
+    """Retain existing connected hosts; pending domain claims no longer admit traffic."""
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -21,78 +18,50 @@ class ManagedDomainHostMiddleware:
         raw = request._get_raw_host()
         host, port = split_domain_port(raw)
         if host and not validate_host(host, settings.ALLOWED_HOSTS) and port in ("", "80", "443"):
-            from django.db.models import Q
-            approved = CustomDomain.all_tenants.filter(hostname=host).filter(
-                Q(mapping__isnull=False) | Q(ownership_verified_at__isnull=False, connection_requested_at__isnull=False)
-            ).exists()
+            approved = CustomDomain.all_tenants.filter(hostname=host, mapping__isnull=False).exists()
+            store_slug = getattr(settings, "STORE_SLUG", "")
+            if store_slug:
+                approved = CustomDomain.all_tenants.filter(hostname=host, mapping__isnull=False, tenant__slug=store_slug).exists()
             if approved:
                 request.get_host = lambda: raw
         return self.get_response(request)
 
 
 class TenantMiddleware:
-    """Maps Host -> Tenant and holds it for the life of the request.
-
-    Requests to the platform host (the SEER super admin) carry no tenant, which
-    is correct: platform code must opt into `all_tenants()` explicitly rather
-    than inheriting a tenant by accident.
-    """
+    """Resolve the store by hostname; preserve scoped data without a platform UI."""
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         host = request.get_host().split(":")[0].lower()
-        platform_host = getattr(settings, "PLATFORM_HOST", "").lower()
         request.tenant = None
         token = None
         previous_timezone = timezone.get_current_timezone()
 
-        is_central = request.path == "/platform" or request.path.startswith("/platform/")
-        domain = None
-        if host != platform_host and request.path not in ("/healthz", "/.well-known/seerkitchen-domain"):
-            domain = TenantDomain.objects.select_related("tenant", "tenant__config").filter(hostname=host).first()
-            if domain is None:
-                return HttpResponseNotFound("No kitchen is configured for this address.")
+        store_slug = getattr(settings, "STORE_SLUG", "")
+        # Provider callbacks on the former platform host keep working. They are
+        # exact, separately authenticated routes, never a browser tenant selector.
+        callback = re.fullmatch(r"/platform/webhooks/([a-z0-9-]+)/(?:razorpay/(?:test|live)/|whatsapp/(?:n8n/)?)", request.path)
         selected = None
-        if is_central:
-            workspace = re.match(r"^/platform/workspaces/([a-z0-9-]+)/(manage|billing|preview|domains)(?:/|$)", request.path)
-            webhook = re.fullmatch(r"/platform/webhooks/([a-z0-9-]+)/whatsapp/(?:n8n/)?", request.path)
-            payment_webhook = re.fullmatch(r"^/platform/webhooks/([a-z0-9-]+)/razorpay/(?:test|live)/", request.path)
-            if workspace:
-                billing_login = f"/platform/workspaces/{workspace.group(1)}/billing/login/"
-                if not request.user.is_authenticated:
-                    if workspace.group(2) == "billing":
-                        if request.path != billing_login:
-                            return redirect(billing_login + "?" + urlencode({"next": request.get_full_path()}))
-                    else:
-                        return redirect("/platform/login/?" + urlencode({"next": request.get_full_path()}))
-                selected = Tenant.objects.select_related("config").filter(slug=workspace.group(1)).first()
-                public_billing_login = not request.user.is_authenticated and request.path == billing_login
-                if selected is None:
-                    return HttpResponseNotFound("Workspace not found.")
-                if not public_billing_login:
-                    if not request.user.is_active or not (request.user.is_superuser or TenantUser.all_tenants.filter(tenant=selected, user=request.user).exists()):
-                        return HttpResponseNotFound("Workspace not found.")
-                from apps.platform_portal.workspace_urls import workspace_urlconf
-                request.urlconf = workspace_urlconf(selected.slug)
-                request.workspace_slug = selected.slug
-                request.workspace_preview_url = f"/platform/workspaces/{selected.slug}/preview/"
-            elif webhook or payment_webhook:
-                # Public only for these exact signed/authenticated webhook paths.
-                selected = Tenant.objects.select_related("config").filter(slug=(webhook or payment_webhook).group(1)).first()
-                if selected is None:
-                    return HttpResponseNotFound("Kitchen not found.")
-        elif domain:
+        if callback and host == getattr(settings, "PLATFORM_HOST", "").lower():
+            stores = Tenant.objects.select_related("config").filter(slug=callback.group(1))
+            if store_slug:
+                stores = stores.filter(slug=store_slug)
+            selected = stores.first()
+            if selected is None:
+                return HttpResponseNotFound("Not found.")
+        elif request.path != "/healthz":
+            domains = TenantDomain.objects.select_related("tenant", "tenant__config").filter(hostname=host)
+            if store_slug:
+                domains = domains.filter(tenant__slug=store_slug)
+            domain = domains.first()
+            if domain is None:
+                return HttpResponseNotFound("No store is configured for this address.")
             selected = domain.tenant
-            # Canonicalize public browsing only. Staff tools, webhooks and POSTs
-            # stay on their original host so credentials and integrations keep working.
-            public_page = request.path == "/" or request.path.startswith(("/menu/", "/shop/", "/item/", "/p/", "/about/"))
-            primary = selected.primary_domain
-            if public_page and request.method in ("GET", "HEAD") and primary and primary != host:
-                ready = CustomDomain.all_tenants.filter(tenant=selected, hostname=primary, status="active", mapping__is_primary=True, tls_verified_at__isnull=False).exists()
-                if ready:
-                    return HttpResponsePermanentRedirect("https://" + primary + request.get_full_path())
+        integration = re.match(r"^/platform/(?:webhooks|assets)/([a-z0-9-]+)(?:/|$)", request.path)
+        if integration and (selected is None or integration.group(1) != selected.slug):
+            return HttpResponseNotFound("Not found.")
         if selected:
             request.tenant = selected
             token = set_current_tenant(selected)
@@ -107,23 +76,3 @@ class TenantMiddleware:
                 reset_current_tenant(token)
             timezone.activate(previous_timezone)
         return response
-
-
-class PlatformAdminGuard:
-    """`/admin/` belongs to the platform host only (FIX-11).
-
-    A tenant's back-office is a `/manage/` area owned by the kitchen's own
-    membership rules — not Django's unscoped admin. Until that exists, vendor
-    admin must not be reachable behind a customer's hostname, where it would
-    impersonate a kitchen tool rather than the platform's.
-    """
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        host = request.get_host().split(":")[0].lower()
-        platform_host = getattr(settings, "PLATFORM_HOST", "").lower()
-        if host != platform_host and request.path.startswith("/admin/"):
-            return HttpResponseNotFound("Not on this host.")
-        return self.get_response(request)

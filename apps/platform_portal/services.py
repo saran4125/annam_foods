@@ -1,9 +1,8 @@
-"""Platform accounts, tenant routing, provisioning and invitations."""
+"""Historical data/provisioning helpers; no public platform screens expose them."""
 import hashlib
 import ipaddress
 import re
 import secrets
-from urllib.parse import urlencode, urlsplit, unquote
 from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -12,72 +11,12 @@ from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
-from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
 from apps.tenancy.context import tenant_context
 from apps.tenancy.models import (Tenant, TenantConfig, TenantDomain, TenantStatus, TenantUser,
                                 OwnerInvitation, PlatformAuditEvent)
 from apps.tenancy.presets import apply_preset, preset_names
 
 RESERVED = {"www", "app", "admin", "platform", "api", "mail", "support", "billing", "static", "media"}
-
-
-def accessible_kitchens(user):
-    if not user.is_authenticated or not user.is_active:
-        return Tenant.objects.none()
-    if user.is_superuser:
-        return Tenant.objects.all()
-    memberships = TenantUser.all_tenants.filter(user=user).values("tenant_id")
-    return Tenant.objects.filter(pk__in=memberships)
-
-
-def login_destination(user):
-    if user.is_superuser:
-        return reverse("portal:admin")
-    kitchens = list(accessible_kitchens(user)[:2])
-    if len(kitchens) == 1:
-        return f"/platform/workspaces/{kitchens[0].slug}/manage/"
-    return reverse("portal:home")
-
-
-def management_login_url(request, target=""):
-    """Private workspace management links return to the central sign-in."""
-    if target.startswith("/manage/") and getattr(request, "tenant", None):
-        target = f"/platform/workspaces/{request.tenant.slug}" + target
-    if not target.startswith("/platform/") or not url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure()):
-        target = ""
-    return reverse("portal:login") + ("?" + urlencode({"next": target}) if target else "")
-
-
-def kitchen_login_target(request, target):
-    """A kitchen-domain login can only enter that host's management area."""
-    root = reverse("owner:dashboard")
-    try:
-        path = unquote(urlsplit(target).path)
-    except ValueError:
-        return root
-    if (target.startswith(root) and path.startswith(root) and "\\" not in path
-            and not any(segment in (".", "..") for segment in path.split("/"))
-            and path.rstrip("/") not in (reverse("owner:login").rstrip("/"), reverse("owner:logout").rstrip("/"))
-            and url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure())):
-        return target
-    return root
-
-
-def authorized_login_target(request, user, target):
-    """A saved destination never chooses an unauthorized kitchen or a login loop."""
-    if not target.startswith("/platform/") or not url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure()):
-        return ""
-    path = urlsplit(target).path
-    if path in (reverse("portal:login"), reverse("portal:logout")):
-        return ""
-    if (path == "/platform/admin" or path.startswith("/platform/admin/")) and not user.is_superuser:
-        return ""
-    match = re.match(r"^/platform/workspaces/([^/]+)(?:/|$)", path)
-    if match:
-        if path.endswith(("/manage/login/", "/manage/logout/")) or not accessible_kitchens(user).filter(slug=match.group(1)).exists():
-            return ""
-    return target
 
 
 def require_operator(user):
