@@ -1,0 +1,7 @@
+.env
+/public/media/
+/storage/sessions/*
+/storage/logs/*
+!/storage/sessions/.gitkeep
+!/storage/logs/.gitkeep
+/dist/
