@@ -5,6 +5,7 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 use Annam\Database;
 $checks = ['PHP 8.2+' => version_compare(PHP_VERSION, '8.2.0', '>='),
            'PDO PostgreSQL' => extension_loaded('pdo_pgsql'),
+           'cURL' => extension_loaded('curl'), 'Multibyte strings' => extension_loaded('mbstring'), 'ZIP export' => extension_loaded('zip'),
            'OpenSSL' => extension_loaded('openssl'), 'Fileinfo' => extension_loaded('fileinfo'),
            'Private environment' => is_file(ANNAM_ROOT . '/.env'),
            'Session folder writable' => is_writable(ANNAM_ROOT . '/storage/sessions'),

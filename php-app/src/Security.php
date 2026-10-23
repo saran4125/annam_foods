@@ -12,6 +12,7 @@ final class Security {
         session_name('annam_php_session');
         session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $secure, 'httponly' => true, 'samesite' => 'Lax']);
         session_start();
+        header("Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'self'");
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: SAMEORIGIN');
         header('Referrer-Policy: same-origin');

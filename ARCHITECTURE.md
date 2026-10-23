@@ -5,6 +5,11 @@ only**, following the decision to retire the SEER cloud-kitchen platform product
 This document describes repository behavior; it does not certify a live Render
 release, actual provider credentials, payment transaction or DNS change.
 
+The separate PHP migration on branch `php-rebuild` is documented in
+[php-app/ARCHITECTURE.md](php-app/ARCHITECTURE.md), with deployment instructions in
+[php-app/README.md](php-app/README.md). The sections below describe the retained
+Django reference application; no production cutover is implied.
+
 ## 1. Scope and conversion
 
 The application remains a modular Django monolith with PostgreSQL, server-rendered

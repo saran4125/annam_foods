@@ -74,6 +74,9 @@ final class Resources {
             $values['image'] = self::upload($files['image'], match ($key) { 'categories' => 'categories', 'banners' => 'banners', default => 'menu' });
         }
         if ($key === 'pages') $values['updated_at'] = date('c');
+        if($key==='dishes'){
+            $tags=$existing?json_decode($existing['tags'],true,64,JSON_THROW_ON_ERROR):[];$tags=array_values(array_filter($tags,fn($tag)=>$tag!=='featured'));if(!empty($input['featured']))$tags[]='featured';$values['tags']=json_encode($tags,JSON_THROW_ON_ERROR);
+        }
         if ($id) {
             $sets = implode(',', array_map(fn($field) => '"' . $field . '"=?', array_keys($values)));
             $this->store->db->rows('UPDATE ' . $spec['table'] . ' SET ' . $sets . ' WHERE tenant_id=? AND id=?', [...array_values($values), $this->store->id(), $id]);

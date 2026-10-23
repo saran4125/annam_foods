@@ -8,6 +8,9 @@ $postgres = extension_loaded('pdo_pgsql');
 echo json_encode([
     'php_82_or_newer' => version_compare(PHP_VERSION, '8.2.0', '>='),
     'pdo_postgresql_available' => $postgres,
+    'curl_available' => extension_loaded('curl'),
+    'mbstring_available' => extension_loaded('mbstring'),
+    'zip_available' => extension_loaded('zip'),
     'openssl_available' => extension_loaded('openssl'),
     'fileinfo_available' => extension_loaded('fileinfo'),
     'next_step' => $postgres ? 'Confirm an outbound TLS connection to the Supabase test database.'

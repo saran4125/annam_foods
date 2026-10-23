@@ -10,6 +10,8 @@ final class Cart {
         $item = $store->item($id);
         if (!$item['active']) throw new HttpError(422, 'This item is unavailable.');
         $kind = $item['fulfilment'];
+        if(!($store->config['features']['website_ordering']??true))throw new HttpError(422,'Website ordering is closed.');
+        if($kind==='courier'&&!($store->config['features']['snacks_courier']??false))throw new HttpError(422,'Shop ordering is closed.');
         $date = $kind === 'scheduled' ? Store::date($input['date'] ?? '') : null;
         $slotId = $kind === 'scheduled' ? (int)($input['slot_id'] ?? 0) : null;
         if ($kind === 'scheduled') self::scheduledItem($store, $id, $date, $slotId, $quantity);
@@ -20,6 +22,9 @@ final class Cart {
         if ($kind === 'scheduled') self::scheduledItem($store, $id, $date, $slotId, $newQuantity);
         $cart['lines'][$id] = $newQuantity;
         $_SESSION['cart'] = $cart;
+    }
+    public static function set(Store $store,int $id,int $quantity): void {
+        $cart=$_SESSION['cart']??['lines'=>[]];if(!isset($cart['lines'][$id]))throw new HttpError(404,'Cart item not found.');if($quantity<0||$quantity>99)throw new HttpError(422,'Choose a quantity from 0 to 99.');if($quantity===0)unset($cart['lines'][$id]);else $cart['lines'][$id]=$quantity;self::quote($store,$cart);$_SESSION['cart']=$cart;
     }
     private static function scheduledItem(Store $store, int $id, string $date, int $slotId, int $quantity): array {
         $slot = $store->slot($slotId);

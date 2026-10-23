@@ -1,0 +1,24 @@
+<?php
+declare(strict_types=1);
+namespace Annam;
+final class Worker {
+    public function __construct(private Store $store) {}
+    public function dispatch(int $limit=20): array {
+        $counts=['sent'=>0,'failed'=>0,'abandoned'=>0,'forwarded'=>0];$limit=max(1,min($limit,50));$secrets=(new Messaging($this->store))->secrets();
+        foreach(['messaging_outboundmessage','messaging_whatsappforwardevent'] as $table){
+            $this->store->db->transaction(function()use($table){$rows=$this->store->db->rows("SELECT id,attempts FROM $table WHERE tenant_id=? AND status='sending' AND claimed_at<CURRENT_TIMESTAMP-INTERVAL '5 minutes' FOR UPDATE SKIP LOCKED",[$this->store->id()]);foreach($rows as $row)$this->store->update($table,$row['id'],['status'=>(int)$row['attempts']>=5?'abandoned':'failed','claimed_at'=>null,'last_error'=>'Recovered an expired worker claim.','next_attempt_at'=>date('c',time()+60)]);});
+            for($i=0;$i<$limit;$i++){$message=$this->store->db->transaction(function()use($table,$secrets){$row=$this->store->db->one("SELECT * FROM $table WHERE tenant_id=? AND status IN ('pending','failed') AND next_attempt_at<=CURRENT_TIMESTAMP ORDER BY next_attempt_at,id FOR UPDATE SKIP LOCKED LIMIT 1",[$this->store->id()]);if(!$row)return null;$values=['status'=>'sending','attempts'=>(int)$row['attempts']+1,'claimed_at'=>date('c')];if($table==='messaging_outboundmessage')$values['provider']=$secrets['wa_provider'];$this->store->update($table,$row['id'],$values);return array_replace($row,$values);});if(!$message)break;
+                $result=['claimed_at'=>null];try{
+                    if($table==='messaging_outboundmessage'){$providerId=(new Sender($this->store))->send($message,$secrets);$result+=['status'=>'sent','provider_message_id'=>$providerId,'sent_at'=>date('c'),'last_error'=>''];$counts['sent']++;}
+                    else{(new Sender($this->store))->forward($message,$secrets);$result+=['status'=>'sent','last_error'=>''];$counts['forwarded']++;}
+                }catch(\Throwable $error){$retry=$error instanceof ProviderError&&$error->uncertain;$status=$retry&&(int)$message['attempts']<5?'failed':'abandoned';$counts[$status]++;$result+=['status'=>$status,'last_error'=>$error instanceof ProviderError?'Provider delivery could not be confirmed.':($error instanceof HttpError?$error->getMessage():'The message could not be sent; check private server configuration.'),'next_attempt_at'=>date('c',time()+[0,60,300,1200,3600][min((int)$message['attempts'],4)])];}
+                $this->store->db->transaction(function()use($table,$message,$result){$row=$this->store->row($table,$message['id'],true);if($row['status']!=='sending'||(int)$row['attempts']!==(int)$message['attempts'])return;$this->store->update($table,$row['id'],$result);
+                    if($table==='messaging_outboundmessage'){$mirror=$this->store->db->one('SELECT id,status FROM messaging_whatsappmessage WHERE tenant_id=? AND outbound_id=?',[$this->store->id(),$row['id']]);if($mirror){if(!empty($result['provider_message_id'])){$byId=$this->store->db->one('SELECT id,conversation_id,direction FROM messaging_whatsappmessage WHERE tenant_id=? AND provider_message_id=?',[$this->store->id(),$result['provider_message_id']]);if($byId&&(int)$byId['id']!==(int)$mirror['id']){$own=$this->store->row('messaging_whatsappmessage',$mirror['id']);if($byId['conversation_id']!==$own['conversation_id']||$byId['direction']!=='out')throw new HttpError(409,'Provider message belongs to another conversation.');$this->store->db->rows('DELETE FROM messaging_whatsappmessage WHERE tenant_id=? AND id=?',[$this->store->id(),$byId['id']]);}}$values=['status'=>$result['status']];if(isset($result['provider_message_id']))$values['provider_message_id']=$result['provider_message_id'];if(!in_array($mirror['status'],['read','delivered'],true))$this->store->update('messaging_whatsappmessage',$mirror['id'],$values);if(!empty($result['provider_message_id']))(new Messaging($this->store))->applyReceipts($result['provider_message_id'],$row['to_phone']);}}
+                });
+            }
+        }return $counts;
+    }
+    public function payments(int $limit=10): array {
+        $rows=$this->store->db->rows("SELECT order_id FROM payments_paymentintent WHERE tenant_id=? AND (state IN ('creating','uncertain','ready','part_refunded') OR EXISTS(SELECT 1 FROM payments_refund r WHERE r.intent_id=payments_paymentintent.id AND r.tenant_id=payments_paymentintent.tenant_id AND r.state IN ('requested','submitted'))) AND updated_at<CURRENT_TIMESTAMP-INTERVAL '1 minute' ORDER BY updated_at LIMIT ".max(1,min($limit,20)),[$this->store->id()]);$counts=['checked'=>0,'failed'=>0];foreach($rows as $row){try{(new Payments($this->store))->reconcile((int)$row['order_id']);$counts['checked']++;}catch(\Throwable){$counts['failed']++;}}return $counts;
+    }
+}

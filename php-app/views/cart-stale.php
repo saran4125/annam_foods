@@ -1,0 +1,2 @@
+<?php declare(strict_types=1); namespace Annam; $title='Review your cart'; ?>
+<section class="wrap php-store-section"><h1>Your cart needs attention</h1><p class="php-error"><?= e($error) ?></p><p>A dish, price or meal time may have changed. Clear this cart to choose an available menu.</p><form method="post" action="/cart/clear/"><?= csrf() ?><button class="btn btn-primary">Clear cart</button></form><a href="/menu/">Browse meals</a></section>

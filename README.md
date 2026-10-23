@@ -1,5 +1,10 @@
 # Annam Foods
 
+PHP migration: see [php-app/README.md](php-app/README.md) and the
+[Hostinger package and verification report](docs/php-rebuild/README.md).
+The Django implementation below remains the live/reference application until
+hosting and provider acceptance are completed.
+
 Annam Foods' website and store-management application: meals, shop products,
 pincode-checked checkout, Razorpay, orders, WhatsApp inbox and billing.
 

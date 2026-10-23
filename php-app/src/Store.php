@@ -3,6 +3,11 @@ declare(strict_types=1);
 namespace Annam;
 
 final class Store {
+    private const TABLES = ['tenancy_tenantsecrets','orders_customer','orders_address','orders_order','orders_orderevent',
+        'billing_invoice','billing_invoicesequence','billing_invoicerequest',
+        'payments_razorpayconnection','payments_paymentintent','payments_refund','payments_paymentevent',
+        'messaging_outboundmessage','messaging_whatsappconversation','messaging_whatsappmessage',
+        'messaging_whatsappreceipt','messaging_whatsappforwardevent'];
     public readonly array $tenant;
     public array $config;
     public function __construct(public readonly Database $db) {
@@ -11,11 +16,42 @@ final class Store {
             ?? throw new HttpError(404, 'Store not found.');
         $this->config = $db->one('SELECT * FROM tenancy_tenantconfig WHERE tenant_id=?', [$this->id()])
             ?? throw new \RuntimeException('Store settings are missing.');
-        foreach (['theme', 'features', 'home_sections', 'storefront_design', 'checkout_settings'] as $field) {
+        foreach (['theme', 'features', 'home_sections', 'storefront_design', 'checkout_settings', 'kitchen_closed_window'] as $field) {
             $this->config[$field] = json_decode($this->config[$field] ?? '{}', true, 512, JSON_THROW_ON_ERROR);
         }
     }
     public function id(): int { return (int)$this->tenant['id']; }
+    public function profile(): array {
+        return $this->db->one('SELECT * FROM tenancy_billingprofile WHERE tenant_id=?', [$this->id()])
+            ?? throw new HttpError(422, 'Complete the legal billing settings first.');
+    }
+    public function reload(): void {
+        $fresh = new self($this->db); $this->config = $fresh->config;
+    }
+    public function lock(): void { $this->db->one('SELECT id FROM tenancy_tenant WHERE id=? FOR UPDATE', [$this->id()]); }
+    public function row(string $table, int|string $id, bool $lock = false): array {
+        self::table($table);
+        return $this->db->one('SELECT * FROM '.$table.' WHERE tenant_id=? AND id=?'.($lock?' FOR UPDATE':''),[$this->id(),$id])
+            ?? throw new HttpError(404,'Record not found.');
+    }
+    public function insert(string $table, array $values): array {
+        self::table($table); $values['tenant_id']=$this->id();
+        $columns=array_keys($values); foreach($columns as $key) self::column($key);
+        return $this->db->one('INSERT INTO '.$table.'('.implode(',',array_map(fn($k)=>'"'.$k.'"',$columns)).') VALUES('.implode(',',array_fill(0,count($values),'?')).') RETURNING *',array_values($values));
+    }
+    public function update(string $table, int|string $id, array $values): void {
+        self::table($table);
+        if (isset($values['tenant_id'])||isset($values['id'])) throw new \LogicException('Record ownership cannot be changed.');
+        if ($table==='billing_invoice' && array_diff(array_keys($values),['pdf','sent_customer_at','sent_owner_at'])) throw new \LogicException('Issued bills are immutable. Issue a credit note instead.');
+        if ($table==='orders_order' && array_intersect(array_keys($values),['items','address','pricing','subtotal','total','delivery_fee','discount','customer_id'])) throw new \LogicException('Order snapshots are immutable.');
+        foreach(array_keys($values) as $key) self::column($key);
+        $sets=implode(',',array_map(fn($k)=>'"'.$k.'"=?',array_keys($values)));
+        $this->db->rows('UPDATE '.$table.' SET '.$sets.' WHERE tenant_id=? AND id=?',[...array_values($values),$this->id(),$id]);
+    }
+    private static function table(string $name): void { if(!in_array($name,self::TABLES,true)) throw new \LogicException('Unsupported store table.'); }
+    private static function column(string $name): void { if(!preg_match('/^[a-z_][a-z_0-9]*$/D',$name)) throw new \LogicException('Invalid column.'); }
+    public static function json(array $row, array $fields): array { foreach($fields as $f) $row[$f]=is_string($row[$f]??null)?json_decode($row[$f],true,512,JSON_THROW_ON_ERROR):($row[$f]??[]);return $row; }
+    public static function uuid(): string { $hex=bin2hex(random_bytes(16));return substr($hex,0,8).'-'.substr($hex,8,4).'-4'.substr($hex,13,3).'-'.dechex((hexdec($hex[16])&3)|8).substr($hex,17,3).'-'.substr($hex,20); }
     public function name(): string { return $this->config['brand_name'] ?: $this->tenant['name']; }
     public function slots(): array { return $this->db->rows('SELECT * FROM catalog_slot WHERE tenant_id=? AND active ORDER BY sort,key', [$this->id()]); }
     public function slot(int $id): array { return $this->db->one('SELECT * FROM catalog_slot WHERE tenant_id=? AND id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Meal not found.'); }

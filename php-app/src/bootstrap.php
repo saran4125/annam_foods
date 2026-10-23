@@ -36,6 +36,8 @@ function redirect(string $url): never {
 }
 function image_url(?string $name): string {
     if (!$name) return '';
+    if(str_starts_with($name,'media/'))$name=substr($name,6);
+    if($name==='/static/branding/annam-bill-logo.png')$name='/media/brand/annam-bill-logo.png';
     if (str_contains($name, '..') || str_contains($name, '\\')) return '';
     if (str_starts_with($name, '/media/')) return $name;
     if (str_starts_with($name, '/') || str_contains($name, '://')) return '';

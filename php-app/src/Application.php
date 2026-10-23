@@ -9,16 +9,19 @@ final class Application {
     public static function run(): void {
         try { (new self())->handle(); }
         catch (HttpError $error) { http_response_code($error->status); self::error($error->getMessage()); }
+        catch (ProviderError $error) { http_response_code(503); self::error($error->getMessage()); }
+        catch (\InvalidArgumentException $error) { http_response_code(422); self::error($error->getMessage()); }
         catch (\Throwable $error) {
-            error_log($error->__toString()); http_response_code(503);
-            self::error('The PHP preview could not start. Check the private server log and environment settings.');
+            error_log('Request failed: '.get_class($error).' code '.(string)$error->getCode()); http_response_code(503);
+            self::error('The website could not complete this request. Check the private server log and environment settings.');
         }
     }
     private static function error(string $message): void {
         echo '<!doctype html><meta charset="utf-8"><title>Annam Foods</title><main style="font:18px system-ui;max-width:640px;margin:80px auto;padding:24px"><h1>Annam Foods</h1><p>' . e($message) . '</p><p><a href="javascript:history.back()">Go back</a> · <a href="/">Home</a></p></main>';
     }
     private function handle(): void {
-        if (!in_array(getenv('APP_ENV') ?: 'local', ['local', 'preview'], true)) throw new HttpError(503, 'The PHP rebuild is not yet approved for production.');
+        if (!in_array(getenv('APP_ENV') ?: 'local', ['local', 'preview','production'], true)) throw new HttpError(503, 'Invalid application environment.');
+        if(getenv('APP_ENV')==='production'&&parse_url(getenv('APP_URL')?:'',PHP_URL_SCHEME)!=='https')throw new HttpError(503,'Production requires an HTTPS website URL.');
         $expected = parse_url(getenv('APP_URL') ?: 'http://127.0.0.1:8091', PHP_URL_HOST);
         $rawHost = $_SERVER['HTTP_HOST'] ?? '';
         if (!preg_match('/^[a-zA-Z0-9.:[\]-]+$/D', $rawHost)) throw new HttpError(404, 'Unknown store hostname.');
@@ -28,11 +31,22 @@ final class Application {
         $this->db = new Database();
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
-        if ($path === '/healthz') { $this->db->one('SELECT 1'); header('Content-Type: application/json'); echo '{"status":"ok","application":"php-preview"}'; return; }
+        if ($path === '/healthz') { $this->db->one('SELECT 1'); header('Content-Type: application/json'); echo '{"status":"ok","application":"annam-php"}'; return; }
         $this->store = new Store($this->db);
         $this->user = Security::user($this->db, $this->store);
+        if(preg_match('~^/platform/assets/'.preg_quote($this->store->tenant['slug'],'~').'/([a-f0-9-]{36})/$~D',$path,$asset)){Media::asset($this->store,$asset[1],$this->user!==null);return;}
+        if(str_starts_with($path,'/media/')){Media::serve(substr($path,7));return;}
         if (!in_array($method, ['GET', 'POST'], true)) throw new HttpError(405, 'Method not allowed.');
+        $workflow=new Workflow($this->store,$this->user,fn($view,$data=[],$admin=false)=>$this->render($view,$data,$admin));
+        if($workflow->callbacks($path,$method))return;
         if ($method === 'POST') Security::verifyCsrf();
+        if(str_starts_with($path,'/billing/')){
+            if(!$this->user)redirect('/manage/login/');
+            $aliases=['/billing/'=>'/manage/orders/','/billing/login/'=>'/manage/orders/','/billing/new/'=>'/manage/orders/new/','/billing/settings/'=>'/manage/billing-settings/','/billing/logout/'=>'/manage/logout/'];
+            if(isset($aliases[$path])){if($method==='POST'){$this->admin($aliases[$path],$method);return;}redirect($aliases[$path]);}
+            if(preg_match('~^/billing/(web|manual|whatsapp)/$~',$path,$channel))redirect('/manage/orders/?channel='.$channel[1]);
+            $mapped=preg_replace('~^/billing/~','/manage/',$path);if($workflow->admin($mapped,$method))return;
+        }
 
         if ($path === '/manage/login/') {
             $error = '';
@@ -46,17 +60,19 @@ final class Application {
             if (!$this->user) redirect('/manage/login/');
             $this->admin($path, $method); return;
         }
+        if($workflow->publicRoute($path,$method))return;
         if ($path === '/cart/add/' && $method === 'POST') {
             Cart::add($this->store, $_POST); $_SESSION['notice'] = 'Added to your cart.'; redirect('/cart/');
         }
+        if($path==='/cart/update/'&&$method==='POST'){$quantity=filter_var($_POST['quantity']??'',FILTER_VALIDATE_INT);if($quantity===false)throw new HttpError(422,'Enter a whole quantity.');Cart::set($this->store,(int)($_POST['item_id']??0),$quantity);redirect('/cart/');}
         if ($path === '/cart/clear/' && $method === 'POST') { unset($_SESSION['cart']); redirect('/cart/'); }
         if ($path === '/cart/remove/' && $method === 'POST') { unset($_SESSION['cart']['lines'][(int)($_POST['item_id'] ?? 0)]); redirect('/cart/'); }
         if ($method !== 'GET' && $path !== '/cart/') throw new HttpError(405, 'Method not allowed.');
         if ($path === '/') {
             $slots = $this->store->slots(); $date = date('Y-m-d'); $menus = [];
             foreach ($slots as $slot) $menus[] = ['slot' => $slot, 'items' => $this->store->menu($date, (int)$slot['id'])];
-            $products = array_slice(array_filter($this->store->items('courier'), fn($i) => $i['active']), 0, 8);
-            $banners = $this->db->rows('SELECT * FROM content_banner WHERE tenant_id=? AND active ORDER BY sort,id LIMIT 3', [$this->store->id()]);
+            $products=array_values(array_filter($this->store->items('courier'),fn($i)=>$i['active']));usort($products,fn($a,$b)=>[!in_array('featured',json_decode($a['tags'],true),true),!$a['image'],$a['sort'],$a['name']]<=>[!in_array('featured',json_decode($b['tags'],true),true),!$b['image'],$b['sort'],$b['name']]);$products=array_slice($products,0,12);
+            $banners = $this->db->rows('SELECT * FROM content_banner WHERE tenant_id=? AND active ORDER BY sort,id LIMIT 12', [$this->store->id()]);
             $this->render('home', compact('menus', 'products', 'banners', 'date')); return;
         }
         if ($path === '/menu/') {
@@ -79,7 +95,7 @@ final class Application {
             $this->render('item', compact('item')); return;
         }
         if ($path === '/cart/') {
-            $quote = Cart::quote($this->store); $delivery = null; $error = '';
+            try{$quote=Cart::quote($this->store);}catch(HttpError $exception){$this->render('cart-stale',['error'=>$exception->getMessage()]);return;} $delivery = null; $error = '';
             if ($method === 'POST' && $quote['lines']) {
                 try {
                     $subtotal = $quote['subtotal'];
@@ -107,6 +123,7 @@ final class Application {
         throw new HttpError(404, 'Page not found.');
     }
     private function admin(string $path, string $method): void {
+        if((new Workflow($this->store,$this->user,fn($view,$data=[],$admin=false)=>$this->render($view,$data,$admin)))->admin($path,$method))return;
         $resources = new Resources($this->store);
         if ($path === '/manage/logout/' && $method === 'POST') { $_SESSION = []; session_regenerate_id(true); redirect('/manage/login/'); }
         if ($path === '/manage/') {
@@ -130,21 +147,10 @@ final class Application {
             $this->render('daily-menu', compact('date', 'slots', 'slot', 'slotId', 'selected', 'items', 'revision'), true); return;
         }
         if ($path === '/manage/settings/') {
+            Settings::owner($this->user);
             if ($method === 'POST') {
-                $name = trim((string)($_POST['brand_name'] ?? ''));
-                $phone = trim((string)($_POST['support_phone'] ?? ''));
-                $tagline = trim((string)($_POST['tagline'] ?? ''));
-                if (!$name || strlen($name) > 120 || strlen($phone) > 30 || strlen($tagline) > 200) throw new HttpError(422, 'Check the store name, tagline and phone number.');
-                $this->db->transaction(function () use ($name, $tagline, $phone) {
-                    $config = $this->db->one('SELECT theme FROM tenancy_tenantconfig WHERE tenant_id=? FOR UPDATE', [$this->store->id()]);
-                    $theme = json_decode($config['theme'], true, 512, JSON_THROW_ON_ERROR);
-                    $email = trim((string)($_POST['contact_email'] ?? ''));
-                    if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) throw new HttpError(422, 'Enter a valid email address.');
-                    $theme['contact_email'] = $email;
-                    if (($_FILES['logo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) $theme['logo_url'] = '/media/' . Resources::upload($_FILES['logo'], 'brand');
-                    $this->db->rows('UPDATE tenancy_tenantconfig SET brand_name=?,tagline=?,support_phone=?,theme=? WHERE tenant_id=?', [$name, $tagline, $phone, json_encode($theme, JSON_THROW_ON_ERROR), $this->store->id()]);
-                });
-                $_SESSION['notice'] = 'Store settings saved.'; redirect('/manage/settings/');
+                (new Settings($this->store))->identity($_POST,$_FILES);
+                $_SESSION['notice']='Store settings saved.';redirect('/manage/settings/');
             }
             $this->render('settings', [], true); return;
         }
@@ -165,15 +171,23 @@ final class Application {
         if (preg_match('~^/manage/([a-z-]+)/$~', $path, $match) && isset(Resources::DEFINITIONS[$match[1]])) {
             $key = $match[1]; $spec = Resources::definition($key); $records = $resources->list($key);
             $kind = $_GET['kind'] ?? 'scheduled';
-            if ($key === 'dishes') $records = array_values(array_filter($records, fn($row) => $row['fulfilment'] === $kind));
+            $meal=(string)($_GET['meal']??'');$mealCounts=[];
+            if ($key === 'dishes') {
+                $records=array_values(array_filter($records,fn($row)=>$row['fulfilment']===$kind));
+                if($kind==='scheduled'){
+                    $members=[];foreach($this->store->slots() as $slot){$ids=array_column($this->db->rows('SELECT DISTINCT item_id FROM catalog_menuschedule WHERE tenant_id=? AND slot_id=?',[$this->store->id(),$slot['id']]),'item_id');$members[$slot['key']]=$ids;$mealCounts[$slot['key']]=count(array_filter($records,fn($r)=>in_array($r['id'],$ids)));}
+                    $assigned=array_unique(array_merge([], ...array_values($members)));$mealCounts['unassigned']=count(array_filter($records,fn($r)=>!in_array($r['id'],$assigned)));
+                    if($meal==='unassigned')$records=array_values(array_filter($records,fn($r)=>!in_array($r['id'],$assigned)));elseif(isset($members[$meal]))$records=array_values(array_filter($records,fn($r)=>in_array($r['id'],$members[$meal])));
+                }
+            }
             $query = trim((string)($_GET['q'] ?? ''));
             if ($query) $records = array_values(array_filter($records, fn($r) => stripos(implode(' ', array_filter($r, 'is_scalar')), $query) !== false));
-            $this->render('resource-list', compact('key', 'spec', 'records', 'kind', 'query'), true); return;
+            $this->render('resource-list', compact('key', 'spec', 'records', 'kind', 'query','meal','mealCounts'), true); return;
         }
         throw new HttpError(404, 'This management page has not yet been migrated to the PHP preview.');
     }
     private function render(string $view, array $data = [], ?bool $admin = false): void {
-        $store = $this->store; $user = $this->user; $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $store = $this->store; $website=new Content($store); $user = $this->user; $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $notice = $_SESSION['notice'] ?? ''; unset($_SESSION['notice']);
         extract($data, EXTR_SKIP);
         ob_start(); require ANNAM_ROOT . '/views/' . $view . '.php'; $content = ob_get_clean();

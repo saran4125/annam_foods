@@ -1,0 +1,67 @@
+<?php
+declare(strict_types=1);
+namespace Annam;
+
+final class Messaging {
+    public function __construct(private Store $store) {}
+    public static function defaults(): array {return ['wa_provider'=>'console','wa_phone_number_id'=>'','wa_waba_id'=>'','wa_verify_token'=>'','wa_token_enc'=>'','wa_app_secret_enc'=>'','n8n_send_url'=>'','n8n_auth_token_enc'=>'','wa_sync_token_enc'=>'','n8n_receive_url'=>'','razorpay_key_id'=>'','razorpay_secret_enc'=>'','rzp_webhook_secret_enc'=>'','razorpay_live_mode'=>false];}
+    public static function phone(string $value): string {$digits=preg_replace('/[\s()+-]/','',$value);if(!preg_match('/^[0-9]{7,20}$/D',$digits))throw new HttpError(422,'Enter a valid WhatsApp phone number.');return $digits;}
+    public function secrets(): array {return $this->store->db->one('SELECT * FROM tenancy_tenantsecrets WHERE tenant_id=?',[$this->store->id()])??self::defaults();}
+    public function conversation(string $phone,string $name=''): array {
+        $row=$this->store->db->one('SELECT * FROM messaging_whatsappconversation WHERE tenant_id=? AND phone=? FOR UPDATE',[$this->store->id(),$phone]);if($row)return $row;
+        return $this->store->insert('messaging_whatsappconversation',['phone'=>$phone,'display_name'=>mb_substr($name,0,120),'last_message_at'=>date('c'),'last_inbound_at'=>null,'preview'=>'','unread_count'=>0]);
+    }
+    public function queue(string $phone,array $payload,string $purpose='',string $dedupe=''): array {
+        $phone=self::phone($phone);MessagePayload::graph($phone,$payload);if(strlen($dedupe)>120||strlen($purpose)>40)throw new HttpError(422,'Invalid message reference.');
+        return $this->store->db->transaction(function()use($phone,$payload,$purpose,$dedupe){$this->store->lock();if($dedupe&&($existing=$this->store->db->one('SELECT * FROM messaging_outboundmessage WHERE tenant_id=? AND dedupe_key=?',[$this->store->id(),$dedupe])))return $existing;
+            $row=$this->store->insert('messaging_outboundmessage',['to_phone'=>$phone,'payload'=>json_encode($payload,JSON_THROW_ON_ERROR),'purpose'=>$purpose,'status'=>'pending','provider'=>'','provider_message_id'=>'','attempts'=>0,'claimed_at'=>null,'last_error'=>'','next_attempt_at'=>date('c'),'dedupe_key'=>$dedupe,'created_at'=>date('c'),'sent_at'=>null]);$conversation=$this->conversation($phone);
+            $this->store->insert('messaging_whatsappmessage',['conversation_id'=>$conversation['id'],'direction'=>'out','kind'=>$payload['kind'],'body'=>$payload['body']??$payload['caption']??$payload['name']??'','provider_message_id'=>'','status'=>'pending','occurred_at'=>date('c'),'created_at'=>date('c'),'payload'=>json_encode($payload,JSON_THROW_ON_ERROR),'media_id'=>'','filename'=>$payload['filename']??'','mime_type'=>'','outbound_id'=>$row['id'],'actor'=>'']);
+            $this->store->update('messaging_whatsappconversation',$conversation['id'],['last_message_at'=>date('c'),'preview'=>mb_substr($payload['body']??$payload['kind'],0,280)]);return $row;});
+    }
+    public function reply(int $conversationId,string $body,string $token,string $actor): void {
+        if(!preg_match('/^[a-f0-9]{32}$/D',$token)||!isset($_SESSION['reply_tokens'][$token]))throw new HttpError(422,'Refresh this conversation before replying.');
+        $this->store->db->transaction(function()use($conversationId,$body,$token,$actor){$conversation=$this->store->row('messaging_whatsappconversation',$conversationId,true);if(!$conversation['last_inbound_at']||strtotime($conversation['last_inbound_at'])<=time()-86400)throw new HttpError(422,'The 24-hour reply window is closed. Use an approved WhatsApp template through your automation.');$row=$this->queue($conversation['phone'],['kind'=>'text','body'=>trim($body)],'reply','reply:'.$conversationId.':'.$token);$this->store->db->rows('UPDATE messaging_whatsappmessage SET actor=? WHERE tenant_id=? AND outbound_id=?',[mb_substr($actor,0,120),$this->store->id(),$row['id']]);});
+    }
+    public function ingest(array $payload,bool $forward=true): void {
+        $secrets=$this->secrets();if(($payload['object']??'')!=='whatsapp_business_account'||!is_array($payload['entry']??null))throw new HttpError(400,'Invalid WhatsApp event.');$filtered=[];
+        $this->store->db->transaction(function()use($payload,$secrets,$forward,&$filtered){$this->store->lock();foreach($payload['entry'] as $entry){if($secrets['wa_waba_id']&&($entry['id']??'')!==$secrets['wa_waba_id'])continue;$changes=[];foreach($entry['changes']??[] as $change){if(($change['field']??'')!=='messages')continue;$value=$change['value']??[];if(($value['metadata']['phone_number_id']??'')!==$secrets['wa_phone_number_id'])continue;$changes[]=$change;
+                    foreach($value['messages']??[] as $message)$this->incoming($message,$value['contacts']??[]);
+                    foreach($value['statuses']??[] as $status)$this->receipt($status);
+                }if($changes)$filtered[]=['id'=>$entry['id'],'changes'=>$changes];}
+            if($forward&&$filtered&&$secrets['n8n_receive_url']){$data=['object'=>'whatsapp_business_account','entry'=>$filtered];$json=json_encode($data,JSON_THROW_ON_ERROR);$digest=hash('sha256',$json);if(!$this->store->db->one('SELECT id FROM messaging_whatsappforwardevent WHERE tenant_id=? AND digest=?',[$this->store->id(),$digest]))$this->store->insert('messaging_whatsappforwardevent',['digest'=>$digest,'payload'=>$json,'status'=>'pending','attempts'=>0,'next_attempt_at'=>date('c'),'claimed_at'=>null,'last_error'=>'','created_at'=>date('c')]);}
+        });
+    }
+    private function incoming(array $message,array $contacts): void {
+        $id=(string)($message['id']??'');if(!$id||strlen($id)>200)throw new HttpError(400,'Invalid message reference.');if($this->store->db->one('SELECT id FROM messaging_whatsappmessage WHERE tenant_id=? AND provider_message_id=?',[$this->store->id(),$id]))return;
+        $phone=self::phone((string)($message['from']??''));$stamp=self::timestamp($message['timestamp']??null);$name='';foreach($contacts as $contact)if(($contact['wa_id']??'')===$phone)$name=$contact['profile']['name']??'';
+        $conversation=$this->conversation($phone,$name);$kind=mb_substr((string)($message['type']??'text'),0,30);$body=MessagePayload::body($message);$media=$message[$kind]??[];
+        $this->store->insert('messaging_whatsappmessage',['conversation_id'=>$conversation['id'],'direction'=>'in','kind'=>$kind,'body'=>mb_substr($body,0,20000),'provider_message_id'=>$id,'status'=>'received','occurred_at'=>$stamp,'created_at'=>date('c'),'payload'=>json_encode($message,JSON_THROW_ON_ERROR),'media_id'=>mb_substr((string)($media['id']??''),0,200),'filename'=>mb_substr((string)($media['filename']??''),0,200),'mime_type'=>mb_substr((string)($media['mime_type']??''),0,100),'outbound_id'=>null,'actor'=>'']);
+        $update=['unread_count'=>(int)$conversation['unread_count']+1];if(!$conversation['last_inbound_at']||strtotime($stamp)>strtotime($conversation['last_inbound_at']))$update['last_inbound_at']=$stamp;if(strtotime($stamp)>=strtotime($conversation['last_message_at']))$update+=['last_message_at'=>$stamp,'preview'=>mb_substr($body,0,280)];if($name)$update['display_name']=mb_substr($name,0,120);$this->store->update('messaging_whatsappconversation',$conversation['id'],$update);
+    }
+    private static function timestamp(mixed $stamp): string {if($stamp===null||$stamp==='')return date('c');if(!is_string($stamp)&&!is_int($stamp)||!ctype_digit((string)$stamp)||(int)$stamp<0||(int)$stamp>time()+300)throw new HttpError(400,'Invalid message timestamp.');return date('c',(int)$stamp);}
+    private function receipt(array $record): void {
+        $id=(string)($record['id']??'');$status=$record['status']??'';if(!$id||strlen($id)>200||!in_array($status,['sent','delivered','read','failed'],true))return;$phone=self::phone((string)($record['recipient_id']??''));$stamp=self::timestamp($record['timestamp']??null);
+        $this->store->db->rows('INSERT INTO messaging_whatsappreceipt(tenant_id,provider_message_id,status,phone,occurred_at) VALUES(?,?,?,?,?) ON CONFLICT(tenant_id,provider_message_id,status) DO NOTHING',[$this->store->id(),$id,$status,$phone,$stamp]);$this->applyReceipts($id,$phone);
+    }
+    public function applyReceipts(string $providerId,string $phone): void {
+        $row=$this->store->db->one("SELECT m.id,m.status FROM messaging_whatsappmessage m JOIN messaging_whatsappconversation c ON c.id=m.conversation_id AND c.tenant_id=m.tenant_id WHERE m.tenant_id=? AND m.direction='out' AND m.provider_message_id=? AND c.phone=? FOR UPDATE OF m",[$this->store->id(),$providerId,$phone]);if(!$row)return;$ranks=['pending'=>0,'sending'=>0,'abandoned'=>0,'sent'=>1,'failed'=>2,'delivered'=>3,'read'=>4];$status=$row['status'];foreach($this->store->db->rows('SELECT status FROM messaging_whatsappreceipt WHERE tenant_id=? AND provider_message_id=? AND phone=?',[$this->store->id(),$providerId,$phone]) as $receipt)if(($ranks[$receipt['status']]??0)>($ranks[$status]??0))$status=$receipt['status'];$this->store->update('messaging_whatsappmessage',$row['id'],['status'=>$status]);
+    }
+    public function webhook(string $raw,string $signature): void {
+        if(strlen($raw)>1048576)throw new HttpError(413,'Webhook too large.');$secret=Crypto::decrypt($this->secrets()['wa_app_secret_enc']);if(!$secret||!hash_equals('sha256='.hash_hmac('sha256',$raw,$secret),$signature))throw new HttpError(403,'Invalid webhook signature.');try{$payload=json_decode($raw,true,64,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(400,'Invalid JSON.');}if(!is_array($payload))throw new HttpError(400,'Expected a JSON object.');$this->ingest($payload);
+    }
+    public function sync(string $raw,string $authorization): void {
+        if(strlen($raw)>1048576)throw new HttpError(413,'Webhook too large.');$secrets=$this->secrets();$token=Crypto::decrypt($secrets['wa_sync_token_enc']);if(!$token||!hash_equals('Bearer '.$token,$authorization))throw new HttpError(403,'Invalid sync token.');try{$event=json_decode($raw,true,64,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(400,'Invalid JSON.');}
+        if(!is_array($event))throw new HttpError(400,'Expected a JSON object.');
+        if(($event['event']??'')==='meta'){$this->ingest($event['payload']??[],false);return;}
+        if(($event['event']??'')!=='outbound'||($event['phone_number_id']??'')!==$secrets['wa_phone_number_id'])throw new HttpError(400,'Invalid sync event.');
+        $message=$event['message']??[];$phone=self::phone((string)($message['to']??''));$id=(string)($event['message_id']??'');$stamp=self::timestamp($event['timestamp']??null);if(!$id||strlen($id)>200)throw new HttpError(400,'Invalid outgoing message reference.');
+        $this->store->db->transaction(function()use($message,$phone,$id,$stamp,$event){$this->store->lock();if($this->store->db->one('SELECT id FROM messaging_whatsappmessage WHERE tenant_id=? AND provider_message_id=?',[$this->store->id(),$id]))return;$conversation=$this->conversation($phone,(string)($event['contact_name']??''));$body=MessagePayload::body($message);$this->store->insert('messaging_whatsappmessage',['conversation_id'=>$conversation['id'],'direction'=>'out','kind'=>mb_substr((string)($message['type']??'text'),0,30),'body'=>$body,'provider_message_id'=>$id,'status'=>'sent','occurred_at'=>$stamp,'created_at'=>date('c'),'payload'=>json_encode($message,JSON_THROW_ON_ERROR),'media_id'=>'','filename'=>'','mime_type'=>'','outbound_id'=>null,'actor'=>'n8n']);if(strtotime($stamp)>=strtotime($conversation['last_message_at']))$this->store->update('messaging_whatsappconversation',$conversation['id'],['last_message_at'=>$stamp,'preview'=>mb_substr($body,0,280)]);$this->applyReceipts($id,$phone);});
+    }
+    public function saveSettings(array $input): void {
+        $old=$this->secrets();$values=[];$provider=$input['wa_provider']??'';if(!in_array($provider,['meta_cloud','n8n','console'],true))throw new HttpError(422,'Choose the WhatsApp provider.');$values['wa_provider']=$provider;
+        foreach(['wa_phone_number_id'=>40,'wa_waba_id'=>40,'n8n_send_url'=>200,'n8n_receive_url'=>200] as $field=>$limit){$value=trim((string)($input[$field]??''));if(strlen($value)>$limit)throw new HttpError(422,'Integration field is too long.');if(str_starts_with($field,'n8n_')&&$value)Http::publicUrl($value);if(str_starts_with($field,'wa_')&&$value&&!ctype_digit($value))throw new HttpError(422,'Meta account identifiers contain digits only.');$values[$field]=$value;}
+        foreach(['wa_token'=>'wa_token_enc','wa_app_secret'=>'wa_app_secret_enc','n8n_auth_token'=>'n8n_auth_token_enc','wa_sync_token'=>'wa_sync_token_enc'] as $field=>$column){$value=(string)($input[$field]??'');if($value!==''){if(strlen($value)>4096)throw new HttpError(422,'Integration secret is too long.');$values[$column]=Crypto::encrypt($value);}}
+        if(($value=(string)($input['wa_verify_token']??''))!==''){if(strlen($value)<16||strlen($value)>80)throw new HttpError(422,'Verification token needs 16 to 80 characters.');$values['wa_verify_token']=$value;}
+        $this->store->db->transaction(function()use($values){$this->store->lock();$existing=$this->store->db->one('SELECT id FROM tenancy_tenantsecrets WHERE tenant_id=?',[$this->store->id()]);if($existing)$this->store->update('tenancy_tenantsecrets',$existing['id'],$values);else $this->store->insert('tenancy_tenantsecrets',array_replace(self::defaults(),$values));});
+    }
+}
