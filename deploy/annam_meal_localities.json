@@ -1,0 +1,543 @@
+{
+  "checked_on": "2026-10-23",
+  "sources": {
+    "data_gov_in_mirror": "https://github.com/mithunsasidharan/India-Pincode-Lookup/blob/master/pincodes.json",
+    "maps_of_india_mirror": "https://github.com/ramesh612/IndiaPincodeData/blob/master/india-pincodes.json"
+  },
+  "localities": [
+    {
+      "pincode": "600002",
+      "area_name": "Anna Road / Chintadripet",
+      "postal_offices": [
+        "Anna Road H.O",
+        "Madras Electricity System S.O",
+        "Chintadripet S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600004",
+      "area_name": "Mylapore / Mandaveli",
+      "postal_offices": [
+        "Mylapore H.O",
+        "Vivekananda College Madras S.O",
+        "Mandaveli S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600005",
+      "area_name": "Tiruvallikkeni / Chepauk",
+      "postal_offices": [
+        "Madras University S.O",
+        "Chepauk S.O",
+        "Tiruvallikkeni S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600006",
+      "area_name": "Greams Road / Teynampet West",
+      "postal_offices": [
+        "Greams Road S.O",
+        "Shastri Bhavan S.O",
+        "Teynampet West S.O",
+        "Old College Buildings S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600008",
+      "area_name": "Egmore",
+      "postal_offices": [
+        "Egmore ND S.O",
+        "Ethiraj Salai S.O",
+        "Egmore S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600010",
+      "area_name": "Kilpauk",
+      "postal_offices": [
+        "Kilpauk Medical College S.O",
+        "Kilpauk S.O",
+        "Medavakkam Tank Road S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600011",
+      "area_name": "Perambur / Sembiam",
+      "postal_offices": [
+        "Perambur North S.O",
+        "Perambur S.O",
+        "Sembiam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600012",
+      "area_name": "Puliyanthope / Perambur Barracks",
+      "postal_offices": [
+        "Puliyanthope S.O",
+        "Perambur Barracks S.O",
+        "Venkatesapuram S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600014",
+      "area_name": "Royapettah / Lloyds Estate",
+      "postal_offices": [
+        "Lloyds Estate S.O",
+        "Pudupakkam S.O",
+        "Royapettah S.O",
+        "Triplicane South S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600015",
+      "area_name": "Saidapet / Guindy North",
+      "postal_offices": [
+        "Saidapet S.O (Chennai)",
+        "Guindy North S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600017",
+      "area_name": "Thygarayanagar (T. Nagar)",
+      "postal_offices": [
+        "Hindi Prachar Sabha S.O",
+        "Thygarayanagar H.O",
+        "Thygarayanagar North ND S.O",
+        "Thygarayanagar South NDS.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600018",
+      "area_name": "Teynampet",
+      "postal_offices": [
+        "Teynampet S.O",
+        "Pr. Accountant General S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600020",
+      "area_name": "Adyar / Shastri Nagar",
+      "postal_offices": [
+        "Shastri Nagar S.O (Chennai)",
+        "Adyar S.O (Chennai)",
+        "Kasturibai Nagar S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600022",
+      "area_name": "Rajbhavan",
+      "postal_offices": [
+        "Rajbhavan S.O (Chennai)"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600024",
+      "area_name": "Kodambakkam",
+      "postal_offices": [
+        "Kodambakkam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600025",
+      "area_name": "Engineering College (Chennai)",
+      "postal_offices": [
+        "Engineering College S.O (Chennai)"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600026",
+      "area_name": "Vadapalani",
+      "postal_offices": [
+        "Vadapalani S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600028",
+      "area_name": "Raja Annamalaipuram",
+      "postal_offices": [
+        "Raja Annamalaipuram S.O",
+        "Ramakrishna Nagar S.O (Chennai)"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600029",
+      "area_name": "Aminjikarai",
+      "postal_offices": [
+        "Aminjikarai S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600030",
+      "area_name": "Shenoy Nagar",
+      "postal_offices": [
+        "Shenoy Nagar S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600031",
+      "area_name": "Chetput",
+      "postal_offices": [
+        "Chetput S.O",
+        "World University Centre S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600032",
+      "area_name": "Guindy Industrial Estate / Ekkaduthangal",
+      "postal_offices": [
+        "Guindy Industrial Estate S.O",
+        "Ekkaduthangal S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600033",
+      "area_name": "West Mambalam",
+      "postal_offices": [
+        "Mambalam R.S. S.O",
+        "West Mambalam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600034",
+      "area_name": "Nungambakkam",
+      "postal_offices": [
+        "Nungambakkam S.O",
+        "Loyola College S.O",
+        "Nungambakkam High Road S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600035",
+      "area_name": "Nandanam",
+      "postal_offices": [
+        "Nandanam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600036",
+      "area_name": "Indian Institute of Technology",
+      "postal_offices": [
+        "Indian Institute Of Technology S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600040",
+      "area_name": "Anna Nagar",
+      "postal_offices": [
+        "Anna Nagar S.O (Chennai)"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600041",
+      "area_name": "Tiruvanmiyur / Palavakkam / Neelankarai",
+      "postal_offices": [
+        "Neelankarai B.O",
+        "Palavakkam S.O (Kanchipuram)",
+        "Valmiki Nagar S.O",
+        "Tiruvanmiyur S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600042",
+      "area_name": "Velacheri",
+      "postal_offices": [
+        "Velacheri S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600050",
+      "area_name": "Padi / Korattur",
+      "postal_offices": [
+        "Korattur S.O",
+        "Padi S.O",
+        "Jagadambigainagar B.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600061",
+      "area_name": "Nanganallur / Pazhavanthangal",
+      "postal_offices": [
+        "Nanganallur Bazaar S.O",
+        "Nanganallur S.O",
+        "Pazhavanthangal S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600076",
+      "area_name": "Korattur RS",
+      "postal_offices": [
+        "Korattur RS S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600078",
+      "area_name": "Kalaignar Karunanidhi Nagar (K. K. Nagar)",
+      "postal_offices": [
+        "Kalaignar Karunanidhi Nagar S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600080",
+      "area_name": "Korattur / Korattur West",
+      "postal_offices": [
+        "Korattur",
+        "Korattur West"
+      ],
+      "source": "maps_of_india_mirror"
+    },
+    {
+      "pincode": "600082",
+      "area_name": "Jawahar Nagar / Agaram / G. K. M. Colony",
+      "postal_offices": [
+        "Kumaran Nagar S.O",
+        "Jawahar Nagar S.O (Chennai)",
+        "G K M Colony S.O",
+        "Agaram S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600084",
+      "area_name": "Flowers Road",
+      "postal_offices": [
+        "Flowers Road S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600085",
+      "area_name": "Kotturpuram",
+      "postal_offices": [
+        "Kotturpuram S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600086",
+      "area_name": "Gopalapuram",
+      "postal_offices": [
+        "Gopalapuram S.O (Chennai)"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600087",
+      "area_name": "Valasaravakkam / Alwarthirunagar",
+      "postal_offices": [
+        "Valasaravakkam S.O",
+        "Alwarthirunagar S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600088",
+      "area_name": "Adambakkam / Nilamangai Nagar",
+      "postal_offices": [
+        "Adambakkam S.O",
+        "Nilamangai Nagar S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600090",
+      "area_name": "Besantnagar",
+      "postal_offices": [
+        "Rajaji Bhavan S.O",
+        "Besantnagar S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600091",
+      "area_name": "Madipakkam",
+      "postal_offices": [
+        "Madipakkam S.O",
+        "Madipakkam South S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600092",
+      "area_name": "Virugambakkam",
+      "postal_offices": [
+        "Koyambedu Wholesale Market Com S.O",
+        "Virugambakkam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600093",
+      "area_name": "Saligramam",
+      "postal_offices": [
+        "Saligramam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600094",
+      "area_name": "Choolaimedu",
+      "postal_offices": [
+        "Choolaimedu S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600095",
+      "area_name": "Maduravoyal / Vanagaram / Ayanambakkam",
+      "postal_offices": [
+        "Ayanambakkam B.O",
+        "Maduravoyal S.O",
+        "Vanagaram B.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600096",
+      "area_name": "Perungudi",
+      "postal_offices": [
+        "Perungudi S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600097",
+      "area_name": "Oggiamthoraipakkam / Karapakkam",
+      "postal_offices": [
+        "Oggiamthoraipakkam S.O",
+        "Karapakkam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600099",
+      "area_name": "Kolathur / Lakshmipuram",
+      "postal_offices": [
+        "Kolathur S.O",
+        "Lakshmipuram B.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600101",
+      "area_name": "Anna Nagar Western Extension",
+      "postal_offices": [
+        "Anna Nagar Western Extn S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600102",
+      "area_name": "Anna Nagar East",
+      "postal_offices": [
+        "Anna Nagar East S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600106",
+      "area_name": "Arumbakkam",
+      "postal_offices": [
+        "Arumbakkam S.O",
+        "D G Vaishnav College S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600107",
+      "area_name": "Koyambedu / Nerkundram",
+      "postal_offices": [
+        "Koyambedu S.O",
+        "Nerkundram S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600113",
+      "area_name": "Taramani / Tidel Park",
+      "postal_offices": [
+        "TTTI Taramani S.O",
+        "Tidel Park S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600116",
+      "area_name": "Porur / Alapakkam",
+      "postal_offices": [
+        "Alapakkam B.O",
+        "Porur S.O",
+        "Sriramachandra Deemed Uty S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600117",
+      "area_name": "Old Pallavaram / Keelakattalai",
+      "postal_offices": [
+        "Old Pallavaram S.O",
+        "Bharathinagar B.O",
+        "Keelakattalai S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600119",
+      "area_name": "Sholinganallur",
+      "postal_offices": [
+        "Sholinganallur S.O",
+        "Sathyabama University S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600125",
+      "area_name": "Manapakkam / Mugalivakkam",
+      "postal_offices": [
+        "Manapakkam B.O",
+        "Mugalivakkam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    },
+    {
+      "pincode": "600129",
+      "area_name": "Kovilambakkam",
+      "postal_offices": [
+        "Kovilambakkam S.O"
+      ],
+      "source": "data_gov_in_mirror"
+    }
+  ]
+}

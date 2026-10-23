@@ -1,6 +1,7 @@
 import csv
 import importlib
 import io
+import json
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -20,6 +21,75 @@ from apps.tenancy.models import Tenant
 
 MIGRATION = 'apps.delivery.migrations.0002_annam_approved_meal_zones'
 SOURCE = Path(__file__).resolve().parents[3] / 'deploy' / 'annam_meal_delivery_zones.csv'
+NAMES_MIGRATION = 'apps.delivery.migrations.0003_annam_locality_names'
+
+
+def apply_names():
+    historical = MigrationLoader(connection).project_state([
+        ('delivery', '0003_annam_locality_names')]).apps
+    importlib.import_module(NAMES_MIGRATION).fill_missing_localities(
+        historical, SimpleNamespace(connection=connection))
+
+
+def test_postal_localities_cover_every_missing_csv_name_and_match_deployment():
+    data = json.loads(SOURCE.with_name('annam_meal_localities.json').read_text())
+    names = {row['pincode']: row['area_name'] for row in data['localities']}
+    with SOURCE.open(encoding='utf-8-sig', newline='') as source:
+        missing = {row['pincode'] for row in read_meal_zone_csv(source) if not row['area_name']}
+    assert set(names) == missing and len(names) == 59
+    assert names == importlib.import_module(NAMES_MIGRATION).LOCALITIES
+    assert names['600018'] == 'Teynampet'
+    assert names['600080'] == 'Korattur / Korattur West'
+    assert all(row['postal_offices'] and row['source'] in data['sources']
+               and len(row['area_name']) <= 120 for row in data['localities'])
+
+
+def test_locality_update_fills_names_without_altering_any_delivery_rules(imported):
+    store, other, existing, _, _, rival = imported
+    with tenant_context(store):
+        before = list(DeliveryZone.objects.order_by('pk').values())
+    apply_names()
+    with tenant_context(store):
+        after = list(DeliveryZone.objects.order_by('pk').values())
+        assert not DeliveryZone.objects.filter(active=True, area_name='Delivery area').exists()
+        assert DeliveryZone.objects.get(pincode='600018').area_name == 'Teynampet'
+        assert set(DeliveryZone.objects.filter(pincode='600083', active=True)
+                   .values_list('area_name', flat=True)) == {'Ashok Nagar', 'Jaffar Khan Pet'}
+    for old, new in zip(before, after, strict=True):
+        if old['area_name'] == 'Delivery area':
+            assert new.pop('area_name') != old.pop('area_name')
+        assert new == old
+    existing.refresh_from_db()
+    rival.refresh_from_db()
+    assert existing.area_name == 'Triplicane' and rival.area_name == 'Other area'
+    assert store.config.checkout_settings['courier_pincodes'] == ['641001']
+    with tenant_context(store):
+        first_pass = list(DeliveryZone.objects.order_by('pk').values())
+    apply_names()
+    with tenant_context(store):
+        assert list(DeliveryZone.objects.order_by('pk').values()) == first_pass
+
+
+def test_locality_update_preserves_custom_names_and_does_not_merge_zone_rates(imported):
+    store, other, *_ = imported
+    with tenant_context(store):
+        custom = DeliveryZone.objects.get(pincode='600018')
+        custom.area_name = 'Our Teynampet route'
+        custom.save()
+        generic = DeliveryZone.objects.get(pincode='600024')
+        named = DeliveryZone.objects.create(pincode='600024', area_name='Kodambakkam',
+                                           delivery_fee='99', min_order='200')
+    with tenant_context(other):
+        other_generic = DeliveryZone.objects.create(pincode='600018', area_name='Delivery area')
+    apply_names()
+    custom.refresh_from_db()
+    generic.refresh_from_db()
+    named.refresh_from_db()
+    other_generic.refresh_from_db()
+    assert custom.area_name == 'Our Teynampet route'
+    assert generic.area_name == 'Delivery area' and generic.delivery_fee == Decimal('30')
+    assert named.area_name == 'Kodambakkam' and named.delivery_fee == Decimal('99')
+    assert other_generic.area_name == 'Delivery area'
 
 
 def apply_import():

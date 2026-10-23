@@ -25,9 +25,24 @@ Two pincodes require an area choice:
 | 600100 | Medavakkam | ₹60 | ₹320 |
 | 600100 | Perumbakalm | ₹100 | ₹320 |
 
-Area spelling follows the source. An em dash in the file means no area name was
-provided; preserve an existing useful area name where unambiguous, otherwise
-use “Delivery area”. These are not additional subareas or guessed geocoding.
+Area spelling follows the source where supplied. The 59 rows with an em dash
+had no locality names. `deploy/annam_meal_localities.json` now supplies checked
+postal locality labels and the original postal-office names used to choose them.
+Names were checked on 23 October 2026 against the public
+[India-Pincode-Lookup directory](https://github.com/mithunsasidharan/India-Pincode-Lookup),
+which attributes its data to data.gov.in. Pincode 600080 is absent there; its
+Korattur / Korattur West label comes from the
+[IndiaPincodeData directory](https://github.com/ramesh612/IndiaPincodeData),
+whose crawl log identifies Maps of India as the source. These are downloaded
+directory snapshots, not a live India Post API verification.
+
+The follow-up migration fills only blank/generic labels. Existing useful names
+(including all four differently priced subareas above) and zone IDs are retained.
+It changes no fee, minimum, meal flag, active status or coverage. A slash in a
+label identifies localities sharing a postal code; it does not create new zones.
+If an identical named row already exists, the migration skips the generic row
+rather than merging potentially different delivery rules. Fresh seeding uses
+the same labels; later owner edits are never overwritten on restart.
 
 The one-time deployment migration updates Annam's meal zones, retains matching
 zone IDs where possible, and deactivates old zones outside the supplied list

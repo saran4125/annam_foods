@@ -373,9 +373,11 @@ with tenant_context(tenant):
         Page.objects.create(slug=slug, title=title, body_md=body, published=True,
                             show_in_nav=(slug == "about"))
 
+    locality_data = json.loads((ROOT / "deploy" / "annam_meal_localities.json").read_text())
+    localities = {row["pincode"]: row["area_name"] for row in locality_data["localities"]}
     with (ROOT / "deploy" / "annam_meal_delivery_zones.csv").open(encoding="utf-8-sig", newline="") as source:
         for values in read_meal_zone_csv(source):
-            values["area_name"] = values["area_name"] or "Delivery area"
+            values["area_name"] = values["area_name"] or localities.get(values["pincode"], "Delivery area")
             DeliveryZone.objects.create(**values)
 
 owner, _ = get_user_model().objects.get_or_create(username=OWNER_USERNAME)
