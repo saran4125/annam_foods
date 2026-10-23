@@ -268,7 +268,12 @@ class ZoneForm(StyledForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["slot_keys"].choices = [(s.key, s.label) for s in Slot.objects.all()]
+        choices = [(s.key, s.label) for s in Slot.objects.all()]
+        known = {key for key, _ in choices}
+        # Keep imported delivery types (e.g. snacks) editable even before their
+        # menu slot is configured. Do not silently discard them on a zone edit.
+        choices.extend((key, key.replace('_', ' ').title()) for key in (self.instance.slot_keys or []) if key not in known)
+        self.fields["slot_keys"].choices = choices
 
     def clean_pincode(self):
         pincode = re.sub(r"\D", "", self.cleaned_data.get("pincode", ""))

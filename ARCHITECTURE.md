@@ -270,6 +270,12 @@ and caps quantities at 99 per line. One cart contains one meal slot/date or
 courier goods; mixed fulfilment is refused. Checkout supports its implemented
 today/tomorrow meal selection.
 
+Annam's approved meal-zone CSV is imported as 63 active area rows across 61
+pincodes, with exact meal flags, charges and minimums. Shared pincodes retain
+separate area rates. The one-time deployment migration deactivates superseded
+meal coverage and leaves courier configuration/order history untouched. Fresh
+seeding uses the same CSV; see [docs/annam-meal-delivery.md](docs/annam-meal-delivery.md).
+
 Out-of-zone customers cannot place a meal order. Courier delivery uses an
 explicit exact-pincode allowlist, not a guessed statewide prefix. It fails closed
 until configured. Website checkout offers no silent pickup/coverage bypass;
@@ -487,7 +493,7 @@ also increases database/backup size.
 | Area | Still required |
 | --- | --- |
 | Razorpay | Real test credentials/webhook/auto-capture, actual sandbox payment/failure/retry/refund checks; later live KYC/activation |
-| Checkout/delivery | Confirm actual meal zones/cutoffs/holidays and exact courier coverage, fees and minimums |
+| Checkout/delivery | Meal zones/fees/minimums imported from the approved CSV; confirm cutoffs/holidays and exact courier coverage, fees and minimums |
 | Billing | Confirm real legal/GST/FSSAI/tax settings and sample invoices/credits |
 | WhatsApp | Connect and verify n8n incoming/outgoing/status copies; decide any structured automatic order import |
 | Fulfilment | Accept/prepare/dispatch/deliver/cancel acceptance and customer notifications |

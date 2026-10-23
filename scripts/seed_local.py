@@ -22,7 +22,7 @@ Environment (all optional locally, used by the Render deploy):
                            disk is wiped on every restart) and change no data
 
 Demo-only values, to be replaced by the owner: meal slot cutoffs and delivery
-windows, delivery zones and fees, and the policy page text.
+windows and the policy page text. Meal zones/fees use the approved CSV export.
 """
 import hashlib
 import json
@@ -53,6 +53,7 @@ from apps.catalog.models import (  # noqa: E402
 )
 from apps.content.models import Banner, Page  # noqa: E402
 from apps.delivery.models import DeliveryZone  # noqa: E402
+from apps.delivery.imports import read_meal_zone_csv  # noqa: E402
 from apps.tenancy.context import all_tenants, tenant_context  # noqa: E402
 from apps.tenancy.models import (  # noqa: E402
     BillingProfile, Tenant, TenantConfig, TenantDomain, TenantStatus, TenantUser, TenantUserRole,
@@ -90,11 +91,7 @@ HIDDEN_SHELVES = {FEATURED_SHELF, "daily-foods-1"}  # a tag and a meal umbrella,
 # Shop shelf order: what customers come for first.
 SHELF_ORDER = ["podi", "pakshanams-1", "sweets", "pickles", "health-products", "laddus-1", "thokku",
                "vathal-vadagams", "rice-mix-paste", "ready-to-cook", "rasam-paste", "appalams", "diary"]
-ZONES = [  # demo fees around Triplicane
-    ("600005", "Triplicane", "30", "200"), ("600004", "Mylapore", "40", "250"),
-    ("600014", "Royapettah", "40", "250"), ("600017", "T. Nagar", "60", "300"),
-    ("600028", "R.A. Puram", "60", "300"), ("600020", "Adyar", "70", "350"),
-]
+
 
 
 def asset_for(url):
@@ -376,9 +373,10 @@ with tenant_context(tenant):
         Page.objects.create(slug=slug, title=title, body_md=body, published=True,
                             show_in_nav=(slug == "about"))
 
-    for pincode, area, fee, minimum in ZONES:
-        DeliveryZone.objects.create(pincode=pincode, area_name=area,
-                                    delivery_fee=Decimal(fee), min_order=Decimal(minimum))
+    with (ROOT / "deploy" / "annam_meal_delivery_zones.csv").open(encoding="utf-8-sig", newline="") as source:
+        for values in read_meal_zone_csv(source):
+            values["area_name"] = values["area_name"] or "Delivery area"
+            DeliveryZone.objects.create(**values)
 
 owner, _ = get_user_model().objects.get_or_create(username=OWNER_USERNAME)
 owner.set_password(OWNER_PASSWORD)
