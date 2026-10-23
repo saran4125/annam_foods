@@ -35,7 +35,7 @@ def test_bundled_health_mix_is_a_real_image_when_the_upload_disk_is_empty(
         assert image.format == "JPEG"
         assert image.width >= 700 and image.height >= 700
         image.verify()
-    assert not (media_kitchen / HEALTH_MIX).exists()  # No seed or network restore needed.
+    assert (media_kitchen / HEALTH_MIX).read_bytes() == content
 
 
 def test_owner_upload_takes_precedence_over_the_bundled_replacement(client, media_kitchen):
@@ -50,6 +50,11 @@ def test_owner_upload_takes_precedence_over_the_bundled_replacement(client, medi
 
 def test_unknown_missing_media_still_returns_not_found(client, media_kitchen):
     response = client.get("/media/menu/unknown.jpg", HTTP_HOST=HOST)
+    assert response.status_code == 404
+
+
+def test_recovery_does_not_serve_bundled_directories(client, media_kitchen):
+    response = client.get('/media/brand/', HTTP_HOST=HOST)
     assert response.status_code == 404
 
 

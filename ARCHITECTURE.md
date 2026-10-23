@@ -218,16 +218,19 @@ cannot reveal unpublished content, even for signed-in staff. Saved draft/previou
 records remain untouched. Existing catalog, banners, pages and normal store
 settings remain editable in their own forms.
 
-Published editor images remain `StorefrontImage` database binary records with
-their existing UUID URLs. Public references stay readable after deployment;
-unpublished images remain staff-protected. A cross-store image slug is not a
-browser store selector. Existing upload validation/services remain internal for
-data compatibility, not an exposed editor.
+Editor images now have files in `media/website/<tenant>/<uuid>.<extension>`;
+`StorefrontImage.data` remains a recovery copy. Existing UUID endpoints still
+enforce published/staff access, and direct `/media/website/*` requests are
+blocked by Django and the supplied Caddy example. Existing upload validation
+remains internal for data compatibility, not an exposed editor.
 
 Legacy dish/banner/brand files use public media storage. Selected recovered files
-under `static/public-media/` are fallback assets, including Health Mix. An owner's
-existing uploaded replacement takes precedence. A fallback file set does not make
-every upload durable on an ephemeral hosting disk.
+under `static/public-media/`, including Health Mix and the bill logo, are copied
+into media before serving. An owner's existing uploaded replacement takes
+precedence. `materialize_media --download` also imports configured external image
+links from approved Annam hosts, changing references only after successful image
+validation and storage. See `docs/image-storage.md`. A fallback file set does not
+make every upload durable on an ephemeral hosting disk.
 
 Published customer-facing footer overrides remain separate from the legal
 `BillingProfile`; retaining a marketing address must not rewrite issued invoice
@@ -424,7 +427,7 @@ Production uses Django/Gunicorn and WhiteNoise static files.
 
 ```text
 build.sh: install requirements → collectstatic
-start.sh: migrate → optional background seed/media restore → supervisor
+start.sh: migrate → local media recovery → background seed/image import → supervisor
 scripts/serve_with_inbox.py:
   ├─ Gunicorn: 2 workers, timeout 60 seconds, PORT or 10000
   └─ manage.py run_whatsapp_worker
@@ -437,7 +440,7 @@ payment/n8n/media/worker health.
 | Storage | Contents and requirement |
 | --- | --- |
 | PostgreSQL | Store/catalog/orders/invoices/payment/inbox records, sessions and editor image bytes; back up and test restore |
-| Public media | Legacy dish/banner/brand files; durable disk/shared storage required |
+| Media folder | Dish/category/banner/brand/campaign/imported and protected editor files; durable disk required |
 | Static assets | Collected CSS/JS/icons and selected bundled recovery files |
 | Private storage | Bill artifacts if used; never mount as public media |
 | Redis | Optional Huey broker; needs a consumer to run periodic jobs |

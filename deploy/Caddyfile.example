@@ -7,6 +7,10 @@
 		root * /srv/seerkitchen/staticfiles
 		file_server
 	}
+	# Draft editor photos require the /platform/assets/... access checks.
+	handle /media/website/* {
+		respond 404
+	}
 	handle_path /media/* {
 		root * /srv/seerkitchen/media
 		file_server

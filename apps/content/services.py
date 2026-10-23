@@ -437,5 +437,9 @@ def save_storefront_image(tenant, upload):
         TenantConfig.objects.select_for_update().get(tenant=tenant)
         if StorefrontImage.objects.count() >= 100:
             raise ValidationError('Your photo library is full. Reuse a photo from the library or contact support.')
-        return StorefrontImage.objects.create(name=PurePath(upload.name).name[:160], data=data,
+        result = StorefrontImage.objects.create(name=PurePath(upload.name).name[:160], data=data,
                         content_type=content_type, width=width, height=height)
+        from .storage import editor_image_file
+        with editor_image_file(result):
+            pass
+        return result

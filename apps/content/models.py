@@ -66,10 +66,11 @@ class Banner(TenantOwnedModel):
 
 
 class StorefrontImage(TenantOwnedModel):
-    """Small website-editor uploads persist even on an ephemeral demo server.
+    """Legacy website-editor metadata and a recovery copy of each image.
 
-    Only current published references are public. Draft images require kitchen
-    management access. Image bytes never enter the design JSON or editor HTML.
+    Image files live in media/website/<tenant>/<uuid>.<extension>. Only current
+    published references are public; draft files require kitchen management
+    access through the image endpoint. Binary data can restore a lost file.
     """
     import uuid
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

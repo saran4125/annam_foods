@@ -3,6 +3,7 @@
 set -euo pipefail
 
 python manage.py migrate --noinput
+python manage.py materialize_media
 
 # First boot: create the kitchen, its owner login, and download the catalog photos
 # onto the persistent disk. SEED_ONLY_IF_EMPTY makes every later restart a no-op,
@@ -10,7 +11,12 @@ python manage.py migrate --noinput
 # already answering health checks while photos download.
 export SEED_DOMAIN="${SEED_DOMAIN:-${RENDER_EXTERNAL_HOSTNAME:-}}"
 if [ -n "${SEED_OWNER_PASSWORD:-}" ] && [ -n "${SEED_DOMAIN}" ]; then
-  SEED_ONLY_IF_EMPTY=1 SEED_DOWNLOAD_ASSETS=1 python scripts/seed_local.py &
+  (
+    SEED_ONLY_IF_EMPTY=1 SEED_DOWNLOAD_ASSETS=1 python scripts/seed_local.py
+    python manage.py materialize_media --download
+  ) &
+else
+  python manage.py materialize_media --download &
 fi
 
 exec python scripts/serve_with_inbox.py

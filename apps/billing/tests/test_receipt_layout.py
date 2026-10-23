@@ -135,7 +135,7 @@ def test_dedicated_bill_logo_is_snapshotted_without_changing_the_website_logo(bi
         config.save()
         invoice = issue_bill(order)
         html = render_to_string('billing/_invoice_body.html', {'invoice': invoice})
-    assert invoice.seller['logo_url'] == '/static/branding/annam-bill-logo.png'
-    assert 'src="/static/branding/annam-bill-logo.png"' in html
+    assert invoice.seller['logo_url'] == '/media/brand/annam-bill-logo.png'
+    assert 'src="/media/brand/annam-bill-logo.png"' in html
     config.refresh_from_db()
     assert config.theme['logo_url'] == '/media/website-original.png'

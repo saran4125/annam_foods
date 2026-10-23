@@ -10,6 +10,9 @@ def logo_url(value):
     if not isinstance(value, str):
         return ''
     value = value.strip()
+    from apps.content.storage import LEGACY_BILL_LOGO, BILL_LOGO
+    if value == LEGACY_BILL_LOGO:
+        value = BILL_LOGO
     if value.startswith('media/'):
         value = '/' + value
     if not value or '\\' in value or any(ord(char) < 32 for char in value):
