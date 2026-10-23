@@ -232,6 +232,10 @@ links from approved Annam hosts, changing references only after successful image
 validation and storage. See `docs/image-storage.md`. A fallback file set does not
 make every upload durable on an ephemeral hosting disk.
 
+Store settings includes an owner-only media ZIP export with a missing-file
+report. It exports store-referenced photos and saved editor images, without
+database credentials, customer records or another store's image library.
+
 Published customer-facing footer overrides remain separate from the legal
 `BillingProfile`; retaining a marketing address must not rewrite issued invoice
 seller details.

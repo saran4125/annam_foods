@@ -56,4 +56,15 @@
 
   <div class="o-form-bar o-form-bar-sticky"><button class="o-btn o-btn-primary" type="submit">Save settings</button></div>
 </form>
+{% if can_export_media %}
+<section class="o-card">
+  <header class="o-card-head"><h2>Download your website images</h2></header>
+  <p>Save your product photos, categories, banners, logos and saved website photos to your computer.</p>
+  <p class="o-muted">The ZIP includes a backup report. Check it for missing files or external images before removing the current website. Database backups and credentials are separate.</p>
+  <form method="post" action="{% url 'owner:media_backup' %}">
+    {% csrf_token %}
+    <button class="o-btn o-btn-primary" type="submit">Download media ZIP</button>
+  </form>
+</section>
+{% endif %}
 {% endblock %}

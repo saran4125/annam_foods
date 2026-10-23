@@ -26,6 +26,7 @@ urlpatterns = [
     path("orders/<int:pk>/refund/", payment_views.refund, name="razorpay_refund"),
     path("checkout-settings/", views.checkout_settings, name="checkout_settings"),
     path("settings/", views.settings_view, name="settings"),
+    path("settings/media-backup/", views.media_backup, name="media_backup"),
     path("<slug:key>/", views.resource_list, name="list"),
     path("<slug:key>/new/", views.resource_edit, name="new"),
     path("<slug:key>/<int:pk>/", views.resource_edit, name="edit"),

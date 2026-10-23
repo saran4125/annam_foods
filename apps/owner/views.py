@@ -17,7 +17,7 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import ProtectedError, Q
 from django.core.exceptions import ValidationError
-from django.http import Http404
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -498,7 +498,26 @@ def settings_view(request):
         config.save(update_fields=["brand_name", "tagline", "support_phone", "theme", "home_sections", "features"])
         messages.success(request, "Store settings saved.")
         return redirect("owner:settings")
-    return render(request, "owner/settings.html", {"form": form, "logo": theme.get("logo_url")})
+    from apps.content.backups import can_export_media
+    return render(request, "owner/settings.html", {"form": form, "logo": theme.get("logo_url"),
+                  "can_export_media": can_export_media(request.user, request.tenant)})
+
+
+@never_cache
+@owner_required
+@require_POST
+def media_backup(request):
+    from django.core.exceptions import PermissionDenied
+    from apps.content.backups import build_media_backup, can_export_media
+    if not can_export_media(request.user, request.tenant):
+        raise PermissionDenied
+    archive, report = build_media_backup(request.tenant)
+    response = FileResponse(archive, as_attachment=True, content_type='application/zip',
+        filename=f'{request.tenant.slug}-media-{timezone.localdate().isoformat()}.zip')
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['X-Backup-Image-Count'] = str(report['image_count'])
+    response['X-Backup-Missing-Count'] = str(len(report['missing_files']))
+    return response
 
 
 @owner_required
