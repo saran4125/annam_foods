@@ -2,7 +2,7 @@
 
 PHP migration: see [php-app/README.md](php-app/README.md) and the
 [Hostinger package and verification report](docs/php-rebuild/README.md).
-Staff documentation: [Admin guide (Word and PDF)](docs/admin-guide/README.md).
+Staff documentation: [Daily staff guide (Word and PDF)](docs/admin-guide/README.md).
 The Django implementation below remains the live/reference application until
 hosting and provider acceptance are completed.
 

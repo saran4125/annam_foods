@@ -5,173 +5,128 @@
     "page": 3
   },
   {
-    "title": "Sign in",
-    "screenshot": "01-login",
-    "page": 4
-  },
-  {
     "title": "Dashboard",
     "screenshot": "02-dashboard",
-    "page": 5
+    "page": 4
   },
   {
     "title": "Orders & billing",
     "screenshot": "13-orders",
-    "page": 6
+    "page": 5
   },
   {
     "title": "Create a manual or WhatsApp booking",
     "screenshot": "14-booking",
-    "page": 7
+    "page": 6
   },
   {
     "title": "Choose items for a booking",
     "screenshot": "15-booking-items",
-    "page": 8
+    "page": 7
   },
   {
     "title": "Confirm an offline payment",
     "screenshot": "16-order-detail",
-    "page": 9
+    "page": 8
   },
   {
     "title": "Prepare, dispatch and deliver",
     "screenshot": "17-order-actions",
-    "page": 10
+    "page": 9
   },
   {
     "title": "Open and print a bill",
     "screenshot": "18-bill",
-    "page": 11
+    "page": 10
   },
   {
     "title": "WhatsApp inbox",
     "screenshot": "19-inbox",
-    "page": 12
+    "page": 11
   },
   {
     "title": "Reply to a WhatsApp customer",
     "screenshot": "21-reply-compose",
-    "page": 13
-  },
-  {
-    "title": "WhatsApp connection settings",
-    "screenshot": "22-wa-settings",
-    "page": 14
-  },
-  {
-    "title": "Razorpay: test mode",
-    "screenshot": "23-razorpay-test",
-    "page": 15
-  },
-  {
-    "title": "Razorpay: live payments and refunds",
-    "screenshot": "24-razorpay-live",
-    "page": 16
-  },
-  {
-    "title": "Checkout & courier: pincodes",
-    "screenshot": "25-courier",
-    "page": 17
-  },
-  {
-    "title": "Courier charges, minimums and holidays",
-    "screenshot": "26-courier-fees",
-    "page": 18
-  },
-  {
-    "title": "Billing settings: business details",
-    "screenshot": "27-billing",
-    "page": 19
-  },
-  {
-    "title": "Billing settings: taxes and bill timing",
-    "screenshot": "28-billing-tax",
-    "page": 20
+    "page": 12
   },
   {
     "title": "Dishes & products: meals",
     "screenshot": "03-meals",
-    "page": 21
+    "page": 13
   },
   {
     "title": "Dishes & products: other items",
     "screenshot": "04-shop",
-    "page": 22
+    "page": 14
   },
   {
     "title": "Add or edit a dish/product",
     "screenshot": "05-dish-form",
-    "page": 23
+    "page": 15
   },
   {
     "title": "Add a photo and feature a product",
     "screenshot": "06-dish-photo",
-    "page": 24
+    "page": 16
   },
   {
     "title": "Daily menus",
     "screenshot": "07-daily-menu",
-    "page": 25
+    "page": 17
   },
   {
     "title": "Categories",
     "screenshot": "08-categories",
-    "page": 26
+    "page": 18
   },
   {
     "title": "Meal times",
     "screenshot": "09-meal-times",
-    "page": 27
+    "page": 19
   },
   {
     "title": "Change a meal cutoff",
     "screenshot": "10-cutoff",
-    "page": 28
+    "page": 20
   },
   {
     "title": "Delivery areas",
     "screenshot": "11-zones",
-    "page": 29
+    "page": 21
   },
   {
     "title": "Add or change a meal delivery area",
     "screenshot": "12-zone-form",
-    "page": 30
+    "page": 22
   },
   {
     "title": "Offer banners",
     "screenshot": "29-banners",
-    "page": 31
+    "page": 23
   },
   {
     "title": "Create an offer banner",
     "screenshot": "30-banner-form",
-    "page": 32
+    "page": 24
   },
   {
     "title": "Website pages",
     "screenshot": "31-pages",
-    "page": 33
+    "page": 25
   },
   {
     "title": "Write or edit page content",
     "screenshot": "32-page-form",
-    "page": 34
+    "page": 26
   },
   {
     "title": "Store settings: identity",
     "screenshot": "33-store",
-    "page": 35
+    "page": 27
   },
   {
-    "title": "Store settings: ordering and backup",
-    "screenshot": "34-store-ordering",
-    "page": 36
-  },
-  {
-    "title": "View the website and log out",
+    "title": "Check the customer website",
     "screenshot": "35-website",
-    "page": 37
+    "page": 28
   }
 ]
