@@ -1,0 +1,182 @@
+[
+  {
+    "id": "01-login",
+    "url": "/manage/login/",
+    "file": "01-login.png"
+  },
+  {
+    "id": "02-dashboard",
+    "url": "/manage/",
+    "file": "02-dashboard.png"
+  },
+  {
+    "id": "03-meals",
+    "url": "/manage/dishes/?kind=scheduled&meal=breakfast",
+    "file": "03-meals.png"
+  },
+  {
+    "id": "04-shop",
+    "url": "/manage/dishes/?kind=courier",
+    "file": "04-shop.png"
+  },
+  {
+    "id": "05-dish-form",
+    "url": "/manage/dishes/new/?kind=scheduled",
+    "file": "05-dish-form.png"
+  },
+  {
+    "id": "06-dish-photo",
+    "url": "/manage/dishes/new/?kind=scheduled",
+    "file": "06-dish-photo.png"
+  },
+  {
+    "id": "07-daily-menu",
+    "url": "/manage/dishes/menu/",
+    "file": "07-daily-menu.png"
+  },
+  {
+    "id": "08-categories",
+    "url": "/manage/categories/",
+    "file": "08-categories.png"
+  },
+  {
+    "id": "09-meal-times",
+    "url": "/manage/slots/",
+    "file": "09-meal-times.png"
+  },
+  {
+    "id": "10-cutoff",
+    "url": "/manage/slots/1/",
+    "file": "10-cutoff.png"
+  },
+  {
+    "id": "11-zones",
+    "url": "/manage/zones/",
+    "file": "11-zones.png"
+  },
+  {
+    "id": "12-zone-form",
+    "url": "/manage/zones/1/",
+    "file": "12-zone-form.png"
+  },
+  {
+    "id": "13-orders",
+    "url": "/manage/orders/",
+    "file": "13-orders.png"
+  },
+  {
+    "id": "14-booking",
+    "url": "/manage/orders/new/",
+    "file": "14-booking.png"
+  },
+  {
+    "id": "15-booking-items",
+    "url": "/manage/orders/new/",
+    "file": "15-booking-items.png"
+  },
+  {
+    "id": "16-order-detail",
+    "url": "/manage/orders/37/",
+    "file": "16-order-detail.png"
+  },
+  {
+    "id": "17-order-actions",
+    "url": "/manage/orders/37/",
+    "file": "17-order-actions.png"
+  },
+  {
+    "id": "18-bill",
+    "url": "/manage/bills/17/",
+    "file": "18-bill.png"
+  },
+  {
+    "id": "19-inbox",
+    "url": "/manage/whatsapp/",
+    "file": "19-inbox.png"
+  },
+  {
+    "id": "20-reply",
+    "url": "/manage/whatsapp/9/",
+    "file": "20-reply.png"
+  },
+  {
+    "id": "21-reply-compose",
+    "url": "/manage/whatsapp/9/",
+    "file": "21-reply-compose.png"
+  },
+  {
+    "id": "22-wa-settings",
+    "url": "/manage/whatsapp/settings/",
+    "file": "22-wa-settings.png"
+  },
+  {
+    "id": "23-razorpay-test",
+    "url": "/manage/payments/razorpay/?mode=test",
+    "file": "23-razorpay-test.png"
+  },
+  {
+    "id": "24-razorpay-live",
+    "url": "/manage/payments/razorpay/?mode=live",
+    "file": "24-razorpay-live.png"
+  },
+  {
+    "id": "25-courier",
+    "url": "/manage/checkout-settings/",
+    "file": "25-courier.png"
+  },
+  {
+    "id": "26-courier-fees",
+    "url": "/manage/checkout-settings/",
+    "file": "26-courier-fees.png"
+  },
+  {
+    "id": "27-billing",
+    "url": "/manage/billing-settings/",
+    "file": "27-billing.png"
+  },
+  {
+    "id": "28-billing-tax",
+    "url": "/manage/billing-settings/",
+    "file": "28-billing-tax.png"
+  },
+  {
+    "id": "29-banners",
+    "url": "/manage/banners/",
+    "file": "29-banners.png"
+  },
+  {
+    "id": "30-banner-form",
+    "url": "/manage/banners/new/",
+    "file": "30-banner-form.png"
+  },
+  {
+    "id": "31-pages",
+    "url": "/manage/pages/",
+    "file": "31-pages.png"
+  },
+  {
+    "id": "32-page-form",
+    "url": "/manage/pages/new/",
+    "file": "32-page-form.png"
+  },
+  {
+    "id": "33-store",
+    "url": "/manage/settings/",
+    "file": "33-store.png"
+  },
+  {
+    "id": "34-store-ordering",
+    "url": "/manage/settings/",
+    "file": "34-store-ordering.png"
+  },
+  {
+    "id": "35-website",
+    "url": "/",
+    "file": "35-website.png"
+  },
+  {
+    "id": "36-navigation",
+    "url": "/manage/",
+    "file": "36-navigation.png"
+  }
+]
