@@ -1,42 +1,36 @@
-# Annam Foods staff guide
+# Annam Foods staff quick guide
 
-- [Download the editable Word document](Annam-Foods-Admin-Guide.docx)
-- [Open the PDF copy](Annam-Foods-Admin-Guide.pdf)
+- [Download Word](Annam-Foods-Admin-Guide.docx)
+- [Open PDF](Annam-Foods-Admin-Guide.pdf)
 
-This 30-page guide focuses on daily kitchen and website work. It contains 26
-illustrated tasks, a page index, a daily checklist and common questions, written
-in simple English for Annam’s staff.
+**11 tabs, 11 pages.** Each page has a tab name, one-sentence purpose, one real
+screenshot and four short explanations of the main controls. There is no cover,
+contents page, lengthy walkthrough, repeated subpage or troubleshooting chapter.
 
-It covers menus, products/photos, orders, offline payment confirmation, fulfilment,
-bill printing, everyday WhatsApp inbox use, categories, meal times, meal delivery
-areas, banners, pages and basic store contact/identity details.
+The tabs are Dashboard, Orders & billing, WhatsApp inbox, Dishes & products,
+Daily menus, Categories, Meal times, Delivery areas, Offer banners, Website pages
+and Store settings.
 
-At the user’s request, it excludes sign-in/sign-out instructions, Razorpay setup,
-WhatsApp integration settings, shop courier settings, advanced tax configuration,
-and technical ordering/backup setup. The application itself has not changed.
-Actual screenshots can still show existing sidebar links; those setup screens
-are not taught in this guide.
+Technical integration settings, payment-provider setup, courier configuration,
+advanced tax/backup setup and sign-in/sign-out instructions remain excluded.
+The application itself has not changed.
 
-Screenshots were captured from the isolated PHP preview on 24 October 2026.
-Customer/order examples are practice records. No live orders, real payments,
-refunds, WhatsApp sends or production settings were changed to make this guide.
-All pictures are embedded in the Word file, so it can be shared by itself. The
-PDF is a fixed-layout viewing and printing copy.
+Screenshots show the actual working areas of the isolated PHP preview, using
+practice records. No production data, real payment or WhatsApp send was changed
+for these documents. All screenshots are embedded in the Word file.
 
-## Updating the guide
+## Rebuild
 
-`build_guide.py` contains the text and layout. After updating the relevant
-screenshots, rebuild with Python, `python-docx` and Pillow:
+`build_guide.py` contains the short text and layout. With `python-docx` installed:
 
 ```sh
 python docs/admin-guide/build_guide.py
 ```
 
-Export the Word file to PDF using Word or LibreOffice. Verify page references
-against `guide-index.json` after every layout change.
+Export the Word file to PDF using Word or LibreOffice. Check that the PDF has
+exactly 11 pages and matches `guide-index.json`.
 
-The current version has 26 illustrated tasks, 30 pages, and 28 embedded pictures
-including the logo and two bill details. Its page references, removed-topic
-checks and embedded-image integrity were verified. The repository’s full Django
-suite must pass before committing; no PHP application code changed for this
-revision.
+Validation: 11 pages, 11 embedded screenshots, one drawn screenshot per PDF page,
+matching tab/page headings, and fewer than 110 words per page. Representative
+pages were visually checked. The repository’s 546 Django tests passed before
+publishing this documentation-only update.

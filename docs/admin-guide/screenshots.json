@@ -1,137 +1,57 @@
 [
   {
-    "id": "02-dashboard",
+    "id": "dashboard",
     "url": "/manage/",
-    "file": "02-dashboard.png"
+    "file": "dashboard.png"
   },
   {
-    "id": "03-meals",
-    "url": "/manage/dishes/?kind=scheduled&meal=breakfast",
-    "file": "03-meals.png"
-  },
-  {
-    "id": "04-shop",
-    "url": "/manage/dishes/?kind=courier",
-    "file": "04-shop.png"
-  },
-  {
-    "id": "05-dish-form",
-    "url": "/manage/dishes/new/?kind=scheduled",
-    "file": "05-dish-form.png"
-  },
-  {
-    "id": "06-dish-photo",
-    "url": "/manage/dishes/new/?kind=scheduled",
-    "file": "06-dish-photo.png"
-  },
-  {
-    "id": "07-daily-menu",
-    "url": "/manage/dishes/menu/",
-    "file": "07-daily-menu.png"
-  },
-  {
-    "id": "08-categories",
-    "url": "/manage/categories/",
-    "file": "08-categories.png"
-  },
-  {
-    "id": "09-meal-times",
-    "url": "/manage/slots/",
-    "file": "09-meal-times.png"
-  },
-  {
-    "id": "10-cutoff",
-    "url": "/manage/slots/1/",
-    "file": "10-cutoff.png"
-  },
-  {
-    "id": "11-zones",
-    "url": "/manage/zones/",
-    "file": "11-zones.png"
-  },
-  {
-    "id": "12-zone-form",
-    "url": "/manage/zones/1/",
-    "file": "12-zone-form.png"
-  },
-  {
-    "id": "13-orders",
+    "id": "orders",
     "url": "/manage/orders/",
-    "file": "13-orders.png"
+    "file": "orders.png"
   },
   {
-    "id": "14-booking",
-    "url": "/manage/orders/new/",
-    "file": "14-booking.png"
-  },
-  {
-    "id": "15-booking-items",
-    "url": "/manage/orders/new/",
-    "file": "15-booking-items.png"
-  },
-  {
-    "id": "16-order-detail",
-    "url": "/manage/orders/37/",
-    "file": "16-order-detail.png"
-  },
-  {
-    "id": "17-order-actions",
-    "url": "/manage/orders/37/",
-    "file": "17-order-actions.png"
-  },
-  {
-    "id": "19-inbox",
+    "id": "whatsapp",
     "url": "/manage/whatsapp/",
-    "file": "19-inbox.png"
+    "file": "whatsapp.png"
   },
   {
-    "id": "21-reply-compose",
-    "url": "/manage/whatsapp/9/",
-    "file": "21-reply-compose.png"
+    "id": "products",
+    "url": "/manage/dishes/?kind=scheduled&meal=breakfast",
+    "file": "products.png"
   },
   {
-    "id": "29-banners",
+    "id": "daily-menus",
+    "url": "/manage/dishes/menu/",
+    "file": "daily-menus.png"
+  },
+  {
+    "id": "categories",
+    "url": "/manage/categories/",
+    "file": "categories.png"
+  },
+  {
+    "id": "meal-times",
+    "url": "/manage/slots/",
+    "file": "meal-times.png"
+  },
+  {
+    "id": "delivery-areas",
+    "url": "/manage/zones/",
+    "file": "delivery-areas.png"
+  },
+  {
+    "id": "offer-banners",
     "url": "/manage/banners/",
-    "file": "29-banners.png"
+    "file": "offer-banners.png"
   },
   {
-    "id": "30-banner-form",
-    "url": "/manage/banners/new/",
-    "file": "30-banner-form.png"
-  },
-  {
-    "id": "31-pages",
+    "id": "website-pages",
     "url": "/manage/pages/",
-    "file": "31-pages.png"
+    "file": "website-pages.png"
   },
   {
-    "id": "32-page-form",
-    "url": "/manage/pages/new/",
-    "file": "32-page-form.png"
-  },
-  {
-    "id": "33-store",
+    "id": "store-settings",
     "url": "/manage/settings/",
-    "file": "33-store.png"
-  },
-  {
-    "id": "35-website",
-    "url": "/",
-    "file": "35-website.png"
-  },
-  {
-    "id": "36-navigation",
-    "url": "/manage/",
-    "file": "36-navigation.png"
-  },
-  {
-    "id": "18-bill-top",
-    "url": "/manage/bills/17/",
-    "file": "18-bill-top.png"
-  },
-  {
-    "id": "18-bill-bottom",
-    "url": "/manage/bills/17/",
-    "file": "18-bill-bottom.png"
+    "file": "store-settings.png"
   }
 ]
