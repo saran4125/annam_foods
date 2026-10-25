@@ -34,7 +34,7 @@ def test_only_admin_login_authenticates_and_returns_directly_to_dashboard(client
     assert dashboard.status_code == 200
     for removed in [b'My kitchens', b'Workspace overview', b'>Domains<', b'>Appearance<', b'SeerKitchen']:
         assert removed not in dashboard.content
-    for kept in [b'Orders', b'WhatsApp inbox', b'Offer banners', b'Pages', b'Razorpay payments', b'Checkout &amp; courier', b'Billing settings']:
+    for kept in [b'Orders', b'WhatsApp inbox', b'Offer banners', b'Pages', b'Razorpay payments', b'Checkout settings', b'Billing settings']:
         assert kept in dashboard.content
 
 

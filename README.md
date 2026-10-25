@@ -48,7 +48,7 @@ models in isolation tests; it does not restore the retired platform routes.
 - `/manage/whatsapp/`: conversation inbox.
 - `/manage/whatsapp/settings/`: phone-number ID and encrypted n8n sync token.
 - `/manage/payments/razorpay/`: owner-only test/live payment settings.
-- `/manage/checkout-settings/`: courier pincode list, fees, minimums and closures.
+- `/manage/checkout-settings/`: Tamil Nadu shop delivery, fees, minimums and meal closures. Shop delivery has no pincode whitelist; meal pincodes remain mandatory.
 - `/manage/billing/`: shared legal/tax settings.
 - `/manage/settings/`: existing store settings.
 - Dishes & products opens Meals with Breakfast/Lunch/Dinner groups; Other items

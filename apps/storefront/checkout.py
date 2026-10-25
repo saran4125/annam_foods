@@ -52,9 +52,11 @@ def checkout_quote(tenant, cart, details, *, now=None):
         if not tenant.feature('snacks_courier'):
             raise OrderError('Shop ordering is not available.')
         lines, subtotal = price_courier_lines(requested)
-        zone = courier_quote(tenant, details['pincode'])
+        if details.get('state', 'Tamil Nadu') not in ('', 'Tamil Nadu'):
+            raise OrderError('Shop delivery is available only within Tamil Nadu.')
+        zone = courier_quote(tenant)
         if zone is None:
-            raise OrderError("We don't ship shop items to this pincode. Orders are accepted only for approved Tamil Nadu pincodes.")
+            raise OrderError("Shop delivery is currently unavailable. Please contact the kitchen.")
     else:
         slot = Slot.objects.filter(key=cart.slot_key, active=True).first()
         if not slot or cart.delivery_date not in (now.date(), now.date() + timedelta(days=1)):

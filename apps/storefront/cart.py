@@ -260,11 +260,11 @@ class Cart:
 
     @property
     def zone(self):
-        if not self.pincode:
-            return None
         if self.is_courier:
             from apps.delivery.checkout import courier_quote
-            return courier_quote(self.request.tenant, self.pincode)
+            return courier_quote(self.request.tenant)
+        if not self.pincode:
+            return None
         zones = zones_for_pincode(self.pincode, slot_key=self.slot_key)
         if self.zone_id:
             for z in zones:

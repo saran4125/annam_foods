@@ -10,7 +10,7 @@ from apps.orders.models import Order
 from apps.orders.services import OrderError
 from .cart import Cart
 from .forms import CheckoutForm
-from .checkout import browser_key, checkout_quote, place_checkout, review_token
+from .checkout import browser_key, checkout_quote, place_checkout, review_token, read_token, external_ref
 
 
 @never_cache
@@ -18,7 +18,15 @@ from .checkout import browser_key, checkout_quote, place_checkout, review_token
 def checkout(request):
     cart = Cart(request)
     browser_key(request)
-    form = CheckoutForm(request.POST or None, cart=cart,
+    accepted_shop_order = False
+    if request.method == 'POST' and request.POST.get('action') == 'place':
+        try:
+            token_data = read_token(request, request.POST.get('checkout_token', ''))
+            accepted_shop_order = Order.objects.filter(
+                external_ref=external_ref(token_data), fulfilment='courier').exists()
+        except OrderError:
+            pass  # Normal checkout validation reports invalid review tokens.
+    form = CheckoutForm(request.POST or None, cart=cart, accepted_shop_order=accepted_shop_order,
                         initial={'pincode': cart.pincode, 'zone_id': cart.zone_id or ''})
     if request.method == 'POST' and request.POST.get('action') == 'place':
         # Replays of an already accepted review work after the cart is cleared.

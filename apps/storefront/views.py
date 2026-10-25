@@ -287,7 +287,7 @@ def cart_set_pincode(request):
         from apps.delivery.checkout import courier_quote
         cart.set_pincode(pincode)
         if courier_quote(request.tenant, pincode) is None:
-            messages.error(request, "We don't ship shop items to this pincode. Delivery is available only to approved Tamil Nadu pincodes.")
+            messages.error(request, "Shop delivery is currently unavailable. Please contact the kitchen.")
         return redirect('storefront:cart')
     zones = zones_for_pincode(pincode, slot_key=cart.slot_key)
 

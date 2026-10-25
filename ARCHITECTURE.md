@@ -146,7 +146,7 @@ removed UI routes.
 | --- | --- |
 | `apps.tenancy` | Existing store/configuration/membership, scoped managers/context, encrypted connections and deployment filtering |
 | `apps.catalog` | Meal slots, categories/items, weekly/dated schedules and availability |
-| `apps.delivery` | Meal zones and separate exact-pincode courier policy |
+| `apps.delivery` | Meal pincode zones and separate statewide Tamil Nadu shop delivery policy |
 | `apps.content` | Pages/banners, published-design rendering, stored images and media fallback |
 | `apps.storefront` | Public pages, cart, guest checkout, private confirmation and trusted theme templates |
 | `apps.orders` | Customers/addresses, pricing/order snapshots and fulfilment events |
@@ -263,7 +263,7 @@ still catalog settings; the dated availability control is separate.
 | Fulfilment | Rules |
 | --- | --- |
 | Scheduled breakfast/lunch/dinner | Mandatory pincode in an active delivery zone for that meal, chosen slot/date, live schedule, cutoff, closed dates, zone minimum/fee |
-| Courier shop items | Courier feature/configuration enabled, exact approved Tamil Nadu pincode, courier minimum and shipping fee |
+| Courier shop items | Courier feature/configuration enabled, Tamil Nadu delivery address (pincode optional), courier minimum and shipping fee |
 
 Dated schedules override weekday schedules. Inactive/unavailable/sold-out items
 cannot be ordered. Prices and eligibility are re-read on the server.
@@ -279,10 +279,11 @@ separate area rates. The one-time deployment migration deactivates superseded
 meal coverage and leaves courier configuration/order history untouched. Fresh
 seeding uses the same CSV; see [docs/annam-meal-delivery.md](docs/annam-meal-delivery.md).
 
-Out-of-zone customers cannot place a meal order. Courier delivery uses an
-explicit exact-pincode allowlist, not a guessed statewide prefix. It fails closed
-until configured. Website checkout offers no silent pickup/coverage bypass;
-staff collection booking remains a separate workflow.
+Out-of-zone customers cannot place a meal order. Shop delivery covers Tamil Nadu
+without a pincode allowlist; a complete address and town/city remain required,
+and a postal code is optional. Checkout accepts only Tamil Nadu as the state.
+Shop delivery still fails closed until enabled with explicit fees and minimums.
+Staff collection booking remains a separate workflow.
 
 ## 9. Guest checkout and order creation
 
@@ -496,7 +497,7 @@ also increases database/backup size.
 | Area | Still required |
 | --- | --- |
 | Razorpay | Real test credentials/webhook/auto-capture, actual sandbox payment/failure/retry/refund checks; later live KYC/activation |
-| Checkout/delivery | Meal zones/fees/minimums imported from the approved CSV; confirm cutoffs/holidays and exact courier coverage, fees and minimums |
+| Checkout/delivery | Meal zones/fees/minimums imported from the approved CSV; confirm cutoffs/holidays and Tamil Nadu shop delivery fees and minimums |
 | Billing | Confirm real legal/GST/FSSAI/tax settings and sample invoices/credits |
 | WhatsApp | Connect and verify n8n incoming/outgoing/status copies; decide any structured automatic order import |
 | Fulfilment | Accept/prepare/dispatch/deliver/cancel acceptance and customer notifications |

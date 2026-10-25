@@ -8,6 +8,7 @@ class CheckoutForm(forms.Form):
     phone = forms.CharField(max_length=20, label='Mobile number', widget=forms.TextInput(attrs={'type': 'tel', 'autocomplete': 'tel'}))
     email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'autocomplete': 'email'}))
     pincode = forms.CharField(max_length=10, label='Delivery pincode', widget=forms.TextInput(attrs={'inputmode': 'numeric', 'autocomplete': 'postal-code'}))
+    state = forms.ChoiceField(required=False, choices=[('Tamil Nadu', 'Tamil Nadu')], initial='Tamil Nadu', label='State')
     zone_id = forms.ChoiceField(required=False, label='Delivery area')
     line1 = forms.CharField(max_length=200, label='Door number, building and street', widget=forms.TextInput(attrs={'autocomplete': 'address-line1'}))
     line2 = forms.CharField(max_length=200, required=False, label='Area / locality', widget=forms.TextInput(attrs={'autocomplete': 'address-line2'}))
@@ -16,9 +17,10 @@ class CheckoutForm(forms.Form):
 
     payment_method = forms.ChoiceField(required=False, label="Payment method")
 
-    def __init__(self, *args, cart, **kwargs):
+    def __init__(self, *args, cart, accepted_shop_order=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.cart_tenant = cart.request.tenant
+        self.fields['pincode'].required = not (cart.is_courier or accepted_shop_order)
         from apps.payments.services import payment_choices
         choices = payment_choices(cart.request.tenant)
         self.fields["payment_method"].choices = choices
@@ -44,6 +46,8 @@ class CheckoutForm(forms.Form):
 
     def clean_pincode(self):
         pin = normalise_pincode(self.cleaned_data['pincode'])
+        if not pin and not self.fields['pincode'].required:
+            return ''
         if len(pin) != 6 or pin[0] == '0':
             raise ValidationError('Enter a valid six-digit pincode.')
         return pin

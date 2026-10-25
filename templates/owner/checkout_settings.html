@@ -1,29 +1,28 @@
 {% extends "owner/base.html" %}
 {% load storefront_extras %}
-{% block title %}Checkout & courier{% endblock %}
-{% block heading %}<h1>Checkout &amp; courier delivery</h1><p>Choose exactly where shop orders can be delivered, and how customers arrange payment.</p>{% endblock %}
+{% block title %}Checkout settings{% endblock %}
+{% block heading %}<h1>Checkout settings</h1><p>Manage Tamil Nadu shop delivery charges, meal holidays and payment instructions.</p>{% endblock %}
 {% block content %}<form class="o-form" method="post" novalidate>{% csrf_token %}{% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-<section class="o-card"><header class="o-card-head"><h2>Two delivery rules</h2></header><p>Breakfast, lunch and dinner use your <a href="{% url 'owner:list' 'zones' %}">meal delivery areas</a>, including each area’s fee and minimum. Shop items use the approved Tamil Nadu courier pincodes below. Customers outside the relevant coverage cannot place an order. Meals and shop items require separate orders.</p></section>
+<section class="o-card"><header class="o-card-head"><h2>Two delivery rules</h2></header><p>Breakfast, lunch and dinner use your <a href="{% url 'owner:list' 'zones' %}">meal delivery areas</a>, including each area’s fee and minimum. Shop items can be delivered throughout Tamil Nadu without a pincode whitelist. Meals require an approved delivery pincode. Meals and shop items require separate orders.</p></section>
 <section class="o-card o-courier-card" aria-labelledby="courier-title">
   <header class="o-courier-heading">
     <span class="o-courier-icon" aria-hidden="true"><svg class="o-ic"><use href="#o-bag"/></svg></span>
-    <div><h2 id="courier-title">Shop courier coverage</h2><p>Choose where Annam’s packed products can be delivered.</p></div>
+    <div><h2 id="courier-title">Tamil Nadu shop delivery</h2><p>Deliver Annam’s packed products throughout Tamil Nadu.</p></div>
     <span class="o-courier-tag">Shop items only</span>
   </header>
   {% with f=form.courier_enabled %}
   <label class="o-check o-courier-toggle{% if f.errors %} has-error{% endif %}">
     {{ f }}<span class="o-switch-ui" aria-hidden="true"><i></i></span>
-    <span class="o-toggle-copy"><b>{{ f.label }}</b><small>Accept courier orders only for the approved pincodes below.</small></span>
+    <span class="o-toggle-copy"><b>{{ f.label }}</b><small>Accept shop orders across Tamil Nadu. No pincode list is needed.</small></span>
     {% include "owner/_toggle_state.html" %}
   </label>
   {% for error in f.errors %}<p class="o-error" role="alert">{{ error }}</p>{% endfor %}
   {% endwith %}
-  {% include "owner/_courier_pincodes.html" %}
   <div class="o-courier-rates">
     <h3>Delivery charges &amp; minimum</h3>
     <div class="o-grid-form">{% with f=form.courier_fee %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.courier_minimum %}{% include "owner/_field.html" %}{% endwith %}</div>
     <p>One flat courier charge per order. Set ₹0 for free shipping. The minimum applies to products before shipping.</p>
   </div>
-  <p class="o-courier-note"><svg class="o-ic" aria-hidden="true"><use href="#o-pin"/></svg><span>Courier checkout requires both delivery enabled and an approved pincode. Save checkout settings to apply your changes.</span></p>
+  <p class="o-courier-note"><svg class="o-ic" aria-hidden="true"><use href="#o-pin"/></svg><span>Shop checkout requires delivery to be enabled. Only meal orders require a serviceable pincode. Save checkout settings to apply your changes.</span></p>
 </section>
-<section class="o-card"><header class="o-card-head"><h2>Meal holidays &amp; payment</h2></header>{% with f=form.closed_dates %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.payment_instructions %}{% include "owner/_field.html" %}{% endwith %}<p>Checkout uses your current billing tax and rounding settings. Manual payments require staff confirmation. Configure online payments separately in Razorpay payments.</p></section><button class="o-btn o-btn-primary">Save checkout settings</button></form><script src="{% static_v 'js/courier-pincodes.js' %}" defer></script>{% endblock %}
+<section class="o-card"><header class="o-card-head"><h2>Meal holidays &amp; payment</h2></header>{% with f=form.closed_dates %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.payment_instructions %}{% include "owner/_field.html" %}{% endwith %}<p>Checkout uses your current billing tax and rounding settings. Manual payments require staff confirmation. Configure online payments separately in Razorpay payments.</p></section><button class="o-btn o-btn-primary">Save checkout settings</button></form>{% endblock %}

@@ -64,6 +64,7 @@
   </div>
 
   <aside class="cart-side">
+    {% if not cart.is_courier %}
     <section class="pincode-box">
       <h2>Where are we delivering?</h2>
       <form method="post" action="{% url 'storefront:cart_pincode' %}">
@@ -86,8 +87,9 @@
         </p>
       {% endif %}
     </section>
+    {% endif %}
 
-    <p class="checkout-note">Delivery pincode is required. {% if cart.is_courier %}Shop items ship only to approved Tamil Nadu pincodes.{% else %}Meals are delivered only within the kitchen’s delivery zones.{% endif %} The final total, including applicable tax, is shown at checkout.</p>
+    <p class="checkout-note">{% if cart.is_courier %}Shop items ship throughout Tamil Nadu. Pincode is optional at checkout.{% else %}Delivery pincode is required. Meals are delivered only within the kitchen’s delivery zones.{% endif %} The final total, including applicable tax, is shown at checkout.</p>
     <div class="totals">
       <div><span>Subtotal</span><span>₹{{ totals.subtotal|money }}</span></div>
       {% if totals.zone %}<div><span>Delivery</span><span>₹{{ totals.delivery_fee|money }}</span></div>{% endif %}
@@ -101,7 +103,9 @@
     {% endif %}
 
     <div class="checkout-row">
-      {% if not totals.zone %}
+      {% if cart.is_courier and not totals.zone %}
+        <button class="btn btn-primary" data-testid="checkout" data-blocked="delivery" disabled>Shop delivery is unavailable</button>
+      {% elif not totals.zone %}
         <button class="btn btn-primary" data-testid="checkout" data-blocked="pincode" disabled>Enter your pincode to continue</button>
       {% elif totals.below_minimum %}
         <button class="btn btn-primary" data-testid="checkout" data-blocked="minimum" disabled>Add ₹{{ totals.shortfall|money }} more to order</button>

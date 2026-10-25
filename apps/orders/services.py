@@ -200,14 +200,16 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
         lines, subtotal = price_lines(requested, delivery_date=delivery_date, slot=slot)
 
     snapshot = address_snapshot or (address.as_snapshot() if address else None)
-    if not snapshot or not snapshot.get("pincode"):
+    if not snapshot or (not snapshot.get("pincode") and not (website_checkout and fulfilment == "courier")):
         raise NotServiceable("A delivery address is required.")
 
     if website_checkout and fulfilment == "courier":
         from apps.delivery.checkout import courier_quote
-        zone = courier_quote(tenant, snapshot['pincode'])
+        if snapshot.get('state') != 'Tamil Nadu':
+            raise NotServiceable('Shop delivery is available only within Tamil Nadu.')
+        zone = courier_quote(tenant)
         if zone is None:
-            raise NotServiceable("We don't ship shop items to this pincode.")
+            raise NotServiceable("Shop delivery is currently unavailable.")
     else:
         zones = zones_for_pincode(snapshot["pincode"], slot_key=slot.key if slot else None)
         if not zones:

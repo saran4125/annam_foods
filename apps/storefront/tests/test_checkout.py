@@ -157,15 +157,15 @@ def test_checkout_ignores_client_prices_and_payment_claims(client, kitchen, menu
         assert order.total == Decimal('260') and order.payment_status == 'pending'
 
 
-def test_courier_checkout_uses_only_approved_courier_pins_and_charges(client, kitchen, menu):
+def test_shop_checkout_accepts_unlisted_tamil_nadu_addresses_with_configured_charges(client, kitchen, menu):
     TenantConfig.objects.filter(tenant=kitchen).update(features={'snacks_courier': True}, checkout_settings={
         'courier_enabled': True, 'courier_pincodes': ['600005'], 'courier_fee': '55', 'courier_minimum': '100'})
     with tenant_context(kitchen):
         item = MenuItem.objects.create(name='Podi', fulfilment='courier', price=150)
     client.post('/cart/add/', {'kind': 'shop', 'item_id': item.pk, 'delta': 1}, HTTP_HOST=HOST)
-    # A meal delivery zone is not implicit permission to ship courier goods.
-    assert 'checkout_token' not in review(client).context
-    assert 'checkout_token' not in review(client, details(pincode='110001')).context
+    # A Tamil Nadu address needs neither a meal zone nor a courier whitelist entry.
+    assert 'checkout_token' in review(client).context
+    assert 'checkout_token' not in review(client, details(state='Kerala')).context
     response = review(client, details(pincode='600005', city='Chennai'))
     assert response.context['quote']['total'] == Decimal('205')
     assert response.context['quote']['slot'] is None
@@ -183,7 +183,7 @@ def test_unconfigured_courier_delivery_fails_closed(client, kitchen, menu):
     client.post('/cart/add/', {'kind': 'shop', 'item_id': item.pk}, HTTP_HOST=HOST)
     assert 'checkout_token' not in review(client).context
     client.post('/cart/pincode/', {'pincode': '641001'}, HTTP_HOST=HOST)
-    assert b'data-blocked="pincode"' in client.get('/cart/', HTTP_HOST=HOST).content
+    assert b'data-blocked="delivery"' in client.get('/cart/', HTTP_HOST=HOST).content
 
 
 def test_tax_exclusive_checkout_and_bill_share_frozen_tax_rates(client, kitchen, menu):
@@ -275,19 +275,22 @@ def test_meal_checkout_rejects_tampered_far_future_dates(client, kitchen, menu):
     assert 'checkout_token' not in response.context
 
 
-def test_checkout_settings_are_owner_scoped_and_require_explicit_coverage_and_fees(client, kitchen, menu):
+def test_checkout_settings_are_owner_scoped_and_no_longer_need_a_pincode_list(client, kitchen, menu):
     user = get_user_model().objects.create_user(username='checkout-owner')
     TenantUser.all_tenants.create(tenant=kitchen, user=user, role='owner')
     client.force_login(user)
     response = client.post('/manage/checkout-settings/', {
         'courier_enabled': 'on', 'courier_pincodes': '', 'courier_fee': '25', 'courier_minimum': '100'}, HTTP_HOST=HOST)
-    assert response.status_code == 200 and response.context['form'].errors
+    assert response.status_code == 302
+    page = client.get('/manage/checkout-settings/', HTTP_HOST=HOST)
+    assert b'courier_pincodes' not in page.content
+    assert b'courier-pincodes.js' not in page.content
     response = client.post('/manage/checkout-settings/', {
         'courier_enabled': 'on', 'courier_pincodes': '600005\n641001', 'courier_fee': '25', 'courier_minimum': '100',
         'closed_dates': '2026-11-01', 'payment_instructions': 'Contact the kitchen to arrange payment.'}, HTTP_HOST=HOST)
     assert response.status_code == 302
     settings = TenantConfig.objects.get(tenant=kitchen).checkout_settings
-    assert settings['courier_pincodes'] == ['600005', '641001']
+    assert 'courier_pincodes' not in settings
     assert settings['courier_fee'] == '25' and settings['closed_dates'] == ['2026-11-01']
     other = Tenant.objects.create(slug='other', name='Other', status=TenantStatus.ACTIVE)
     TenantDomain.objects.create(tenant=other, hostname='other.localhost', is_primary=True)
@@ -315,3 +318,38 @@ def test_website_order_appears_in_admin_and_website_billing(client, kitchen, men
     # Billing keeps its own staff login policy; the same tenant order book is used.
     with tenant_context(kitchen):
         assert Order.objects.filter(channel='web', order_no=number).exists()
+
+
+@pytest.mark.parametrize('pin', ['', '625001'])
+def test_shop_checkout_places_order_without_any_pincode_whitelist(client, kitchen, menu, pin):
+    TenantConfig.objects.filter(tenant=kitchen).update(features={'snacks_courier': True}, checkout_settings={
+        'courier_enabled': True, 'courier_fee': '55', 'courier_minimum': '100'})
+    with tenant_context(kitchen):
+        item = MenuItem.objects.create(name='Podi', fulfilment='courier', price=150)
+    client.post('/cart/add/', {'kind': 'shop', 'item_id': item.pk}, HTTP_HOST=HOST)
+    cart = client.get('/cart/', HTTP_HOST=HOST)
+    assert b'href="/checkout/"' in cart.content
+    assert b'aria-label="Delivery pincode"' not in cart.content
+    data = details(pincode=pin, city='Madurai')
+    response = review(client, data)
+    assert response.context['quote']['total'] == Decimal('205')
+    post = placedata(response, data)
+    first = client.post('/checkout/', post, HTTP_HOST=HOST)
+    assert first.status_code == 302
+    assert client.post('/checkout/', post, HTTP_HOST=HOST)['Location'] == first['Location']
+    with tenant_context(kitchen):
+        order = Order.objects.get()
+        assert order.address['pincode'] == pin
+        assert order.address['city'] == 'Madurai' and order.address['state'] == 'Tamil Nadu'
+        assert order.delivery_fee == Decimal('55') and order.total == Decimal('205')
+
+
+def test_shop_minimum_is_still_checked_without_a_pincode(client, kitchen, menu):
+    TenantConfig.objects.filter(tenant=kitchen).update(features={'snacks_courier': True}, checkout_settings={
+        'courier_enabled': True, 'courier_fee': '55', 'courier_minimum': '200'})
+    with tenant_context(kitchen):
+        item = MenuItem.objects.create(name='Podi', fulfilment='courier', price=150)
+    client.post('/cart/add/', {'kind': 'shop', 'item_id': item.pk}, HTTP_HOST=HOST)
+    response = review(client, details(pincode=''))
+    assert 'checkout_token' not in response.context
+    assert b'Add' in response.content and b'50.00 more' in response.content
