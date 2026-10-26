@@ -18,7 +18,7 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from apps.catalog.models import MenuItem, Slot
-from apps.catalog.services import resolve_menu, slot_is_open
+from apps.catalog.services import resolve_menu, slot_is_open, customer_slot_is_open
 from apps.delivery.services import zones_for_pincode
 
 from .models import (
@@ -195,7 +195,8 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
         fulfilment = "scheduled"
         if fulfillments != {"scheduled"} or slot is None or delivery_date is None:
             raise OrderError("Scheduled orders need a slot and delivery date; courier orders must contain only courier items.")
-        if not slot_is_open(slot, delivery_date, now=now):
+        is_open = customer_slot_is_open if website_checkout else slot_is_open
+        if not is_open(slot, delivery_date, now=now):
             raise SlotClosed(f"Ordering for {slot.label.lower()} has closed.")
         lines, subtotal = price_lines(requested, delivery_date=delivery_date, slot=slot)
 

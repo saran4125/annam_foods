@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from apps.catalog.models import MenuCategory, MenuItem, Slot
 from apps.catalog.services import (
     SHOP_SORTS, category_family_ids, resolve_menu, search_shop, shop_categories,
-    shop_items, slot_is_open,
+    shop_items, customer_slot_is_open,
 )
 from apps.content.models import Page
 from apps.content.services import resolve_hero_slides, resolve_promo_tiles
@@ -24,7 +24,7 @@ from .cart import Cart
 _ADD_MESSAGES = {
     services.PAUSED: "This kitchen isn’t accepting orders right now.",
     services.UNKNOWN_ITEM: "We can’t find that dish — it may have been removed.",
-    services.CLOSED: "Ordering has closed for that meal time.",
+    services.CLOSED: "This meal is not accepting orders now. Choose today’s currently available meal.",
     services.NOT_ON_MENU: "That dish isn’t on the menu for the time you chose.",
     services.CROSS_SLOT: "Your cart already holds a different meal and day. Start a fresh order to change it.",
     services.CROSS_KIND: "Meals and shop items are delivered separately. Finish or clear your current cart first.",
@@ -90,7 +90,7 @@ def home(request):
         entries = resolve_menu(today, slot)[:6]  # the menu board lists up to six per meal
         if entries:
             highlights.append(
-                {"slot": slot, "entries": entries, "open": slot_is_open(slot, today)}
+                {"slot": slot, "entries": entries, "open": customer_slot_is_open(slot, today)}
             )
 
     # The honest urgency on a food site is the cutoff clock, not a fake
@@ -198,7 +198,7 @@ def menu(request):
              "ordering_enabled": tenant.feature("website_ordering")},
         )
 
-    slot_states = {s.key: slot_is_open(s, chosen_date) for s in slots}
+    slot_states = {s.key: customer_slot_is_open(s, chosen_date) for s in slots}
 
     raw_slot = request.GET.get("slot")
     chosen_slot = next((s for s in slots if s.key == raw_slot), None)
@@ -208,7 +208,7 @@ def menu(request):
         chosen_slot = next((s for s in slots if slot_states[s.key]), slots[0])
 
     entries = resolve_menu(chosen_date, chosen_slot)
-    is_open = slot_is_open(chosen_slot, chosen_date)
+    is_open = customer_slot_is_open(chosen_slot, chosen_date)
 
     # Browsing the menu must never touch the cart (FIX-05): reading another
     # day or slot is not permission to delete what a customer has ordered.
@@ -322,7 +322,7 @@ def cart_detail(request):
             "needs_area_choice": len(zones) > 1 and not cart.zone,
             "slot": slot,
             "ordering_enabled": request.tenant.feature("website_ordering"),
-            "slot_open": cart.is_courier or (slot_is_open(slot, cart.delivery_date) if slot and cart.delivery_date else False),
+            "slot_open": cart.is_courier or (customer_slot_is_open(slot, cart.delivery_date) if slot and cart.delivery_date else False),
             "pages": _nav_pages(),
         },
     )

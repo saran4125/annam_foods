@@ -92,8 +92,8 @@
     <p class="checkout-note">{% if cart.is_courier %}Shop items ship throughout Tamil Nadu. Pincode is optional at checkout.{% else %}Delivery pincode is required. Meals are delivered only within the kitchen’s delivery zones.{% endif %} The final total, including applicable tax, is shown at checkout.</p>
     <div class="totals">
       <div><span>Subtotal</span><span>₹{{ totals.subtotal|money }}</span></div>
-      {% if totals.zone %}<div><span>Delivery</span><span>₹{{ totals.delivery_fee|money }}</span></div>{% endif %}
-      <div class="grand"><span>Total</span><span>₹{{ totals.total|money }}</span></div>
+      <div data-testid="delivery-charge"><span>Delivery charge</span><span>{% if totals.zone %}₹{{ totals.delivery_fee|money }}{% elif cart.is_courier %}Unavailable{% else %}Enter delivery pincode{% endif %}</span></div>
+      <div class="grand"><span>{% if totals.zone %}Total{% else %}Items total{% endif %}</span><span>₹{{ totals.total|money }}</span></div>
     </div>
 
     {% if totals.below_minimum %}
@@ -110,7 +110,7 @@
       {% elif totals.below_minimum %}
         <button class="btn btn-primary" data-testid="checkout" data-blocked="minimum" disabled>Add ₹{{ totals.shortfall|money }} more to order</button>
       {% elif not slot_open %}
-        <button class="btn btn-primary" data-testid="checkout" data-blocked="closed" disabled>Ordering has closed for this slot</button>
+        <button class="btn btn-primary" data-testid="checkout" data-blocked="closed" disabled>This meal is not accepting orders now</button>
       {% elif not tenant.can_take_orders %}
         <button class="btn btn-primary" data-testid="checkout" data-blocked="paused" disabled>Not accepting orders</button>
       {% else %}

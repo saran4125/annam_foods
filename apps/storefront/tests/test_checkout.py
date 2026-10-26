@@ -128,7 +128,7 @@ def test_meal_minimum_and_cutoff_are_enforced_at_checkout(client, kitchen, menu)
     menu['slot'].order_cutoff = __import__('datetime').time(10)
     menu['slot'].save()
     response = review(client)
-    assert b'Ordering has closed' in response.content
+    assert b'not accepting orders now' in response.content
     with tenant_context(kitchen):
         assert not Order.objects.exists()
 

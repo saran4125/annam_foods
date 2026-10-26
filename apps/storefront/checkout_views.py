@@ -10,7 +10,7 @@ from apps.orders.models import Order
 from apps.orders.services import OrderError
 from .cart import Cart
 from .forms import CheckoutForm
-from .checkout import browser_key, checkout_quote, place_checkout, review_token, read_token, external_ref
+from .checkout import browser_key, checkout_quote, place_checkout, review_token, read_token, external_ref, receipt_adjustment
 
 
 @never_cache
@@ -50,7 +50,7 @@ def checkout(request):
     if request.method == 'GET' and cart.is_empty:
         messages.info(request, 'Add items to your cart before checking out.')
         return redirect('storefront:cart')
-    return render(request, 'storefront/checkout.html', {'form': form, 'cart': cart})
+    return render(request, 'storefront/checkout.html', {'form': form, 'cart': cart, 'cart_totals': cart.totals()})
 
 
 @never_cache
@@ -64,5 +64,5 @@ def complete(request, reference):
     from apps.payments.models import PaymentIntent
     from apps.billing.models import Invoice, InvoiceKind
     intent = PaymentIntent.objects.filter(order=order).first()
-    return render(request, 'storefront/checkout_complete.html', {'order': order, 'payment_instructions': instructions, 'online': intent, 'reference': reference,
+    return render(request, 'storefront/checkout_complete.html', {'order': order, 'receipt_adjustment': receipt_adjustment(order), 'payment_instructions': instructions, 'online': intent, 'reference': reference,
         'customer_invoice': Invoice.objects.filter(order=order).exclude(kind=InvoiceKind.CREDIT_NOTE).first()})

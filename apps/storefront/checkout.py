@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from apps.billing.pricing import checkout_totals
 from apps.catalog.models import Slot
-from apps.catalog.services import slot_is_open
+from apps.catalog.services import customer_slot_is_open
 from apps.delivery.checkout import courier_quote, validate_checkout_settings
 from apps.delivery.services import zones_for_pincode
 from apps.orders.models import Channel, Order, PaymentMode
@@ -61,8 +61,8 @@ def checkout_quote(tenant, cart, details, *, now=None):
         slot = Slot.objects.filter(key=cart.slot_key, active=True).first()
         if not slot or cart.delivery_date not in (now.date(), now.date() + timedelta(days=1)):
             raise OrderError('Choose today or tomorrow and an available meal from the menu.')
-        if not slot_is_open(slot, cart.delivery_date, now=now):
-            raise OrderError('Ordering has closed for this meal. Choose another meal or date.')
+        if not customer_slot_is_open(slot, cart.delivery_date, now=now):
+            raise OrderError('This meal is not accepting orders now. Choose today’s currently available meal.')
         if cart.delivery_date.isoformat() in (tenant.config.checkout_settings or {}).get('closed_dates', []):
             raise OrderError('The kitchen is closed on this date. Please choose another date.')
         closed = tenant.config.kitchen_closed_window or {}
@@ -152,3 +152,8 @@ def place_checkout(request, cart, details, token):
         PaymentIntent.objects.create(order=order, connection=connection, mode=connection.mode,
             key_id=connection.key_id, amount=int(order.total * 100))
     return order, data['ref'], True
+
+
+def receipt_adjustment(order):
+    """Display the remainder of the frozen total without repricing an old order."""
+    return order.total - order.subtotal - order.delivery_fee

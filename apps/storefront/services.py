@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from apps.catalog.models import MenuItem, Slot
-from apps.catalog.services import resolve_menu, slot_is_open
+from apps.catalog.services import resolve_menu, customer_slot_is_open
 
 from .cart import MAX_LINE_QUANTITY
 
@@ -90,7 +90,7 @@ def add_item(cart, tenant, *, item_id: int, delta: int, slot_key: str,
         cart.set_context(slot_key, delivery_date)
 
     if delta > 0:
-        if not slot_is_open(slot, delivery_date):
+        if not customer_slot_is_open(slot, delivery_date):
             return CLOSED
         entry = next(
             (e for e in resolve_menu(delivery_date, slot) if e.item.id == item_id),

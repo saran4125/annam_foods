@@ -262,7 +262,7 @@ still catalog settings; the dated availability control is separate.
 
 | Fulfilment | Rules |
 | --- | --- |
-| Scheduled breakfast/lunch/dinner | Mandatory pincode in an active delivery zone for that meal, chosen slot/date, live schedule, cutoff, closed dates, zone minimum/fee |
+| Scheduled breakfast/lunch/dinner | Today’s current meal only (next active cutoff in India time), mandatory approved meal pincode, live schedule, closed dates, zone minimum/fee |
 | Courier shop items | Courier feature/configuration enabled, Tamil Nadu delivery address (pincode optional), courier minimum and shipping fee |
 
 Dated schedules override weekday schedules. Inactive/unavailable/sold-out items
@@ -271,7 +271,12 @@ cannot be ordered. Prices and eligibility are re-read on the server.
 The session cart is namespaced by store (`cart.<id>`), validates quantities/types
 and caps quantities at 99 per line. One cart contains one meal slot/date or
 courier goods; mixed fulfilment is refused. Checkout supports its implemented
-today/tomorrow meal selection.
+today/tomorrow menu browsing. Only today’s current meal accepts website orders;
+other meal/date menus are read only. Active meal cutoffs define consecutive
+ordering periods: breakfast closes before lunch opens, then dinner. Cutoffs are
+sorted chronologically, independent of display order. Cart additions, checkout
+review and final order creation all enforce this rule. Staff booking retains
+its existing cutoff policy.
 
 Annam's approved meal-zone CSV is imported as 63 active area rows across 61
 pincodes, with exact meal flags, charges and minimums. Shared pincodes retain
@@ -541,3 +546,8 @@ uv run python manage.py makemigrations --check --dry-run
 
 Update this document when routing, financial state, storage or integration
 contracts change. Older SEER roadmap/domain/editor documents are historical only.
+
+Delivery charges are displayed separately in the cart (or a pincode prompt when
+unknown), the checkout estimate, final review and confirmation. Order receipts
+use the frozen delivery fee and total, so subsequent rate changes cannot alter
+an accepted order. Bills already include the snapshotted delivery fee line.

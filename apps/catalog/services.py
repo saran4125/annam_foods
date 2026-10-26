@@ -97,6 +97,26 @@ def slot_is_open(slot: Slot, on_date: date_cls, now=None) -> bool:
     return now < cutoff
 
 
+def current_customer_slot(*, now=None):
+    """Only the next active meal before its local cutoff accepts web orders.
+
+    Configured cutoffs define consecutive ordering periods. Sorting by cutoff
+    rather than display order keeps a rearranged menu from opening dinner early.
+    No next-day preorders: other dates remain available for browsing/planning.
+    """
+    now = now or timezone.localtime()
+    return Slot.objects.filter(active=True, order_cutoff__gt=now.time()).order_by(
+        'order_cutoff', 'sort', 'key').first()
+
+
+def customer_slot_is_open(slot, on_date, *, now=None):
+    now = now or timezone.localtime()
+    if not slot.active or on_date != now.date():
+        return False
+    current = current_customer_slot(now=now)
+    return current is not None and current.pk == slot.pk
+
+
 def open_slots(on_date: date_cls, now=None):
     """Slots still accepting orders for a date, in display order."""
     return [
