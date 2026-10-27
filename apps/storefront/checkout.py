@@ -62,7 +62,7 @@ def checkout_quote(tenant, cart, details, *, now=None):
         if not slot or cart.delivery_date not in (now.date(), now.date() + timedelta(days=1)):
             raise OrderError('Choose today or tomorrow and an available meal from the menu.')
         if not customer_slot_is_open(slot, cart.delivery_date, now=now):
-            raise OrderError('This meal is not accepting orders now. Choose today’s currently available meal.')
+            raise OrderError('This meal is not accepting orders now. Choose today’s currently available meal or book for tomorrow.')
         if cart.delivery_date.isoformat() in (tenant.config.checkout_settings or {}).get('closed_dates', []):
             raise OrderError('The kitchen is closed on this date. Please choose another date.')
         closed = tenant.config.kitchen_closed_window or {}

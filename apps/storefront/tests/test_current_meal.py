@@ -37,7 +37,8 @@ def test_only_one_meal_is_open_at_each_cutoff_regardless_of_display_order(kitche
     with tenant_context(kitchen):
         opened = [s.key for s in three_meals if customer_slot_is_open(s, menu['date'], now=now)]
         assert opened == ([expected] if expected else [])
-        assert not any(customer_slot_is_open(s, menu['date'] + timedelta(days=1), now=now) for s in three_meals)
+        assert all(customer_slot_is_open(s, menu['date'] + timedelta(days=1), now=now) for s in three_meals)
+        assert not any(customer_slot_is_open(s, menu['date'] + timedelta(days=2), now=now) for s in three_meals)
 
 
 @pytest.mark.parametrize('clock,allowed', [(time(8), 'breakfast'), (time(12), 'lunch'), (time(18), 'dinner')])
@@ -53,12 +54,56 @@ def test_customer_cannot_add_another_meal_even_to_an_empty_cart(client, kitchen,
             assert (b'<input type="hidden" name="slot_key"' in page.content) == (slot.key == allowed)
 
 
-def test_tomorrow_menu_is_visible_but_cannot_be_added(client, kitchen, menu, three_meals):
+@pytest.mark.parametrize('meal_key', ['breakfast', 'lunch', 'dinner'])
+@pytest.mark.parametrize('payment_method', ['manual', 'online'])
+def test_tomorrow_meals_can_be_ordered_today_with_delivery_in_payment_and_invoice(client, kitchen, menu, three_meals, meal_key, payment_method):
+    from django.template.loader import render_to_string
+    from apps.billing.services import confirm_payment, issue_bill
+    from apps.payments.models import RazorpayConnection, PaymentIntent
+
     tomorrow = menu['date'] + timedelta(days=1)
-    page = client.get('/menu/', {'date': tomorrow.isoformat(), 'slot': 'lunch'}, HTTP_HOST=HOST)
-    assert b'Veg Meals' in page.content and b'btn-add' not in page.content
-    _add(client, menu, delivery_date=tomorrow.isoformat())
-    assert b'data-testid="cart-empty"' in client.get('/cart/', HTTP_HOST=HOST).content
+    page = client.get('/menu/', {'date': tomorrow.isoformat(), 'slot': meal_key}, HTTP_HOST=HOST)
+    assert b'Veg Meals' in page.content and b'btn-add' in page.content
+    with tenant_context(kitchen):
+        connection = RazorpayConnection(mode='test', key_id='rzp_test_Delivery', enabled=True)
+        connection.key_secret = 'local-test-secret'
+        connection.save()
+        profile = kitchen.billing_profile
+        profile.legal_name = 'Kitchen'
+        profile.address = 'Chennai'
+        profile.state = 'Tamil Nadu'
+        profile.state_code = '33'
+        profile.fssai_no = '12345678901234'
+        profile.save()
+    _add(client, menu, delta=2, slot_key=meal_key, delivery_date=tomorrow.isoformat())
+    client.post('/cart/pincode/', {'pincode': '641001'}, HTTP_HOST=HOST)
+    data = details(payment_method=payment_method)
+    checked = review(client, data)
+    assert checked.context['quote']['delivery_date'] == tomorrow
+    assert checked.context['quote']['subtotal'] == Decimal('240')
+    assert checked.context['quote']['delivery_fee'] == Decimal('20')
+    assert checked.context['quote']['total'] == Decimal('260')
+    assert b'Total to pay (including delivery)' in checked.content
+    placed = client.post('/checkout/', placedata(checked, data), HTTP_HOST=HOST)
+    assert placed.status_code == 302
+    with tenant_context(kitchen):
+        order = Order.objects.get()
+        assert order.slot.key == meal_key and order.delivery_date == tomorrow
+        assert order.delivery_fee == Decimal('20') and order.total == Decimal('260')
+        if payment_method == 'online':
+            assert PaymentIntent.objects.get(order=order).amount == 26000
+            # Sandbox payments intentionally cannot issue real bills.
+            return
+        assert not PaymentIntent.objects.filter(order=order).exists()
+        confirm_payment(order, actor='test:delivery-invoice')
+        invoice = issue_bill(order)
+        fee_lines = [line for line in invoice.lines if line['description'] == 'Delivery fee']
+        assert len(fee_lines) == 1
+        assert Decimal(fee_lines[0]['unit_price']) == Decimal('20')
+        assert invoice.total == order.total == Decimal('260')
+        assert sum(Decimal(line['taxable']) + Decimal(line['tax']) for line in invoice.lines) == invoice.total
+        html = render_to_string('billing/_invoice_body.html', {'invoice': invoice})
+        assert 'Delivery fee' in html and 'included in the total paid' in html
 
 
 def test_switching_period_after_review_cannot_place_the_old_meal(client, kitchen, menu, three_meals):

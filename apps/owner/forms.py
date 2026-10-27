@@ -213,7 +213,7 @@ class SlotForm(StyledForm):
         widgets = {f: forms.TimeInput(attrs={"type": "time"}, format="%H:%M")
                    for f in ("order_cutoff", "delivery_from", "delivery_to")}
         help_texts = {"key": "Lowercase, no spaces, e.g. breakfast.",
-                      "order_cutoff": "India time. Website orders accept only the next active meal before its cutoff. The next meal opens when the previous one closes; tomorrow is view only."}
+                      "order_cutoff": "India time. Website orders accept only the next active meal before its cutoff. The next meal opens when the previous one closes; tomorrow’s active meals can be ordered in advance."}
 
 
 class BannerForm(StyledForm):

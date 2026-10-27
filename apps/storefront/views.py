@@ -24,7 +24,7 @@ from .cart import Cart
 _ADD_MESSAGES = {
     services.PAUSED: "This kitchen isn’t accepting orders right now.",
     services.UNKNOWN_ITEM: "We can’t find that dish — it may have been removed.",
-    services.CLOSED: "This meal is not accepting orders now. Choose today’s currently available meal.",
+    services.CLOSED: "This meal is not accepting orders now. Choose today’s currently available meal or book for tomorrow.",
     services.NOT_ON_MENU: "That dish isn’t on the menu for the time you chose.",
     services.CROSS_SLOT: "Your cart already holds a different meal and day. Start a fresh order to change it.",
     services.CROSS_KIND: "Meals and shop items are delivered separately. Finish or clear your current cart first.",

@@ -4,7 +4,7 @@ Called by the storefront, the owner backend and the WhatsApp handler alike —
 they are all the same function, not three HTTP endpoints that drift apart.
 """
 from dataclasses import dataclass
-from datetime import date as date_cls, datetime
+from datetime import date as date_cls, datetime, timedelta
 from decimal import Decimal
 
 from django.utils import timezone
@@ -102,7 +102,7 @@ def current_customer_slot(*, now=None):
 
     Configured cutoffs define consecutive ordering periods. Sorting by cutoff
     rather than display order keeps a rearranged menu from opening dinner early.
-    No next-day preorders: other dates remain available for browsing/planning.
+    Tomorrow supports advance orders for any active meal.
     """
     now = now or timezone.localtime()
     return Slot.objects.filter(active=True, order_cutoff__gt=now.time()).order_by(
@@ -111,7 +111,11 @@ def current_customer_slot(*, now=None):
 
 def customer_slot_is_open(slot, on_date, *, now=None):
     now = now or timezone.localtime()
-    if not slot.active or on_date != now.date():
+    if not slot.active:
+        return False
+    if on_date == now.date() + timedelta(days=1):
+        return True
+    if on_date != now.date():
         return False
     current = current_customer_slot(now=now)
     return current is not None and current.pk == slot.pk

@@ -262,7 +262,7 @@ still catalog settings; the dated availability control is separate.
 
 | Fulfilment | Rules |
 | --- | --- |
-| Scheduled breakfast/lunch/dinner | Today’s current meal only (next active cutoff in India time), mandatory approved meal pincode, live schedule, closed dates, zone minimum/fee |
+| Scheduled breakfast/lunch/dinner | Today’s current meal (next active cutoff in India time) or tomorrow’s available meals, mandatory approved meal pincode, live schedule, closed dates, zone minimum/fee |
 | Courier shop items | Courier feature/configuration enabled, Tamil Nadu delivery address (pincode optional), courier minimum and shipping fee |
 
 Dated schedules override weekday schedules. Inactive/unavailable/sold-out items
@@ -271,8 +271,8 @@ cannot be ordered. Prices and eligibility are re-read on the server.
 The session cart is namespaced by store (`cart.<id>`), validates quantities/types
 and caps quantities at 99 per line. One cart contains one meal slot/date or
 courier goods; mixed fulfilment is refused. Checkout supports its implemented
-today/tomorrow menu browsing. Only today’s current meal accepts website orders;
-other meal/date menus are read only. Active meal cutoffs define consecutive
+today/tomorrow menu browsing. Today’s current meal and all available meals for tomorrow accept website orders.
+Each order remains restricted to a single meal and delivery date. Active meal cutoffs define consecutive
 ordering periods: breakfast closes before lunch opens, then dinner. Cutoffs are
 sorted chronologically, independent of display order. Cart additions, checkout
 review and final order creation all enforce this rule. Staff booking retains

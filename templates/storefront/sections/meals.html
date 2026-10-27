@@ -2,7 +2,7 @@
 {% if highlights %}
 {% comment %}Three menu columns: every meal visible at once. The meal you can still
 order is highlighted (and moves first on phones); closed meals stay readable
-but quieter, with a link to browse tomorrow’s menu.{% endcomment %}
+but quieter, with a link to order tomorrow’s menu.{% endcomment %}
 <section class="meals" aria-labelledby="meals-title">
   <div class="section-head" data-reveal>
     <div><p class="section-kicker">{% canvas_text 'meals.kicker' %}</p><h2 id="meals-title">{% canvas_text 'meals.title' %}</h2><span class="section-subtitle">{% canvas_text 'meals.body' %}</span></div>
@@ -31,7 +31,7 @@ but quieter, with a link to browse tomorrow’s menu.{% endcomment %}
       {% if h.open %}
       <a class="btn btn-primary meal-cta" href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}">Order {{ h.slot.label|lower }} <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       {% else %}
-      <a class="btn meal-cta" href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}&date={{ tomorrow|date:'Y-m-d' }}">View tomorrow’s menu <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a class="btn meal-cta" href="{% url 'storefront:menu' %}?slot={{ h.slot.key }}&date={{ tomorrow|date:'Y-m-d' }}">Order for tomorrow <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       {% endif %}
     </article>
     {% endfor %}

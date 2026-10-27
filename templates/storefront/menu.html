@@ -6,7 +6,7 @@
 <div class="page-intro">
   <p class="section-kicker">Cooked fresh for your slot</p>
   <h1>What’s cooking</h1>
-  <p>Browse any menu. Only today’s current meal period accepts orders; other meals are view only.</p>
+  <p>Order today’s current meal or book any available meal for tomorrow. Each order contains one meal and one delivery date.</p>
 </div>
 
 {% if not slots %}
@@ -49,7 +49,7 @@
 
 {% if not slot_open %}
   <div class="strip strip-quiet" data-testid="slot-closed">
-    {{ chosen_slot.label }} is view only right now. Orders are accepted only for today’s current meal period, up to its configured cutoff (India time).
+    {{ chosen_slot.label }} is view only right now. Choose today’s current meal, or book a meal for tomorrow. Today’s cutoffs use India time.
   </div>
 {% endif %}
 
