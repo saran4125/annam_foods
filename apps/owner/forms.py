@@ -166,17 +166,13 @@ class DishForm(StyledForm):
 class CategoryForm(StyledForm):
     class Meta(BaseMeta):
         model = MenuCategory
-        fields = ["name", "slug", "parent", "description", "image", "sort", "active"]
-        labels = {"parent": "Inside category", "sort": "Display order", "active": "Visible"}
+        fields = ["name", "slug", "description", "image", "sort", "active"]
+        labels = {"sort": "Display order", "active": "Visible"}
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
         help_texts = {"slug": "The web address, e.g. /shop/podi/. Leave blank to make one from the name."}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        others = MenuCategory.objects.all()
-        if self.instance.pk:
-            others = others.exclude(pk=self.instance.pk)
-        self.fields["parent"].queryset = others
         self.fields["slug"].required = False
 
     def clean_image(self):
@@ -193,15 +189,6 @@ class CategoryForm(StyledForm):
             raise ValidationError("Another category already uses this web address.")
         return slug
 
-    def clean_parent(self):
-        parent = self.cleaned_data.get("parent")
-        seen, node = set(), parent
-        while node is not None and self.instance.pk:
-            if node.pk == self.instance.pk or node.pk in seen:
-                raise ValidationError("A category can’t sit inside itself.")
-            seen.add(node.pk)
-            node = node.parent
-        return parent
 
 
 class SlotForm(StyledForm):

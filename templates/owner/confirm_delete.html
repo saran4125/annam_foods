@@ -1,6 +1,6 @@
 {% extends "owner/base.html" %}
 {% block title %}Delete {{ obj }}{% endblock %}
-{% block heading %}<a class="o-crumb" href="{{ return_url }}">← {{ res.title }}</a><h1>{% if day_selection %}Remove from this menu?{% else %}Delete {{ res.singular }}?{% endif %}</h1>{% endblock %}
+{% block heading %}<a class="o-crumb" href="{{ return_url }}">← {% if category %}{{ category.name }} items{% else %}{{ res.title }}{% endif %}</a><h1>{% if day_selection %}Remove from this menu?{% else %}Delete {% if category %}item{% else %}{{ res.singular }}{% endif %}?{% endif %}</h1>{% endblock %}
 {% block content %}
 <div class="o-card o-confirm" data-reveal>
   {% if day_selection %}<p>Remove <b>“{{ obj }}”</b> from <b>{{ day_selection.on_date|date:"l, j F Y" }} {{ day_selection.label|lower }}</b>?</p><p class="o-muted">The dish stays in your catalog. Other dates and meals stay unchanged.</p>{% else %}<p>You’re about to permanently delete <b>“{{ obj }}”</b>. This can’t be undone.</p>

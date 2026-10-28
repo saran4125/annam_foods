@@ -1,11 +1,12 @@
 {% extends "owner/base.html" %}
 {% block title %}{% if obj %}Edit {{ obj }}{% else %}Add {{ entry_label }}{% endif %}{% endblock %}
-{% block heading %}<a class="o-crumb" href="{{ return_url }}">← {{ res.title }}</a><h1>{% if obj %}{{ obj }}{% else %}New {{ entry_label }}{% endif %}</h1>{% endblock %}
+{% block heading %}<a class="o-crumb" href="{{ return_url }}">← {% if category %}{{ category.name }} items{% else %}{{ res.title }}{% endif %}</a><h1>{% if obj %}{{ obj }}{% else %}New {{ entry_label }}{% endif %}</h1>{% endblock %}
 {% block actions %}{% if obj %}<a class="o-btn o-danger-btn" href="{{ delete_url }}"><svg class="o-ic"><use href="#o-trash"/></svg>Delete</a>{% endif %}{% endblock %}
 {% block content %}
 <form class="o-form o-card" method="post" enctype="multipart/form-data" novalidate data-reveal>
   {% csrf_token %}
   <input type="hidden" name="next" value="{{ return_url }}">
+  {% if category %}<p class="o-catalog-form-context">Category: {{ category.name }}</p>{% endif %}
   {% if menu_selection %}<p class="o-catalog-form-context">{% if menu_selection.kind == 'courier' %}Other items{% else %}Meals / {{ menu_selection.label }}{% if menu_selection.on_date %} / {{ menu_selection.on_date|date:"l, j F Y" }}{% endif %}{% endif %}</p>{% endif %}
   {% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
   {% if obj and menu_selection.on_date %}<p class="o-callout">Name, photo, price and global visibility update the dish everywhere. The dated availability below changes only this menu date.</p>{% endif %}

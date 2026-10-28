@@ -16,7 +16,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
-from django.db.models import ProtectedError, Q
+from django.db.models import ProtectedError, Q, Count
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -84,8 +84,8 @@ RESOURCES = {
     ),
     "categories": Resource(
         "categories", MenuCategory, forms.CategoryForm, "Categories", "category", plural="categories",
-        columns=[("", "image", "image"), ("Name", "name", "title"), ("Inside", "parent", "text"),
-                 ("Products", lambda c: c.items.count(), "text"), ("Visible", "active", "toggle")],
+        columns=[("", "image", "image"), ("Name", "name", "title"),
+                 ("Products", "product_count", "count"), ("Visible", "active", "toggle")],
         search=["name", "slug"], order_by=("sort", "name"), icon="grid",
     ),
     "meals": Resource(
@@ -217,11 +217,15 @@ def dashboard(request):
 # -- generic resources ---------------------------------------------------------
 
 @owner_required
-def resource_list(request, key):
+def resource_list(request, key, *, category=None):
     res = _resource(key)
     qs = res.model.objects.all()
+    if key == 'categories':
+        qs = qs.annotate(product_count=Count('items'))
+    if category is not None:
+        qs = qs.filter(category=category)
     menu, menu_ui = None, {}
-    if key == "dishes":
+    if key == "dishes" and category is None:
         from .menu_services import menu_selection, menu_items, menu_group_counts, menu_categories
         menu = menu_selection(request.GET)
         qs = menu_items(menu)
@@ -261,7 +265,7 @@ def resource_list(request, key):
             today_url=day_base + '?' + urlencode({**base_params, 'date': today.isoformat()}),
             tomorrow_url=day_base + '?' + urlencode({**base_params, 'date': tomorrow.isoformat()}),
             all_url=day_base + '?' + urlencode({**base_params, 'date': 'all'}))
-    columns = [column for column in res.columns if not (menu_ui.get('choose_url') and column[1] == 'category')]
+    columns = [column for column in res.columns if not ((menu_ui.get('choose_url') or category is not None) and column[1] == 'category')]
     if res.order_by:
         qs = qs.order_by(*res.order_by)
     query = request.GET.get("q", "").strip()[:80]
@@ -272,6 +276,8 @@ def resource_list(request, key):
         qs = qs.filter(cond)
     active_filters, filter_ui = {}, []
     for param, (label, choices, lookup) in res.filters.items():
+        if category is not None and param == "category":
+            continue
         if menu and (param == "type" or (menu_ui.get('choose_url') and param == 'category')):
             continue
         value = request.GET.get(param, "")
@@ -285,6 +291,11 @@ def resource_list(request, key):
     page = Paginator(qs, 30).get_page(request.GET.get("page"))
     return_url = request.get_full_path()
     def action_url(name, pk=None):
+        if category is not None:
+            route = {'owner:new':'owner:category_item_new','owner:edit':'owner:category_item_edit',
+                     'owner:delete':'owner:category_item_delete','owner:toggle':'owner:category_item_toggle'}[name]
+            url = reverse(route,args=[category.pk,pk] if pk is not None else [category.pk])
+            return url + '?' + urlencode({'next':return_url})
         url = reverse(name, args=[key, pk] if pk is not None else [key])
         if not menu:
             return url
@@ -294,7 +305,12 @@ def resource_list(request, key):
             params['date'] = menu['on_date'].isoformat() if menu['on_date'] else 'all'
         return url + "?" + urlencode(params)
     rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in columns],
-             "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk)} for o in page]
+             "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk),
+             "toggle_url": action_url("owner:toggle", o.pk) if key in TOGGLE_FIELDS else ""} for o in page]
+    if key == 'categories':
+        for row in rows:
+            row['items_url'] = reverse('owner:category_items',args=[row['obj'].pk])
+            row['title_url'] = row['items_url']
     if menu and menu['on_date'] and menu['slot'] and menu['kind'] == 'scheduled':
         entries = {e.item.pk: e for e in resolve_menu(menu['on_date'], menu['slot'], include_unavailable=True, include_inactive=True)}
         for row in rows:
@@ -304,22 +320,23 @@ def resource_list(request, key):
     params = request.GET.copy()
     params.pop("page", None)
     return render(request, "owner/list.html", {
-        "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui,
+        "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui, "category": category,
+        "category_edit_url": reverse("owner:edit",args=["categories",category.pk])+"?"+urlencode({"next":return_url}) if category else "",
         "menu_ui": menu_ui, "new_url": action_url("owner:new"),
-        "add_label": ("Add item" if menu["kind"] == "courier" else "Add meal" if menu["meal"] == "unassigned" else "Add " + menu["label"].lower() + " dish") if menu else "Add " + res.singular,
+        "add_label": "Add item" if category else (("Add item" if menu["kind"] == "courier" else "Add meal" if menu["meal"] == "unassigned" else "Add " + menu["label"].lower() + " dish") if menu else "Add " + res.singular),
         "headers": [('Available this day' if label == 'On sale' and menu_ui.get('choose_url') else label) for label, _, _ in columns], "querystring": params.urlencode(),
         "toggle_field": TOGGLE_FIELDS.get(key), "total": qs.count(),
     })
 
 
 @owner_required
-def resource_edit(request, key, pk=None):
+def resource_edit(request, key, pk=None, *, category=None):
     res = _resource(key)
-    obj = get_object_or_404(res.model, pk=pk) if pk else None
-    return_url = _safe_next(request, reverse("owner:list", args=[key]))
+    obj = get_object_or_404(res.model, pk=pk, **({'category':category} if category else {})) if pk else None
+    return_url = _safe_next(request, reverse("owner:category_items",args=[category.pk]) if category else reverse("owner:list", args=[key]))
     form_kwargs = {}
     menu = None
-    if key == "dishes" and request.GET.get("type") in ("scheduled", "courier"):
+    if key == "dishes" and category is None and request.GET.get("type") in ("scheduled", "courier"):
         from .menu_services import menu_selection
         menu = menu_selection(request.GET)
         group_params = {"type": menu["kind"]}
@@ -331,7 +348,13 @@ def resource_edit(request, key, pk=None):
         form_kwargs['menu_date'] = menu['on_date'] if menu['slot'] and menu['kind'] == 'scheduled' else None
         if obj is None:
             form_kwargs["initial"] = {"fulfilment": menu["kind"]}
+    if category is not None and obj is None:
+        kinds=set(MenuItem.objects.filter(category=category).values_list('fulfilment',flat=True))
+        form_kwargs['initial']={'category':category.pk,'fulfilment':'scheduled' if kinds=={'scheduled'} else 'courier'}
     form = res.form(request.POST or None, request.FILES or None, instance=obj, **form_kwargs)
+    if category is not None:
+        form.fields['category'].disabled=True
+        form.initial['category']=category.pk
     next_query = {"next": return_url}
     if menu:
         next_query.update(type=menu["kind"], meal=menu["meal"], date=menu['on_date'].isoformat() if menu['on_date'] else 'all')
@@ -344,26 +367,26 @@ def resource_edit(request, key, pk=None):
         else:
             messages.success(request, f"Saved “{saved}”.")
             if "save_add" in request.POST:
-                return redirect(reverse("owner:new", args=[key]) + (form_query if menu else ""))
+                return redirect((reverse("owner:category_item_new",args=[category.pk]) if category else reverse("owner:new", args=[key])) + (form_query if menu or category else ""))
             return redirect(return_url)
     return render(request, "owner/form.html", {"res": res, "form": form, "obj": obj,
-        "return_url": return_url, "menu_selection": menu,
-        "entry_label": "item" if menu and menu["kind"] == "courier" else res.singular,
-        "delete_url": reverse("owner:delete", args=[key, obj.pk]) + form_query if obj else ""})
+        "return_url": return_url, "menu_selection": menu, "category":category,
+        "entry_label": "item" if category or (menu and menu["kind"] == "courier") else res.singular,
+        "delete_url": (reverse("owner:category_item_delete",args=[category.pk,obj.pk]) if category else reverse("owner:delete", args=[key, obj.pk])) + form_query if obj else ""})
 
 
 @owner_required
-def resource_delete(request, key, pk):
+def resource_delete(request, key, pk, *, category=None):
     res = _resource(key)
-    obj = get_object_or_404(res.model, pk=pk)
-    return_url = _safe_next(request, reverse("owner:list", args=[key]))
+    obj = get_object_or_404(res.model, pk=pk, **({"category":category} if category else {}))
+    return_url = _safe_next(request, reverse("owner:category_items",args=[category.pk]) if category else reverse("owner:list", args=[key]))
     back_params = {"next": return_url}
     selected = None
-    if key == "dishes" and request.GET.get("type") in ("scheduled", "courier"):
+    if key == "dishes" and category is None and request.GET.get("type") in ("scheduled", "courier"):
         from .menu_services import menu_selection
         selected = menu_selection(request.GET)
         back_params.update(type=selected["kind"], meal=selected["meal"], date=selected['on_date'].isoformat() if selected['on_date'] else 'all')
-    edit_url = reverse("owner:edit", args=[key, pk]) + "?" + urlencode(back_params)
+    edit_url = (reverse("owner:category_item_edit",args=[category.pk,pk]) if category else reverse("owner:edit", args=[key, pk])) + "?" + urlencode(back_params)
     day_selection = selected if selected and selected['kind'] == 'scheduled' and selected['slot'] and selected['on_date'] else None
     day_revision = 0
     if day_selection:
@@ -391,19 +414,19 @@ def resource_delete(request, key, pk):
         messages.success(request, f"Deleted “{name}”.")
         return redirect(return_url)
     return render(request, "owner/confirm_delete.html", {"res": res, "obj": obj, "return_url": return_url, "day_selection": day_selection, "day_revision": day_revision,
-        "edit_url": edit_url})
+        "edit_url": edit_url, "category":category})
 
 
 @owner_required
 @require_POST
-def resource_toggle(request, key, pk):
+def resource_toggle(request, key, pk, *, category=None):
     """One-tap on/off (on sale, visible, published) straight from the list."""
     res = _resource(key)
     field_name = TOGGLE_FIELDS.get(key)
     if not field_name:
         raise Http404
-    obj = get_object_or_404(res.model, pk=pk)
-    if key == 'dishes' and request.POST.get('menu_date'):
+    obj = get_object_or_404(res.model, pk=pk, **({"category":category} if category else {}))
+    if key == 'dishes' and category is None and request.POST.get('menu_date'):
         from .menu_services import menu_selection
         from apps.catalog.daily_menus import set_daily_availability
         selected = menu_selection({'type': 'scheduled', 'meal': request.POST.get('menu_meal'), 'date': request.POST['menu_date']})
@@ -422,7 +445,7 @@ def resource_toggle(request, key, pk):
     obj.save(update_fields=[field_name])
     state = "on" if getattr(obj, field_name) else "off"
     messages.success(request, f"“{obj}” is now {state}.")
-    return redirect(_safe_next(request, reverse("owner:list", args=[key])))
+    return redirect(_safe_next(request, reverse("owner:category_items",args=[category.pk]) if category else reverse("owner:list", args=[key])))
 
 
 # -- orders ---------------------------------------------------------------------

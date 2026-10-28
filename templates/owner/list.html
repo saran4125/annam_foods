@@ -1,10 +1,11 @@
 {% extends "owner/base.html" %}
 {% load storefront_extras %}
 {% block body_class %}{% if menu_ui %}o-catalog-page{% endif %}{% endblock %}
-{% block title %}{{ res.title }}{% endblock %}
-{% block heading %}<h1>{{ res.title }}</h1><p>{% if menu_ui %}{% if menu_ui.selection.on_date and menu_ui.choose_url %}{{ menu_ui.selection.on_date|date:"l, j F Y" }} · {% endif %}{{ menu_ui.title }} · {% endif %}{{ total }} {% if menu_ui.selection.kind == 'courier' %}item{% if total != 1 %}s{% endif %}{% elif total == 1 %}{{ res.singular }}{% else %}{{ res.plural }}{% endif %}</p>{% endblock %}
-{% block actions %}{% if menu_ui.choose_url %}<a class="o-btn" href="{{ menu_ui.choose_url }}">Choose dishes</a>{% endif %}<a class="o-btn o-btn-primary" href="{{ new_url }}"><svg class="o-ic"><use href="#o-plus"/></svg>{{ add_label }}</a>{% endblock %}
+{% block title %}{% if category %}{{ category.name }} items{% else %}{{ res.title }}{% endif %}{% endblock %}
+{% block heading %}{% if category %}<a class="o-crumb" href="{% url 'owner:list' 'categories' %}">← Categories</a><h1>{{ category.name }}</h1><p>{{ total }} item{{ total|pluralize }}</p>{% else %}<h1>{{ res.title }}</h1><p>{% if menu_ui %}{% if menu_ui.selection.on_date and menu_ui.choose_url %}{{ menu_ui.selection.on_date|date:"l, j F Y" }} · {% endif %}{{ menu_ui.title }} · {% endif %}{{ total }} {% if menu_ui.selection.kind == 'courier' %}item{% if total != 1 %}s{% endif %}{% elif total == 1 %}{{ res.singular }}{% else %}{{ res.plural }}{% endif %}</p>{% endif %}{% endblock %}
+{% block actions %}{% if category %}<a class="o-btn" href="{{ category_edit_url }}">Edit category</a>{% endif %}{% if menu_ui.choose_url %}<a class="o-btn" href="{{ menu_ui.choose_url }}">Choose dishes</a>{% endif %}<a class="o-btn o-btn-primary" href="{{ new_url }}"><svg class="o-ic"><use href="#o-plus"/></svg>{{ add_label }}</a>{% endblock %}
 {% block content %}
+{% if category %}<p class="o-catalog-hint">Manage items in {{ category.name }}. Add an item, edit its price or photo, switch it on or off, or delete it.</p>{% elif res.key == "categories" %}<p class="o-catalog-hint">Choose a category to manage its items. Use the pencil button to edit the category details.</p>{% endif %}
 
 {% if menu_ui %}
 <nav class="o-catalog-groups" aria-label="Product groups">
@@ -64,13 +65,14 @@
       {% for c in row.cells %}
       <td class="o-cell-{{ c.kind }}">
         {% if c.kind == "image" or c.kind == "image-wide" %}
-          <a class="o-thumb{% if c.kind == 'image-wide' %} o-thumb-wide{% endif %}" href="{{ edit_url }}" tabindex="-1" aria-hidden="true">{% if c.value %}<img src="{{ c.value.url }}" alt="" loading="lazy">{% else %}<svg class="o-ic"><use href="#o-image"/></svg>{% endif %}</a>
-        {% elif c.kind == "title" %}<a class="o-row-title" href="{{ edit_url }}">{{ c.value }}</a>{% if menu_ui.choose_url and not row.obj.active %}<small class="o-muted">Hidden globally — edit to enable</small>{% endif %}
+          <a class="o-thumb{% if c.kind == 'image-wide' %} o-thumb-wide{% endif %}" href="{{ row.title_url|default:edit_url }}" tabindex="-1" aria-hidden="true">{% if c.value %}<img src="{{ c.value.url }}" alt="" loading="lazy">{% else %}<svg class="o-ic"><use href="#o-image"/></svg>{% endif %}</a>
+        {% elif c.kind == "title" %}<a class="o-row-title" href="{{ row.title_url|default:edit_url }}">{{ c.value }}</a>{% if menu_ui.choose_url and not row.obj.active %}<small class="o-muted">Hidden globally — edit to enable</small>{% endif %}
+        {% elif c.kind == "count" %}<a href="{{ row.items_url }}" aria-label="View {{ c.value }} items in {{ row.obj.name }}">{{ c.value }} items</a>
         {% elif c.kind == "money" %}₹{{ c.value|money }}
         {% elif c.kind == "time" %}{{ c.value|time:"g:i A" }}
         {% elif c.kind == "bool" %}{% if c.value %}Yes{% else %}<span class="o-muted">No</span>{% endif %}
         {% elif c.kind == "toggle" %}
-          <form method="post" action="{% url 'owner:toggle' res.key row.obj.pk %}">{% csrf_token %}
+          <form method="post" action="{{ row.toggle_url }}">{% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
             {% if menu_ui.choose_url %}<input type="hidden" name="menu_date" value="{{ menu_ui.selection.on_date|date:'Y-m-d' }}"><input type="hidden" name="menu_meal" value="{{ menu_ui.selection.meal }}"><input type="hidden" name="revision" value="{{ menu_ui.revision }}"><input type="hidden" name="enabled" value="{% if c.value %}0{% else %}1{% endif %}">{% endif %}
             <button class="o-switch{% if c.value %} is-on{% endif %}" type="submit" role="switch" aria-checked="{% if c.value %}true{% else %}false{% endif %}" aria-label="Toggle {{ row.obj }}"><i></i></button>
@@ -79,7 +81,7 @@
       </td>
       {% endfor %}
       <td class="o-cell-actions">
-        <a class="o-icon-btn" href="{{ edit_url }}" aria-label="Edit {{ row.obj }}"><svg class="o-ic"><use href="#o-edit"/></svg></a>
+        <a class="o-icon-btn" href="{{ edit_url }}" aria-label="{% if res.key == 'categories' %}Edit category {{ row.obj }}{% else %}Edit {{ row.obj }}{% endif %}"><svg class="o-ic"><use href="#o-edit"/></svg></a>
         <a class="o-icon-btn o-danger" href="{{ row.delete_url }}" aria-label="{% if menu_ui.choose_url %}Remove {{ row.obj }} from this date{% else %}Delete {{ row.obj }}{% endif %}"><svg class="o-ic"><use href="#o-trash"/></svg></a>
       </td>
     </tr>
@@ -99,7 +101,7 @@
 {% else %}
 <div class="o-empty" data-reveal>
   <svg class="o-ic"><use href="#o-search"/></svg>
-  <p>{% if query %}Nothing matches “{{ query }}”.{% elif menu_ui.choose_url %}No dishes selected for {{ menu_ui.selection.on_date|date:"l, j F" }} {{ menu_ui.title|lower }}.{% elif menu_ui %}No {{ menu_ui.title|lower }} {% if menu_ui.selection.kind == 'courier' %}yet{% else %}dishes yet{% endif %}.{% else %}No {{ res.title|lower }} yet.{% endif %}</p>
+  <p>{% if query %}Nothing matches “{{ query }}”.{% elif category %}No items in {{ category.name }} yet.{% elif menu_ui.choose_url %}No dishes selected for {{ menu_ui.selection.on_date|date:"l, j F" }} {{ menu_ui.title|lower }}.{% elif menu_ui %}No {{ menu_ui.title|lower }} {% if menu_ui.selection.kind == 'courier' %}yet{% else %}dishes yet{% endif %}.{% else %}No {{ res.title|lower }} yet.{% endif %}</p>
   {% if menu_ui.choose_url %}<a class="o-btn o-btn-primary" href="{{ menu_ui.choose_url }}">Choose dishes</a>{% else %}<a class="o-btn o-btn-primary" href="{{ new_url }}">{{ add_label }}</a>{% endif %}
 </div>
 {% endif %}

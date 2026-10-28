@@ -169,3 +169,20 @@ Review screenshots use isolated synthetic local orders:
 [All orders](examples/order-groups-review/all-orders.png) ·
 [Breakfast + Lunch](examples/order-groups-review/breakfast-lunch.png) ·
 [Phone view](examples/order-groups-review/breakfast-lunch-mobile.png).
+
+## Manage items from Categories
+
+Click a category name, photo or product count to open its own item table. Staff
+can add an item with its category already selected, edit its photo and price,
+switch availability on or off, and delete with confirmation. Search, filters
+and pagination stay within that category; saving or deleting returns there.
+The separate Edit category button (or pencil on the category list) changes its
+name, image and description. The Inside column and Inside category field are
+removed from the staff interface. Existing category relationships remain saved;
+this change requires no database migration and preserves existing order data.
+
+Verified with 606 PostgreSQL tests and 10 local browser checks, including the
+full add/edit/toggle/delete workflow and mobile overflow. Screenshots show the
+isolated local preview: [Items](examples/category-items-review/podi-items.png) ·
+[Phone view](examples/category-items-review/podi-items-mobile.png) ·
+[Browser checklist](examples/category-items-review/browser-checks.json).

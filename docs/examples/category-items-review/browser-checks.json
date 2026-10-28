@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Inside column removed",
+    "pass": true
+  },
+  {
+    "name": "Category opens product table",
+    "pass": true
+  },
+  {
+    "name": "Category details omit Inside category",
+    "pass": true
+  },
+  {
+    "name": "Adding preselects a fixed category",
+    "pass": true
+  },
+  {
+    "name": "Saving returns to same category",
+    "pass": true
+  },
+  {
+    "name": "Editing updates price in category list",
+    "pass": true
+  },
+  {
+    "name": "Availability toggle works in place",
+    "pass": true
+  },
+  {
+    "name": "Delete asks for confirmation",
+    "pass": true
+  },
+  {
+    "name": "Deleting returns to category and removes item",
+    "pass": true
+  },
+  {
+    "name": "Mobile page has no horizontal overflow",
+    "pass": true
+  }
+]

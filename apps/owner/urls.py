@@ -1,12 +1,17 @@
 from django.urls import path
 
-from . import views, report_views
+from . import views, report_views, category_views
 from apps.payments import views as payment_views
 from apps.messaging import inbox_views
 
 app_name = "owner"
 
 urlpatterns = [
+    path("categories/<int:pk>/items/", category_views.items, name="category_items"),
+    path("categories/<int:pk>/items/new/", category_views.item_new, name="category_item_new"),
+    path("categories/<int:pk>/items/<int:item_pk>/", category_views.item_edit, name="category_item_edit"),
+    path("categories/<int:pk>/items/<int:item_pk>/delete/", category_views.item_delete, name="category_item_delete"),
+    path("categories/<int:pk>/items/<int:item_pk>/toggle/", category_views.item_toggle, name="category_item_toggle"),
     path("reports/", report_views.reports, name="reports"),
     path("orders/<int:pk>/courier/", report_views.courier_action, name="courier_action"),
     path("courier-notices/release/", report_views.release_notices, name="release_notices"),
