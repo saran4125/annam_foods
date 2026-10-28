@@ -186,3 +186,19 @@ full add/edit/toggle/delete workflow and mobile overflow. Screenshots show the
 isolated local preview: [Items](examples/category-items-review/podi-items.png) ·
 [Phone view](examples/category-items-review/podi-items-mobile.png) ·
 [Browser checklist](examples/category-items-review/browser-checks.json).
+
+### Category totals match storefront families
+
+Category totals and item actions now include the same active descendant
+categories used by the storefront's `category_family_ids` resolver. For example,
+Podi includes Kitchen Podis, Rice Mix Herbal Podi and Rice Mix Podi. The primary
+shop count is explicitly labelled "on website" and uses `search_shop`, including
+its on-sale/courier rules. Clicking the category opens that exact storefront set
+by default. If hidden products exist, a separate total link opens the complete
+management list; staff can also change the status/type filters. Child-product
+edits preserve their actual subcategory. No products or relationships are moved.
+
+Regression verification: 608 PostgreSQL tests, including 21-product parent
+families, nested descendants, child edit/toggle/delete, and hidden-item counts.
+The local browser comparison checks every Podi product name against the public
+shop: [checklist](examples/category-items-review/family-browser-checks.json).

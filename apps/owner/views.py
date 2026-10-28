@@ -27,7 +27,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 
 from apps.catalog.models import MenuCategory, MenuItem, Slot
-from apps.catalog.services import resolve_menu
+from apps.catalog.services import resolve_menu, category_family_ids, search_shop
 from apps.content.models import Banner, Page
 from apps.delivery.models import DeliveryZone
 from apps.orders.models import STATUS_FLOW, Order, OrderStatus
@@ -221,9 +221,11 @@ def resource_list(request, key, *, category=None):
     res = _resource(key)
     qs = res.model.objects.all()
     if key == 'categories':
-        qs = qs.annotate(product_count=Count('items'))
+        # Count the same category family used by the public shop, not just
+        # products assigned directly to the parent category.
+        category_counts = dict(MenuItem.objects.values('category_id').annotate(n=Count('pk')).values_list('category_id', 'n'))
     if category is not None:
-        qs = qs.filter(category=category)
+        qs = qs.filter(category_id__in=category_family_ids(category))
     menu, menu_ui = None, {}
     if key == "dishes" and category is None:
         from .menu_services import menu_selection, menu_items, menu_group_counts, menu_categories
@@ -304,12 +306,19 @@ def resource_list(request, key, *, category=None):
             params["meal"] = menu["meal"]
             params['date'] = menu['on_date'].isoformat() if menu['on_date'] else 'all'
         return url + "?" + urlencode(params)
+    if key == 'categories':
+        for shelf in page:
+            shelf.product_count = sum(category_counts.get(pk, 0) for pk in category_family_ids(shelf))
+            shelf.website_count = search_shop(category=shelf).count()
     rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in columns],
              "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk),
              "toggle_url": action_url("owner:toggle", o.pk) if key in TOGGLE_FIELDS else ""} for o in page]
     if key == 'categories':
         for row in rows:
             row['items_url'] = reverse('owner:category_items',args=[row['obj'].pk])
+            row['all_items_url'] = row['items_url']
+            if row['obj'].website_count:
+                row['items_url'] += '?type=courier&status=1'
             row['title_url'] = row['items_url']
     if menu and menu['on_date'] and menu['slot'] and menu['kind'] == 'scheduled':
         entries = {e.item.pk: e for e in resolve_menu(menu['on_date'], menu['slot'], include_unavailable=True, include_inactive=True)}
@@ -332,7 +341,7 @@ def resource_list(request, key, *, category=None):
 @owner_required
 def resource_edit(request, key, pk=None, *, category=None):
     res = _resource(key)
-    obj = get_object_or_404(res.model, pk=pk, **({'category':category} if category else {})) if pk else None
+    obj = get_object_or_404(res.model, pk=pk, **({'category_id__in':category_family_ids(category)} if category else {})) if pk else None
     return_url = _safe_next(request, reverse("owner:category_items",args=[category.pk]) if category else reverse("owner:list", args=[key]))
     form_kwargs = {}
     menu = None
@@ -354,7 +363,7 @@ def resource_edit(request, key, pk=None, *, category=None):
     form = res.form(request.POST or None, request.FILES or None, instance=obj, **form_kwargs)
     if category is not None:
         form.fields['category'].disabled=True
-        form.initial['category']=category.pk
+        form.initial['category']=obj.category_id if obj else category.pk
     next_query = {"next": return_url}
     if menu:
         next_query.update(type=menu["kind"], meal=menu["meal"], date=menu['on_date'].isoformat() if menu['on_date'] else 'all')
@@ -378,7 +387,7 @@ def resource_edit(request, key, pk=None, *, category=None):
 @owner_required
 def resource_delete(request, key, pk, *, category=None):
     res = _resource(key)
-    obj = get_object_or_404(res.model, pk=pk, **({"category":category} if category else {}))
+    obj = get_object_or_404(res.model, pk=pk, **({"category_id__in":category_family_ids(category)} if category else {}))
     return_url = _safe_next(request, reverse("owner:category_items",args=[category.pk]) if category else reverse("owner:list", args=[key]))
     back_params = {"next": return_url}
     selected = None
@@ -425,7 +434,7 @@ def resource_toggle(request, key, pk, *, category=None):
     field_name = TOGGLE_FIELDS.get(key)
     if not field_name:
         raise Http404
-    obj = get_object_or_404(res.model, pk=pk, **({"category":category} if category else {}))
+    obj = get_object_or_404(res.model, pk=pk, **({"category_id__in":category_family_ids(category)} if category else {}))
     if key == 'dishes' and category is None and request.POST.get('menu_date'):
         from .menu_services import menu_selection
         from apps.catalog.daily_menus import set_daily_availability

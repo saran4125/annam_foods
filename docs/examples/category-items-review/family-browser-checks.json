@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Podi website count matches storefront",
+    "pass": true
+  },
+  {
+    "name": "Admin includes every public product",
+    "pass": true
+  },
+  {
+    "name": "Category opens storefront filters by default",
+    "pass": true
+  },
+  {
+    "name": "On-sale filter shows all 21 website products",
+    "pass": true
+  },
+  {
+    "name": "Admin names match public storefront",
+    "pass": true
+  },
+  {
+    "name": "Child product retains Kitchen Podis category",
+    "pass": true
+  },
+  {
+    "name": "Mobile has no page overflow",
+    "pass": true
+  }
+]

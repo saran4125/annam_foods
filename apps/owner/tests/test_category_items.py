@@ -18,8 +18,8 @@ def test_category_name_and_product_count_open_the_item_list(signed_in,catalog):
     response=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
     html=response.content.decode();url=items_url(catalog['cat'])
     assert 'Inside' not in response.context['headers']
-    assert response.context['rows'][0]['title_url']==url
-    assert html.count(f'href="{url}"')>=2 and '1 items' in html
+    assert response.context['rows'][0]['title_url']==url+'?type=courier&status=1'
+    assert html.count(f'href="{url}?type=courier&amp;status=1"')>=2 and '1 on website' in html
 
 
 def test_category_items_show_both_meals_and_shop_products_not_unrelated_items(signed_in,kitchens,catalog):
@@ -100,3 +100,34 @@ def test_empty_category_has_add_action_and_search_status_and_pages_stay_scoped(s
         assert row['edit_url'].startswith(items_url(catalog['cat'])) and row['toggle_url'].startswith(items_url(catalog['cat']))
     page=signed_in.get(items_url(catalog['cat']),{'q':'Podi','status':'1','page':2},HTTP_HOST=HOST)
     assert len(page.context['rows'])==2
+
+
+def test_parent_category_lists_and_counts_the_same_products_as_the_storefront(signed_in,kitchens,catalog):
+    from apps.catalog.services import search_shop
+    with tenant_context(kitchens[0]):
+        child=MenuCategory.objects.create(name='Kitchen Podis',slug='kitchen-podis',parent=catalog['cat'])
+        grandchild=MenuCategory.objects.create(name='Rice Mix',slug='rice-mix',parent=child)
+        products=[MenuItem.objects.create(name=f'Child podi {i}',price=100,category=child if i<10 else grandchild,fulfilment='courier') for i in range(20)]
+        expected=set(search_shop(category=catalog['cat']).values_list('pk',flat=True))
+    page=signed_in.get(items_url(catalog['cat']),HTTP_HOST=HOST)
+    assert {row['obj'].pk for row in page.context['rows']}==expected
+    listing=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    shelf=next(row['obj'] for row in listing.context['rows'] if row['obj'].pk==catalog['cat'].pk)
+    assert shelf.product_count==shelf.website_count==21
+    product=products[0];base=items_url(catalog['cat'])+str(product.pk)+'/'
+    response=signed_in.post(base,product_data(name='Updated child podi',category=catalog['cat'].pk),HTTP_HOST=HOST)
+    assert response.status_code==302
+    product.refresh_from_db();assert product.category_id==child.pk
+    assert signed_in.post(base+'toggle/',HTTP_HOST=HOST).status_code==302
+    assert signed_in.post(base+'delete/',HTTP_HOST=HOST).status_code==302
+
+
+def test_category_count_distinguishes_hidden_items_from_website_products(signed_in,kitchens,catalog):
+    with tenant_context(kitchens[0]):
+        child=MenuCategory.objects.create(name='Child',slug='child',parent=catalog['cat'])
+        MenuItem.objects.create(name='Hidden podi',price=100,category=child,fulfilment='courier',active=False)
+    listing=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    shelf=next(row['obj'] for row in listing.context['rows'] if row['obj'].pk==catalog['cat'].pk)
+    assert shelf.product_count==2 and shelf.website_count==1
+    assert b'1 on website' in listing.content
+    assert b'Hidden podi' in signed_in.get(items_url(catalog['cat']),HTTP_HOST=HOST).content
