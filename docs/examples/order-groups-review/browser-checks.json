@@ -1,0 +1,26 @@
+[
+  {
+    "name": "All orders selected initially",
+    "pass": true
+  },
+  {
+    "name": "Combined tab highlighted",
+    "pass": true
+  },
+  {
+    "name": "Combined order has full row label",
+    "pass": true
+  },
+  {
+    "name": "Search retains the selected meal group",
+    "pass": true
+  },
+  {
+    "name": "Status retains search and meal group",
+    "pass": true
+  },
+  {
+    "name": "Phone view has no page overflow",
+    "pass": true
+  }
+]

@@ -152,3 +152,20 @@ courier verification. The Playwright review uses synthetic data only:
 - [Reports](examples/requirements-review/reports.png)
 
 No live payment, refund or external WhatsApp message was executed during this work.
+
+## Staff order-list meal groups
+
+The Orders screen has counted tabs for All orders, Breakfast, Lunch, Dinner,
+and Snacks / Shop, plus a visible Breakfast + Lunch option. Other permitted
+combinations appear when matching orders exist. Tabs match the exact saved meal
+combination, so a Breakfast + Lunch order appears as one combined order rather
+than being counted in each standalone meal tab. The For column displays the
+complete combination and delivery date. Search, status and pagination preserve
+the selected tab. Legacy single-meal orders use their saved slot; historical
+shop orders remain visible under Snacks / Shop. Unknown historical categories
+remain visible under Other / review. No order, bill or payment is rewritten.
+
+Review screenshots use isolated synthetic local orders:
+[All orders](examples/order-groups-review/all-orders.png) ·
+[Breakfast + Lunch](examples/order-groups-review/breakfast-lunch.png) ·
+[Phone view](examples/order-groups-review/breakfast-lunch-mobile.png).

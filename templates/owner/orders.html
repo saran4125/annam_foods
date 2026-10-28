@@ -2,8 +2,15 @@
 {% load storefront_extras %}
 {% block title %}Orders{% endblock %}
 {% block heading %}<h1>Orders</h1><p>{{ page.paginator.count }} order{{ page.paginator.count|pluralize }}</p>{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static_v 'css/order-groups.css' %}">{% endblock %}
 {% block content %}
+<nav class="order-groups" aria-label="Order food categories">
+  <div class="order-group-row">{% for tab in meal_tabs %}<a class="o-btn{% if tab.active %} o-btn-primary{% endif %}" href="{{ tab.url }}"{% if tab.active %} aria-current="page"{% endif %}>{{ tab.label }} <span class="order-group-count">{{ tab.count }}</span></a>{% endfor %}</div>
+  {% if combined_tabs %}<div class="order-group-row"><span class="order-group-caption">Combined orders</span>{% for tab in combined_tabs %}<a class="o-btn{% if tab.active %} o-btn-primary{% endif %}" href="{{ tab.url }}"{% if tab.active %} aria-current="page"{% endif %}>{{ tab.label }} <span class="order-group-count">{{ tab.count }}</span></a>{% endfor %}</div>{% endif %}
+</nav>
+<p class="order-group-help">{{ meal_group_label }} · Each row is one order. Combined orders keep one order number and one total.</p>
 <form class="o-tools" method="get">
+  <input type="hidden" name="meal_group" value="{{ meal_group }}">
   <label class="o-search"><svg class="o-ic" aria-hidden="true"><use href="#o-search"/></svg>
     <input type="search" name="q" value="{{ query }}" placeholder="Order number, phone or name…" aria-label="Search orders"></label>
   <label class="o-filter"><span class="o-sr">Status</span>
@@ -21,7 +28,7 @@
   <tr>
     <td><a class="o-row-title" href="{% url 'owner:order' o.pk %}">{{ o.order_no }}{% if o.is_test_payment %} <span class="o-pill">TEST</span>{% endif %}</a><small class="o-sub">{{ o.placed_at|date:"j M, g:i A" }}</small></td>
     <td>{{ o.buyer_name|default:"—" }}<small class="o-sub">{{ o.buyer_phone }}</small></td>
-    <td>{% if o.slot %}{{ o.slot.label }} · {{ o.delivery_date|date:"j M" }}{% else %}Shop order{% endif %}</td>
+    <td><strong class="order-meal-label">{{ o.staff_meal_label }}</strong>{% if o.delivery_date %}<small class="o-sub">{{ o.delivery_date|date:"D, j M" }}</small>{% endif %}</td>
     <td><span class="o-pill o-pill-{{ o.status }}">{{ o.get_status_display }}</span></td>
     <td class="o-money">₹{{ o.total|money }}</td>
   </tr>
@@ -31,13 +38,13 @@
 </div>
 {% if page.has_other_pages %}
 <nav class="o-pager" aria-label="Pages">
-  {% if page.has_previous %}<a class="o-btn" href="?status={{ status }}&q={{ query|urlencode }}&page={{ page.previous_page_number }}">← Previous</a>{% endif %}
+  {% if page.has_previous %}<a class="o-btn" href="?{{ pagination_query }}&page={{ page.previous_page_number }}">← Previous</a>{% endif %}
   <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
-  {% if page.has_next %}<a class="o-btn" href="?status={{ status }}&q={{ query|urlencode }}&page={{ page.next_page_number }}">Next →</a>{% endif %}
+  {% if page.has_next %}<a class="o-btn" href="?{{ pagination_query }}&page={{ page.next_page_number }}">Next →</a>{% endif %}
 </nav>
 {% endif %}
 {% else %}
 <div class="o-empty" data-reveal><svg class="o-ic"><use href="#o-bag"/></svg>
-  <p>{% if query or status %}No orders match.{% else %}No orders yet. Website and WhatsApp orders will all appear here.{% endif %}</p></div>
+  <p>{% if query or status or meal_group != "all" %}No orders match this food category and these filters.{% else %}No orders yet. Website and WhatsApp orders will all appear here.{% endif %}</p></div>
 {% endif %}
 {% endblock %}

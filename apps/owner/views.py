@@ -437,9 +437,12 @@ def orders(request):
     if query:
         qs = qs.filter(Q(order_no__icontains=query) | Q(customer__phone__icontains=query)
                        | Q(customer__name__icontains=query) | Q(address__recipient_name__icontains=query))
+    from .order_groups import grouped_orders, label_orders
+    qs, groups = grouped_orders(qs, selected=request.GET.get("meal_group", "all"), query=query, status=status)
     page = Paginator(qs, 30).get_page(request.GET.get("page"))
+    label_orders(page.object_list)
     return render(request, "owner/orders.html", {
-        "page": page, "statuses": OrderStatus.choices, "status": status, "query": query,
+        "page": page, "statuses": OrderStatus.choices, "status": status, "query": query, **groups,
     })
 
 
