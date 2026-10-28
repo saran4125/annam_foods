@@ -126,9 +126,9 @@ def issue_bill(order, *, gst_details=None, force=False):
 
         buyer_data = {"name": order.address.get("recipient_name", order.customer.name), "phone": order.address.get("phone", order.customer.phone),
                       "delivery_address": order.address, "order_no": order.order_no,
-                      "channel": order.get_channel_display(),
+                      "channel": order.get_channel_display(), "courier_deferred":bool(order.address.get("courier_deferred")),
                       "delivery_date": str(order.delivery_date or ""),
-                      "slot": order.slot.label if order.slot_id else ""}
+                      "slot": order.meal_label}
         if gst_details:
             buyer_data.update(gst_details)
         elif order.buyer_gst:
@@ -329,7 +329,7 @@ def confirm_payment(order, *, actor, reference=""):
 
 @transaction.atomic
 def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
-                       token, actor, address="", zone=None):
+                       token, actor, address="", zone=None, delivery_date=None, fulfilment_method="", city="", state="Tamil Nadu", country="India", postal_code=""):
     """Capture a phone/counter/chat booking with live prices and a retry-safe key."""
     from apps.orders.models import Channel, OrderSource, OrderEvent, PaymentMode
     from apps.orders.services import generate_order_number, get_or_create_customer
@@ -346,25 +346,65 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
     existing = Order.objects.filter(external_ref=external_ref).first()
     if existing:
         return existing
+    from apps.catalog.models import MenuSchedule
+    from apps.delivery.policies import validate_combination,restriction_message,snacks_delivery_quote
     quantities = {}
-    for item_id, quantity in requested:
-        if not isinstance(quantity, int) or not 1 <= quantity <= 999:
-            raise ValueError("Quantities must be between 1 and 999.")
-        quantities[item_id] = quantities.get(item_id, 0) + quantity
-    if not quantities or len(quantities) > 50 or any(q > 999 for q in quantities.values()):
-        raise ValueError("Choose 1 to 50 items, with at most 999 of each.")
-    items = {item.pk: item for item in MenuItem.objects.filter(pk__in=quantities, active=True)}
-    if set(items) != set(quantities):
-        raise ValueError("An item is unavailable. Reload the form and choose active items.")
-    lines = [{"item_id": pk, "name": items[pk].name, "quantity": q,
-              "unit_price": str(items[pk].price), "line_total": str(items[pk].price * q),
-              "is_veg": items[pk].is_veg} for pk, q in quantities.items()]
+    categories = {}
+    for request_line in requested:
+        item_id,quantity = request_line[:2]
+        meal = request_line[2] if len(request_line)>2 else ''
+        if not isinstance(quantity,int) or not 1<=quantity<=999:
+            raise ValueError('Quantities must be between 1 and 999.')
+        item = MenuItem.objects.filter(pk=item_id,active=True).first()
+        if item is None:
+            raise ValueError('An item is unavailable. Reload the form and choose active items.')
+        assigned = set(MenuSchedule.objects.filter(item=item).values_list('slot__key',flat=True))
+        if meal and item.fulfilment=='courier' and meal!='snacks':
+            raise ValueError('Packed Snacks products must use the Snacks food category.')
+        if meal and assigned and item.fulfilment=='scheduled' and meal not in assigned:
+            raise ValueError('This product is not assigned to the selected food category.')
+        if not meal:
+            meal = 'snacks' if item.fulfilment=='courier' else next(iter(assigned)) if len(assigned)==1 else 'unclassified'
+        if meal not in ('breakfast','lunch','dinner','snacks','unclassified'):
+            raise ValueError('Choose a valid food category.')
+        if zone and meal=='unclassified' and assigned:
+            raise ValueError('Choose the food category for each meal before selecting delivery.')
+        key=(item_id,meal);quantities[key]=quantities.get(key,0)+quantity;categories[key]=item
+    if not quantities or len(quantities)>50 or any(q>999 for q in quantities.values()):
+        raise ValueError('Choose 1 to 50 items, with at most 999 of each.')
+    keys={key[1] for key in quantities if key[1]!='unclassified'}
+    from apps.orders.services import OrderError
+    try:
+        validate_combination(keys)
+    except OrderError as exc:
+        raise ValueError(str(exc))
+    lines=[{'item_id':pk,'name':categories[(pk,meal)].name,'quantity':q,
+            'unit_price':str(categories[(pk,meal)].price),'line_total':str(categories[(pk,meal)].price*q),
+            'meal_key':meal,'meal_label':meal.title(),'category_id':categories[(pk,meal)].category_id,
+            'category_name':categories[(pk,meal)].category.name if categories[(pk,meal)].category_id else '',
+            'is_veg':categories[(pk,meal)].is_veg} for (pk,meal),q in quantities.items()]
     subtotal = sum((Decimal(line["line_total"]) for line in lines), Decimal("0"))
     fee = Decimal("0")
     snapshot = {"line1": address, "fulfilment": "Collection"}
-    if zone:
+    if fulfilment_method == "courier":
+        if keys != {"snacks"} or not address.strip() or not city.strip():
+            raise ValueError("Courier orders require only Snacks, a delivery address and city.")
+        snapshot={"line1":address,"city":city,"state":state,"country":country or "India","pincode":postal_code,"recipient_name":name,"phone":phone}
+        try:
+            quote=snacks_delivery_quote(tenant,snapshot)
+        except OrderError as exc:
+            raise ValueError(str(exc))
+        if not getattr(quote,"deferred",False):
+            raise ValueError("Select the approved local delivery area for this address.")
+        from apps.delivery.address import state_code
+        snapshot["state_code"]=state_code(country,state)
+        snapshot["courier_deferred"]=True
+    elif zone:
         from apps.delivery.models import DeliveryZone
         zone = DeliveryZone.objects.get(pk=zone.pk, active=True)
+        message=restriction_message(zone.pincode,keys,area_id=zone.pk)
+        if message:
+            raise ValueError(message)
         if not address.strip():
             raise ValueError("A delivery address is required.")
         if subtotal < zone.min_order:
@@ -380,8 +420,8 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
             with transaction.atomic():
                 order = Order.objects.create(customer=customer, order_no=generate_order_number(tenant),
                     channel=channel, source=OrderSource.OWNER if channel == Channel.MANUAL else OrderSource.WA_CHAT,
-                    payment_mode=payment_mode, payment_status=PaymentStatus.COD_PENDING if payment_mode == PaymentMode.COD else PaymentStatus.PENDING,
-                    items=lines, address=snapshot, subtotal=subtotal, delivery_fee=fee, total=total,
+                    fulfilment="courier" if fulfilment_method=="courier" else "scheduled", payment_mode=payment_mode, payment_status=PaymentStatus.COD_PENDING if payment_mode == PaymentMode.COD else PaymentStatus.PENDING,
+                    items=lines, address=snapshot, delivery_date=delivery_date, subtotal=subtotal, delivery_fee=fee, total=total,
                     external_ref=external_ref)
             break
         except IntegrityError:
@@ -390,6 +430,9 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
         raise ValueError("Could not allocate an order number. Please try again.")
     OrderEvent.objects.create(order=order, to_status=order.status, actor=actor[:60],
                               note="Booking entered by staff in billing portal.")
+    if snapshot.get("courier_deferred"):
+        from apps.orders.courier import prepare_courier_charge
+        prepare_courier_charge(order)
     return order
 
 
@@ -402,7 +445,7 @@ def staff_catalog():
     for item in MenuItem.objects.filter(active=True).select_related("category").prefetch_related(
             Prefetch("schedule", queryset=schedules, to_attr="billing_schedules")).order_by("name"):
         groups = sorted({row.slot.key for row in item.billing_schedules
-                         if row.slot.key in ("breakfast", "lunch", "dinner")}) if item.fulfilment == "scheduled" else []
+                         if row.slot.key in ("breakfast", "lunch", "dinner", "snacks")}) if item.fulfilment == "scheduled" else ["snacks"]
         result.append({"id": item.pk, "name": item.name, "price": str(item.price),
                        "category": item.category.name if item.category else "", "groups": groups or ["other"]})
     return result

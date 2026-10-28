@@ -34,6 +34,7 @@ class PaymentIntent(TenantOwnedModel):
     provider_order_id = models.CharField(max_length=80, blank=True)
     payment_id = models.CharField(max_length=80, blank=True)
     state = models.CharField(max_length=16, default='new')  # new/creating/uncertain/error/ready/captured/refunded
+    captured_at = models.DateTimeField(null=True,blank=True)
     refunded_amount = models.PositiveBigIntegerField(default=0)
     credit_note = models.ForeignKey('billing.Invoice', null=True, blank=True, on_delete=models.PROTECT)
     bill_error = models.CharField(max_length=240, blank=True)
@@ -57,6 +58,7 @@ class Refund(TenantOwnedModel):
     amount = models.PositiveBigIntegerField()
     provider_id = models.CharField(max_length=80, blank=True)
     state = models.CharField(max_length=16, default='requested')
+    processed_at = models.DateTimeField(null=True,blank=True)
     reason = models.CharField(max_length=200)
     actor = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -74,3 +76,29 @@ class PaymentEvent(TenantOwnedModel):
 
     class Meta(TenantOwnedModel.Meta):
         constraints = [models.UniqueConstraint(fields=['tenant', 'mode', 'event_id'], name='uniq_rzp_event')]
+
+
+class CourierPayment(TenantOwnedModel):
+    """A separate payment for a dispatched courier charge, never the food total."""
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    charge = models.ForeignKey('orders.CourierCharge',on_delete=models.PROTECT,related_name='online_payments')
+    connection = models.ForeignKey(RazorpayConnection,on_delete=models.PROTECT)
+    mode = models.CharField(max_length=4)
+    key_id = models.CharField(max_length=80)
+    amount = models.PositiveBigIntegerField()
+    currency = models.CharField(max_length=3,default='INR')
+    provider_order_id = models.CharField(max_length=80,blank=True)
+    payment_id = models.CharField(max_length=80,blank=True)
+    state = models.CharField(max_length=16,default='new')
+    captured_at = models.DateTimeField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def receipt(self):
+        return 'courier_'+self.pk.hex
+
+    class Meta(TenantOwnedModel.Meta):
+        constraints = [models.UniqueConstraint(fields=['tenant','charge','mode'],name='uniq_courier_payment_mode'),
+            models.UniqueConstraint(fields=['tenant','provider_order_id'],condition=~models.Q(provider_order_id=''),name='uniq_courier_provider_order'),
+            models.UniqueConstraint(fields=['tenant','payment_id'],condition=~models.Q(payment_id=''),name='uniq_courier_provider_payment')]

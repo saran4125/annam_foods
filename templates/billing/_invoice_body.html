@@ -41,7 +41,7 @@
     <div><dt>Round off</dt><dd>₹{{ invoice.round_off|floatformat:2 }}</dd></div>
   </dl>
   <div class="af-receipt-total"><span>{% if bill.is_credit %}Credit total{% else %}Total paid{% endif %}</span><strong>₹{{ invoice.total|floatformat:2 }}</strong></div>
-  {% if not bill.is_credit %}<p class="af-receipt-notice">Delivery fees shown above are included in the total paid.</p>{% endif %}
+  {% if not bill.is_credit %}<p class="af-receipt-notice">{% if invoice.buyer.courier_deferred %}Courier charges are not included in this food bill. They are confirmed and payable separately after dispatch.{% else %}Delivery fees shown above are included in the total paid.{% endif %}</p>{% endif %}
   <p class="af-receipt-words">{{ invoice.amount_words }}</p>
   <div class="af-receipt-payment">
     {% if not bill.is_credit %}<p>Payment: {{ bill.payment_label }}</p>{% endif %}

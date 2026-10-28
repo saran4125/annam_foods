@@ -1,12 +1,15 @@
 from django.urls import path
 
-from . import views
+from . import views, report_views
 from apps.payments import views as payment_views
 from apps.messaging import inbox_views
 
 app_name = "owner"
 
 urlpatterns = [
+    path("reports/", report_views.reports, name="reports"),
+    path("orders/<int:pk>/courier/", report_views.courier_action, name="courier_action"),
+    path("courier-notices/release/", report_views.release_notices, name="release_notices"),
     path("dishes/menu/", views.daily_menu, name="daily_menu"),
     path("whatsapp/", inbox_views.inbox, name="whatsapp"),
     path("whatsapp/settings/", inbox_views.connection_settings, name="whatsapp_settings"),

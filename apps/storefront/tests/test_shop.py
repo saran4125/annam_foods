@@ -88,17 +88,17 @@ def test_inactive_shop_item_cannot_be_added(client, shop):
     assert b'data-testid="cart-empty"' in r.content
 
 
-def test_meals_and_shop_items_never_share_a_cart(client, shop, menu):  # noqa: F811
+def test_snacks_and_other_permitted_meals_can_share_one_cart(client, shop, menu):  # noqa: F811
     _shop_add(client, shop["ellu"])
     _add(client, menu)
     page = client.get("/cart/", HTTP_HOST=HOST)
-    assert b"Ellu Podi" in page.content and b"Veg Meals" not in page.content
+    assert b"Ellu Podi" in page.content and b"Veg Meals" in page.content
 
     client.post("/cart/clear/", HTTP_HOST=HOST)
     _add(client, menu)
     _shop_add(client, shop["ellu"])
     page = client.get("/cart/", HTTP_HOST=HOST)
-    assert b"Veg Meals" in page.content and b"Ellu Podi" not in page.content
+    assert b"Veg Meals" in page.content and b"Ellu Podi" in page.content
 
 
 def test_home_shows_shelves_and_featured_goods(client, shop):

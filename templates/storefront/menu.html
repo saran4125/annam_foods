@@ -6,7 +6,7 @@
 <div class="page-intro">
   <p class="section-kicker">Cooked fresh for your slot</p>
   <h1>What’s cooking</h1>
-  <p>Order today’s current meal or book any available meal for tomorrow. Each order contains one meal and one delivery date.</p>
+  <p>Combine Breakfast, Lunch and Snacks for the same delivery date. Dinner requires a separate order. Delivery is charged once per order.</p>
 </div>
 
 {% if not slots %}
@@ -42,14 +42,14 @@
 {% if cart_mismatch %}
 <div class="strip strip-warn" data-testid="cart-mismatch">
   {% if cart.is_courier %}Your cart holds shop items, which are shipped separately from meals. To order a meal,
-  {% else %}Your cart already holds a different meal and day. To start a fresh order,{% endif %}
+  {% else %}Your cart holds another delivery date or a separate Dinner order. To start a fresh order,{% endif %}
   <a href="{% url 'storefront:cart' %}">review your cart</a> first.
 </div>
 {% endif %}
 
 {% if not slot_open %}
   <div class="strip strip-quiet" data-testid="slot-closed">
-    {{ chosen_slot.label }} is view only right now. Choose today’s current meal, or book a meal for tomorrow. Today’s cutoffs use India time.
+    {{ chosen_slot.label }} is view only right now. This meal’s ordering window is closed or has not opened yet. Check the configured opening time and cutoff (India time).
   </div>
 {% endif %}
 

@@ -21,7 +21,7 @@
   <div class="cart-main">
     <p class="cart-context">
       {% if cart.is_courier %}<strong>Shop order</strong> · shipped to your door
-      {% else %}<strong>{{ slot.label }}</strong> · {{ cart.delivery_date|date:"D, j M" }}{% endif %}
+      {% else %}<strong>{{ cart.slot_keys|join:", "|title }}</strong> · {{ cart.delivery_date|date:"D, j M" }}{% endif %}
       {% if not slot_open %}<span class="pill pill-shut">Ordering closed</span>{% endif %}
     </p>
 
@@ -36,14 +36,14 @@
           <div class="dish-title">
             <span class="veg{% if not line.item.is_veg %} veg-no{% endif %}"
                   aria-label="{% if line.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>
-            <strong>{{ line.item.name }}</strong>
+            <strong>{{ line.item.name }}</strong><small>{{ line.slot_key|title }}</small>
           </div>
           {% if cart.is_courier %}<a class="line-name-link" href="{% url 'storefront:item' line.item.id %}">View item</a> · {% endif %}<span class="line-unit">₹{{ line.unit_price|money }} each</span>
         </div>
         {% if ordering_enabled %}<form method="post" action="{% url 'storefront:cart_add' %}" class="qty-form" data-cart-form data-swap="main" data-name="{{ line.item.name }}">
           {% csrf_token %}
           <input type="hidden" name="item_id" value="{{ line.item.id }}">
-          {% if cart.is_courier %}<input type="hidden" name="kind" value="shop">{% else %}<input type="hidden" name="slot_key" value="{{ cart.slot_key }}">{% endif %}
+          {% if cart.is_courier %}<input type="hidden" name="kind" value="shop">{% else %}<input type="hidden" name="slot_key" value="{{ line.slot_key }}">{% endif %}
           <input type="hidden" name="delivery_date" value="{{ cart.delivery_date|date:'Y-m-d' }}">
           <input type="hidden" name="next" value="{% url 'storefront:cart' %}">
           <button name="delta" value="-1" aria-label="One fewer {{ line.item.name }}"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg></button>
@@ -89,11 +89,11 @@
     </section>
     {% endif %}
 
-    <p class="checkout-note">{% if cart.is_courier %}Shop items ship throughout Tamil Nadu. Pincode is optional at checkout.{% else %}Delivery pincode is required. Meals are delivered only within the kitchen’s delivery zones.{% endif %} The final total, including applicable tax, is shown at checkout.</p>
+    <p class="checkout-note">{% if cart.is_courier %}Chennai Snacks delivery uses your pincode and area. Outside Chennai, courier charges are confirmed and paid separately after dispatch.{% else %}Delivery pincode is required. Meals are delivered only within the kitchen’s delivery zones.{% endif %} The final total, including applicable tax, is shown at checkout.</p>
     <div class="totals">
       <div><span>Subtotal</span><span>₹{{ totals.subtotal|money }}</span></div>
-      <div data-testid="delivery-charge"><span>Delivery charge</span><span>{% if totals.zone %}₹{{ totals.delivery_fee|money }}{% elif cart.is_courier %}Unavailable{% else %}Enter delivery pincode{% endif %}</span></div>
-      <div class="grand"><span>{% if totals.zone %}Total{% else %}Items total{% endif %}</span><span>₹{{ totals.total|money }}</span></div>
+      <div data-testid="delivery-charge"><span>Delivery charge</span><span>{% if totals.zone.deferred %}Pay separately after dispatch{% elif totals.zone %}₹{{ totals.delivery_fee|money }}{% elif cart.is_courier %}Unavailable{% else %}Enter delivery pincode{% endif %}</span></div>
+      <div class="grand"><span>{% if totals.zone.deferred %}Food total (courier extra){% elif totals.zone %}Total{% else %}Items total{% endif %}</span><span>₹{{ totals.total|money }}</span></div>
     </div>
 
     {% if totals.below_minimum %}

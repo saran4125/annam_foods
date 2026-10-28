@@ -2,7 +2,7 @@
 {% load storefront_extras payment_tags %}
 {% block title %}{{ order.order_no }}{% endblock %}
 {% block heading %}<a class="o-crumb" href="{% url 'owner:orders' %}">← Orders</a><h1>{{ order.order_no }}</h1><p>Placed {{ order.placed_at|date:"j M Y, g:i A" }} · {{ order.get_channel_display }}</p>{% endblock %}
-{% block content %}{% payment_summary order as online %}{% if online %}{% include 'payments/_staff_payment.html' %}{% endif %}
+{% block content %}{% include "owner/_courier_charge.html" %}{% payment_summary order as online %}{% if online %}{% include 'payments/_staff_payment.html' %}{% endif %}
 <section class="o-card">
 <h2>Payment &amp; bill</h2>
 {% if invoice %}<a class="o-btn" href="{% url 'owner:bill' invoice.pk %}">View / print bill {{ invoice.number }}</a>
@@ -12,7 +12,7 @@
 <p>Confirm only after receiving the full payment of ₹{{ order.total|money }}. For COD, confirm after collecting cash.</p>
 <form method="post" action="{% url 'owner:order_payment' order.pk %}">{% csrf_token %}
 <label class="o-check"><input type="checkbox" name="confirmed" value="yes" required><span class="o-switch-ui" aria-hidden="true"><i></i></span><span class="o-toggle-copy"><b>Full payment received</b></span>{% include "owner/_toggle_state.html" %}</label>
-<input class="o-input" name="reference" maxlength="120" placeholder="Payment reference / collection note (optional)">
+<label>Payment reference<input class="o-input" name="reference" maxlength="120" placeholder="Payment reference / collection note (optional)"></label>
 <button class="o-btn o-btn-primary">Confirm payment &amp; issue bill</button></form>
 {% endif %}
 <p><a href="{% url 'owner:billing_settings' %}">Billing settings</a> · Complete once before issuing your first bill.</p>
@@ -34,7 +34,7 @@
     <header class="o-card-head"><h2>Customer &amp; delivery</h2></header>
     <p><b>{{ order.buyer_name|default:"Customer" }}</b><br><a href="tel:{{ order.buyer_phone }}">{{ order.buyer_phone }}</a></p>
     <p class="o-muted">{% for k, v in order.address.items %}{% if v %}{{ v }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</p>
-    <p>{% if order.slot %}{{ order.slot.label }} on {{ order.delivery_date|date:"l, j M" }}{% else %}Shop order (shipped){% endif %} · {{ order.get_payment_mode_display }} · {{ order.get_payment_status_display }}</p>
+    <p>{% if order.slot %}{{ order.meal_label }} on {{ order.delivery_date|date:"l, j M" }}{% else %}Shop order (shipped){% endif %} · {{ order.get_payment_mode_display }} · {{ order.get_payment_status_display }}</p>
     {% if next_steps %}
     <form method="post" class="o-status-form">{% csrf_token %}
       <p class="o-muted">Move this order to:</p>
@@ -42,7 +42,7 @@
         {% for value, label in next_steps %}<button class="o-btn o-btn-primary" name="to" value="{{ value }}">{{ label }}</button>{% endfor %}
         <button class="o-btn o-danger-btn" name="to" value="cancelled">Cancel order</button>
       </div>
-      <input class="o-input" type="text" name="note" maxlength="200" placeholder="Note (optional, e.g. reason for cancelling)">
+      <label>Order note<input class="o-input" type="text" name="note" maxlength="200" placeholder="Note (optional, e.g. reason for cancelling)"></label>
     </form>
     {% endif %}
     {% if events %}

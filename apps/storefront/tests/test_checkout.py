@@ -128,7 +128,7 @@ def test_meal_minimum_and_cutoff_are_enforced_at_checkout(client, kitchen, menu)
     menu['slot'].order_cutoff = __import__('datetime').time(10)
     menu['slot'].save()
     response = review(client)
-    assert b'not accepting orders now' in response.content
+    assert b'Ordering is not open' in response.content
     with tenant_context(kitchen):
         assert not Order.objects.exists()
 
@@ -157,23 +157,23 @@ def test_checkout_ignores_client_prices_and_payment_claims(client, kitchen, menu
         assert order.total == Decimal('260') and order.payment_status == 'pending'
 
 
-def test_shop_checkout_accepts_unlisted_tamil_nadu_addresses_with_configured_charges(client, kitchen, menu):
+def test_shop_checkout_uses_local_area_fee_or_defers_outside_chennai_courier(client, kitchen, menu):
     TenantConfig.objects.filter(tenant=kitchen).update(features={'snacks_courier': True}, checkout_settings={
-        'courier_enabled': True, 'courier_pincodes': ['600005'], 'courier_fee': '55', 'courier_minimum': '100'})
+        'courier_enabled': True, 'courier_fee': '55', 'courier_minimum': '100'})
     with tenant_context(kitchen):
         item = MenuItem.objects.create(name='Podi', fulfilment='courier', price=150)
-    client.post('/cart/add/', {'kind': 'shop', 'item_id': item.pk, 'delta': 1}, HTTP_HOST=HOST)
-    # A Tamil Nadu address needs neither a meal zone nor a courier whitelist entry.
-    assert 'checkout_token' in review(client).context
-    assert 'checkout_token' not in review(client, details(state='Kerala')).context
-    response = review(client, details(pincode='600005', city='Chennai'))
-    assert response.context['quote']['total'] == Decimal('205')
+    client.post('/cart/add/', {'kind': 'shop', 'item_id': item.pk}, HTTP_HOST=HOST)
+    outside = review(client, details(state='Karnataka',city='Bengaluru',pincode='560001'))
+    assert outside.context['quote']['courier_deferred']
+    assert outside.context['quote']['total'] == Decimal('150')
+    response = review(client, details(pincode='641001', city='Chennai'))
+    assert response.context['quote']['total'] == Decimal('170')
     assert response.context['quote']['slot'] is None
-    assert client.post('/checkout/', placedata(response, details(pincode='600005', city='Chennai')), HTTP_HOST=HOST).status_code == 302
+    assert client.post('/checkout/', placedata(response, details(pincode='641001',city='Chennai')), HTTP_HOST=HOST).status_code == 302
     with tenant_context(kitchen):
         order = Order.objects.get()
         assert order.fulfilment == 'courier' and order.slot is None and order.delivery_date is None
-        assert order.delivery_fee == Decimal('55')
+        assert order.delivery_fee == Decimal('20')
 
 
 def test_unconfigured_courier_delivery_fails_closed(client, kitchen, menu):
@@ -332,7 +332,7 @@ def test_shop_checkout_places_order_without_any_pincode_whitelist(client, kitche
     assert b'aria-label="Delivery pincode"' not in cart.content
     data = details(pincode=pin, city='Madurai')
     response = review(client, data)
-    assert response.context['quote']['total'] == Decimal('205')
+    assert response.context['quote']['total'] == Decimal('150')
     post = placedata(response, data)
     first = client.post('/checkout/', post, HTTP_HOST=HOST)
     assert first.status_code == 302
@@ -341,7 +341,7 @@ def test_shop_checkout_places_order_without_any_pincode_whitelist(client, kitche
         order = Order.objects.get()
         assert order.address['pincode'] == pin
         assert order.address['city'] == 'Madurai' and order.address['state'] == 'Tamil Nadu'
-        assert order.delivery_fee == Decimal('55') and order.total == Decimal('205')
+        assert order.delivery_fee == Decimal('0') and order.total == Decimal('150')
 
 
 def test_shop_minimum_is_still_checked_without_a_pincode(client, kitchen, menu):

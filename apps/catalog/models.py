@@ -1,3 +1,5 @@
+from datetime import time
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -13,6 +15,8 @@ class Slot(TenantOwnedModel):
     order_cutoff = models.TimeField(
         help_text="Latest local time an order for this slot can be placed."
     )
+    order_opens_at = models.TimeField(default=time(0,0), help_text="Local India time when advance ordering opens.")
+    order_days_before = models.PositiveSmallIntegerField(default=1, validators=[MaxValueValidator(1)], help_text="0 opens on the delivery date; 1 opens on the previous day.")
     delivery_from = models.TimeField(null=True, blank=True)
     delivery_to = models.TimeField(null=True, blank=True)
     sort = models.PositiveSmallIntegerField(default=0)

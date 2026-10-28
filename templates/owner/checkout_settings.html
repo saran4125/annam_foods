@@ -1,28 +1,28 @@
 {% extends "owner/base.html" %}
 {% load storefront_extras %}
 {% block title %}Checkout settings{% endblock %}
-{% block heading %}<h1>Checkout settings</h1><p>Manage Tamil Nadu shop delivery charges, meal holidays and payment instructions.</p>{% endblock %}
+{% block heading %}<h1>Checkout settings</h1><p>Manage Snacks delivery &amp; post-dispatch courier charges, meal holidays and payment instructions.</p>{% endblock %}
 {% block content %}<form class="o-form" method="post" novalidate>{% csrf_token %}{% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-<section class="o-card"><header class="o-card-head"><h2>Two delivery rules</h2></header><p>Breakfast, lunch and dinner use your <a href="{% url 'owner:list' 'zones' %}">meal delivery areas</a>, including each area’s fee and minimum. Shop items can be delivered throughout Tamil Nadu without a pincode whitelist. Meals require an approved delivery pincode. Meals and shop items require separate orders.</p></section>
+<section class="o-card"><header class="o-card-head"><h2>Two delivery rules</h2></header><p>Breakfast, Lunch, Dinner and local Snacks use your <a href="{% url 'owner:list' 'zones' %}">meal delivery areas</a>, including each area’s fee and minimum. Breakfast, Lunch and Snacks may share one delivery-date order with one area charge. Dinner is separate. Outside Chennai, Snacks use courier delivery with charges payable separately after dispatch.</p></section>
 <section class="o-card o-courier-card" aria-labelledby="courier-title">
   <header class="o-courier-heading">
     <span class="o-courier-icon" aria-hidden="true"><svg class="o-ic"><use href="#o-bag"/></svg></span>
-    <div><h2 id="courier-title">Tamil Nadu shop delivery</h2><p>Deliver Annam’s packed products throughout Tamil Nadu.</p></div>
+    <div><h2 id="courier-title">Snacks delivery &amp; post-dispatch courier</h2><p>Local Snacks delivery uses approved pincode and area charges. Outside Chennai, courier charges are confirmed after dispatch.</p></div>
     <span class="o-courier-tag">Shop items only</span>
   </header>
   {% with f=form.courier_enabled %}
   <label class="o-check o-courier-toggle{% if f.errors %} has-error{% endif %}">
     {{ f }}<span class="o-switch-ui" aria-hidden="true"><i></i></span>
-    <span class="o-toggle-copy"><b>{{ f.label }}</b><small>Accept shop orders across Tamil Nadu. No pincode list is needed.</small></span>
+    <span class="o-toggle-copy"><b>{{ f.label }}</b><small>Accept local and outside-Chennai Snacks orders. Courier costs are collected separately after dispatch.</small></span>
     {% include "owner/_toggle_state.html" %}
   </label>
   {% for error in f.errors %}<p class="o-error" role="alert">{{ error }}</p>{% endfor %}
   {% endwith %}
   <div class="o-courier-rates">
     <h3>Delivery charges &amp; minimum</h3>
-    <div class="o-grid-form">{% with f=form.courier_fee %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.courier_minimum %}{% include "owner/_field.html" %}{% endwith %}</div>
-    <p>One flat courier charge per order. Set ₹0 for free shipping. The minimum applies to products before shipping.</p>
+    <div class="o-grid-form">{{ form.courier_fee.as_hidden }}{% with f=form.courier_minimum %}{% include "owner/_field.html" %}{% endwith %}</div>
+    <p>Local delivery charges come from Delivery areas and apply once per order. The legacy flat courier charge is not used for deferred courier orders. The minimum applies to shop products before shipping.</p>
   </div>
-  <p class="o-courier-note"><svg class="o-ic" aria-hidden="true"><use href="#o-pin"/></svg><span>Shop checkout requires delivery to be enabled. Only meal orders require a serviceable pincode. Save checkout settings to apply your changes.</span></p>
+  <p class="o-courier-note"><svg class="o-ic" aria-hidden="true"><use href="#o-pin"/></svg><span>Shop checkout requires delivery to be enabled. Local delivery requires a serviceable pincode and area; outside-Chennai courier orders use their complete delivery address. Save checkout settings to apply your changes.</span></p>
 </section>
-<section class="o-card"><header class="o-card-head"><h2>Meal holidays &amp; payment</h2></header>{% with f=form.closed_dates %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.payment_instructions %}{% include "owner/_field.html" %}{% endwith %}<p>Checkout uses your current billing tax and rounding settings. Manual payments require staff confirmation. Configure online payments separately in Razorpay payments.</p></section><button class="o-btn o-btn-primary">Save checkout settings</button></form>{% endblock %}
+<section class="o-card"><h2>Courier payment readiness</h2>{% with f=form.courier_online_enabled %}{% include "owner/_field.html" %}{% endwith %}</section><section class="o-card"><h2>Courier WhatsApp readiness</h2>{% with f=form.courier_notifications_enabled %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.courier_team_phone %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.courier_customer_template %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.courier_team_template %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.courier_template_language %}{% include "owner/_field.html" %}{% endwith %}<p>Keep automatic notifications off until the WhatsApp provider and customer/team delivery have been verified. Held drafts are visible on each courier order.</p></section><section class="o-card"><header class="o-card-head"><h2>Meal holidays &amp; payment</h2></header>{% with f=form.closed_dates %}{% include "owner/_field.html" %}{% endwith %}{% with f=form.payment_instructions %}{% include "owner/_field.html" %}{% endwith %}<p>Checkout uses your current billing tax and rounding settings. Manual payments require staff confirmation. Configure online payments separately in Razorpay payments.</p></section><button class="o-btn o-btn-primary">Save checkout settings</button></form><form method="post" action="{% url 'owner:release_notices' %}" class="o-card">{% csrf_token %}<h2>Release held courier notices when WhatsApp is ready</h2><label class="o-check"><input type="checkbox" name="confirmed" value="yes" required><span class="o-switch-ui" aria-hidden="true"><i></i></span><span>WhatsApp is configured and tested, and these drafts should be sent</span></label><button class="o-btn">Release held courier notices</button></form>{% endblock %}

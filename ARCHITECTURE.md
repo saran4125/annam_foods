@@ -262,21 +262,18 @@ still catalog settings; the dated availability control is separate.
 
 | Fulfilment | Rules |
 | --- | --- |
-| Scheduled breakfast/lunch/dinner | Today’s current meal (next active cutoff in India time) or tomorrow’s available meals, mandatory approved meal pincode, live schedule, closed dates, zone minimum/fee |
-| Courier shop items | Courier feature/configuration enabled, Tamil Nadu delivery address (pincode optional), courier minimum and shipping fee |
+| Scheduled breakfast/lunch/dinner | Breakfast/Lunch/Snacks combined for one date; Dinner separate; configured open/close windows, mandatory approved meal pincode, live schedule, closed dates, zone minimum/fee |
+| Courier shop items | Courier feature/configuration enabled, Approved local area fee, or outside-Chennai Indian/international courier address with courier amount payable separately after dispatch |
 
 Dated schedules override weekday schedules. Inactive/unavailable/sold-out items
 cannot be ordered. Prices and eligibility are re-read on the server.
 
 The session cart is namespaced by store (`cart.<id>`), validates quantities/types
-and caps quantities at 99 per line. One cart contains one meal slot/date or
-courier goods; mixed fulfilment is refused. Checkout supports its implemented
-today/tomorrow menu browsing. Today’s current meal and all available meals for tomorrow accept website orders.
-Each order remains restricted to a single meal and delivery date. Active meal cutoffs define consecutive
-ordering periods: breakfast closes before lunch opens, then dinner. Cutoffs are
-sorted chronologically, independent of display order. Cart additions, checkout
-review and final order creation all enforce this rule. Staff booking retains
-its existing cutoff policy.
+and caps quantities at 99 per food/product line. Breakfast, Lunch and Snacks
+may combine for one delivery date. Dinner remains a separate order. Same-product
+lines selected under different meals retain separate category/price snapshots.
+Each selected category must be served by the chosen area and within its own
+configured opening/cutoff window. The area's fee is charged once per order.
 
 Annam's approved meal-zone CSV is imported as 63 active area rows across 61
 pincodes, with exact meal flags, charges and minimums. Shared pincodes retain
@@ -284,11 +281,11 @@ separate area rates. The one-time deployment migration deactivates superseded
 meal coverage and leaves courier configuration/order history untouched. Fresh
 seeding uses the same CSV; see [docs/annam-meal-delivery.md](docs/annam-meal-delivery.md).
 
-Out-of-zone customers cannot place a meal order. Shop delivery covers Tamil Nadu
-without a pincode allowlist; a complete address and town/city remain required,
-and a postal code is optional. Checkout accepts only Tamil Nadu as the state.
-Shop delivery still fails closed until enabled with explicit fees and minimums.
-Staff collection booking remains a separate workflow.
+Out-of-zone fresh meals cannot be ordered. Local Snacks use an approved area
+fee. Outside-Chennai Indian and international Snacks use a deferred courier
+charge, disclosed before food payment and confirmed after dispatch. Courier
+receivables and payments do not rewrite the original food invoice. Staff
+collection booking remains available separately.
 
 ## 9. Guest checkout and order creation
 
@@ -551,3 +548,14 @@ Delivery charges are displayed separately in the cart (or a pincode prompt when
 unknown), the checkout estimate, final review and confirmation. Order receipts
 use the frozen delivery fee and total, so subsequent rate changes cannot alter
 an accepted order. Bills already include the snapshotted delivery fee line.
+
+## Approved ordering and reporting rules — 28 October 2026
+
+[Ordering/delivery requirements](docs/ordering-delivery-requirements.md) is the
+current behavior specification and supersedes older one-meal-only and prepaid
+flat-courier descriptions. New shared services are `delivery.policies`,
+`orders.courier`, `orders.reports` and `payments.courier`. Admin reports live at
+`/manage/reports/`. Courier notifications are held by default; approved template
+configuration and explicit release prepare the existing messaging sender for
+later activation. Separate Razorpay courier payments remain dormant without an
+enabled connection. Financial and category snapshots remain immutable.

@@ -68,28 +68,28 @@ def add_item(cart, tenant, *, item_id: int, delta: int, slot_key: str,
         return BAD_QUANTITY
     if slot_key is None or delivery_date is None:
         return UNKNOWN_ITEM
-    if cart.is_courier and not cart.is_empty:
-        return CROSS_KIND
-
-    slot = Slot.objects.filter(key=slot_key).first()
-    if slot is None:
-        return UNKNOWN_ITEM
-
+    slot = Slot.objects.filter(key=slot_key,active=True).first()
     item = MenuItem.objects.filter(pk=item_id).first()
-    if item is None:
+    if slot is None or item is None:
         return UNKNOWN_ITEM
-
-    # A dinner item must not be dropped into a lunch order, and vice versa.
-    # Switching means walking away from the current cart's context.
-    if cart.slot_key and cart.delivery_date:
-        if cart.slot_key != slot_key or cart.delivery_date != delivery_date:
-            if not cart.is_empty:
-                return CROSS_SLOT
-            cart.set_context(slot_key, delivery_date)
-    elif not cart.slot_key:
-        cart.set_context(slot_key, delivery_date)
-
+    from apps.delivery.policies import validate_combination, restriction_message
+    from apps.orders.services import OrderError
+    if not cart.is_empty:
+        if cart.delivery_date and cart.delivery_date != delivery_date:
+            return CROSS_SLOT
+        try:
+            validate_combination(set(cart.slot_keys)|{slot_key})
+        except OrderError as exc:
+            return str(exc)
+        if cart.pincode:
+            message = restriction_message(cart.pincode,set(cart.slot_keys)|{slot_key},area_id=cart.zone_id)
+            if message:
+                return message
     if delta > 0:
+        if cart.pincode:
+            message=restriction_message(cart.pincode,set(cart.slot_keys)|{slot_key},area_id=cart.zone_id)
+            if message:
+                return message
         if not customer_slot_is_open(slot, delivery_date):
             return CLOSED
         entry = next(
@@ -101,12 +101,14 @@ def add_item(cart, tenant, *, item_id: int, delta: int, slot_key: str,
         if entry is None:
             return NOT_ON_MENU
 
-    current = cart.items.get(str(item_id), 0)
+    current = cart.items.get(cart.item_key(item_id,slot_key), 0)
     after = current + delta
     if after < 0 or after > MAX_LINE_QUANTITY:
         return BAD_QUANTITY
 
-    cart.add(item_id, delta)
+    if not cart.slot_key or cart.is_courier or cart.is_empty:
+        cart.set_context(slot_key,delivery_date)
+    cart.add(item_id,delta,slot_key)
     return OK
 
 
@@ -125,15 +127,23 @@ def add_courier_item(cart, tenant, *, item_id: int, delta: int):
         return UNKNOWN_ITEM
     if delta > 0 and not item.active:
         return NOT_ON_MENU
-    if not cart.is_courier:
+    from apps.delivery.policies import validate_combination, restriction_message
+    from apps.orders.services import OrderError
+    try:
         if not cart.is_empty:
-            return CROSS_KIND
+            validate_combination(set(cart.slot_keys)|{'snacks'})
+            if cart.pincode and not cart.is_courier:
+                message = restriction_message(cart.pincode,set(cart.slot_keys)|{'snacks'},area_id=cart.zone_id)
+                if message:
+                    return message
+    except OrderError as exc:
+        return str(exc)
+    if cart.is_empty:
         cart.set_courier()
-
     current = cart.items.get(str(item_id), 0)
     after = current + delta
     if after < 0 or after > MAX_LINE_QUANTITY:
         return BAD_QUANTITY
 
-    cart.add(item_id, delta)
+    cart.add(item_id, delta, "snacks")
     return OK

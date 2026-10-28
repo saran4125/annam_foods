@@ -84,6 +84,7 @@ SLOTS = [
     ("breakfast", "Breakfast", time(6, 30), time(7, 30), time(9, 30)),
     ("lunch", "Lunch", time(10, 30), time(12, 30), time(14, 0)),
     ("dinner", "Dinner", time(18, 0), time(19, 30), time(21, 0)),
+    ("snacks", "Snacks", time(23, 59, 59), time(9, 0), time(21, 0)),
 ]
 HEALTH_MIX_ART = "https://cdn.commmerce.com/uploads/annams/wbImages/17280598825665Health-Mix.jpg"
 FEATURED_SHELF = "always-loved-by-everyone-this-products"
@@ -378,6 +379,9 @@ with tenant_context(tenant):
     with (ROOT / "deploy" / "annam_meal_delivery_zones.csv").open(encoding="utf-8-sig", newline="") as source:
         for values in read_meal_zone_csv(source):
             values["area_name"] = values["area_name"] or localities.get(values["pincode"], "Delivery area")
+            if values['pincode']=='600041':
+                values['area_name']='Thiruvanmiyur';values['delivery_fee']=Decimal('40')
+                DeliveryZone.objects.create(**{**values,'area_name':'Kottivakkam','delivery_fee':Decimal('60')})
             DeliveryZone.objects.create(**values)
 
 owner, _ = get_user_model().objects.get_or_create(username=OWNER_USERNAME)

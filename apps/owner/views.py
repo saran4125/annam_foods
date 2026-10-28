@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 from urllib.parse import urlencode
 
+from apps.messaging.models import OutboundMessage
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -191,6 +192,8 @@ def logout_view(request):
 @owner_required
 def dashboard(request):
     today = timezone.localdate()
+    from apps.orders.reports import daily_sales
+    sales = daily_sales()
     items = MenuItem.objects.all()
     todays = []
     for slot in Slot.objects.filter(active=True):
@@ -206,7 +209,7 @@ def dashboard(request):
     ]
     missing_photos = items.filter(active=True, image="").count()
     return render(request, "owner/dashboard.html", {
-        "stats": stats, "todays": todays, "today": today,
+        "stats": stats, "todays": todays, "today": today, "sales":sales,
         "recent": orders.order_by("-placed_at")[:6], "missing_photos": missing_photos,
     })
 
@@ -454,7 +457,7 @@ def order_detail(request, pk):
     next_steps = [] if order.is_terminal else [
         (s, OrderStatus(s).label) for s in STATUS_FLOW.get(order.status, [])]
     return render(request, "owner/order_detail.html", {
-        "order": order, "next_steps": next_steps, "events": order.events.all(),
+        "order": order, "courier_charge":getattr(order,"courier_charge",None), "courier_notices":OutboundMessage.objects.filter(dedupe_key__startswith=f"courier:{order.pk}:"), "next_steps": next_steps, "events": order.events.all(),
         "invoice": order.invoices.exclude(kind="credit_note").first(),
     })
 

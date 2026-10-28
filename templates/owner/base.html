@@ -43,6 +43,7 @@
   <nav class="o-nav" aria-label="Admin">
     <a href="{{ dash_url }}" class="{% if request.path == dash_url %}on{% endif %}"><svg class="o-ic"><use href="#o-home"/></svg>Dashboard</a>
     <a href="{% url 'owner:orders' %}" class="{% if '/manage/orders' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>Orders</a>
+    <a href="{% url 'owner:reports' %}" class="{% if request.resolver_match.url_name == 'reports' %}on{% endif %}"><svg class="o-ic"><use href="#o-page"/></svg>Order reports &amp; sales</a>
     <a href="{% url 'owner:whatsapp' %}" class="{% if '/manage/whatsapp' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-bag"/></svg>WhatsApp inbox</a>
     <p class="o-nav-label">Menu &amp; shop</p>
     <a href="{% url 'owner:list' 'dishes' %}" class="{% if '/manage/dishes' in request.path %}on{% endif %}"><svg class="o-ic"><use href="#o-dish"/></svg>Dishes &amp; products</a>

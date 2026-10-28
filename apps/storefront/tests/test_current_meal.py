@@ -28,30 +28,30 @@ def three_meals(kitchen, menu):
 
 
 @pytest.mark.parametrize('clock,expected', [
-    (time(8, 59, 59), 'breakfast'), (time(9), 'lunch'),
-    (time(14, 59, 59), 'lunch'), (time(15), 'dinner'),
-    (time(19, 59, 59), 'dinner'), (time(20), None),
+    (time(8, 59, 59), ['breakfast','lunch','dinner']), (time(9), ['lunch','dinner']),
+    (time(14, 59, 59), ['lunch','dinner']), (time(15), ['dinner']),
+    (time(19, 59, 59), ['dinner']), (time(20), []),
 ])
-def test_only_one_meal_is_open_at_each_cutoff_regardless_of_display_order(kitchen, menu, three_meals, clock, expected):
+def test_each_food_category_respects_its_own_cutoff_for_combined_ordering(kitchen, menu, three_meals, clock, expected):
     now = timezone.make_aware(datetime.combine(menu['date'], clock))
     with tenant_context(kitchen):
         opened = [s.key for s in three_meals if customer_slot_is_open(s, menu['date'], now=now)]
-        assert opened == ([expected] if expected else [])
+        assert opened == expected
         assert all(customer_slot_is_open(s, menu['date'] + timedelta(days=1), now=now) for s in three_meals)
         assert not any(customer_slot_is_open(s, menu['date'] + timedelta(days=2), now=now) for s in three_meals)
 
 
-@pytest.mark.parametrize('clock,allowed', [(time(8), 'breakfast'), (time(12), 'lunch'), (time(18), 'dinner')])
-def test_customer_cannot_add_another_meal_even_to_an_empty_cart(client, kitchen, menu, three_meals, clock, allowed):
+@pytest.mark.parametrize('clock,allowed', [(time(8), {'breakfast','lunch','dinner'}), (time(12), {'lunch','dinner'}), (time(18), {'dinner'})])
+def test_customer_can_choose_any_food_category_within_its_open_window(client, kitchen, menu, three_meals, clock, allowed):
     now = timezone.make_aware(datetime.combine(menu['date'], clock))
     with patch('django.utils.timezone.localtime', return_value=now):
         for slot in three_meals:
             client.post('/cart/clear/', HTTP_HOST=HOST)
             _add(client, menu, slot_key=slot.key)
             cart = client.get('/cart/', HTTP_HOST=HOST)
-            assert (b'data-testid="cart-empty"' not in cart.content) == (slot.key == allowed)
+            assert (b'data-testid="cart-empty"' not in cart.content) == (slot.key in allowed)
             page = client.get('/menu/', {'slot': slot.key}, HTTP_HOST=HOST)
-            assert (b'<input type="hidden" name="slot_key"' in page.content) == (slot.key == allowed)
+            assert (b'<input type="hidden" name="slot_key"' in page.content) == (slot.key in allowed)
 
 
 @pytest.mark.parametrize('meal_key', ['breakfast', 'lunch', 'dinner'])
@@ -112,7 +112,7 @@ def test_switching_period_after_review_cannot_place_the_old_meal(client, kitchen
     later = timezone.make_aware(datetime.combine(menu['date'], time(15)))
     with patch('django.utils.timezone.localtime', return_value=later):
         response = client.post('/checkout/', post, HTTP_HOST=HOST)
-    assert response.status_code == 200 and b'not accepting orders now' in response.content
+    assert response.status_code == 200 and b'Ordering is not open' in response.content
     with tenant_context(kitchen):
         assert not Order.objects.exists()
 

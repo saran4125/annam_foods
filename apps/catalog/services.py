@@ -111,14 +111,12 @@ def current_customer_slot(*, now=None):
 
 def customer_slot_is_open(slot, on_date, *, now=None):
     now = now or timezone.localtime()
-    if not slot.active:
+    if not slot.active or on_date not in (now.date(), now.date() + timedelta(days=1)):
         return False
-    if on_date == now.date() + timedelta(days=1):
-        return True
-    if on_date != now.date():
-        return False
-    current = current_customer_slot(now=now)
-    return current is not None and current.pk == slot.pk
+    opening_day = on_date - timedelta(days=slot.order_days_before)
+    opening = timezone.make_aware(datetime.combine(opening_day, slot.order_opens_at), now.tzinfo)
+    closing = timezone.make_aware(datetime.combine(on_date, slot.order_cutoff), now.tzinfo)
+    return opening <= now < closing
 
 
 def open_slots(on_date: date_cls, now=None):

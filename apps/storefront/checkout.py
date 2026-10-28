@@ -15,9 +15,10 @@ from apps.catalog.models import Slot
 from apps.catalog.services import customer_slot_is_open
 from apps.delivery.checkout import courier_quote, validate_checkout_settings
 from apps.delivery.services import zones_for_pincode
+from apps.delivery.address import state_code
 from apps.orders.models import Channel, Order, PaymentMode
 from apps.orders.services import (OrderError, RequestedLine, create_order, get_or_create_customer,
-                                  price_lines, price_courier_lines)
+                                  price_lines, price_courier_lines, price_combined_lines)
 from apps.tenancy.models import TenantConfig
 
 SALT = 'storefront.checkout.v1'
@@ -45,38 +46,27 @@ def checkout_quote(tenant, cart, details, *, now=None):
         validate_checkout_settings(tenant.config.checkout_settings or {})
     except ValidationError:
         raise OrderError('Delivery settings are not ready. Please contact the kitchen.')
-    requested = [RequestedLine(int(pk), qty) for pk, qty in cart.items.items()]
+    requested = cart.requested_lines()
     slot = None
     now = now or timezone.localtime()
     if cart.is_courier:
         if not tenant.feature('snacks_courier'):
             raise OrderError('Shop ordering is not available.')
         lines, subtotal = price_courier_lines(requested)
-        if details.get('state', 'Tamil Nadu') not in ('', 'Tamil Nadu'):
-            raise OrderError('Shop delivery is available only within Tamil Nadu.')
-        zone = courier_quote(tenant)
-        if zone is None:
-            raise OrderError("Shop delivery is currently unavailable. Please contact the kitchen.")
+        from apps.delivery.policies import snacks_delivery_quote
+        zone = snacks_delivery_quote(tenant, details)
     else:
         slot = Slot.objects.filter(key=cart.slot_key, active=True).first()
         if not slot or cart.delivery_date not in (now.date(), now.date() + timedelta(days=1)):
             raise OrderError('Choose today or tomorrow and an available meal from the menu.')
-        if not customer_slot_is_open(slot, cart.delivery_date, now=now):
-            raise OrderError('This meal is not accepting orders now. Choose today’s currently available meal or book for tomorrow.')
         if cart.delivery_date.isoformat() in (tenant.config.checkout_settings or {}).get('closed_dates', []):
             raise OrderError('The kitchen is closed on this date. Please choose another date.')
         closed = tenant.config.kitchen_closed_window or {}
         if closed.get('from') and closed.get('to') and closed['from'] <= cart.delivery_date.isoformat() <= closed['to']:
             raise OrderError('The kitchen is closed on this date. Please choose another date.')
-        lines, subtotal = price_lines(requested, delivery_date=cart.delivery_date, slot=slot)
-        zones = zones_for_pincode(details['pincode'], slot.key)
-        if not zones:
-            raise OrderError("We don't deliver meals to this pincode.")
-        zone = next((z for z in zones if str(z.pk) == str(details.get('zone_id'))), None)
-        if zone is None:
-            if len(zones) != 1:
-                raise OrderError('Choose your delivery area, then review your order again.')
-            zone = zones[0]
+        lines, subtotal = price_combined_lines(requested,delivery_date=cart.delivery_date,now=now,check_windows=True)
+        from apps.delivery.policies import select_zone
+        zone = select_zone(details['pincode'], {line['meal_key'] for line in lines},zone_id=details.get('zone_id'))
     if subtotal < zone.min_order:
         raise OrderError(f'This delivery requires an items subtotal of ₹{zone.min_order:.2f}. Add ₹{zone.min_order - subtotal:.2f} more.')
     amounts = checkout_totals(tenant, lines, zone.delivery_fee)
@@ -86,10 +76,10 @@ def checkout_quote(tenant, cart, details, *, now=None):
             _paise(amounts['total'])
         except PaymentError as exc:
             raise OrderError(str(exc))
-    return {**amounts, 'online_mode': connection.mode if connection else '',
+    return {**amounts, 'meal_label': ' + '.join(dict.fromkeys(line.get('meal_label','') for line in lines)), 'online_mode': connection.mode if connection else '',
             'online_key_id': connection.key_id if connection else '', 'lines': lines, 'zone': zone, 'slot': slot,
             'delivery_date': cart.delivery_date if slot else None,
-            'minimum': zone.min_order, 'kind': 'courier' if cart.is_courier else 'scheduled'}
+            'courier_deferred': bool(getattr(zone,'deferred',False)), 'minimum': zone.min_order, 'kind': 'courier' if cart.is_courier else 'scheduled'}
 
 
 def fingerprint(quote, details):
@@ -97,7 +87,7 @@ def fingerprint(quote, details):
             'fee': str(quote['delivery_fee']), 'date': str(quote['delivery_date']),
             'slot': quote['slot'].pk if quote['slot'] else None, 'kind': quote['kind'],
             'online_mode': quote['online_mode'], 'online_key_id': quote['online_key_id'],
-            'pricing': quote['pricing'], 'area': quote['zone'].area_name, 'minimum': str(quote['minimum'])}
+            'courier_deferred': quote['courier_deferred'], 'pricing': quote['pricing'], 'area': quote['zone'].area_name, 'minimum': str(quote['minimum'])}
     return hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
 
 
@@ -136,11 +126,11 @@ def place_checkout(request, cart, details, token):
         raise OrderError('Your cart, delivery details or prices changed. Review the updated total before placing the order.')
     customer = get_or_create_customer(request.tenant, phone=details['phone'], name=details['name'],
                                        email=details.get('email', ''), channel=Channel.WEB)
-    snapshot = {key: details.get(key, '') for key in ('line1', 'line2', 'landmark', 'pincode', 'city')}
-    snapshot.update(area=quote['zone'].area_name, state='Tamil Nadu', state_code='33',
+    snapshot = {key: details.get(key, '') for key in ('line1', 'line2', 'landmark', 'pincode', 'city', 'zone_id', 'country')}
+    snapshot.update(area=quote['zone'].area_name, state=details.get('state') or 'Tamil Nadu', state_code=state_code(details.get('country') or 'India',details.get('state') or 'Tamil Nadu'),
                     recipient_name=details['name'], phone=details['phone'], email=details.get('email', ''))
     order = create_order(request.tenant, customer=customer,
-        requested=[RequestedLine(int(pk), qty) for pk, qty in cart.items.items()],
+        requested=cart.requested_lines(),
         slot=quote['slot'], delivery_date=quote['delivery_date'], address_snapshot=snapshot,
         channel=Channel.WEB, payment_mode=details.get('payment_method') or PaymentMode.MANUAL,
         external_ref=external_ref(data), website_checkout=True)

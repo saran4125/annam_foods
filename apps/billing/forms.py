@@ -6,13 +6,24 @@ from apps.catalog.models import MenuItem
 from apps.delivery.models import DeliveryZone
 
 
+class AreaField(forms.ModelChoiceField):
+    def label_from_instance(self,obj):
+        return f'{obj.pincode} — {obj.area_name} — ₹{obj.delivery_fee:.2f}'
+
+
 class ManualOrderForm(forms.Form):
     token = forms.CharField(widget=forms.HiddenInput)
     channel = forms.ChoiceField(choices=[("manual", "Manual / phone / walk-in"), ("whatsapp", "WhatsApp booking entered by staff")])
     name = forms.CharField(max_length=120, label="Customer name")
     phone = forms.CharField(max_length=20, label="Customer phone")
     address = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 2}))
-    zone = forms.ModelChoiceField(queryset=DeliveryZone.all_tenants.none(), required=False,
+    delivery_date = forms.DateField(required=False,label='Delivery date',widget=forms.DateInput(attrs={'type':'date','class':'o-input'}))
+    fulfilment_method = forms.ChoiceField(required=False,choices=[('','Use selected local area or collection'),('courier','Courier outside Chennai — charge after dispatch')])
+    city = forms.CharField(required=False,max_length=80)
+    state = forms.CharField(required=False,max_length=100,initial='Tamil Nadu')
+    country = forms.CharField(required=False,max_length=80,initial='India')
+    postal_code = forms.CharField(required=False,max_length=20)
+    zone = AreaField(queryset=DeliveryZone.all_tenants.none(), required=False,
         help_text="Leave empty for collection. Delivery fee and minimum come from the selected area.")
     payment_mode = forms.ChoiceField(choices=[("manual", "UPI / cash / other payment recorded by staff"), ("cod", "Cash on delivery")])
 
@@ -48,6 +59,7 @@ class PricedItemField(forms.ModelChoiceField):
 
 
 class OrderLineForm(forms.Form):
+    meal = forms.ChoiceField(required=True,label='Food category',choices=[('','Choose food category'),('breakfast','Breakfast'),('lunch','Lunch'),('dinner','Dinner'),('snacks','Snacks')])
     item = PricedItemField(queryset=MenuItem.all_tenants.none())
     quantity = forms.IntegerField(min_value=1, max_value=999, initial=1)
 

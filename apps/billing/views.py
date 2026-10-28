@@ -97,7 +97,7 @@ def new_order(request):
             token = signing.loads(form.cleaned_data["token"], salt="staff-billing", max_age=86400)
             if token["tenant"] != request.tenant.pk:
                 raise ValueError("This order form belongs to another kitchen.")
-            selected = [(line.cleaned_data["item"].pk, line.cleaned_data["quantity"]) for line in lines
+            selected = [(line.cleaned_data["item"].pk, line.cleaned_data["quantity"], line.cleaned_data.get("meal", "")) for line in lines
                         if line.cleaned_data and not line.cleaned_data.get("DELETE")]
             order = create_staff_order(request.tenant, requested=selected, token=token["key"],
                 actor=f"owner:{request.user.username}", **{k: v for k, v in form.cleaned_data.items() if k != "token"})
@@ -111,7 +111,7 @@ def new_order(request):
             messages.success(request, "Order saved. Confirm payment after receiving the full amount to issue its bill.")
             return redirect("billing:order", pk=order.pk)
     catalog = staff_catalog()
-    groups = [("breakfast", "Breakfast"), ("lunch", "Lunch"), ("dinner", "Dinner"), ("other", "Other items")]
+    groups = [("breakfast", "Breakfast"), ("lunch", "Lunch"), ("dinner", "Dinner"), ("snacks", "Snacks"), ("other", "Other items")]
     choices = [("", "Select an item")]
     for key, label in groups:
         options = [(entry["id"], f'{entry["name"]} — ₹{entry["price"]}') for entry in catalog if key in entry["groups"]]

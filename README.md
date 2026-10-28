@@ -124,3 +124,5 @@ uv run python manage.py makemigrations --check --dry-run
 The separate `wordpress/` prototype is not the Django storefront/order database.
 Git history preserves the previous SEER implementation if it is ever needed for
 review; it is no longer the active application experience.
+
+Current ordering, delivery, courier and reporting rules: [implementation and staff workflow](docs/ordering-delivery-requirements.md).

@@ -24,7 +24,7 @@ def booking(tenant, item, channel="manual"):
             "channel": channel, "name": "Buyer", "phone": "919999999999", "address": "", "zone": "",
             "payment_mode": "manual", "lines-TOTAL_FORMS": "1", "lines-INITIAL_FORMS": "0",
             "lines-MIN_NUM_FORMS": "1", "lines-MAX_NUM_FORMS": "50",
-            "lines-0-item": str(item.pk), "lines-0-quantity": "2", "unit_price": "0.01"}
+            "lines-0-item": str(item.pk), "lines-0-meal": "lunch", "lines-0-quantity": "2", "unit_price": "0.01"}
 
 
 def test_portal_requires_staff_and_stays_on_tenant_host(client, kitchens):
@@ -155,7 +155,7 @@ def test_booking_picker_groups_items_by_meal_and_keeps_prices_tenant_scoped(sign
         inactive = MenuItem.objects.create(name="Not For Sale", price="1", active=False)
         catalog = staff_catalog()
         assert next(x for x in catalog if x["id"] == item.pk)["groups"] == ["breakfast", "dinner"]
-        assert next(x for x in catalog if x["id"] == other.pk)["groups"] == ["other"]
+        assert next(x for x in catalog if x["id"] == other.pk)["groups"] == ["snacks"]
         assert inactive.pk not in {x["id"] for x in catalog}
     with tenant_context(kitchens[1]):
         MenuItem.objects.create(name="Private Rival Dish", price="99")
@@ -163,7 +163,7 @@ def test_booking_picker_groups_items_by_meal_and_keeps_prices_tenant_scoped(sign
     assert response.status_code == 200
     assert b'optgroup label="Breakfast"' in response.content
     assert b'optgroup label="Dinner"' in response.content
-    assert b'optgroup label="Other items"' in response.content
+    assert b'optgroup label="Snacks"' in response.content
     assert b'Private Rival Dish' not in response.content
     assert b'Not For Sale' not in response.content
     assert b'100.00' in response.content

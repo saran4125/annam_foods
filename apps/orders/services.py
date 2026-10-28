@@ -57,6 +57,7 @@ class RequestedLine:
     """What a caller asked for. Deliberately carries no price."""
     item_id: int
     quantity: int
+    slot_key: str = ""
 
 
 def generate_order_number(tenant, on_date: date_cls | None = None) -> str:
@@ -103,6 +104,9 @@ def price_lines(requested, *, delivery_date: date_cls, slot: Slot):
             "quantity": want.quantity,
             "line_total": str(line_total),
             "is_veg": entry.item.is_veg,
+            "meal_key": slot.key, "meal_label": slot.label,
+            "category_id": entry.item.category_id,
+            "category_name": entry.item.category.name if entry.item.category_id else '',
         })
 
     if not lines:
@@ -130,9 +134,35 @@ def price_courier_lines(requested):
             "item_id": item.pk, "name": item.name,
             "unit_price": str(item.price), "quantity": want.quantity,
             "line_total": str(line_total), "is_veg": item.is_veg,
+            "meal_key": "snacks", "meal_label": "Snacks", "category_id": item.category_id,
+            "category_name": item.category.name if item.category_id else '',
         })
     if not lines:
         raise EmptyOrder("An order needs at least one item.")
+    return lines, subtotal
+
+
+def price_combined_lines(requested, *, delivery_date, now=None, check_windows=False):
+    from apps.delivery.policies import validate_combination
+    requested = list(requested)
+    keys = {w.slot_key for w in requested}
+    validate_combination(keys)
+    lines, subtotal = [], Decimal('0')
+    for want in requested:
+        item = MenuItem.objects.filter(pk=want.item_id).first()
+        if item and item.fulfilment == 'courier' and want.slot_key == 'snacks':
+            part, amount = price_courier_lines([want])
+        else:
+            slot = Slot.objects.filter(key=want.slot_key, active=True).first()
+            if slot is None:
+                raise ItemNotOnMenu('Choose a valid food category.')
+            if check_windows and not customer_slot_is_open(slot,delivery_date,now=now):
+                raise SlotClosed(f'Ordering is not open for {slot.label} on this delivery date.')
+            part, amount = price_lines([want], delivery_date=delivery_date,slot=slot)
+        lines.extend(part)
+        subtotal += amount
+    if not lines:
+        raise EmptyOrder('An order needs at least one item.')
     return lines, subtotal
 
 
@@ -185,41 +215,34 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
         raise OrderError("Unknown order source or payment mode.")
 
     requested_ids = {line.item_id for line in requested}
-    fulfillments = set(MenuItem.objects.filter(pk__in=requested_ids).values_list("fulfilment", flat=True))
-    if fulfillments == {"courier"}:
-        fulfilment = "courier"
+    fulfillments = set(MenuItem.objects.filter(pk__in=requested_ids).values_list("fulfilment",flat=True))
+    if fulfillments == {'courier'}:
+        fulfilment = 'courier'
         lines, subtotal = price_courier_lines(requested)
         delivery_date = None
         slot = None
+        keys = ['snacks']
     else:
-        fulfilment = "scheduled"
-        if fulfillments != {"scheduled"} or slot is None or delivery_date is None:
-            raise OrderError("Scheduled orders need a slot and delivery date; courier orders must contain only courier items.")
-        is_open = customer_slot_is_open if website_checkout else slot_is_open
-        if not is_open(slot, delivery_date, now=now):
-            raise SlotClosed(f"Ordering for {slot.label.lower()} has closed.")
-        lines, subtotal = price_lines(requested, delivery_date=delivery_date, slot=slot)
-
+        fulfilment = 'scheduled'
+        if slot is None or delivery_date is None:
+            raise OrderError('Scheduled orders need a slot and delivery date.')
+        requested = [RequestedLine(w.item_id,w.quantity,w.slot_key or slot.key) for w in requested]
+        if not website_checkout and not slot_is_open(slot,delivery_date,now=now):
+            raise SlotClosed(f'Ordering for {slot.label.lower()} has closed.')
+        lines, subtotal = price_combined_lines(requested,delivery_date=delivery_date,now=now,check_windows=website_checkout)
+        keys = {line['meal_key'] for line in lines}
     snapshot = address_snapshot or (address.as_snapshot() if address else None)
-    if not snapshot or (not snapshot.get("pincode") and not (website_checkout and fulfilment == "courier")):
-        raise NotServiceable("A delivery address is required.")
-
-    if website_checkout and fulfilment == "courier":
-        from apps.delivery.checkout import courier_quote
-        if snapshot.get('state') != 'Tamil Nadu':
-            raise NotServiceable('Shop delivery is available only within Tamil Nadu.')
-        zone = courier_quote(tenant)
-        if zone is None:
-            raise NotServiceable("Shop delivery is currently unavailable.")
+    if not snapshot or (not snapshot.get('pincode') and fulfilment != 'courier'):
+        raise NotServiceable('A delivery address is required.')
+    from apps.delivery.policies import select_zone, snacks_delivery_quote
+    if website_checkout and fulfilment == 'courier':
+        zone = snacks_delivery_quote(tenant,snapshot)
     else:
-        zones = zones_for_pincode(snapshot["pincode"], slot_key=slot.key if slot else None)
-        if not zones:
-            raise NotServiceable(f"We don't deliver to {snapshot['pincode']} yet.")
-        zone = next((z for z in zones if z.area_name == snapshot.get("area")), None)
-        if zone is None:
-            if website_checkout and len(zones) > 1:
-                raise NotServiceable("Choose your delivery area.")
-            zone = zones[0]
+        try:
+            zone = select_zone(snapshot.get('pincode'),keys,zone_id=snapshot.get('zone_id'),area_name=snapshot.get('area'))
+        except OrderError as exc:
+            raise NotServiceable(str(exc)) from exc
+    snapshot = {**snapshot, 'courier_deferred': bool(getattr(zone,'deferred',False))}
     if subtotal < zone.min_order:
         raise BelowMinimum(zone.min_order - subtotal, zone.min_order)
     snapshot = {**snapshot, "area": zone.area_name}
@@ -260,6 +283,9 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
         tenant=tenant, order=order, from_status="",
         to_status=OrderStatus.PLACED, actor=f"customer:{channel}",
     )
+    if snapshot.get('courier_deferred'):
+        from .courier import prepare_courier_charge
+        prepare_courier_charge(order)
     return order
 
 

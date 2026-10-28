@@ -5,7 +5,7 @@
 {% block extra_head %}<link rel="stylesheet" href="{% static_v 'css/owner-dashboard.css' %}">{% endblock %}
 {% block heading %}<h1>Kitchen overview</h1><p>{{ today|date:"l, j F" }} · {{ tenant.config.brand_name|default:tenant.name }}</p>{% endblock %}
 {% block actions %}<a class="o-btn o-btn-primary" href="{% url 'owner:new' 'dishes' %}"><svg class="o-ic" aria-hidden="true"><use href="#o-plus"/></svg>Add a dish</a>{% endblock %}
-{% block content %}
+{% block content %}<section class="o-card"><h2>Today’s sales · ₹{{ sales.order_value|money }}</h2><p>{{ sales.order_count }} orders · Paid order value ₹{{ sales.paid_order_value|money }} · Updated {{ sales.as_of|date:"g:i A" }}</p><p><a class="o-btn o-btn-primary" href="{% url 'owner:reports' %}">View live sales &amp; product quantities →</a></p></section>
 <section class="od-stats" aria-label="Kitchen statistics">
   {% for s in stats %}<a class="od-stat" href="{{ s.url }}"><span class="od-stat-top"><span class="od-stat-label">{{ s.label }}</span><svg class="o-ic" aria-hidden="true"><use href="{% if forloop.counter <= 2 %}#o-dish{% elif forloop.counter == 3 %}#o-bag{% elif forloop.counter <= 5 %}#o-clock{% else %}#o-grid{% endif %}"/></svg></span><strong>{{ s.value }}{% if s.of %}<small>/ {{ s.of }}</small>{% endif %}</strong></a>{% endfor %}
 </section>

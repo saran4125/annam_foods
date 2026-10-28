@@ -205,15 +205,21 @@ class CategoryForm(StyledForm):
 
 
 class SlotForm(StyledForm):
+    def clean(self):
+        data=super().clean()
+        if data.get('order_days_before')==0 and data.get('order_opens_at') and data.get('order_cutoff') and data['order_opens_at']>=data['order_cutoff']:
+            self.add_error('order_opens_at','Same-day opening must be before the closing time.')
+        return data
+
     class Meta(BaseMeta):
         model = Slot
-        fields = ["label", "key", "order_cutoff", "delivery_from", "delivery_to", "sort", "active"]
+        fields = ["label", "key", "order_opens_at", "order_days_before", "order_cutoff", "delivery_from", "delivery_to", "sort", "active"]
         labels = {"label": "Meal name", "key": "Short code", "order_cutoff": "Orders close at",
                   "sort": "Display order"}
         widgets = {f: forms.TimeInput(attrs={"type": "time"}, format="%H:%M")
-                   for f in ("order_cutoff", "delivery_from", "delivery_to")}
+                   for f in ("order_opens_at", "order_cutoff", "delivery_from", "delivery_to")}
         help_texts = {"key": "Lowercase, no spaces, e.g. breakfast.",
-                      "order_cutoff": "India time. Website orders accept only the next active meal before its cutoff. The next meal opens when the previous one closes; tomorrow’s active meals can be ordered in advance."}
+                      "order_cutoff": "India time on the delivery date. Opening time and days before delivery control advance orders."}
 
 
 class BannerForm(StyledForm):
@@ -346,8 +352,14 @@ class BillingSettingsForm(StyledForm):
 
 
 class CheckoutSettingsForm(forms.Form):
+    courier_online_enabled = forms.BooleanField(required=False,label="Enable online courier-charge payments",help_text="Keep off until Razorpay and separate courier payments are tested. Manual collection remains available.")
+    courier_notifications_enabled = forms.BooleanField(required=False, label='Enable automatic courier WhatsApp notifications', help_text='Leave off while WhatsApp is offline. Drafts remain held for manual communication.')
+    courier_customer_template = forms.SlugField(required=False,max_length=100,label="Approved customer courier WhatsApp template",help_text="Two body parameters: order reference and notice text. Required before automatic messaging is enabled.")
+    courier_team_template = forms.SlugField(required=False,max_length=100,label="Approved team courier WhatsApp template",help_text="Two body parameters: order reference and notice text.")
+    courier_template_language = forms.CharField(required=False,max_length=20,initial="en",label="Template language code")
+    courier_team_phone = forms.CharField(required=False,max_length=20,label='Team WhatsApp phone (international format)',help_text='If blank, the store support number is used.')
     courier_enabled = forms.BooleanField(required=False, label='Enable courier delivery for shop orders')
-    courier_fee = forms.DecimalField(min_value=0, max_value=99999, decimal_places=2, label='Flat courier charge (₹)')
+    courier_fee = forms.DecimalField(min_value=0, max_value=99999, decimal_places=2, label='Legacy courier charge (unused for post-dispatch courier orders)')
     courier_minimum = forms.DecimalField(min_value=0, max_value=99999, decimal_places=2, label='Minimum shop items subtotal (₹)')
     payment_instructions = forms.CharField(required=False, max_length=1000, label='Manual payment instructions',
         help_text='Shown after placing an order. Payment stays pending until staff confirms receipt.', widget=forms.Textarea(attrs={'rows': 4}))
@@ -363,14 +375,23 @@ class CheckoutSettingsForm(forms.Form):
             if not isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs['class'] = 'o-input'
 
+    def clean_courier_team_phone(self):
+        import re
+        phone=re.sub(r'[ ()+-]','',self.cleaned_data.get('courier_team_phone',''))
+        if phone and not re.fullmatch(r'[1-9][0-9]{6,14}',phone):
+            raise ValidationError('Enter an international phone number with country code.')
+        return phone
+
     def clean(self):
         from apps.delivery.checkout import validate_checkout_settings
         data = super().clean()
         if self.errors:
             return data
-        settings = {key: data[key] for key in ('courier_enabled', 'payment_instructions')}
+        settings = {key: data[key] for key in ('courier_enabled', 'payment_instructions','courier_online_enabled','courier_notifications_enabled','courier_team_phone','courier_customer_template','courier_team_template','courier_template_language')}
         settings.update(courier_fee=str(data['courier_fee']), courier_minimum=str(data['courier_minimum']),
             closed_dates=sorted(set(data['closed_dates'].split())))
+        if data.get('courier_notifications_enabled') and (not data.get('courier_customer_template') or not data.get('courier_team_template')):
+            raise ValidationError('Configure both approved courier WhatsApp templates before enabling automatic notifications.')
         data['settings'] = validate_checkout_settings(settings)
         return data
 

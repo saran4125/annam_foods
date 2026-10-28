@@ -1,3 +1,4 @@
+from apps.payments import courier_views
 from django.urls import path
 
 from . import views, checkout_views
@@ -6,6 +7,10 @@ from apps.payments import views as payment_views
 app_name = "storefront"
 
 urlpatterns = [
+    path("checkout/complete/<uuid:reference>/courier/pay/",courier_views.begin,name="courier_begin"),
+    path("checkout/complete/<uuid:reference>/courier/pay/view/",courier_views.payment,name="courier_payment"),
+    path("checkout/complete/<uuid:reference>/courier/verify/",courier_views.verify,name="courier_verify"),
+    path("checkout/complete/<uuid:reference>/courier/status/",courier_views.status,name="courier_status"),
     path("", views.home, name="home"),
     path("menu/", views.menu, name="menu"),
     path("shop/", views.shop, name="shop"),

@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Breakfast + Lunch + Snacks share one cart",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Dinner gets exact separate-order warning",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Exact pincode restriction 600041",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Exact pincode restriction 600040",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Exact pincode restriction 699999",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "One \u20b910 delivery charge for all three categories",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Combined checkout is \u20b9350 food + \u20b910 delivery = \u20b9360",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Combined order receipt retains categories and one fee",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Combined bill total and categories match",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Courier notice shown before food payment",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Offline customer and team notices are held",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Staff records \u20b970 after dispatch",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Separate courier payment is manually confirmed",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Food receipt remains \u20b9200 after separate courier payment",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Razorpay stays offline for this review",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Daily sales and category reports render",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Filtered product quantity CSV downloads",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Reports fit phone viewport",
+    "pass": true,
+    "detail": ""
+  }
+]

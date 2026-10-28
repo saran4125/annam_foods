@@ -54,6 +54,9 @@ def _add_error_message(request, code):
     if code in _ADD_MESSAGES:
         messages.error(request, _ADD_MESSAGES[code])
         return True
+    if isinstance(code,str) and len(code)>30:
+        messages.error(request,code)
+        return True
     return False
 
 
@@ -215,7 +218,7 @@ def menu(request):
     # Quantities are only shown when the cart is actually for this day/slot.
     cart = Cart(request)
     same_context = (
-        cart.slot_key == chosen_slot.key and cart.delivery_date == chosen_date
+        chosen_slot.key in cart.slot_keys and cart.delivery_date == chosen_date
     )
 
     return render(
@@ -230,8 +233,8 @@ def menu(request):
             "slot_open": is_open,
             "slot_states": slot_states,
             "cart": cart,
-            "cart_quantities": cart.items if same_context else {},
-            "cart_mismatch": not cart.is_empty and not same_context,
+            "cart_quantities": cart.quantities_for(chosen_slot.key) if same_context else {},
+            "cart_mismatch": not cart.is_empty and ((cart.delivery_date and cart.delivery_date!=chosen_date) or ("dinner" in cart.slot_keys and cart.slot_keys!=[chosen_slot.key]) or (chosen_slot.key=="dinner" and cart.slot_keys!=["dinner"])),
             "pages": _nav_pages(),
             "ordering_enabled": tenant.feature("website_ordering"),
         },
@@ -284,18 +287,16 @@ def cart_set_pincode(request):
     raw = request.POST.get("pincode", "")
     pincode = normalise_pincode(raw)
     if cart.is_courier:
-        from apps.delivery.checkout import courier_quote
-        cart.set_pincode(pincode)
-        if courier_quote(request.tenant, pincode) is None:
-            messages.error(request, "Shop delivery is currently unavailable. Please contact the kitchen.")
+        cart.set_pincode(pincode, int(request.POST["zone_id"]) if request.POST.get("zone_id", "").isdigit() else None)
         return redirect('storefront:cart')
-    zones = zones_for_pincode(pincode, slot_key=cart.slot_key)
+    from apps.delivery.policies import eligible_zones, restriction_message
+    zones = eligible_zones(pincode, cart.slot_keys)
 
     if not zones:
         cart.set_pincode(pincode, None)
         messages.error(
             request,
-            f"We don't deliver to {pincode or 'that pincode'} yet." if len(pincode) == 6
+            restriction_message(pincode,cart.slot_keys) if len(pincode) == 6
             else "That doesn't look like a 6-digit pincode.",
         )
     elif len(zones) == 1:
@@ -309,8 +310,9 @@ def cart_set_pincode(request):
 
 def cart_detail(request):
     cart = Cart(request)
+    from apps.delivery.policies import eligible_zones
     totals = cart.totals()
-    zones = zones_for_pincode(cart.pincode, slot_key=cart.slot_key) if cart.pincode and not cart.is_courier else []
+    zones = eligible_zones(cart.pincode, cart.slot_keys) if cart.pincode and not cart.is_courier else []
     slot = Slot.objects.filter(key=cart.slot_key).first() if cart.slot_key else None
     return render(
         request,
@@ -322,7 +324,7 @@ def cart_detail(request):
             "needs_area_choice": len(zones) > 1 and not cart.zone,
             "slot": slot,
             "ordering_enabled": request.tenant.feature("website_ordering"),
-            "slot_open": cart.is_courier or (customer_slot_is_open(slot, cart.delivery_date) if slot and cart.delivery_date else False),
+            "slot_open": cart.ordering_open,
             "pages": _nav_pages(),
         },
     )

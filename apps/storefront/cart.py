@@ -23,9 +23,8 @@ from apps.delivery.services import zones_for_pincode
 SESSION_KEY = "cart"
 MAX_LINE_QUANTITY = 99
 
-# A cart is one kind of order: a scheduled meal (one slot, one day) or a shop
-# order of courier goods. They are priced and delivered differently, so they
-# never share a cart -- exactly as orders.services.create_order requires.
+# A delivery-date cart may combine Breakfast, Lunch and Snacks. Dinner stays
+# separate. A Snacks-only courier cart has no scheduled delivery date.
 MEAL = "meal"
 COURIER = "courier"
 
@@ -35,6 +34,8 @@ class CartLine:
     item: object
     quantity: int
     unit_price: Decimal
+    slot_key: str = ""
+    line_key: str = ""
 
     @property
     def line_total(self) -> Decimal:
@@ -101,6 +102,36 @@ class Cart:
     def count(self) -> int:
         return sum(self.items.values())
 
+    @property
+    def ordering_open(self):
+        if self.is_courier:
+            return True
+        from apps.orders.services import price_combined_lines,OrderError
+        try:
+            price_combined_lines(self.requested_lines(),delivery_date=self.delivery_date,check_windows=True)
+            return True
+        except (OrderError,TypeError):
+            return False
+
+    @property
+    def slot_keys(self):
+        return sorted({self._data.get('line_slots', {}).get(k, self.slot_key or 'snacks') for k in self.items})
+
+    def item_key(self, item_id, slot_key=None):
+        slot_key = slot_key or self.slot_key or 'snacks'
+        for key in self.items:
+            if int(key.split(':')[-1]) == int(item_id) and self._data.get('line_slots', {}).get(key, self.slot_key or 'snacks') == slot_key:
+                return key
+        plain = str(item_id)
+        return plain if plain not in self.items else f'{slot_key}:{item_id}'
+
+    def requested_lines(self):
+        from apps.orders.services import RequestedLine
+        return [RequestedLine(int(k.split(':')[-1]), qty, self._data.get('line_slots', {}).get(k, self.slot_key or 'snacks')) for k, qty in self.items.items()]
+
+    def quantities_for(self, slot_key):
+        return {str(line.item_id): line.quantity for line in self.requested_lines() if line.slot_key == slot_key}
+
     # -- load guard -------------------------------------------------------
 
     def _load_shape(self, raw):
@@ -135,10 +166,16 @@ class Cart:
                 if not (1 <= qty <= MAX_LINE_QUANTITY):
                     continue
                 try:
-                    items[str(int(key))] = qty
+                    parts = str(key).split(':')
+                    if len(parts)>2 or (len(parts)==2 and parts[0] not in ('breakfast','lunch','dinner','snacks')):
+                        continue
+                    cleaned = (parts[0]+':' if len(parts)==2 else '') + str(int(parts[-1]))
+                    items[cleaned] = qty
                 except (TypeError, ValueError):
                     continue
         data["items"] = items
+        raw_slots = raw.get('line_slots') or {}
+        data['line_slots'] = {k:v for k,v in raw_slots.items() if k in items and v in ('breakfast','lunch','dinner','snacks')} if isinstance(raw_slots,dict) else {}
 
         pincode = raw.get("pincode")
         data["pincode"] = pincode if isinstance(pincode, str) else ""
@@ -162,6 +199,7 @@ class Cart:
             "delivery_date": self._data.get("delivery_date").isoformat()
             if self._data.get("delivery_date") else None,
             "items": self._data.get("items", {}),
+            "line_slots": self._data.get("line_slots", {}),
             "pincode": self._data.get("pincode", ""),
             "zone_id": self._data.get("zone_id"),
         }
@@ -188,10 +226,11 @@ class Cart:
         self._data.setdefault("items", {})
         self._save()
 
-    def add(self, item_id: int, delta: int):
+    def add(self, item_id: int, delta: int, slot_key=None):
         """Change one line's quantity by a bounded delta."""
         items = self._data.setdefault("items", {})
-        key = str(item_id)
+        key = self.item_key(item_id, slot_key)
+        self._data.setdefault("line_slots", {})[key] = slot_key or self.slot_key or "snacks"
         qty = max(0, items.get(key, 0) + delta)
         if qty > MAX_LINE_QUANTITY:
             qty = MAX_LINE_QUANTITY
@@ -229,48 +268,43 @@ class Cart:
         customer paying for food the kitchen can't make."""
         if self.is_empty:
             return []
-        if self.is_courier:
-            # Courier goods are priced straight from the live catalog.
-            prices = {
-                item.id: (item, item.price)
-                for item in MenuItem.objects.filter(
-                    pk__in=[int(k) for k in self.items], active=True, fulfilment="courier",
-                )
-            }
-        else:
-            if not self.slot_key or not self.delivery_date:
-                return []
-            slot = Slot.objects.filter(key=self.slot_key).first()
-            if slot is None:
-                return []
-            prices = {e.item.id: (e.item, e.price) for e in resolve_menu(self.delivery_date, slot)}
-
-        lines, dropped = [], []
-        for item_id_str, qty in list(self.items.items()):
-            found = prices.get(int(item_id_str))
-            if found is None:
-                dropped.append(item_id_str)
-                continue
-            lines.append(CartLine(item=found[0], quantity=qty, unit_price=found[1]))
-        for item_id_str in dropped:
-            self._data["items"].pop(item_id_str, None)
+        from apps.orders.services import price_combined_lines, price_courier_lines, OrderError
+        from apps.catalog.models import MenuItem
+        priced = []
+        dropped = []
+        for key, qty in list(self.items.items()):
+            want = next(w for w in self.requested_lines() if self.item_key(w.item_id,w.slot_key)==key)
+            try:
+                if self.is_courier:
+                    rows, _ = price_courier_lines([want])
+                else:
+                    rows, _ = price_combined_lines([want], delivery_date=self.delivery_date)
+                row = rows[0]
+                item = MenuItem.objects.get(pk=want.item_id)
+                priced.append(CartLine(item,qty,Decimal(row['unit_price']),want.slot_key,key))
+            except (OrderError, MenuItem.DoesNotExist):
+                dropped.append(key)
+        for key in dropped:
+            self._data['items'].pop(key,None)
         if dropped:
             self._save()
-        return lines
+        return priced
 
     @property
     def zone(self):
+        from apps.delivery.policies import snacks_delivery_quote, eligible_zones
+        from apps.orders.services import OrderError
         if self.is_courier:
-            from apps.delivery.checkout import courier_quote
-            return courier_quote(self.request.tenant)
+            try:
+                return snacks_delivery_quote(self.request.tenant, {'pincode':self.pincode,'zone_id':self.zone_id})
+            except OrderError:
+                return None
         if not self.pincode:
             return None
-        zones = zones_for_pincode(self.pincode, slot_key=self.slot_key)
+        zones = eligible_zones(self.pincode,self.slot_keys)
         if self.zone_id:
-            for z in zones:
-                if z.id == self.zone_id:
-                    return z
-        return zones[0] if len(zones) == 1 else None
+            return next((z for z in zones if z.pk==self.zone_id),None)
+        return zones[0] if len(zones)==1 else None
 
     def totals(self):
         lines = self.lines()

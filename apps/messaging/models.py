@@ -5,6 +5,7 @@ from apps.tenancy.managers import TenantOwnedModel
 
 
 class MessageStatus(models.TextChoices):
+    HELD = "held", "Offline — ready for manual delivery"
     PENDING = "pending", "Waiting to send"
     SENDING = "sending", "Sending"
     SENT = "sent", "Sent"

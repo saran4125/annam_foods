@@ -183,6 +183,11 @@ class Order(TenantOwnedModel):
         return self.status in TERMINAL
 
     @property
+    def meal_label(self):
+        labels=list(dict.fromkeys(line.get('meal_label') or line.get('meal_key','').title() for line in self.items))
+        return ' + '.join(label for label in labels if label) or (self.slot.label if self.slot_id else 'Snacks')
+
+    @property
     def item_count(self) -> int:
         return sum(line.get("quantity", 0) for line in self.items)
 
@@ -203,3 +208,18 @@ class OrderEvent(TenantOwnedModel):
 
     def __str__(self):
         return f"{self.order.order_no}: {self.from_status or '—'} → {self.to_status}"
+
+
+class CourierCharge(TenantOwnedModel):
+    """Separate post-dispatch receivable; never rewrites the paid food invoice."""
+    order = models.OneToOneField(Order, on_delete=models.PROTECT, related_name='courier_charge')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    dispatched_at = models.DateTimeField(null=True, blank=True)
+    courier_name = models.CharField(max_length=120, blank=True)
+    tracking_number = models.CharField(max_length=120, blank=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    payment_reference = models.CharField(max_length=120, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta(TenantOwnedModel.Meta):
+        ordering = ['-created_at']

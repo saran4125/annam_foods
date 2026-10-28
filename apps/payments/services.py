@@ -180,6 +180,8 @@ def apply_payment(intent, entity):
             if order.status == 'cancelled':
                 note += ' Order cancelled: review refund.'
             OrderEvent.objects.create(order=order, from_status=order.status, to_status=order.status, actor='razorpay', note=note)
+        if intent.captured_at is None:
+            intent.captured_at=timezone.now()
         intent.state = ('part_refunded' if processed_refunds else 'refund_pending') if intent.refunded_amount else 'captured'
         _try_bill(intent, order)
     else:
@@ -263,6 +265,8 @@ def apply_refund(refund, entity):
     if refund.state != 'processed':
         refund.state = status
     if refund.state == 'processed':
+        if refund.processed_at is None:
+            refund.processed_at=timezone.now()
         _full_refund(intent, order)
         intent.save()
     refund.save()
@@ -315,6 +319,15 @@ def ingest_event(connection, event_id, body):
     elif kind in ('payment.captured', 'payment.failed', 'order.paid'):
         provider_order = payment.get('order_id') or order_entity.get('id')
         intent = PaymentIntent.objects.filter(connection=connection, provider_order_id=provider_order).first() if provider_order else None
+        if not intent:
+            from .models import CourierPayment
+            from . import courier
+            courier_intent=CourierPayment.objects.filter(connection=connection,provider_order_id=provider_order).first() if provider_order else None
+            if courier_intent:
+                if payment.get('id'):
+                    courier.apply_capture(courier_intent,courier.client(courier_intent).payment(payment['id']))
+                else:
+                    courier.reconcile(courier_intent)
         if intent:
             if payment.get('id'):
                 apply_payment(intent, _client(intent).payment(payment['id']))
