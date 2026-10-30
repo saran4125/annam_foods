@@ -158,7 +158,7 @@ def test_date_form_prefills_one_day_and_adds_no_seven_day_recurrence(signed_in, 
     assert page.context['form']['slot'].value() == grouped['breakfast'].pk
     assert b'name="weekdays"' not in page.content
     response = signed_in.post(url, {'name': 'Friday only dish', 'fulfilment': 'scheduled', 'price': '70', 'category': '',
-        'slot': grouped['breakfast'].pk, 'active': 'on', 'is_veg': 'on', 'sort': 0, 'day_available': 'on', 'day_revision': 0,
+        'slot': grouped['breakfast'].pk, 'active': 'on', 'is_veg': 'on', 'sort': 0, 'in_stock': 'on', 'day_available': 'on', 'day_revision': 0,
         'next': menu_url()}, HTTP_HOST=HOST)
     assert response.status_code == 302
     with tenant_context(kitchens[0]):

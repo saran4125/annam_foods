@@ -62,7 +62,7 @@ def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = Fals
             slot=row.slot,
             price=row.effective_price,
             available=row.available,
-            sold_out=row.is_sold_out,
+            sold_out=row.is_sold_out or not row.item.in_stock,
             source=row.mode,
         )
         if include_unavailable or entry.is_orderable:
@@ -140,7 +140,7 @@ SHOP_SORTS = {
 
 def shop_items():
     """Every courier item currently on sale, whatever its category."""
-    return MenuItem.objects.filter(active=True, fulfilment="courier").select_related("category")
+    return MenuItem.objects.filter(active=True, in_stock=True, fulfilment="courier").select_related("category")
 
 
 def shop_categories():

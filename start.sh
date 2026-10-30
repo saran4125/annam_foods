@@ -3,6 +3,7 @@
 set -euo pipefail
 
 python manage.py migrate --noinput
+python manage.py sync_annam_catalog --tenant "${STORE_SLUG:-annam}" --apply --if-provisioned
 python manage.py materialize_media
 
 # First boot: create the kitchen, its owner login, and download the catalog photos
@@ -13,10 +14,14 @@ export SEED_DOMAIN="${SEED_DOMAIN:-${RENDER_EXTERNAL_HOSTNAME:-}}"
 if [ -n "${SEED_OWNER_PASSWORD:-}" ] && [ -n "${SEED_DOMAIN}" ]; then
   (
     SEED_ONLY_IF_EMPTY=1 SEED_DOWNLOAD_ASSETS=1 python scripts/seed_local.py
+    python manage.py sync_annam_catalog --tenant "${STORE_SLUG:-annam}" --apply
     python manage.py materialize_media --download
   ) &
 else
-  python manage.py materialize_media --download &
+  (
+    python manage.py sync_annam_catalog --tenant "${STORE_SLUG:-annam}" --apply
+    python manage.py materialize_media --download
+  ) &
 fi
 
 exec python scripts/serve_with_inbox.py

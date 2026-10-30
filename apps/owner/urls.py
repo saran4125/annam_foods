@@ -7,6 +7,7 @@ from apps.messaging import inbox_views
 app_name = "owner"
 
 urlpatterns = [
+    path("dishes/<int:pk>/stock/", views.stock_toggle, name="stock"),
     path("categories/<int:pk>/items/", category_views.items, name="category_items"),
     path("categories/<int:pk>/items/new/", category_views.item_new, name="category_item_new"),
     path("categories/<int:pk>/items/<int:item_pk>/", category_views.item_edit, name="category_item_edit"),

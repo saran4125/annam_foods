@@ -25,6 +25,7 @@
     <h1>{{ item.name }}</h1>
     <p class="product-price">₹{{ item.price|money }} <small>incl. of taxes</small></p>
     <p class="product-veg"><span class="veg{% if not item.is_veg %} veg-no{% endif %}" aria-hidden="true"></span>{% if item.is_veg %}Pure vegetarian{% else %}Non-vegetarian{% endif %}</p>
+    {% if item.weight %}<p class="product-desc">{{ item.weight }}</p>{% endif %}
     {% if item.description %}<p class="product-desc">{{ item.description|linebreaksbr }}</p>{% endif %}
 
     <div class="product-buy" data-item="{{ item.id }}">

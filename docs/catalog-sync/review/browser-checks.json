@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Diwali banner links to collection",
+    "pass": true
+  },
+  {
+    "name": "All 29 Diwali products appear",
+    "pass": true
+  },
+  {
+    "name": "Diwali subgroup links are available",
+    "pass": true
+  },
+  {
+    "name": "Festival delivery dates are visible",
+    "pass": true
+  },
+  {
+    "name": "Missing in-stock product now available",
+    "pass": true
+  },
+  {
+    "name": "New product can be added to cart",
+    "pass": true
+  },
+  {
+    "name": "Crafted request cannot buy out-of-stock product",
+    "pass": true
+  },
+  {
+    "name": "Out-of-stock Idly Podi is hidden",
+    "pass": true
+  },
+  {
+    "name": "31 October breakfast has 11 dishes",
+    "pass": true
+  },
+  {
+    "name": "31 October lunch has 7 dishes",
+    "pass": true
+  },
+  {
+    "name": "31 October dinner has 7 dishes",
+    "pass": true
+  },
+  {
+    "name": "Staff sees an independent stock toggle",
+    "pass": true
+  },
+  {
+    "name": "Turning stock on makes product purchasable",
+    "pass": true
+  },
+  {
+    "name": "Photo and weight review flag is visible",
+    "pass": true
+  },
+  {
+    "name": "Mavadu Karam price held for owner confirmation",
+    "pass": true
+  },
+  {
+    "name": "Festival page fits mobile viewport",
+    "pass": true
+  }
+]

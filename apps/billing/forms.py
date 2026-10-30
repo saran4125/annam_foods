@@ -65,7 +65,7 @@ class OrderLineForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["item"].queryset = MenuItem.objects.filter(active=True).order_by("name")
+        self.fields["item"].queryset = MenuItem.objects.filter(active=True,in_stock=True).order_by("name")
         for field in self.fields.values():
             field.widget.attrs["class"] = "o-input"
 

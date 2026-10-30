@@ -74,6 +74,9 @@ class MenuItem(TenantOwnedModel):
     sac = models.CharField(max_length=12, blank=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
+    in_stock = models.BooleanField(default=True)
+    weight = models.CharField(max_length=100, blank=True, help_text="Verified pack size; leave blank when unknown.")
+    admin_notes = models.TextField(blank=True, help_text="Internal review notes; never shown to customers.")
     image = models.ImageField(upload_to="menu/", blank=True)
     is_veg = models.BooleanField(default=True)
     tags = models.JSONField(default=list, blank=True)
@@ -179,3 +182,14 @@ class MenuDay(TenantOwnedModel):
 
     class Meta(TenantOwnedModel.Meta):
         constraints = [models.UniqueConstraint(fields=['tenant', 'slot', 'on_date'], name='uniq_menu_day')]
+
+
+class CatalogSyncRun(TenantOwnedModel):
+    """A versioned, once-only catalog correction; restarts preserve staff edits."""
+    version = models.CharField(max_length=100)
+    digest = models.CharField(max_length=64)
+    report = models.JSONField(default=dict)
+    applied_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta(TenantOwnedModel.Meta):
+        constraints = [models.UniqueConstraint(fields=['tenant', 'version'], name='unique_catalog_sync_version')]

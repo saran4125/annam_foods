@@ -18,8 +18,8 @@ def test_category_name_and_product_count_open_the_item_list(signed_in,catalog):
     response=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
     html=response.content.decode();url=items_url(catalog['cat'])
     assert 'Inside' not in response.context['headers']
-    assert response.context['rows'][0]['title_url']==url+'?type=courier&status=1'
-    assert html.count(f'href="{url}?type=courier&amp;status=1"')>=2 and '1 on website' in html
+    assert response.context['rows'][0]['title_url']==url+'?type=courier&status=1&stock=1'
+    assert html.count(f'href="{url}?type=courier&amp;status=1&amp;stock=1"')>=2 and '1 on website' in html
 
 
 def test_category_items_show_both_meals_and_shop_products_not_unrelated_items(signed_in,kitchens,catalog):

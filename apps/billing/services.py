@@ -355,7 +355,7 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
         meal = request_line[2] if len(request_line)>2 else ''
         if not isinstance(quantity,int) or not 1<=quantity<=999:
             raise ValueError('Quantities must be between 1 and 999.')
-        item = MenuItem.objects.filter(pk=item_id,active=True).first()
+        item = MenuItem.objects.filter(pk=item_id,active=True,in_stock=True).first()
         if item is None:
             raise ValueError('An item is unavailable. Reload the form and choose active items.')
         assigned = set(MenuSchedule.objects.filter(item=item).values_list('slot__key',flat=True))
@@ -443,7 +443,7 @@ def staff_catalog():
     from apps.catalog.models import MenuSchedule
     schedules = MenuSchedule.objects.filter(available=True, slot__active=True).select_related("slot")
     result = []
-    for item in MenuItem.objects.filter(active=True).select_related("category").prefetch_related(
+    for item in MenuItem.objects.filter(active=True,in_stock=True).select_related("category").prefetch_related(
             Prefetch("schedule", queryset=schedules, to_attr="billing_schedules")).order_by("name"):
         groups = sorted({row.slot.key for row in item.billing_schedules
                          if row.slot.key in ("breakfast", "lunch", "dinner", "snacks")}) if item.fulfilment == "scheduled" else ["snacks"]

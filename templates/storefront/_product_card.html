@@ -15,6 +15,7 @@
   <div class="dish-body">
     {% if p.category %}<span class="product-shelf">{{ p.category.name }}</span>{% endif %}
     <h3><a class="product-link" href="{{ item_url }}">{{ p.name }}</a></h3>
+    {% if p.weight %}<p>{{ p.weight }}</p>{% endif %}
     {% if p.description %}<p>{{ p.description }}</p>{% endif %}
     <div class="dish-buy" data-buy>
       <span class="price">₹{{ p.price|money }}</span>

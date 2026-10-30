@@ -69,7 +69,7 @@ class DishForm(StyledForm):
 
     class Meta(BaseMeta):
         model = MenuItem
-        fields = ["name", "category", "fulfilment", "price", "description", "image",
+        fields = ["name", "category", "fulfilment", "price", "weight", "description", "image", "admin_notes", "in_stock",
                   "is_veg", "active", "sort"]
         labels = {"fulfilment": "Type", "is_veg": "Vegetarian", "active": "On sale",
                   "sort": "Display order"}

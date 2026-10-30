@@ -425,7 +425,7 @@ def item_detail(request, pk):
     tenant = request.tenant
     if not _shop_enabled(tenant):
         raise Http404
-    item = get_object_or_404(MenuItem, pk=pk, active=True, fulfilment="courier")
+    item = get_object_or_404(MenuItem, pk=pk, active=True, in_stock=True, fulfilment="courier")
     related = []
     if item.category_id:
         top, depth = item.category, 0

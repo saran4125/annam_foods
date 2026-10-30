@@ -73,11 +73,12 @@ RESOURCES = {
     "dishes": Resource(
         "dishes", MenuItem, forms.DishForm, "Dishes & products", "dish", plural="dishes",
         columns=[("", "image", "image"), ("Name", "name", "title"), ("Category", "category", "text"),
-                 ("Price", "price", "money"), ("Menu", _schedule_label, "text"), ("On sale", "active", "toggle")],
+                 ("Price", "price", "money"), ("Menu", _schedule_label, "text"), ("In stock", "in_stock", "stock"), ("On sale", "active", "toggle")],
         search=["name", "description"],
         filters={
             "type": ("Type", lambda: [("scheduled", "Daily meals"), ("courier", "Shop items")], "fulfilment"),
             "category": ("Category", lambda: [(c.pk, c.name) for c in MenuCategory.objects.all()], "category_id"),
+            "stock": ("Stock", lambda: [("1", "In stock"), ("0", "Out of stock")], "in_stock"),
             "status": ("Status", lambda: [("1", "On sale"), ("0", "Hidden")], "active"),
         },
         order_by=("-active", "category__sort", "sort", "name"), icon="dish",
@@ -303,7 +304,7 @@ def resource_list(request, key, *, category=None):
         value = request.GET.get(param, "")
         opts = [(c.pk, c.name) for c in menu_ui["categories"]] if menu and param == "category" else choices()
         if value and str(value) in {str(v) for v, _ in opts}:
-            qs = qs.filter(**{lookup: (value == "1") if lookup == "active" else value})
+            qs = qs.filter(**{lookup: (value == "1") if lookup in ("active", "in_stock") else value})
             active_filters[param] = value
         filter_ui.append({"param": param, "label": label, "options": opts, "value": value})
     if key == "dishes":
@@ -330,13 +331,14 @@ def resource_list(request, key, *, category=None):
             shelf.website_count = search_shop(category=shelf).count()
     rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in columns],
              "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk),
+             "stock_url": reverse("owner:stock", args=[o.pk]) if key == "dishes" else "",
              "toggle_url": action_url("owner:toggle", o.pk) if key in TOGGLE_FIELDS else ""} for o in page]
     if key == 'categories':
         for row in rows:
             row['items_url'] = reverse('owner:category_items',args=[row['obj'].pk])
             row['all_items_url'] = row['items_url']
             if row['obj'].website_count:
-                row['items_url'] += '?type=courier&status=1'
+                row['items_url'] += '?type=courier&status=1&stock=1'
             row['title_url'] = row['items_url']
     if menu and menu['on_date'] and menu['slot'] and menu['kind'] == 'scheduled':
         entries = {e.item.pk: e for e in resolve_menu(menu['on_date'], menu['slot'], include_unavailable=True, include_inactive=True)}
@@ -651,3 +653,13 @@ def daily_menu(request):
             messages.success(request, f'{selected["on_date"]:%A, %d %B} {selected["label"].lower()} menu saved. Other dates are unchanged.')
             return redirect(return_url)
     return render(request, 'owner/daily_menu.html', {'form': form, 'selection': selected, 'return_url': return_url, 'plan': plan})
+
+
+@owner_required
+@require_POST
+def stock_toggle(request, pk):
+    item = get_object_or_404(MenuItem, pk=pk)
+    item.in_stock = not item.in_stock
+    item.save(update_fields=['in_stock'])
+    messages.success(request, f'“{item}” is now ' + ('in stock.' if item.in_stock else 'out of stock.'))
+    return redirect(_safe_next(request, reverse('owner:list', args=['dishes'])))

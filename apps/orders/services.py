@@ -119,7 +119,7 @@ def price_courier_lines(requested):
     if not requested:
         raise EmptyOrder("An order needs at least one item.")
     ids = {line.item_id for line in requested if line.quantity > 0}
-    items = MenuItem.objects.filter(pk__in=ids, active=True, fulfilment="courier")
+    items = MenuItem.objects.filter(pk__in=ids, active=True, in_stock=True, fulfilment="courier")
     by_id = {item.pk: item for item in items}
     lines, subtotal = [], Decimal("0")
     for want in requested:

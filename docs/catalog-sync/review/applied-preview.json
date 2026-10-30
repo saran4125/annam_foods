@@ -1,0 +1,2946 @@
+{
+  "already_applied": false,
+  "applied": true,
+  "version": "annam-catalog-2026-10-30-v1",
+  "report": {
+    "created": [
+      "Madras Mixture",
+      "Tapioca Chips",
+      "Chips Combo Pack",
+      "Ghee Appam",
+      "Rava Laddu",
+      "Pori Urundai",
+      "Diwali - Mega Combo Pack",
+      "Diwali - Karam Combo Pack",
+      "Diwali - Sweets Combo Pack",
+      "Diwali - Mini Gift Combo",
+      "Diwali - Assorted Sweets 250gm",
+      "Diwali - Assorted Sweets 500gm",
+      "Diwali - Kaju Assorted Sweets 250gm",
+      "Diwali - Kaju Assorted Sweets 500gm",
+      "Diwali - Jangiri",
+      "Diwali - Badhusha",
+      "Diwali - Kalyana Mysurpa",
+      "Diwali - Laddu",
+      "Diwali - Kaju Kathli",
+      "Diwali - Horlicks Burfi",
+      "Diwali - Boost Burfi",
+      "Diwali - Tirunelveli Halwa",
+      "Diwali - Athirasam",
+      "Diwali - Manogaram",
+      "Diwali Legiyam",
+      "Rava Laddu (5)",
+      "Diwali - Spl Mixture",
+      "Diwali - Navadhanya Mixture",
+      "Diwali - Ribbon Pakkoda",
+      "Diwali - Karaboondhi",
+      "Diwali - Karasev",
+      "Diwali - Omapodi",
+      "Diwali - Butter Murukku",
+      "Diwali - Spl Thattai",
+      "Diwali - Moru Moru Murukku",
+      "Kamar Kattu",
+      "Spl Milk Halwa",
+      "Karupatti Halwa",
+      "Mini Milagu Appalam",
+      "Rasa Vadai (1)",
+      "Sambar Vadai (1)",
+      "Spl Bisibelabath",
+      "Chow Chow Kootu",
+      "Morekuzhambu",
+      "Kose Poriyal",
+      "Kancheepuram Idly (2)",
+      "Idiyappam (4)",
+      "Onion Chennai Masala"
+    ],
+    "updated": [
+      "Special Milagu Vadai",
+      "Moru Moru Murukku",
+      "Mani Murukku",
+      "Aval mixture",
+      "Vella Seedai",
+      "Finger Chips",
+      "Jack Fruit Chips",
+      "Wheel Chips",
+      "Corn Chips",
+      "Cashew Halwa",
+      "Kalyana Mysurpa",
+      "Special Wheat Halwa",
+      "Mavadu Salt Pickle",
+      "Mixed Vegetable Pickle",
+      "Ila Vadam",
+      "Javvarisi Vadam Karam",
+      "Ulundhu Appalam",
+      "Ulundhu Applam - Jeera",
+      "spl Ilantha Vadai",
+      "Inji Murappa",
+      "Sukku Coffee Powder Mix",
+      "Sukku - Milagu - Thippli - Panai Karuppathi Cake",
+      "Deepavali Legiyam",
+      "Health Pakshanams Combo",
+      "Black Ellu Urundai 100 gm",
+      "Pottu Kadalai Urundai",
+      "Mini Kadalai Urundai",
+      "Mango Ginger Pickle",
+      "Dhaniya Thool",
+      "Thani MIlagai Thool",
+      "Manjal Thool",
+      "Nendram Sweet Chips",
+      "Big Pepper Thattai",
+      "Gram Dhall",
+      "Moong Dhall",
+      "Onion Ring Chips",
+      "Honey Mittai",
+      "Navadhanya Mixture",
+      "Fried Bengal Gram",
+      "Pavakkai Chips",
+      "2 Suttu Murukku",
+      "Ribbon Pakkoda",
+      "Masala Pori",
+      "Kaju Kathli",
+      "Ghee Mysurpa",
+      "Carrot Halwa",
+      "Horlics Burfi",
+      "Trattippal",
+      "spl Laddu",
+      "Arusuvai Thokku",
+      "Mudavattkkal Kizangu Thokku",
+      "Onion Thokku",
+      "Vallarai Thokku",
+      "Andra Avakkai Pickle",
+      "Mango Ginger Salt",
+      "Narthangai Salt Pickle",
+      "Amla Pickle",
+      "Tamarai Thandu Vadam",
+      "Kothavarai Vathal",
+      "Gundu Moremilagai",
+      "Kara Murukku Vadam",
+      "Sambar Vadam",
+      "Ompodi Vadam Small",
+      "Arulu Sandigai",
+      "Narthangai Dry Karam Vathal",
+      "Ila Vadam - Red Chilly",
+      "Ulundhu Appalam - Omam",
+      "Red Chilly Appala Poo",
+      "Kerala Pappadam",
+      "Karuppu Kavuni Kanji Mix",
+      "Honey Amla Dry",
+      "Mudakkathan Thokku",
+      "Poriyal Podi",
+      "Idly Podi",
+      "Curry Leaves Podi",
+      "Angaya Podi",
+      "Omapodi",
+      "Kerala Mixture",
+      "Mini Thenkuzal 200gm",
+      "Vazhaikkai Karam",
+      "Vazhaikkai Pepper",
+      "Mini Jangiri",
+      "Palgova",
+      "Thuthuvalai Thokku",
+      "Small Onion Garlic Chutney",
+      "Kadarangai Pickle",
+      "Lemon Pickle",
+      "Mango Thokku (101)",
+      "Cut Mango Pickle",
+      "Milagu Kuzambu Mix",
+      "Sundaikkai Salt Vathal",
+      "Narthangai Dry Vathal",
+      "Neetu Moremilagai",
+      "Thalir Vadam - BIg",
+      "Special mini Thattai",
+      "Rettai Appalam",
+      "Garlic Appala Poo",
+      "Corn Vathal",
+      "Karuppu Ulundhu Laddu (5)",
+      "Karuppu Ulundhu Kanji Mix",
+      "Idly with Vadai",
+      "Idly (4)",
+      "Poori (2)",
+      "Plain Dosa (2)",
+      "Ghee Pongal",
+      "Ghee Podi Dosa (2)",
+      "Vadai (1)",
+      "Sambar Idly (2)",
+      "Ghee Dosa (2)",
+      "Full meals with rice",
+      "Full meals without rice",
+      "Tomato Rasam",
+      "Poori (2)",
+      "Chapathi (1)",
+      "Only Chapathi",
+      "Pasiparuppu Dhall"
+    ],
+    "review": [
+      "Mavadu Karam: Owner decision: verify pack size before changing price to ₹450. Current price preserved.",
+      "Multigrain Millet Dosa Mix: owner decision; availability unchanged.",
+      "Ragi Dosa Mix: owner decision; availability unchanged.",
+      "Rava Dosa Mix: owner decision; availability unchanged.",
+      "Rava Uppma Mix: owner decision; availability unchanged.",
+      "Rice Uppuma Mix: owner decision; availability unchanged.",
+      "Wheat Rava Uppum Mix: owner decision; availability unchanged.",
+      "Tomato Vathal: owner decision; availability unchanged.",
+      "Navadhanya Laddu (5): owner decision; availability unchanged.",
+      "Pachai Payaru Laddu (5): owner decision; availability unchanged.",
+      "Ragi Laddu (5): owner decision; availability unchanged.",
+      "Thinai Laddu (5): owner decision; availability unchanged.",
+      "Thokku cross-listing: primary categories retained; model has one category per product."
+    ],
+    "menus": [
+      {
+        "date": "2026-10-31",
+        "slot": "breakfast",
+        "items": 11
+      },
+      {
+        "date": "2026-10-31",
+        "slot": "lunch",
+        "items": 7
+      },
+      {
+        "date": "2026-10-31",
+        "slot": "dinner",
+        "items": 7
+      }
+    ],
+    "source": "Owner supplied comparison, 30 October 2026; live recheck unavailable (HTTP proxy 403).",
+    "changes": [
+      {
+        "before": null,
+        "after": {
+          "id": 279,
+          "name": "Chips Combo Pack",
+          "price": "300.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 319,
+          "name": "Chow Chow Kootu",
+          "price": "50.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 287,
+          "name": "Diwali - Assorted Sweets 250gm",
+          "price": "230.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 288,
+          "name": "Diwali - Assorted Sweets 500gm",
+          "price": "360.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 299,
+          "name": "Diwali - Athirasam",
+          "price": "170.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 292,
+          "name": "Diwali - Badhusha",
+          "price": "190.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 297,
+          "name": "Diwali - Boost Burfi",
+          "price": "280.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 309,
+          "name": "Diwali - Butter Murukku",
+          "price": "150.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 296,
+          "name": "Diwali - Horlicks Burfi",
+          "price": "280.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 291,
+          "name": "Diwali - Jangiri",
+          "price": "190.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 289,
+          "name": "Diwali - Kaju Assorted Sweets 250gm",
+          "price": "400.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 290,
+          "name": "Diwali - Kaju Assorted Sweets 500gm",
+          "price": "750.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 295,
+          "name": "Diwali - Kaju Kathli",
+          "price": "330.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 293,
+          "name": "Diwali - Kalyana Mysurpa",
+          "price": "190.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 306,
+          "name": "Diwali - Karaboondhi",
+          "price": "150.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 284,
+          "name": "Diwali - Karam Combo Pack",
+          "price": "700.00",
+          "category_id": 35,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 307,
+          "name": "Diwali - Karasev",
+          "price": "150.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 294,
+          "name": "Diwali - Laddu",
+          "price": "190.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 300,
+          "name": "Diwali - Manogaram",
+          "price": "170.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 283,
+          "name": "Diwali - Mega Combo Pack",
+          "price": "1800.00",
+          "category_id": 35,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 286,
+          "name": "Diwali - Mini Gift Combo",
+          "price": "650.00",
+          "category_id": 35,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 311,
+          "name": "Diwali - Moru Moru Murukku",
+          "price": "140.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 304,
+          "name": "Diwali - Navadhanya Mixture",
+          "price": "170.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 308,
+          "name": "Diwali - Omapodi",
+          "price": "150.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 305,
+          "name": "Diwali - Ribbon Pakkoda",
+          "price": "150.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 303,
+          "name": "Diwali - Spl Mixture",
+          "price": "170.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 310,
+          "name": "Diwali - Spl Thattai",
+          "price": "150.00",
+          "category_id": 38,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 285,
+          "name": "Diwali - Sweets Combo Pack",
+          "price": "900.00",
+          "category_id": 35,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 298,
+          "name": "Diwali - Tirunelveli Halwa",
+          "price": "200.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 301,
+          "name": "Diwali Legiyam",
+          "price": "180.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 280,
+          "name": "Ghee Appam",
+          "price": "175.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 323,
+          "name": "Idiyappam (4)",
+          "price": "110.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 312,
+          "name": "Kamar Kattu",
+          "price": "110.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 322,
+          "name": "Kancheepuram Idly (2)",
+          "price": "130.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 314,
+          "name": "Karupatti Halwa",
+          "price": "280.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 321,
+          "name": "Kose Poriyal",
+          "price": "50.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 277,
+          "name": "Madras Mixture",
+          "price": "170.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 315,
+          "name": "Mini Milagu Appalam",
+          "price": "70.00",
+          "category_id": 5,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 320,
+          "name": "Morekuzhambu",
+          "price": "50.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 324,
+          "name": "Onion Chennai Masala",
+          "price": "80.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 282,
+          "name": "Pori Urundai",
+          "price": "90.00",
+          "category_id": 15,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 316,
+          "name": "Rasa Vadai (1)",
+          "price": "70.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 281,
+          "name": "Rava Laddu",
+          "price": "70.00",
+          "category_id": 15,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 302,
+          "name": "Rava Laddu (5)",
+          "price": "80.00",
+          "category_id": 37,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 317,
+          "name": "Sambar Vadai (1)",
+          "price": "70.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 318,
+          "name": "Spl Bisibelabath",
+          "price": "150.00",
+          "category_id": null,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 313,
+          "name": "Spl Milk Halwa",
+          "price": "240.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": null,
+        "after": {
+          "id": 278,
+          "name": "Tapioca Chips",
+          "price": "90.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 5,
+          "name": "2 Suttu Murukku",
+          "price": "170.00",
+          "category_id": 18,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 5,
+          "name": "2 Suttu Murukku",
+          "price": "170.00",
+          "category_id": 18,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 24,
+          "name": "Chapathi (1)",
+          "price": "110.00",
+          "category_id": 3,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 24,
+          "name": "Chapathi (1)",
+          "price": "110.00",
+          "category_id": 3,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 37,
+          "name": "Amla Pickle",
+          "price": "170.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 37,
+          "name": "Amla Pickle",
+          "price": "170.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 38,
+          "name": "Andra Avakkai Pickle",
+          "price": "210.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 38,
+          "name": "Andra Avakkai Pickle",
+          "price": "210.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 39,
+          "name": "Angaya Podi",
+          "price": "115.00",
+          "category_id": 26,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 39,
+          "name": "Angaya Podi",
+          "price": "115.00",
+          "category_id": 26,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 40,
+          "name": "Arulu Sandigai",
+          "price": "225.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 40,
+          "name": "Arulu Sandigai",
+          "price": "225.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 41,
+          "name": "Arusuvai Thokku",
+          "price": "280.00",
+          "category_id": 30,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 41,
+          "name": "Arusuvai Thokku",
+          "price": "280.00",
+          "category_id": 30,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 45,
+          "name": "Aval mixture",
+          "price": "140.00",
+          "category_id": 17,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 45,
+          "name": "Aval mixture",
+          "price": "140.00",
+          "category_id": 17,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 51,
+          "name": "Big Pepper Thattai",
+          "price": "160.00",
+          "category_id": 29,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 51,
+          "name": "Big Pepper Thattai",
+          "price": "160.00",
+          "category_id": 29,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 52,
+          "name": "Black Ellu Urundai 100 gm",
+          "price": "100.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 52,
+          "name": "Black Ellu Urundai 100 gm",
+          "price": "120.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 57,
+          "name": "Carrot Halwa",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 57,
+          "name": "Carrot Halwa",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 58,
+          "name": "Cashew Halwa",
+          "price": "200.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 58,
+          "name": "Cashew Halwa",
+          "price": "200.00",
+          "category_id": 9,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 61,
+          "name": "Corn Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 61,
+          "name": "Corn Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 62,
+          "name": "Corn Vathal",
+          "price": "90.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 62,
+          "name": "Corn Vathal",
+          "price": "90.00",
+          "category_id": 5,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 65,
+          "name": "Curry Leaves Podi",
+          "price": "115.00",
+          "category_id": 24,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 65,
+          "name": "Curry Leaves Podi",
+          "price": "115.00",
+          "category_id": 24,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 66,
+          "name": "Cut Mango Pickle",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 66,
+          "name": "Cut Mango Pickle",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 67,
+          "name": "Deepavali Legiyam",
+          "price": "180.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 67,
+          "name": "Deepavali Legiyam",
+          "price": "180.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 68,
+          "name": "Dhaniya Thool",
+          "price": "95.00",
+          "category_id": 13,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 68,
+          "name": "Dhaniya Thool",
+          "price": "95.00",
+          "category_id": 13,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 71,
+          "name": "Finger Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 71,
+          "name": "Finger Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 72,
+          "name": "Fried Bengal Gram",
+          "price": "80.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 72,
+          "name": "Fried Bengal Gram",
+          "price": "80.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 73,
+          "name": "Garlic Appala Poo",
+          "price": "70.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 73,
+          "name": "Garlic Appala Poo",
+          "price": "70.00",
+          "category_id": 5,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 75,
+          "name": "Garlic Kuzambu Sadam Mix",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 75,
+          "name": "Garlic Kuzambu Sadam Mix",
+          "price": "180.00",
+          "category_id": 25,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 79,
+          "name": "Ghee Mysurpa",
+          "price": "200.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 79,
+          "name": "Ghee Mysurpa",
+          "price": "200.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 82,
+          "name": "Gram Dhall",
+          "price": "70.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 82,
+          "name": "Gram Dhall",
+          "price": "70.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 83,
+          "name": "Gundu Moremilagai",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 83,
+          "name": "Gundu Moremilagai",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 84,
+          "name": "Health Pakshanams Combo",
+          "price": "250.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 84,
+          "name": "Health Pakshanams Combo",
+          "price": "320.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 85,
+          "name": "Honey Amla Dry",
+          "price": "90.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 85,
+          "name": "Honey Amla Dry",
+          "price": "90.00",
+          "category_id": 10,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 86,
+          "name": "Honey Mittai",
+          "price": "75.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 86,
+          "name": "Honey Mittai",
+          "price": "75.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 87,
+          "name": "Horlics Burfi",
+          "price": "260.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 87,
+          "name": "Horlics Burfi",
+          "price": "260.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 88,
+          "name": "Idly Podi",
+          "price": "115.00",
+          "category_id": 13,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 88,
+          "name": "Idly Podi",
+          "price": "115.00",
+          "category_id": 13,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 90,
+          "name": "Ila Vadam",
+          "price": "160.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 90,
+          "name": "Ila Vadam",
+          "price": "160.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 91,
+          "name": "Ila Vadam - Red Chilly",
+          "price": "160.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 91,
+          "name": "Ila Vadam - Red Chilly",
+          "price": "160.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 93,
+          "name": "Inji Murappa",
+          "price": "90.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 93,
+          "name": "Inji Murappa",
+          "price": "90.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 94,
+          "name": "Jack Fruit Chips",
+          "price": "100.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 94,
+          "name": "Jack Fruit Chips",
+          "price": "100.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 96,
+          "name": "Javvarisi Vadam Karam",
+          "price": "140.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 96,
+          "name": "Javvarisi Vadam Karam",
+          "price": "140.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 98,
+          "name": "Kadarangai Pickle",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 98,
+          "name": "Kadarangai Pickle",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 99,
+          "name": "Kaju Kathli",
+          "price": "350.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 99,
+          "name": "Kaju Kathli",
+          "price": "350.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 100,
+          "name": "Kalyana Mysurpa",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 100,
+          "name": "Kalyana Mysurpa",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 101,
+          "name": "Kara Murukku Vadam",
+          "price": "175.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 101,
+          "name": "Kara Murukku Vadam",
+          "price": "175.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 109,
+          "name": "Karuppu Kavuni Kanji Mix",
+          "price": "270.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 109,
+          "name": "Karuppu Kavuni Kanji Mix",
+          "price": "270.00",
+          "category_id": 10,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 111,
+          "name": "Karuppu Ulundhu Kanji Mix",
+          "price": "250.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 111,
+          "name": "Karuppu Ulundhu Kanji Mix",
+          "price": "250.00",
+          "category_id": 10,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 112,
+          "name": "Karuppu Ulundhu Laddu (5)",
+          "price": "80.00",
+          "category_id": 15,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 112,
+          "name": "Karuppu Ulundhu Laddu (5)",
+          "price": "80.00",
+          "category_id": 15,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 113,
+          "name": "Kerala Mixture",
+          "price": "140.00",
+          "category_id": 17,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 113,
+          "name": "Kerala Mixture",
+          "price": "140.00",
+          "category_id": 17,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 114,
+          "name": "Kerala Pappadam",
+          "price": "90.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 114,
+          "name": "Kerala Pappadam",
+          "price": "90.00",
+          "category_id": 5,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 119,
+          "name": "Kothavarai Vathal",
+          "price": "100.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 119,
+          "name": "Kothavarai Vathal",
+          "price": "100.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 125,
+          "name": "Lemon Pickle",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 125,
+          "name": "Lemon Pickle",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 131,
+          "name": "Mango Ginger Pickle",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 131,
+          "name": "Mango Ginger Pickle",
+          "price": "160.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 132,
+          "name": "Mango Ginger Salt",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 132,
+          "name": "Mango Ginger Salt",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 133,
+          "name": "Mango Thokku (101)",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 133,
+          "name": "Mango Thokku (101)",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 134,
+          "name": "Mani Murukku",
+          "price": "150.00",
+          "category_id": 18,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 134,
+          "name": "Mani Murukku",
+          "price": "150.00",
+          "category_id": 18,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 135,
+          "name": "Manjal Thool",
+          "price": "95.00",
+          "category_id": 13,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 135,
+          "name": "Manjal Thool",
+          "price": "95.00",
+          "category_id": 13,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 140,
+          "name": "Masala Pori",
+          "price": "80.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 140,
+          "name": "Masala Pori",
+          "price": "80.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 142,
+          "name": "Mavadu Salt Pickle",
+          "price": "480.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 142,
+          "name": "Mavadu Salt Pickle",
+          "price": "450.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 143,
+          "name": "Milagu Kuzambu Mix",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 143,
+          "name": "Milagu Kuzambu Mix",
+          "price": "180.00",
+          "category_id": 25,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 147,
+          "name": "Mini Jangiri",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 147,
+          "name": "Mini Jangiri",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 149,
+          "name": "Mini Kadalai Urundai",
+          "price": "100.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 149,
+          "name": "Mini Kadalai Urundai",
+          "price": "120.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 153,
+          "name": "Mini Thenkuzal 200gm",
+          "price": "140.00",
+          "category_id": 18,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 153,
+          "name": "Mini Thenkuzal 200gm",
+          "price": "140.00",
+          "category_id": 18,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 155,
+          "name": "Mixed Vegetable Pickle",
+          "price": "170.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 155,
+          "name": "Mixed Vegetable Pickle",
+          "price": "170.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 156,
+          "name": "Moong Dhall",
+          "price": "70.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 156,
+          "name": "Moong Dhall",
+          "price": "70.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 157,
+          "name": "Moru Moru Murukku",
+          "price": "150.00",
+          "category_id": 18,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 157,
+          "name": "Moru Moru Murukku",
+          "price": "140.00",
+          "category_id": 18,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 158,
+          "name": "Mudakkathan Rasam Paste",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 158,
+          "name": "Mudakkathan Rasam Paste",
+          "price": "180.00",
+          "category_id": 22,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 159,
+          "name": "Mudakkathan Thokku",
+          "price": "130.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 159,
+          "name": "Mudakkathan Thokku",
+          "price": "130.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 160,
+          "name": "Mudavattkkal Kizangu Thokku",
+          "price": "280.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 160,
+          "name": "Mudavattkkal Kizangu Thokku",
+          "price": "280.00",
+          "category_id": 30,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 166,
+          "name": "Narthangai Dry Vathal",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 166,
+          "name": "Narthangai Dry Vathal",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 167,
+          "name": "Narthangai Dry Karam Vathal",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 167,
+          "name": "Narthangai Dry Karam Vathal",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 169,
+          "name": "Narthangai Salt Pickle",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 169,
+          "name": "Narthangai Salt Pickle",
+          "price": "150.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 171,
+          "name": "Navadhanya Mixture",
+          "price": "170.00",
+          "category_id": 17,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 171,
+          "name": "Navadhanya Mixture",
+          "price": "170.00",
+          "category_id": 17,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 173,
+          "name": "Neetu Moremilagai",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 173,
+          "name": "Neetu Moremilagai",
+          "price": "90.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 176,
+          "name": "Nendram Sweet Chips",
+          "price": "150.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 176,
+          "name": "Nendram Sweet Chips",
+          "price": "150.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 180,
+          "name": "Omapodi",
+          "price": "150.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 180,
+          "name": "Omapodi",
+          "price": "150.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 183,
+          "name": "Ompodi Vadam Small",
+          "price": "180.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 183,
+          "name": "Ompodi Vadam Small",
+          "price": "180.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 185,
+          "name": "Onion Ring Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 185,
+          "name": "Onion Ring Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 187,
+          "name": "Onion Thokku",
+          "price": "160.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 187,
+          "name": "Onion Thokku",
+          "price": "160.00",
+          "category_id": 30,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 191,
+          "name": "Palgova",
+          "price": "125.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 191,
+          "name": "Palgova",
+          "price": "125.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 194,
+          "name": "Pavakkai Chips",
+          "price": "100.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 194,
+          "name": "Pavakkai Chips",
+          "price": "100.00",
+          "category_id": 6,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 197,
+          "name": "Pepper Rasam Paste",
+          "price": "170.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 197,
+          "name": "Pepper Rasam Paste",
+          "price": "170.00",
+          "category_id": 22,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 202,
+          "name": "Poriyal Podi",
+          "price": "115.00",
+          "category_id": 13,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 202,
+          "name": "Poriyal Podi",
+          "price": "115.00",
+          "category_id": 13,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 206,
+          "name": "Pottu Kadalai Urundai",
+          "price": "100.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 206,
+          "name": "Pottu Kadalai Urundai",
+          "price": "120.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 208,
+          "name": "Puliyodharai Paste",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 208,
+          "name": "Puliyodharai Paste",
+          "price": "180.00",
+          "category_id": 25,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 216,
+          "name": "Red Chilly Appala Poo",
+          "price": "70.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 216,
+          "name": "Red Chilly Appala Poo",
+          "price": "70.00",
+          "category_id": 5,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 217,
+          "name": "Rettai Appalam",
+          "price": "170.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 217,
+          "name": "Rettai Appalam",
+          "price": "170.00",
+          "category_id": 5,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 218,
+          "name": "Ribbon Pakkoda",
+          "price": "150.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 218,
+          "name": "Ribbon Pakkoda",
+          "price": "150.00",
+          "category_id": 19,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 227,
+          "name": "Sambar Vadam",
+          "price": "180.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 227,
+          "name": "Sambar Vadam",
+          "price": "180.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 229,
+          "name": "Small Onion Garlic Chutney",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 229,
+          "name": "Small Onion Garlic Chutney",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 232,
+          "name": "spl Ilantha Vadai",
+          "price": "170.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 232,
+          "name": "spl Ilantha Vadai",
+          "price": "170.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 233,
+          "name": "spl Laddu",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 233,
+          "name": "spl Laddu",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 234,
+          "name": "Special Milagu Vadai",
+          "price": "130.00",
+          "category_id": 29,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 234,
+          "name": "Special Milagu Vadai",
+          "price": "130.00",
+          "category_id": 29,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 235,
+          "name": "Special mini Thattai",
+          "price": "160.00",
+          "category_id": 29,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 235,
+          "name": "Special mini Thattai",
+          "price": "160.00",
+          "category_id": 29,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 238,
+          "name": "Sukku Coffee Powder Mix",
+          "price": "110.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 238,
+          "name": "Sukku Coffee Powder Mix",
+          "price": "120.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 239,
+          "name": "Sukku - Milagu - Thippli - Panai Karuppathi Cake",
+          "price": "120.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 239,
+          "name": "Sukku - Milagu - Thippli - Panai Karuppathi Cake",
+          "price": "120.00",
+          "category_id": 10,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 240,
+          "name": "Sundaikkai Salt Vathal",
+          "price": "120.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 240,
+          "name": "Sundaikkai Salt Vathal",
+          "price": "120.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 243,
+          "name": "Tamarai Thandu Vadam",
+          "price": "220.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 243,
+          "name": "Tamarai Thandu Vadam",
+          "price": "220.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 245,
+          "name": "Thalir Vadam - BIg",
+          "price": "160.00",
+          "category_id": 32,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 245,
+          "name": "Thalir Vadam - BIg",
+          "price": "160.00",
+          "category_id": 32,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 246,
+          "name": "Thani MIlagai Thool",
+          "price": "95.00",
+          "category_id": 13,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 246,
+          "name": "Thani MIlagai Thool",
+          "price": "95.00",
+          "category_id": 13,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 249,
+          "name": "Thuthuvalai Thokku",
+          "price": "250.00",
+          "category_id": 30,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 249,
+          "name": "Thuthuvalai Thokku",
+          "price": "250.00",
+          "category_id": 30,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 250,
+          "name": "Thuthuvalali Rasam Paste",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 250,
+          "name": "Thuthuvalali Rasam Paste",
+          "price": "180.00",
+          "category_id": 22,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 256,
+          "name": "Tomoto Rasam Paste",
+          "price": "160.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 256,
+          "name": "Tomoto Rasam Paste",
+          "price": "160.00",
+          "category_id": 22,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 257,
+          "name": "Trattippal",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 257,
+          "name": "Trattippal",
+          "price": "190.00",
+          "category_id": 27,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 258,
+          "name": "Ulundhu Appalam",
+          "price": "140.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 258,
+          "name": "Ulundhu Appalam",
+          "price": "140.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 259,
+          "name": "Ulundhu Appalam - Omam",
+          "price": "140.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 259,
+          "name": "Ulundhu Appalam - Omam",
+          "price": "140.00",
+          "category_id": 5,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 260,
+          "name": "Ulundhu Applam - Jeera",
+          "price": "150.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 260,
+          "name": "Ulundhu Applam - Jeera",
+          "price": "150.00",
+          "category_id": 5,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 264,
+          "name": "Vallarai Thokku",
+          "price": "200.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 264,
+          "name": "Vallarai Thokku",
+          "price": "200.00",
+          "category_id": 30,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 267,
+          "name": "Vathakuzambu Paste",
+          "price": "180.00",
+          "category_id": 20,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 267,
+          "name": "Vathakuzambu Paste",
+          "price": "180.00",
+          "category_id": 25,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 268,
+          "name": "Vazhaikkai Karam",
+          "price": "150.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 268,
+          "name": "Vazhaikkai Karam",
+          "price": "150.00",
+          "category_id": 6,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 269,
+          "name": "Vazhaikkai Pepper",
+          "price": "150.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        },
+        "after": {
+          "id": 269,
+          "name": "Vazhaikkai Pepper",
+          "price": "150.00",
+          "category_id": 6,
+          "in_stock": false,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 270,
+          "name": "Vella Seedai",
+          "price": "170.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 270,
+          "name": "Vella Seedai",
+          "price": "170.00",
+          "category_id": 19,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 273,
+          "name": "Special Wheat Halwa",
+          "price": "200.00",
+          "category_id": 9,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 273,
+          "name": "Special Wheat Halwa",
+          "price": "200.00",
+          "category_id": 9,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      },
+      {
+        "before": {
+          "id": 275,
+          "name": "Wheel Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": false,
+          "weight": ""
+        },
+        "after": {
+          "id": 275,
+          "name": "Wheel Chips",
+          "price": "80.00",
+          "category_id": 6,
+          "in_stock": true,
+          "active": true,
+          "weight": ""
+        }
+      }
+    ]
+  }
+}
