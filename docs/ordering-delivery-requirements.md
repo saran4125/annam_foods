@@ -224,3 +224,16 @@ external payment/message connection is required.
 Validation: 616 PostgreSQL tests and 10 browser checks. Browser records use only
 synthetic local customer details: [checklist](examples/customer-lookup-review/browser-checks.json)
 and [phone-first form](examples/customer-lookup-review/saved-customer.png).
+
+### Empty categories stay out of the main category list
+
+The staff Categories screen defaults to With items. Categories with zero items
+across their active category family are hidden from this view. Hidden/off-sale
+products still count as items, so switching a product off never makes its group
+inaccessible. Empty categories and All categories remain available as explicit
+counted tabs, with search and pagination retaining the chosen view. Empty groups
+are not deleted or converted into products; staff can open them and add items.
+The website count and total count are displayed on separate lines for clarity.
+
+Verified with 618 PostgreSQL tests and 7 isolated browser checks:
+[checklist](examples/empty-categories-review/browser-checks.json).

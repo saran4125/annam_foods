@@ -5,7 +5,8 @@
 {% block heading %}{% if category %}<a class="o-crumb" href="{% url 'owner:list' 'categories' %}">← Categories</a><h1>{{ category.name }}</h1><p>{{ total }} item{{ total|pluralize }}</p>{% else %}<h1>{{ res.title }}</h1><p>{% if menu_ui %}{% if menu_ui.selection.on_date and menu_ui.choose_url %}{{ menu_ui.selection.on_date|date:"l, j F Y" }} · {% endif %}{{ menu_ui.title }} · {% endif %}{{ total }} {% if menu_ui.selection.kind == 'courier' %}item{% if total != 1 %}s{% endif %}{% elif total == 1 %}{{ res.singular }}{% else %}{{ res.plural }}{% endif %}</p>{% endif %}{% endblock %}
 {% block actions %}{% if category %}<a class="o-btn" href="{{ category_edit_url }}">Edit category</a>{% endif %}{% if menu_ui.choose_url %}<a class="o-btn" href="{{ menu_ui.choose_url }}">Choose dishes</a>{% endif %}<a class="o-btn o-btn-primary" href="{{ new_url }}"><svg class="o-ic"><use href="#o-plus"/></svg>{{ add_label }}</a>{% endblock %}
 {% block content %}
-{% if category %}<p class="o-catalog-hint">Manage items in {{ category.name }} and its subcategories. Add an item, edit its price or photo, switch it on or off, or delete it.</p>{% elif res.key == "categories" %}<p class="o-catalog-hint">Choose a category to manage its items. Use the pencil button to edit the category details.</p>{% endif %}
+{% if category_tabs %}<nav class="o-meal-groups" aria-label="Category contents">{% for tab in category_tabs %}<a href="{{ tab.url }}"{% if tab.selected %} class="is-selected" aria-current="page"{% endif %}>{{ tab.label }} <span>{{ tab.count }}</span></a>{% endfor %}</nav>{% endif %}
+{% if category %}<p class="o-catalog-hint">Manage items in {{ category.name }} and its subcategories. Add an item, edit its price or photo, switch it on or off, or delete it.</p>{% elif res.key == "categories" %}<p class="o-catalog-hint">Choose a category to manage its items. Empty categories are kept under Empty categories. Use the pencil button to edit category details.</p>{% endif %}
 
 {% if menu_ui %}
 <nav class="o-catalog-groups" aria-label="Product groups">
@@ -35,6 +36,7 @@
 
 {% if res.search or filters %}
 <form class="o-tools" method="get">
+  {% if category_tabs %}<input type="hidden" name="category_view" value="{% for tab in category_tabs %}{% if tab.selected %}{{ tab.value }}{% endif %}{% endfor %}">{% endif %}
   {% if menu_ui %}<input type="hidden" name="type" value="{{ menu_ui.selection.kind }}">{% if menu_ui.selection.kind == 'scheduled' %}<input type="hidden" name="meal" value="{{ menu_ui.selection.meal }}"><input type="hidden" name="date" value="{% if menu_ui.selection.on_date %}{{ menu_ui.selection.on_date|date:'Y-m-d' }}{% else %}all{% endif %}">{% endif %}{% endif %}
   {% if res.search %}
   <label class="o-search">
@@ -67,7 +69,7 @@
         {% if c.kind == "image" or c.kind == "image-wide" %}
           <a class="o-thumb{% if c.kind == 'image-wide' %} o-thumb-wide{% endif %}" href="{{ row.title_url|default:edit_url }}" tabindex="-1" aria-hidden="true">{% if c.value %}<img src="{{ c.value.url }}" alt="" loading="lazy">{% else %}<svg class="o-ic"><use href="#o-image"/></svg>{% endif %}</a>
         {% elif c.kind == "title" %}<a class="o-row-title" href="{{ row.title_url|default:edit_url }}">{{ c.value }}</a>{% if menu_ui.choose_url and not row.obj.active %}<small class="o-muted">Hidden globally — edit to enable</small>{% endif %}
-        {% elif c.kind == "count" %}<a href="{{ row.items_url }}" aria-label="View {{ c.value }} items in {{ row.obj.name }}">{% if row.obj.website_count %}{{ row.obj.website_count }} on website{% else %}{{ c.value }} items{% endif %}</a>{% if row.obj.website_count and row.obj.website_count != c.value %}<small class="o-muted"><a href="{{ row.all_items_url }}">{{ c.value }} total including hidden items</a></small>{% endif %}
+        {% elif c.kind == "count" %}<a href="{{ row.items_url }}" aria-label="View {{ c.value }} items in {{ row.obj.name }}">{% if row.obj.website_count %}{{ row.obj.website_count }} on website{% else %}{{ c.value }} items{% endif %}</a>{% if row.obj.website_count and row.obj.website_count != c.value %}<small class="o-sub"><a href="{{ row.all_items_url }}">{{ c.value }} total including hidden items</a></small>{% endif %}
         {% elif c.kind == "money" %}₹{{ c.value|money }}
         {% elif c.kind == "time" %}{{ c.value|time:"g:i A" }}
         {% elif c.kind == "bool" %}{% if c.value %}Yes{% else %}<span class="o-muted">No</span>{% endif %}

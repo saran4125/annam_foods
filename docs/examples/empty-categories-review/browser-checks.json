@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Default tab clearly selected",
+    "pass": true
+  },
+  {
+    "name": "Default excludes empty Rice Mix Paste and Rasam Paste",
+    "pass": true
+  },
+  {
+    "name": "Empty entries remain accessible separately",
+    "pass": true
+  },
+  {
+    "name": "Searching keeps Empty categories view",
+    "pass": true
+  },
+  {
+    "name": "Empty category can still receive items",
+    "pass": true
+  },
+  {
+    "name": "All categories remains available",
+    "pass": true
+  },
+  {
+    "name": "Mobile has no page overflow",
+    "pass": true
+  }
+]

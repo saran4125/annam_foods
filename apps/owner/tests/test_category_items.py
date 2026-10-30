@@ -131,3 +131,36 @@ def test_category_count_distinguishes_hidden_items_from_website_products(signed_
     assert shelf.product_count==2 and shelf.website_count==1
     assert b'1 on website' in listing.content
     assert b'Hidden podi' in signed_in.get(items_url(catalog['cat']),HTTP_HOST=HOST).content
+
+
+def test_empty_categories_are_hidden_by_default_without_deleting_them(signed_in,kitchens,catalog):
+    with tenant_context(kitchens[0]):
+        empty=MenuCategory.objects.create(name='Rice Mix Paste',slug='rice-mix-paste')
+        parent=MenuCategory.objects.create(name='Parent shelf',slug='parent-shelf')
+        child=MenuCategory.objects.create(name='Child shelf',slug='child-shelf',parent=parent)
+        MenuItem.objects.create(name='Hidden product',category=child,price=100,active=False)
+    page=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    ids={row['obj'].pk for row in page.context['rows']}
+    assert empty.pk not in ids and parent.pk in ids and child.pk in ids
+    assert page.context['total']==3
+    assert page.context['category_tabs'][0]['selected']
+    assert MenuCategory.all_tenants.filter(pk=empty.pk).exists()
+    assert signed_in.get(items_url(empty),HTTP_HOST=HOST).status_code==200
+    page=signed_in.get('/manage/categories/',{'category_view':'empty'},HTTP_HOST=HOST)
+    assert {row['obj'].pk for row in page.context['rows']}=={empty.pk}
+    assert page.context['category_tabs'][1]['selected']
+    page=signed_in.get('/manage/categories/',{'category_view':'all'},HTTP_HOST=HOST)
+    assert page.context['total']==4
+    assert {row['obj'].pk for row in page.context['rows']}=={empty.pk,parent.pk,child.pk,catalog['cat'].pk}
+
+
+def test_empty_category_search_and_pagination_keep_the_selected_view(signed_in,kitchens,catalog):
+    with tenant_context(kitchens[0]):
+        MenuCategory.objects.bulk_create([MenuCategory(tenant=kitchens[0],name=f'Empty {i}',slug=f'empty-{i}') for i in range(32)])
+    page=signed_in.get('/manage/categories/',{'category_view':'empty','q':'Empty','page':2},HTTP_HOST=HOST)
+    assert len(page.context['rows'])==2 and page.context['total']==32
+    assert 'category_view=empty' in page.context['querystring']
+    assert b'name="category_view" value="empty"' in page.content
+    assert all('q=Empty' in tab['url'] and 'page=' not in tab['url'] for tab in page.context['category_tabs'])
+    page=signed_in.get('/manage/categories/',{'category_view':'invalid'},HTTP_HOST=HOST)
+    assert {row['obj'].pk for row in page.context['rows']}=={catalog['cat'].pk}

@@ -220,10 +220,28 @@ def dashboard(request):
 def resource_list(request, key, *, category=None):
     res = _resource(key)
     qs = res.model.objects.all()
+    category_tabs = []
     if key == 'categories':
         # Count the same category family used by the public shop, not just
         # products assigned directly to the parent category.
         category_counts = dict(MenuItem.objects.values('category_id').annotate(n=Count('pk')).values_list('category_id', 'n'))
+        category_totals = {shelf.pk: sum(category_counts.get(pk, 0) for pk in category_family_ids(shelf)) for shelf in qs}
+        populated = [pk for pk, count in category_totals.items() if count]
+        selected_view = request.GET.get('category_view', 'populated')
+        if selected_view not in ('populated', 'empty', 'all'):
+            selected_view = 'populated'
+        for value, label, count in [('populated', 'With items', len(populated)),
+                                    ('empty', 'Empty categories', len(category_totals)-len(populated)),
+                                    ('all', 'All categories', len(category_totals))]:
+            params = request.GET.copy()
+            params.pop('page', None)
+            params['category_view'] = value
+            category_tabs.append({'value': value, 'label': label, 'count': count, 'selected': selected_view == value,
+                                  'url': reverse('owner:list', args=['categories']) + '?' + params.urlencode()})
+        if selected_view == 'populated':
+            qs = qs.filter(pk__in=populated)
+        elif selected_view == 'empty':
+            qs = qs.exclude(pk__in=populated)
     if category is not None:
         qs = qs.filter(category_id__in=category_family_ids(category))
     menu, menu_ui = None, {}
@@ -308,7 +326,7 @@ def resource_list(request, key, *, category=None):
         return url + "?" + urlencode(params)
     if key == 'categories':
         for shelf in page:
-            shelf.product_count = sum(category_counts.get(pk, 0) for pk in category_family_ids(shelf))
+            shelf.product_count = category_totals[shelf.pk]
             shelf.website_count = search_shop(category=shelf).count()
     rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in columns],
              "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk),
@@ -329,7 +347,7 @@ def resource_list(request, key, *, category=None):
     params = request.GET.copy()
     params.pop("page", None)
     return render(request, "owner/list.html", {
-        "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui, "category": category,
+        "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui, "category": category, "category_tabs": category_tabs,
         "category_edit_url": reverse("owner:edit",args=["categories",category.pk])+"?"+urlencode({"next":return_url}) if category else "",
         "menu_ui": menu_ui, "new_url": action_url("owner:new"),
         "add_label": "Add item" if category else (("Add item" if menu["kind"] == "courier" else "Add meal" if menu["meal"] == "unassigned" else "Add " + menu["label"].lower() + " dish") if menu else "Add " + res.singular),
