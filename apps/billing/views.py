@@ -8,11 +8,12 @@ from django.core import signing
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db.models import Count, Q, Prefetch
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.cache import never_cache
 from apps.orders.models import Order
 from apps.owner.access import can_manage, owner_required
 from apps.owner.views import OwnerLoginForm
@@ -178,3 +179,15 @@ def settings_view(request):
         messages.success(request, "Billing settings saved for all three order sources.")
         return redirect("billing:settings")
     return render(request, "owner/billing_settings.html", {"form": form, "portal_base": "billing/base.html"})
+
+
+@never_cache
+@staff_required
+@require_GET
+def customer_lookup(request):
+    from .services import lookup_staff_customer
+    try:
+        result = lookup_staff_customer(request.GET.get('phone', ''))
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+    return JsonResponse(result)

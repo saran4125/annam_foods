@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Phone fills saved customer name",
+    "pass": true
+  },
+  {
+    "name": "Phone selects saved delivery area",
+    "pass": true
+  },
+  {
+    "name": "Delivery charge updates with filled area",
+    "pass": true
+  },
+  {
+    "name": "Leaving same phone retains staff edits",
+    "pass": true
+  },
+  {
+    "name": "Edited details saved on new order",
+    "pass": true
+  },
+  {
+    "name": "Next booking recalls latest saved edits",
+    "pass": true
+  },
+  {
+    "name": "Changing number clears old filled address",
+    "pass": true
+  },
+  {
+    "name": "Late reply preserves manual typing",
+    "pass": true
+  },
+  {
+    "name": "Older reply cannot replace current customer",
+    "pass": true
+  },
+  {
+    "name": "Mobile page has no horizontal overflow",
+    "pass": true
+  }
+]

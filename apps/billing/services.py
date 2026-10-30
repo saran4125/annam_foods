@@ -414,6 +414,7 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
     total = subtotal + fee
     if total <= 0 or total >= Decimal("100000000"):
         raise ValueError("Order total must be positive and below ₹10 crore.")
+    snapshot.update(recipient_name=name, phone=phone)
     customer = get_or_create_customer(tenant, phone=phone, name=name, channel=channel)
     for _ in range(5):
         try:
@@ -449,3 +450,52 @@ def staff_catalog():
         result.append({"id": item.pk, "name": item.name, "price": str(item.price),
                        "category": item.category.name if item.category else "", "groups": groups or ["other"]})
     return result
+
+
+def customer_phone_variants(phone):
+    """Match local Indian numbers and their +91 form without suffix matching."""
+    import re
+    digits = re.sub(r'[\s()+-]', '', str(phone or ''))
+    if not re.fullmatch(r'[0-9]{10,15}', digits):
+        raise ValueError('Enter a phone number with 10 to 15 digits.')
+    variants = {digits, '+' + digits}
+    if len(digits) == 10:
+        variants.update({'91' + digits, '+91' + digits})
+    elif len(digits) == 12 and digits.startswith('91'):
+        variants.add(digits[2:])
+    return variants
+
+
+def lookup_staff_customer(phone):
+    """Read saved details within the current kitchen; never change an old order."""
+    from apps.orders.models import Customer, Address, Order
+    from apps.delivery.models import DeliveryZone
+    customers = Customer.objects.filter(phone__in=customer_phone_variants(phone))
+    customer = customers.first()
+    if customer is None:
+        return {'found': False}
+    orders = Order.objects.filter(customer__in=customers).exclude(status='cancelled').select_related('customer').order_by('-placed_at', '-pk')
+    latest = orders.first()
+    delivery = orders.filter(address__line1__isnull=False).exclude(address__line1='').first()
+    snapshot = delivery.address if delivery else {}
+    if not snapshot:
+        saved = Address.objects.filter(customer__in=customers).select_related('zone').first()
+        snapshot = saved.as_snapshot() if saved else {}
+    name = (latest.address.get('recipient_name') if latest else '') or (latest.customer.name if latest else customer.name)
+    zone = None
+    if snapshot.get('pincode') and not snapshot.get('courier_deferred'):
+        zones = DeliveryZone.objects.filter(active=True, pincode=snapshot['pincode'])
+        if snapshot.get('area'):
+            zone = zones.filter(area_name=snapshot['area']).first()
+        elif zones.count() == 1:
+            zone = zones.first()
+    details = {
+        'name': name,
+        'address': '\n'.join(str(snapshot[key]) for key in ('line1', 'line2', 'landmark') if snapshot.get(key)),
+        'city': snapshot.get('city', ''), 'state': snapshot.get('state') or 'Tamil Nadu',
+        'country': snapshot.get('country') or 'India', 'postal_code': snapshot.get('pincode', ''),
+        'zone': str(zone.pk) if zone else '',
+        'fulfilment_method': 'courier' if snapshot.get('courier_deferred') else '',
+    }
+    return {'found': True, 'details': details,
+            'needs_area_selection': bool(snapshot.get('pincode') and not zone and not snapshot.get('courier_deferred'))}

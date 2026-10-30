@@ -202,3 +202,25 @@ Regression verification: 608 PostgreSQL tests, including 21-product parent
 families, nested descendants, child edit/toggle/delete, and hidden-item counts.
 The local browser comparison checks every Podi product name against the public
 shop: [checklist](examples/category-items-review/family-browser-checks.json).
+
+## Phone-first manual billing
+
+Manual/WhatsApp staff booking starts with the customer phone number. A staff-only,
+uncached lookup recalls the saved name and latest non-empty address from previous
+non-cancelled orders, with saved customer addresses as a fallback. Indian local
+numbers and +91 forms match; international numbers require an exact match rather
+than a phone suffix. All fields remain editable. A known active delivery area is
+selected and the existing delivery summary updates; ambiguous or unavailable
+areas require staff selection. Current delivery fees and order rules still apply
+when saving. New bookings snapshot the entered customer name and phone, preserving
+staff edits for the next lookup without rewriting historical orders or bills.
+
+Changing numbers clears previously auto-filled values. Requests are debounced,
+older responses are discarded, and edits typed while a lookup is pending are
+preserved. New numbers and failed lookups allow normal manual entry. Lookup
+responses never disclose another kitchen's customers. No schema migration or
+external payment/message connection is required.
+
+Validation: 616 PostgreSQL tests and 10 browser checks. Browser records use only
+synthetic local customer details: [checklist](examples/customer-lookup-review/browser-checks.json)
+and [phone-first form](examples/customer-lookup-review/saved-customer.png).
