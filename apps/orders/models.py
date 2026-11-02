@@ -160,6 +160,7 @@ class Order(TenantOwnedModel):
         ]
         indexes = [
             models.Index(fields=["tenant", "delivery_date", "slot"], name="idx_order_service"),
+            models.Index(fields=["tenant", "-placed_at"], name="idx_order_recent"),
         ]
 
     def __str__(self):

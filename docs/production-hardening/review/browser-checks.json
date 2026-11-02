@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Shop page is bounded",
+    "pass": true
+  },
+  {
+    "name": "Next page shows different products",
+    "pass": true
+  },
+  {
+    "name": "Staff page is private and non-cacheable",
+    "pass": true
+  },
+  {
+    "name": "Customer lookup stays staff-only",
+    "pass": true
+  },
+  {
+    "name": "Readiness returns minimal response",
+    "pass": true
+  },
+  {
+    "name": "Paginated shop has no mobile overflow",
+    "pass": true
+  },
+  {
+    "name": "Both login pages share the same rate limit",
+    "pass": true
+  }
+]

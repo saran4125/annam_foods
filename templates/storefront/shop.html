@@ -50,7 +50,7 @@
     <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
     <input type="search" name="q" value="{{ query }}" placeholder="Search {% if category %}{{ category.name|lower }}{% else %}the shop{% endif %}…" aria-label="Search">
   </label>
-  <p class="shop-count" aria-live="polite">{{ items|length }} item{{ items|length|pluralize }}</p>
+  <p class="shop-count" aria-live="polite">{{ item_total }} item{{ item_total|pluralize }}</p>
   <label class="shop-sort">
     <span>Sort</span>
     <select name="sort" data-autosubmit aria-label="Sort products">
@@ -84,4 +84,5 @@
   <a class="btn btn-dark-on" href="{% url 'storefront:cart' %}">View cart <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
 </div>
 {% endif %}
+{% if page.has_other_pages %}<nav class="tabs" aria-label="Product pages">{% if page.has_previous %}<a class="tab" href="?{{ querystring }}&page={{ page.previous_page_number }}">← Previous</a>{% endif %}<span class="tab">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="tab" href="?{{ querystring }}&page={{ page.next_page_number }}">Next →</a>{% endif %}</nav>{% endif %}
 {% endblock %}

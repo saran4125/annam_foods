@@ -169,16 +169,32 @@ def shop_categories():
     return shelves
 
 
+def category_families(categories):
+    """Resolve active descendants in memory, including corrupt-cycle protection."""
+    children={}
+    for category in categories:
+        if category.active:children.setdefault(category.parent_id,[]).append(category.pk)
+    families={}
+    for root in categories:
+        ids={root.pk};frontier=[root.pk]
+        while frontier:
+            following={pk for parent in frontier for pk in children.get(parent,[]) if pk not in ids}
+            ids.update(following);frontier=list(following)
+        families[root.pk]=ids
+    return families
+
+
 def category_family_ids(category):
-    """A shelf and every shelf beneath it."""
-    ids, frontier = {category.id}, [category.id]
-    while frontier:
-        children = list(
-            MenuCategory.objects.filter(parent_id__in=frontier, active=True).values_list("id", flat=True)
-        )
-        frontier = [c for c in children if c not in ids]
-        ids.update(frontier)
-    return ids
+    return category_families(list(MenuCategory.objects.all())).get(category.pk,{category.pk})
+
+
+def shop_subcategories(category):
+    """Two queries regardless of how many child categories are displayed."""
+    from django.db.models import Count
+    categories=list(MenuCategory.objects.all());families=category_families(categories)
+    counts=dict(shop_items().order_by().values('category_id').annotate(n=Count('pk')).values_list('category_id','n'))
+    return [child for child in categories if child.active and child.slug and child.parent_id==category.pk
+            and any(counts.get(pk,0) for pk in families[child.pk])]
 
 
 def search_shop(*, category=None, query="", sort="featured"):

@@ -27,7 +27,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 
 from apps.catalog.models import MenuCategory, MenuItem, Slot
-from apps.catalog.services import resolve_menu, category_family_ids, search_shop
+from apps.catalog.services import resolve_menu, category_family_ids, search_shop, category_families, shop_items
 from apps.content.models import Banner, Page
 from apps.delivery.models import DeliveryZone
 from apps.orders.models import STATUS_FLOW, Order, OrderStatus
@@ -226,7 +226,10 @@ def resource_list(request, key, *, category=None):
         # Count the same category family used by the public shop, not just
         # products assigned directly to the parent category.
         category_counts = dict(MenuItem.objects.values('category_id').annotate(n=Count('pk')).values_list('category_id', 'n'))
-        category_totals = {shelf.pk: sum(category_counts.get(pk, 0) for pk in category_family_ids(shelf)) for shelf in qs}
+        families=category_families(list(qs))
+        category_totals = {pk: sum(category_counts.get(child, 0) for child in ids) for pk,ids in families.items()}
+        online_counts=dict(shop_items().order_by().values('category_id').annotate(n=Count('pk')).values_list('category_id','n'))
+        website_totals={pk:sum(online_counts.get(child,0) for child in ids) for pk,ids in families.items()}
         populated = [pk for pk, count in category_totals.items() if count]
         selected_view = request.GET.get('category_view', 'populated')
         if selected_view not in ('populated', 'empty', 'all'):
@@ -328,7 +331,7 @@ def resource_list(request, key, *, category=None):
     if key == 'categories':
         for shelf in page:
             shelf.product_count = category_totals[shelf.pk]
-            shelf.website_count = search_shop(category=shelf).count()
+            shelf.website_count = website_totals[shelf.pk]
     rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in columns],
              "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk),
              "stock_url": reverse("owner:stock", args=[o.pk]) if key == "dishes" else "",

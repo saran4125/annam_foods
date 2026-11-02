@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "apps.billing",
     "apps.jobs",
     "apps.owner",
+    "apps.operations",
 ]
 
 MIDDLEWARE = [
@@ -37,6 +38,7 @@ MIDDLEWARE = [
     # Resolves Host -> Tenant. Must sit after auth so admin/staff views
     # can still resolve a tenant from the session when on the admin host.
     "apps.tenancy.middleware.TenantMiddleware",
+    "apps.operations.middleware.StaffProtectionMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

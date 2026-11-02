@@ -132,12 +132,16 @@ def dispatch_pending(limit: int = 50, tenant=None) -> dict:
     """Worker entry point. Runs across every tenant."""
     from apps.tenancy.context import all_tenants
 
+    from apps.tenancy.deployment import deployment_rows
     now = timezone.now()
     counts = {"sent": 0, "failed": 0, "abandoned": 0}
     with all_tenants():
         # A process can disappear after committing SENDING and before saving a
         # result. Requeue stale claims with the same backoff and attempt cap.
-        stale_ids = list(OutboundMessage.objects.filter(
+        stale_query = deployment_rows(OutboundMessage.objects.all())
+        if tenant is not None:
+            stale_query=stale_query.filter(tenant=tenant)
+        stale_ids = list(stale_query.filter(
             status=MessageStatus.SENDING,
             claimed_at__lt=now - STALE_SENDING_AFTER,
         ).values_list("pk", flat=True)[:limit])
@@ -159,7 +163,7 @@ def dispatch_pending(limit: int = 50, tenant=None) -> dict:
                     counts["failed"] += 1
                 stale.save(update_fields=["status", "claimed_at", "last_error", "next_attempt_at"])
 
-        query = OutboundMessage.objects.select_related("tenant", "tenant__secrets").filter(
+        query = deployment_rows(OutboundMessage.objects.select_related("tenant", "tenant__secrets")).filter(
                 status__in=[MessageStatus.PENDING, MessageStatus.FAILED],
                 next_attempt_at__lte=now,
             )

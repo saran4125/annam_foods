@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from apps.catalog.models import MenuCategory, MenuItem, Slot
 from apps.catalog.services import (
     SHOP_SORTS, category_family_ids, resolve_menu, search_shop, shop_categories,
-    shop_items, customer_slot_is_open,
+    shop_items, customer_slot_is_open, shop_subcategories,
 )
 from apps.content.models import Page
 from apps.content.services import resolve_hero_slides, resolve_promo_tiles
@@ -394,11 +394,13 @@ def shop(request, slug=None):
     sort = request.GET.get("sort", "featured")
     if sort not in SHOP_SORTS:
         sort = "featured"
-    items = list(search_shop(category=category, query=query, sort=sort))
+    from django.core.paginator import Paginator
+    page=Paginator(search_shop(category=category, query=query, sort=sort),36).get_page(request.GET.get('page'))
+    items=list(page)
+    params=request.GET.copy();params.pop('page',None)
     sub_shelves = []
     if category is not None:
-        sub_shelves = [c for c in category.children.filter(active=True).exclude(slug="")
-                       if search_shop(category=c).exists()]
+        sub_shelves = shop_subcategories(category)
     cart = Cart(request)
     return render(
         request,
@@ -407,7 +409,7 @@ def shop(request, slug=None):
             "shelves": shelves,
             "category": category,
             "sub_shelves": sub_shelves,
-            "items": items,
+            "items": items, "page":page, "item_total":page.paginator.count, "querystring":params.urlencode(),
             "query": query.strip(),
             "sort": sort,
             "sorts": [("featured", "Featured"), ("price", "Price: low to high"),

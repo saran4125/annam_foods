@@ -22,7 +22,7 @@ services:
     plan: starter
     buildCommand: ./build.sh
     startCommand: ./start.sh
-    healthCheckPath: /healthz
+    healthCheckPath: /readyz
     disk:
       name: annam-media
       mountPath: /var/data
@@ -58,12 +58,30 @@ services:
       # Keep existing hosting/callback addresses compatible. Annam's only admin
       # login is /manage/; PLATFORM_HOST does not expose a platform login.
       - key: ALLOWED_HOSTS
-        value: .onrender.com,platform.invalid
+        value: annam-foods.onrender.com,platform.invalid
       - key: PLATFORM_HOST
         value: platform.invalid
       - key: CSRF_TRUSTED_ORIGINS
-        value: https://*.onrender.com
+        value: https://annam-foods.onrender.com
       - key: PUBLIC_MEDIA_ROOT
         value: /var/data/media
       - key: PRIVATE_BILLS_ROOT
         value: /var/data/private-bills
+
+      - key: STORAGE_PERSISTENT
+        value: "1"
+      - key: REQUIRE_DURABLE_STORAGE
+        value: "1"
+      - key: REQUIRE_WORKER_HEARTBEAT
+        value: "1"
+      - key: READINESS_CHECK_STORAGE
+        value: "1"
+      - key: POSTGRES_SSLMODE
+        value: require
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: WEB_THREADS
+        value: "2"
+      # Set independently and keep a recovery copy outside hosting.
+      - key: BACKUP_ENCRYPTION_KEY
+        sync: false

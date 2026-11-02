@@ -51,7 +51,7 @@ class TenantMiddleware:
             selected = stores.first()
             if selected is None:
                 return HttpResponseNotFound("Not found.")
-        elif request.path != "/healthz":
+        elif request.path not in ("/healthz", "/readyz"):
             domains = TenantDomain.objects.select_related("tenant", "tenant__config").filter(hostname=host)
             if store_slug:
                 domains = domains.filter(tenant__slug=store_slug)

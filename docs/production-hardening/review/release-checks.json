@@ -1,0 +1,16 @@
+{
+  "postgres_tests_passed": 643,
+  "browser_checks_passed": 7,
+  "dependency_audit_known_vulnerabilities": 0,
+  "local_restore_drill_passed": true,
+  "django_check_passed": true,
+  "migration_consistency_passed": true,
+  "lock_consistency_passed": true,
+  "production_settings_warnings": [
+    "HSTS include-subdomains intentionally not forced",
+    "HSTS preload intentionally not forced"
+  ],
+  "live_deployment_verified": false,
+  "offsite_backup_configured": false,
+  "production_load_test_performed": false
+}

@@ -1,0 +1,11 @@
+{
+  "database_restored_to_isolated_scratch": true,
+  "schema_migrations_match": true,
+  "catalog_rows_match": true,
+  "media_restored": true,
+  "private_bills_restored": true,
+  "recovery_keys_match": true,
+  "encrypted_archive_verified": true,
+  "production_restore_performed": false,
+  "files": 4
+}

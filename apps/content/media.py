@@ -21,6 +21,10 @@ def public_media(request, path):
         raise Http404("Invalid public media path.")
     if path.split('/')[0] == 'website':
         raise Http404("Website library images require their access-controlled endpoint.")
+    root=Path(settings.MEDIA_ROOT).resolve()
+    resolved=(root/path).resolve()
+    if not resolved.is_relative_to(root) or resolved.relative_to(root).parts[0:1]==('website',) or resolved.suffix.lower() not in {'.jpg','.jpeg','.png','.webp','.gif','.avif','.ico'}:
+        raise Http404("Not a public image.")
     try:
         return serve(request, path, document_root=settings.MEDIA_ROOT)
     except Http404:

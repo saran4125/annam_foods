@@ -3,6 +3,7 @@ from django.db import connection, DatabaseError
 from django.http import JsonResponse
 from django.urls import include, path, re_path
 from apps.content.media import public_media
+from apps.operations.health import readyz
 
 
 def healthz(request):
@@ -17,6 +18,7 @@ def healthz(request):
 
 urlpatterns = [
     path("platform/", include("apps.platform_portal.urls")),
+    path("readyz", readyz, name="readyz"),
     path("healthz", healthz, name="healthz"),
     path("webhooks/whatsapp/", include("apps.messaging.webhook_urls")),
     path("billing/", include("apps.billing.urls")),
