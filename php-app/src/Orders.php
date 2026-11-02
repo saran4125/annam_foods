@@ -14,14 +14,13 @@ final class Orders {
         if($query!==''){$sql.=' AND (o.order_no ILIKE ? OR c.name ILIKE ? OR c.phone ILIKE ?)';array_push($params,'%'.$query.'%','%'.$query.'%','%'.$query.'%');}
         return $this->store->db->rows($sql.' ORDER BY o.placed_at DESC LIMIT 500',$params);
     }
-    public static function phone(string $value): string {
-        if(!preg_match('/^\+?[0-9 ()-]+$/D',$value)) throw new HttpError(422,'Enter a valid Indian mobile number.');
-        $digits=preg_replace('/\D/','',$value);if(strlen($digits)===12&&str_starts_with($digits,'91'))$digits=substr($digits,2);
-        if(!preg_match('/^[6-9][0-9]{9}$/D',$digits)) throw new HttpError(422,'Enter a valid ten-digit Indian mobile number.');return '91'.$digits;
+    public static function phone(string $value,string $country='India'):string {
+        $digits=preg_replace('/[\s()+-]/','',$value);if(!preg_match('/^[0-9]{10,15}$/D',$digits))throw new HttpError(422,'Enter a phone number with 10 to 15 digits.');
+        return strlen($digits)===10&&strcasecmp($country,'India')===0?'91'.$digits:$digits;
     }
     private function customer(array $details,string $channel): array {
         $db=$this->store->db;$now=date('c');
-        $customer=$db->one('SELECT * FROM orders_customer WHERE tenant_id=? AND phone=? FOR UPDATE',[$this->store->id(),$details['phone']]);
+        $variants=CustomerLookup::variants($details['phone']);$customer=$db->one('SELECT * FROM orders_customer WHERE tenant_id=? AND phone IN ('.implode(',',array_fill(0,count($variants),'?')).') ORDER BY last_seen DESC,id DESC LIMIT 1 FOR UPDATE',[$this->store->id(),...$variants]);
         if($customer){$values=['last_seen'=>$now];if(!$customer['name'])$values['name']=$details['name'];if(!$customer['email']&&!empty($details['email']))$values['email']=$details['email'];$this->store->update('orders_customer',$customer['id'],$values);return $customer;}
         return $this->store->insert('orders_customer',['phone'=>$details['phone'],'name'=>$details['name'],'email'=>$details['email']??'','gstin'=>'','business_name'=>'','billing_address'=>'','source'=>$channel,'first_seen'=>$now,'last_seen'=>$now,'notes'=>'']);
     }
@@ -30,13 +29,22 @@ final class Orders {
             $this->store->lock();
             if(!in_array($channel,['web','manual','whatsapp'],true)||!in_array($details['payment_method'],['online','manual','cod'],true))throw new HttpError(422,'Invalid order channel or payment method.');
             $existing=$this->store->db->one('SELECT id FROM orders_order WHERE tenant_id=? AND external_ref=?',[$this->store->id(),$external]);if($existing)return $this->get((int)$existing['id']);
+            if($channel==='web'&&!empty($quote['date']))foreach($quote['lines'] as $line){
+                if(($line['meal_key']??'snacks')==='snacks')continue;
+                $slot=$this->store->db->one('SELECT id FROM catalog_slot WHERE tenant_id=? AND key=?',[$this->store->id(),$line['meal_key']]);
+                $menu=$this->store->menu($quote['date'],(int)$slot['id']);$match=null;foreach($menu as $row)if((int)$row['id']===(int)$line['item_id'])$match=$row;
+                if(!$match)throw new HttpError(409,'A dish is no longer available. Review your cart.');
+                $reserved=$this->store->db->one('UPDATE catalog_menuschedule SET qty_sold=qty_sold+? WHERE tenant_id=? AND id=? AND (qty_limit IS NULL OR qty_sold+?<=qty_limit) RETURNING id',[(int)$line['quantity'],$this->store->id(),$match['schedule_id'],(int)$line['quantity']]);
+                if(!$reserved)throw new HttpError(409,'A dish has sold out. Review your cart.');
+            }
             $customer=$this->customer($details,$channel);$number='';
             for($i=0;$i<10;$i++){$number=strtoupper(substr($this->store->tenant['slug'],0,8)).'-'.date('Ymd').'-'.random_int(1000,9999);if(!$this->store->db->one('SELECT id FROM orders_order WHERE tenant_id=? AND order_no=?',[$this->store->id(),$number]))break;}
-            $address=array_intersect_key($details,array_flip(['line1','line2','landmark','pincode','city']));
-            $address+=['recipient_name'=>$details['name'],'phone'=>$details['phone'],'email'=>$details['email']??'','area'=>$quote['zone']['area_name']??'','state'=>'Tamil Nadu','state_code'=>'33'];
+            $address=array_intersect_key($details,array_flip(['line1','line2','landmark','pincode','city','state','country','zone_id']));
+            $address+=['recipient_name'=>$details['name'],'phone'=>$details['phone'],'email'=>$details['email']??'','area'=>$quote['zone']['area_name']??'','state'=>'Tamil Nadu','country'=>'India','state_code'=>CustomerLookup::stateCode($details['country']??'India',$details['state']??'Tamil Nadu')];
+            $address['courier_deferred']=$quote['courier_deferred']??false;
             if(!empty($details['collection']))$address['fulfilment']='Collection';
             $row=$this->store->insert('orders_order',['order_no'=>$number,'customer_id'=>$customer['id'],'channel'=>$channel,'source'=>$channel==='web'?'storefront':($channel==='whatsapp'?'wa_chat':'owner'),'payment_mode'=>$details['payment_method'],'fulfilment'=>$quote['kind'],'external_ref'=>$external,'payment_reference'=>'','buyer_gst'=>'{}','pricing'=>json_encode($quote['pricing'],JSON_THROW_ON_ERROR),'rider_name'=>'','rider_phone'=>'','status'=>'placed','payment_status'=>$details['payment_method']==='cod'?'cod_pending':'pending','slot_id'=>$quote['slot']['id']??null,'delivery_date'=>$quote['date']??null,'items'=>json_encode($quote['lines'],JSON_THROW_ON_ERROR),'address'=>json_encode($address,JSON_THROW_ON_ERROR),'subtotal'=>Money::decimal($quote['subtotal']),'delivery_fee'=>Money::decimal($quote['delivery_fee']),'discount'=>'0.00','total'=>Money::decimal($quote['total']),'coupon_code'=>'','placed_at'=>date('c'),'cancelled_reason'=>'']);
-            $this->event((int)$row['id'],'','placed',$actor,'Order placed.');return $this->get((int)$row['id']);
+            $this->event((int)$row['id'],'','placed',$actor,'Order placed.');$saved=$this->get((int)$row['id']);if($address['courier_deferred'])(new Courier($this->store))->prepare($saved);return $saved;
         });
     }
     public function event(int $id,string $from,string $to,string $actor,string $note=''): void {
@@ -66,23 +74,7 @@ final class Orders {
         if((new Billing($this->store))->timing()==='on_payment') (new Billing($this->store))->tryIssue($id);
         return $result;
     }
-    public function staff(array $input,string $actor): array {
-        $name=trim((string)($input['name']??''));if(!$name||mb_strlen($name)>120)throw new HttpError(422,'Enter the customer name.');
-        $details=['name'=>$name,'phone'=>self::phone((string)($input['phone']??'')),'email'=>'','payment_method'=>$input['payment_method']??'manual','line1'=>trim((string)($input['address']??'')),'collection'=>empty($input['zone_id'])];
-        if(!in_array($details['payment_method'],['manual','cod'],true))throw new HttpError(422,'Staff bookings use manual payment or cash on delivery.');
-        if(mb_strlen($details['line1'])>2000)throw new HttpError(422,'Delivery address is too long.');
-        $channel=$input['channel']??'manual';if(!in_array($channel,['manual','whatsapp'],true))throw new HttpError(422,'Choose a valid booking channel.');
-        $token=$input['token']??'';if(!is_string($token)||!preg_match('/^[a-f0-9]{32}$/D',$token)||!isset($_SESSION['staff_tokens'][$token]))throw new HttpError(422,'Reload the booking form before submitting.');
-        return $this->store->db->transaction(function()use($input,$actor,$details,$channel,$token){
-            $this->store->lock();$existing=$this->store->db->one('SELECT id FROM orders_order WHERE tenant_id=? AND external_ref=?',[$this->store->id(),'billing:'.$token]);if($existing)return $this->get((int)$existing['id']);
-            $lines=[];$quantities=$input['quantities']??[];if(!is_array($quantities)||count($quantities)>500)throw new HttpError(422,'Choose valid items.');
-            foreach($quantities as $id=>$raw){if(!ctype_digit((string)$id)||!is_scalar($raw))throw new HttpError(422,'Choose valid item quantities.');if($raw===''||$raw==='0')continue;$q=filter_var($raw,FILTER_VALIDATE_INT);if($q===false||$q<1||$q>999)throw new HttpError(422,'Enter quantities from 1 to 999.');$item=$this->store->item((int)$id);if(!$item['active'])throw new HttpError(422,'An item is unavailable.');$lines[]=Pricing::line($item,$q);}
-            if(!$lines||count($lines)>50)throw new HttpError(422,'Choose 1 to 50 items.');$subtotal=array_sum(array_map(fn($l)=>Money::parse($l['line_total']),$lines));$fee=0;$zone=[];
-            if(!empty($input['zone_id'])){$zone=$this->store->db->one('SELECT * FROM delivery_deliveryzone WHERE tenant_id=? AND id=? AND active',[$this->store->id(),(int)$input['zone_id']])??throw new HttpError(422,'Choose an active delivery area.');if(!$details['line1'])throw new HttpError(422,'Enter a delivery address.');if($subtotal<Money::parse($zone['min_order']))throw new HttpError(422,'This area requires a minimum food value of '.money($zone['min_order']).'.');$fee=Money::parse($zone['delivery_fee']);$details['pincode']=$zone['pincode'];}
-            $quote=Pricing::totals($lines,$fee,$this->store->profile())+['zone'=>$zone,'kind'=>'scheduled','slot'=>null,'date'=>null];
-            return $this->create($quote,$details,'billing:'.$token,$channel,$actor);
-        });
-    }
+    public function staff(array $input,string $actor):array {return (new StaffBooking($this->store))->create($input,$actor);}
     private function notify(array $order,string $status): void {
         $flags=$this->store->config['features'];if(!($flags['notify_'.$status]??false))return;
         (new Messaging($this->store))->queue($order['address']['phone']??'',['kind'=>'text','body'=>'Your Annam Foods order '.$order['order_no'].' is '.str_replace('_',' ',$status).'.'],'order_'.$status,'order:'.$order['id'].':'.$status);

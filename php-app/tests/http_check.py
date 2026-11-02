@@ -1,8 +1,9 @@
 """Read-only HTTP boundary checks for the local isolated PHP preview."""
+import os
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
-BASE='http://127.0.0.1:8091'
+BASE=os.environ.get('PHP_TEST_BASE','http://127.0.0.1:8091')
 def status(path,method='GET',headers=None,data=None):
     try:
         with urlopen(Request(BASE+path,method=method,headers=headers or {},data=data),timeout=10) as response:

@@ -1,0 +1,30 @@
+<?php
+declare(strict_types=1);
+namespace Annam;
+/** Independent receivable: never changes food totals or marks a test charge paid. */
+final class CourierPayments {
+    public function __construct(private Store $store){}
+    public function forOrder(int $orderId):?array{return $this->store->db->one('SELECT p.* FROM payments_courierpayment p JOIN orders_couriercharge c ON c.id=p.charge_id AND c.tenant_id=p.tenant_id WHERE p.tenant_id=? AND c.order_id=? ORDER BY p.created_at DESC LIMIT 1',[$this->store->id(),$orderId]);}
+    private function connection(array $p):array{$c=$this->store->row('payments_razorpayconnection',$p['connection_id']);if($c['key_id']!==$p['key_id']||$c['mode']!==$p['mode'])throw new HttpError(422,'Original courier payment credentials are required.');return $c;}
+    public function start(int $orderId):array {
+        if(empty($this->store->config['checkout_settings']['courier_online_enabled']))throw new HttpError(422,'Online courier payment is unavailable.');
+        $p=$this->store->db->transaction(function()use($orderId){$this->store->lock();$order=(new Orders($this->store))->get($orderId,true);$charge=(new Courier($this->store))->get($orderId,true)??throw new HttpError(422,'No courier charge.');if($order['status']==='cancelled'||!$charge['dispatched_at']||$charge['paid_at']||Money::parse($charge['amount']??'0')<=0)throw new HttpError(422,'No payable dispatched courier charge.');
+            $c=$this->store->db->one('SELECT * FROM payments_razorpayconnection WHERE tenant_id=? AND enabled',[$this->store->id()])??throw new HttpError(422,'Online payment unavailable.');
+            $p=$this->store->db->one('SELECT * FROM payments_courierpayment WHERE tenant_id=? AND charge_id=? AND mode=? FOR UPDATE',[$this->store->id(),$charge['id'],$c['mode']]);
+            if(!$p)$p=$this->store->insert('payments_courierpayment',['id'=>Store::uuid(),'charge_id'=>$charge['id'],'connection_id'=>$c['id'],'mode'=>$c['mode'],'key_id'=>$c['key_id'],'amount'=>Money::parse($charge['amount']),'currency'=>'INR','provider_order_id'=>'','payment_id'=>'','state'=>'new','captured_at'=>null,'created_at'=>date('c'),'updated_at'=>date('c')]);
+            if($p['provider_order_id'])return $p;if($p['state']==='creating'&&strtotime($p['updated_at'])>time()-30)throw new HttpError(409,'Courier payment setup is in progress.');$p['recover']=in_array($p['state'],['creating','uncertain'],true);$this->store->update('payments_courierpayment',$p['id'],['state'=>'creating','updated_at'=>date('c')]);return $p;
+        });
+        if($p['provider_order_id'])return $p;$receipt='courier_'.str_replace('-','',$p['id']);$provider=new Razorpay($this->connection($p));
+        try{$e=$p['recover']?$provider->find($receipt):$provider->request('POST','orders',['amount'=>(int)$p['amount'],'currency'=>'INR','receipt'=>$receipt]);if(!$e||($e['receipt']??'')!==$receipt||($e['amount']??null)!==(int)$p['amount']||($e['currency']??'')!=='INR')throw new ProviderError(true);$id=Razorpay::identifier($e['id']??'','order');}catch(ProviderError $e){$this->store->update('payments_courierpayment',$p['id'],['state'=>$e->uncertain?'uncertain':'error','updated_at'=>date('c')]);throw $e;}
+        return $this->store->db->transaction(function()use($p,$id){$row=$this->store->row('payments_courierpayment',$p['id'],true);if($row['provider_order_id']&&$row['provider_order_id']!==$id)throw new HttpError(409,'Courier payment conflict.');$this->store->update('payments_courierpayment',$p['id'],['provider_order_id'=>$id,'state'=>$row['state']==='captured'?'captured':'ready','updated_at'=>date('c')]);return $this->store->row('payments_courierpayment',$p['id']);});
+    }
+    public function verify(int $orderId,array $input):array {
+        $p=$this->forOrder($orderId)??throw new HttpError(404,'Courier payment missing.');$c=$this->connection($p);$payment=Razorpay::identifier((string)($input['razorpay_payment_id']??''),'pay');$id=(string)($input['razorpay_order_id']??'');if($id!==$p['provider_order_id']||!hash_equals(hash_hmac('sha256',$id.'|'.$payment,Crypto::decrypt($c['_key_secret'])),(string)($input['razorpay_signature']??'')))throw new HttpError(403,'Courier payment signature invalid.');return $this->apply($p['id'],(new Razorpay($c))->payment($payment));
+    }
+    public function apply(string $id,array $e):array {
+        return $this->store->db->transaction(function()use($id,$e){$initial=$this->store->row('payments_courierpayment',$id);$original=$this->store->row('orders_couriercharge',$initial['charge_id']);(new Orders($this->store))->get((int)$original['order_id'],true);$p=$this->store->row('payments_courierpayment',$id,true);$charge=$this->store->row('orders_couriercharge',$p['charge_id'],true);$payment=Razorpay::identifier((string)($e['id']??''),'pay');if(($e['order_id']??'')!==$p['provider_order_id']||($e['amount']??null)!==(int)$p['amount']||($e['currency']??'')!==$p['currency']||Money::parse($charge['amount'])!==(int)$p['amount'])throw new HttpError(422,'Courier payment evidence does not match.');if(($e['status']??'')==='captured'&&($e['captured']??false)===true){if($p['payment_id']&&$p['payment_id']!==$payment)throw new HttpError(409,'Another courier payment already captured.');$this->store->update('payments_courierpayment',$id,['state'=>'captured','payment_id'=>$payment,'captured_at'=>$p['captured_at']?:date('c'),'updated_at'=>date('c')]);if($p['mode']==='live')(new Courier($this->store))->confirm((int)$charge['order_id'],$payment,'razorpay');}return $this->store->row('payments_courierpayment',$id);});
+    }
+    public function reconcile(string $id):array {
+        $p=$this->store->row('payments_courierpayment',$id);$c=$this->store->row('orders_couriercharge',$p['charge_id']);if(!$p['provider_order_id'])$p=$this->start((int)$c['order_id']);$provider=new Razorpay($this->connection($p));$rows=$provider->request('GET','orders/'.Razorpay::identifier($p['provider_order_id'],'order').'/payments');foreach($rows['items']??[] as $e)if(($e['status']??'')==='captured')return $this->apply($id,$provider->payment($e['id']));return $p;
+    }
+}

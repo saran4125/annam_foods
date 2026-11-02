@@ -22,6 +22,6 @@ final class Pricing {
     public static function line(array $item,int $quantity,?string $price=null): array {
         if($quantity<1||$quantity>999) throw new HttpError(422,'Quantity must be between 1 and 999.');
         $unit=Money::parse($price??$item['price']);
-        return ['item_id'=>(int)$item['id'],'name'=>$item['name'],'quantity'=>$quantity,'unit_price'=>Money::decimal($unit),'line_total'=>Money::decimal($unit*$quantity),'is_veg'=>(bool)$item['is_veg'],'tax_rate'=>$item['tax_rate'],'sac'=>$item['sac']?:null];
+        return ['category_id'=>$item['category_id']??null,'category_name'=>$item['category_name']??'','item_id'=>(int)$item['id'],'name'=>$item['name'],'quantity'=>$quantity,'unit_price'=>Money::decimal($unit),'line_total'=>Money::decimal($unit*$quantity),'is_veg'=>(bool)$item['is_veg'],'tax_rate'=>$item['tax_rate'],'sac'=>$item['sac']?:null];
     }
 }

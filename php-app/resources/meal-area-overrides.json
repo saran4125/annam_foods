@@ -1,0 +1,9 @@
+{
+  "source": "Owner-approved split in delivery requirements and Django delivery migration 0004",
+  "areas": {
+    "600041": [
+      {"area_name": "Thiruvanmiyur", "delivery_fee": "40.00"},
+      {"area_name": "Kottivakkam", "delivery_fee": "60.00"}
+    ]
+  }
+}

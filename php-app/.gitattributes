@@ -1,0 +1,2 @@
+# Preserve the owner's original CSV bytes for the reviewed-import digest.
+resources/meal-delivery-zones.csv whitespace=cr-at-eol

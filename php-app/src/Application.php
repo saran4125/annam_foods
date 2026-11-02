@@ -33,6 +33,7 @@ final class Application {
         $method = $_SERVER['REQUEST_METHOD'];
         if ($path === '/healthz') { $this->db->one('SELECT 1'); header('Content-Type: application/json'); echo '{"status":"ok","application":"annam-php"}'; return; }
         $this->store = new Store($this->db);
+        if($path==='/readyz'){$pulse=$this->db->one("SELECT updated_at>CURRENT_TIMESTAMP-INTERVAL '5 minutes' AS fresh FROM operations_workerpulse WHERE tenant_id=? AND name='php-cron'",[$this->store->id()]);$ok=is_writable(Media::root())&&(getenv('REQUIRE_CRON')!=='1'||($pulse['fresh']??false));http_response_code($ok?200:503);header('Content-Type: application/json');echo json_encode(['status'=>$ok?'ready':'not_ready']);return;}
         $this->user = Security::user($this->db, $this->store);
         if(preg_match('~^/platform/assets/'.preg_quote($this->store->tenant['slug'],'~').'/([a-f0-9-]{36})/$~D',$path,$asset)){Media::asset($this->store,$asset[1],$this->user!==null);return;}
         if(str_starts_with($path,'/media/')){Media::serve(substr($path,7));return;}
@@ -45,7 +46,7 @@ final class Application {
             $aliases=['/billing/'=>'/manage/orders/','/billing/login/'=>'/manage/orders/','/billing/new/'=>'/manage/orders/new/','/billing/settings/'=>'/manage/billing-settings/','/billing/logout/'=>'/manage/logout/'];
             if(isset($aliases[$path])){if($method==='POST'){$this->admin($aliases[$path],$method);return;}redirect($aliases[$path]);}
             if(preg_match('~^/billing/(web|manual|whatsapp)/$~',$path,$channel))redirect('/manage/orders/?channel='.$channel[1]);
-            $mapped=preg_replace('~^/billing/~','/manage/',$path);if($workflow->admin($mapped,$method))return;
+            $mapped=preg_replace('~^/billing/~','/manage/',$path);$this->admin($mapped,$method);return;
         }
 
         if ($path === '/manage/login/') {
@@ -64,14 +65,14 @@ final class Application {
         if ($path === '/cart/add/' && $method === 'POST') {
             Cart::add($this->store, $_POST); $_SESSION['notice'] = 'Added to your cart.'; redirect('/cart/');
         }
-        if($path==='/cart/update/'&&$method==='POST'){$quantity=filter_var($_POST['quantity']??'',FILTER_VALIDATE_INT);if($quantity===false)throw new HttpError(422,'Enter a whole quantity.');Cart::set($this->store,(int)($_POST['item_id']??0),$quantity);redirect('/cart/');}
+        if($path==='/cart/update/'&&$method==='POST'){$quantity=filter_var($_POST['quantity']??'',FILTER_VALIDATE_INT);if($quantity===false)throw new HttpError(422,'Enter a whole quantity.');Cart::set($this->store,(string)($_POST['item_id']??''),$quantity);redirect('/cart/');}
         if ($path === '/cart/clear/' && $method === 'POST') { unset($_SESSION['cart']); redirect('/cart/'); }
-        if ($path === '/cart/remove/' && $method === 'POST') { unset($_SESSION['cart']['lines'][(int)($_POST['item_id'] ?? 0)]); redirect('/cart/'); }
+        if ($path === '/cart/remove/' && $method === 'POST') { unset($_SESSION['cart']['lines'][(string)($_POST['item_id'] ?? '')]); redirect('/cart/'); }
         if ($method !== 'GET' && $path !== '/cart/') throw new HttpError(405, 'Method not allowed.');
         if ($path === '/') {
             $slots = $this->store->slots(); $date = date('Y-m-d'); $menus = [];
             foreach ($slots as $slot) $menus[] = ['slot' => $slot, 'items' => $this->store->menu($date, (int)$slot['id'])];
-            $products=array_values(array_filter($this->store->items('courier'),fn($i)=>$i['active']));usort($products,fn($a,$b)=>[!in_array('featured',json_decode($a['tags'],true),true),!$a['image'],$a['sort'],$a['name']]<=>[!in_array('featured',json_decode($b['tags'],true),true),!$b['image'],$b['sort'],$b['name']]);$products=array_slice($products,0,12);
+            $products=array_values(array_filter($this->store->items('courier'),fn($i)=>$i['active']&&($i['in_stock']??true)));usort($products,fn($a,$b)=>[!in_array('featured',json_decode($a['tags'],true),true),!$a['image'],$a['sort'],$a['name']]<=>[!in_array('featured',json_decode($b['tags'],true),true),!$b['image'],$b['sort'],$b['name']]);$products=array_slice($products,0,12);
             $banners = $this->db->rows('SELECT * FROM content_banner WHERE tenant_id=? AND active ORDER BY sort,id LIMIT 12', [$this->store->id()]);
             $this->render('home', compact('menus', 'products', 'banners', 'date')); return;
         }
@@ -86,12 +87,11 @@ final class Application {
                 $category = $this->db->one('SELECT * FROM catalog_menucategory WHERE tenant_id=? AND slug=? AND active', [$this->store->id(), $match[1]]) ?? throw new HttpError(404, 'Category not found.');
             }
             $query = trim((string)($_GET['q'] ?? ''));
-            $products = array_values(array_filter($this->store->items('courier', $query, $category ? (int)$category['id'] : null), fn($i) => $i['active']));
-            $this->render('shop', compact('products', 'category', 'query')); return;
+            $result=$this->store->pageItems('courier',$query,$category?(int)$category['id']:null,(int)($_GET['page']??1),36,['active'=>true,'in_stock'=>true]);$products=$result['records'];$total=$result['total'];$page=$result['page'];$this->render('shop',compact('products','category','query','total','page')); return;
         }
         if (preg_match('~^/item/(\d+)/$~', $path, $match)) {
             $item = $this->store->item((int)$match[1]);
-            if (!$item['active']) throw new HttpError(404, 'Item not available.');
+            if (!$item['active']||!($item['in_stock']??true)) throw new HttpError(404, 'Item not available.');
             $this->render('item', compact('item')); return;
         }
         if ($path === '/cart/') {
@@ -99,17 +99,10 @@ final class Application {
             if ($method === 'POST' && $quote['lines']) {
                 try {
                     $subtotal = $quote['subtotal'];
-                    if ($quote['cart']['kind'] === 'scheduled') {
-                        $slot = $this->store->slot($quote['cart']['slot_id']);
-                        $delivery = $this->store->zoneQuote(trim((string)($_POST['pincode'] ?? '')), $slot['key'], $subtotal, !empty($_POST['area_id']) ? (int)$_POST['area_id'] : null);
-                    } else {
-                        $settings = $this->store->config['checkout_settings'];
-                        $pin = trim((string)($_POST['pincode'] ?? ''));
-                        if (!($settings['courier_enabled'] ?? false) || !in_array($pin, $settings['courier_pincodes'] ?? [], true)) throw new HttpError(422, 'Courier delivery is not available for that pincode.');
-                        $minimum = Money::parse((string)($settings['courier_minimum'] ?? '0'));
-                        if ($subtotal < $minimum) throw new HttpError(422, 'Minimum shop items value is ' . Money::display($minimum) . '.');
-                        $delivery = ['fee' => Money::parse((string)($settings['courier_fee'] ?? '0')), 'minimum' => $minimum];
-                    }
+                    $pin=trim((string)($_POST['pincode']??''));$area=!empty($_POST['area_id'])?(int)$_POST['area_id']:null;
+                    if($quote['cart']['kind']==='scheduled')$delivery=(new Delivery($this->store))->local($pin,$quote['meal_keys'],$subtotal,$area);
+                    else $delivery=(new Delivery($this->store))->snacks(['pincode'=>$pin,'zone_id'=>$area,'city'=>$_POST['city']??'','country'=>$_POST['country']??'India'],$subtotal);
+                    $_SESSION['cart']['pincode']=$pin;$_SESSION['cart']['zone_id']=$area;
                 } catch (HttpError $e) { $error = $e->getMessage(); }
             }
             $areas = $this->db->rows('SELECT id,area_name,pincode FROM delivery_deliveryzone WHERE tenant_id=? AND active ORDER BY area_name', [$this->store->id()]);
@@ -123,6 +116,7 @@ final class Application {
         throw new HttpError(404, 'Page not found.');
     }
     private function admin(string $path, string $method): void {
+        if((new ParityRoutes($this->store,$this->user,fn($view,$data=[],$admin=true)=>$this->render($view,$data,$admin)))->admin($path,$method))return;
         if((new Workflow($this->store,$this->user,fn($view,$data=[],$admin=false)=>$this->render($view,$data,$admin)))->admin($path,$method))return;
         $resources = new Resources($this->store);
         if ($path === '/manage/logout/' && $method === 'POST') { $_SESSION = []; session_regenerate_id(true); redirect('/manage/login/'); }

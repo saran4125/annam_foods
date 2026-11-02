@@ -12,7 +12,7 @@ final class Settings {
         if(!is_array($pins)||count($pins)>10000)throw new HttpError(422,'Enter approved six-digit pincodes.');
         foreach($pins as $pin)if(!is_string($pin)||!preg_match('/^[1-9][0-9]{5}$/D',$pin))throw new HttpError(422,'Every pincode must contain six digits.');
         if(!is_bool($data['courier_enabled']??false))throw new HttpError(422,'Choose whether courier delivery is enabled.');
-        if(($data['courier_enabled']??false)&&(!$pins||!isset($data['courier_fee'],$data['courier_minimum'])))throw new HttpError(422,'Set approved pincodes, charge and minimum before enabling courier delivery.');
+        if(($data['courier_enabled']??false)&&!isset($data['courier_minimum']))throw new HttpError(422,'Set the shop minimum before enabling courier delivery.');
         foreach(['courier_fee','courier_minimum'] as $key){try{$amount=Money::parse((string)($data[$key]??'0'));}catch(\InvalidArgumentException){throw new HttpError(422,'Enter valid courier amounts.');}if($amount>9999999)throw new HttpError(422,'Courier amounts cannot exceed ₹99,999.99.');}
         $dates=$data['closed_dates']??[];if(!is_array($dates)||count($dates)>366)throw new HttpError(422,'Enter at most 366 closed dates.');foreach($dates as $date)Store::date((string)$date);
         if(!is_string($data['payment_instructions']??'')||mb_strlen($data['payment_instructions']??'')>1000)throw new HttpError(422,'Payment instructions must be at most 1,000 characters.');
@@ -20,7 +20,9 @@ final class Settings {
     public function checkout(array $input): void {
         $pins=$input['pincodes']??[];if(!is_array($pins))throw new HttpError(422,'Use the pincode table.');
         $pins=array_values(array_unique(array_filter(array_map(fn($p)=>is_string($p)?trim($p):'', $pins),fn($p)=>$p!=='')));sort($pins);
-        $data=['courier_enabled'=>!empty($input['courier_enabled']),'courier_pincodes'=>$pins,'courier_fee'=>(string)($input['courier_fee']??''),'courier_minimum'=>(string)($input['courier_minimum']??''),'closed_dates'=>preg_split('/\s+/',trim((string)($input['closed_dates']??'')),-1,PREG_SPLIT_NO_EMPTY),'payment_instructions'=>trim((string)($input['payment_instructions']??''))];
+        $data=array_replace($this->store->config['checkout_settings'],['courier_enabled'=>!empty($input['courier_enabled']),'courier_pincodes'=>$pins,'courier_fee'=>(string)($input['courier_fee']??''),'courier_minimum'=>(string)($input['courier_minimum']??''),'closed_dates'=>preg_split('/\s+/',trim((string)($input['closed_dates']??'')),-1,PREG_SPLIT_NO_EMPTY),'payment_instructions'=>trim((string)($input['payment_instructions']??'')),'courier_team_phone'=>trim((string)($input['courier_team_phone']??'')),'courier_notifications_enabled'=>!empty($input['courier_notifications_enabled']),'courier_online_enabled'=>!empty($input['courier_online_enabled']),'courier_customer_template'=>trim((string)($input['courier_customer_template']??'')),'courier_team_template'=>trim((string)($input['courier_team_template']??'')),'courier_template_language'=>trim((string)($input['courier_template_language']??'en'))]);
+        if($data['courier_notifications_enabled']){foreach(['courier_customer_template','courier_team_template'] as $field)if(!preg_match('/^[a-z][a-z0-9_]{0,99}$/D',$data[$field]))throw new HttpError(422,'Configure approved customer and team templates.');if(!preg_match('/^[a-z]{2,3}(?:_[A-Z]{2})?$/D',$data['courier_template_language']))throw new HttpError(422,'Enter a valid template language.');}
+        if($data['courier_team_phone'])$data['courier_team_phone']=Orders::phone($data['courier_team_phone']);
         self::validateCheckout($data);
         $this->store->db->transaction(function()use($data){$this->store->lock();$this->store->db->rows('UPDATE tenancy_tenantconfig SET checkout_settings=? WHERE tenant_id=?',[json_encode($data,JSON_THROW_ON_ERROR),$this->store->id()]);});$this->store->reload();
     }

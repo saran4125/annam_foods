@@ -13,7 +13,7 @@ Browser / signed provider callback
     → Apache/LiteSpeed public_html/index.php
     → private src/bootstrap.php (environment, autoload, safe output)
     → Application (host, store, session, CSRF, authentication)
-    → Workflow / Resources (HTTP adapters)
+    → Workflow / ParityRoutes / Resources (HTTP adapters)
     → Store-scoped domain services
     → Database / existing PostgreSQL tables
 
@@ -46,6 +46,10 @@ for data protection; there is no multi-kitchen UI or subscription workflow.
 | `Crypto`, `LegacySession` | Fernet credentials and read-only compatibility for old guest receipt sessions |
 | `Content`, `Markdown` | Published site configuration, escaped copy and safe formatted policy pages |
 | `Media`, `Attachment`, `Backup` | Photo recovery/access, authenticated Meta media and scoped ZIP inventory |
+| `Delivery`, `StaffBooking`, `CustomerLookup` | Meal/category coverage, shared-area fee, combinations and editable saved addresses |
+| `Reports` | SQL product quantities, meal groups and daily financial monitoring |
+| `Courier`, `CourierPayments` | Deferred charge ledger, separate provider evidence and customer/team notices |
+| `Schema`, `CatalogSync`, `Operations`, `Recovery` | Additive upgrades, reviewed imports, shared throttle, encrypted recovery |
 | `Audit` | Read-only migration fingerprints and configuration/data readiness checks |
 
 ## Checkout and money
@@ -53,9 +57,11 @@ for data protection; there is no multi-kitchen UI or subscription workflow.
 A cart stores item IDs, quantities, meal/date and fulfilment only. Every quote
 reads the catalog and resolved menu again. Meal orders require an exact active
 pincode/area with applicable meal coverage, minimum food subtotal and fee. Shop
-orders require explicitly enabled courier delivery and an exact approved pincode.
-There is no prefix-based Tamil Nadu guess or fallback accepting outside coverage.
-Meals and shop items use separate carts/orders.
+orders use the selected approved Chennai area when applicable. Snacks outside
+Chennai use explicitly enabled courier delivery with a deferred-charge disclosure,
+including other states/countries. Unapproved Chennai addresses cannot bypass local
+coverage. Breakfast/Lunch/Snacks can share one dated order and one fee; Dinner
+always requires a separate order. A shop-started cart accepts Snacks only.
 
 Checkout review stores a server-side fingerprint of the quote and contact
 information. Submission locks the store and selected items, recalculates the
@@ -68,8 +74,9 @@ Orders snapshot line names, unit prices, amounts, taxes, delivery address and
 pricing choices. Later product/configuration edits do not rewrite those values.
 Financial values are decimal strings at database boundaries, with arithmetic
 centralized through Money/Pricing. No floating-point currency calculations.
-Existing stock counters are preserved; placement follows the existing behavior
-and does not introduce an unpaid-cart stock reservation policy.
+Existing counters are preserved. Successful web order creation increments resolved
+menu quantities under the store lock; abandoned carts do not reserve portions.
+Scheduled rows and live prices are checked again before placement.
 
 ## Payments and bills
 
@@ -129,10 +136,31 @@ The Hostinger ZIP splits private source and public assets, excludes all secrets,
 uploads, sessions/logs and database contents, and includes checksums. The real
 saved media and a restored database must be supplied separately. Audit reports
 hash scoped records without disclosing personal data or credential values.
-Preparation changes no business/financial rows; it adds the login-throttle schema
-and missing recoverable files.
+Preparation preserves business/history snapshots and adds missing compatibility
+fields/tables/indexes and recoverable media. Reviewed catalog/zone imports are
+explicit, versioned and separately applied.
 
 Hostinger `pdo_pgsql`, outbound Supabase TLS and provider access, persistent files,
 cron, DNS/HTTPS, backup restoration and real provider acceptance require checking
 on the actual hosting account. Local mock/browser tests do not certify them. The
 cutover/rollback procedure and commands are in README.md.
+
+## Operational parity
+
+Provider execution defaults offline. Enabling payment choices/cron requires the
+private runtime flags; courier WhatsApp drafts remain `held` until approved
+templates are configured and released. Test courier captures never settle real
+receivables. Food totals/bills remain unchanged when separate courier receipts
+are recorded. Shared database rate buckets protect login and customer lookup.
+
+Orders use SQL filtering and 50-row pages; report quantities aggregate JSON line
+snapshots in SQL. Catalog rendering uses bounded pages, and menu updates use
+revision checks with preserved counters. Database statements/locks have bounded
+timeouts. `/readyz` combines database/media availability and optional cron freshness.
+No particular traffic capacity is certified by these safeguards.
+
+Recovery streams public PostgreSQL data without requiring pg_dump/Python, archives
+media/private recovery keys, and encrypts indexed chunks with authenticated final
+completion. Verification precedes optional private Supabase Storage upload. Clean
+schema/data restoration is transactional and refuses existing business data.
+Use the matching release/schema and rehearse recovery before production cutover.

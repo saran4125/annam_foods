@@ -6,7 +6,7 @@ final class Resources {
     public const DEFINITIONS = [
         'dishes' => ['table' => 'catalog_menuitem', 'title' => 'Dishes & products', 'fields' => [
             'name' => 'Name|text', 'fulfilment' => 'Type|fulfilment', 'category_id' => 'Category|category',
-            'price' => 'Price (₹)|price', 'description' => 'Description|textarea', 'active' => 'On sale|bool',
+            'price' => 'Price (₹)|price', 'weight'=>'Verified pack size|optional_text','admin_notes'=>'Internal review notes|textarea','in_stock'=>'In stock|bool', 'description' => 'Description|textarea', 'active' => 'On sale|bool',
             'is_veg' => 'Vegetarian|bool', 'sort' => 'Display order|int'],
             'defaults' => ['retailer_id' => null, 'tax_rate' => null, 'sac' => '', 'tags' => '[]', 'image' => '']],
         'categories' => ['table' => 'catalog_menucategory', 'title' => 'Categories', 'fields' => [
@@ -16,7 +16,7 @@ final class Resources {
             'area_name' => 'Area name|text', 'pincode' => 'Pincode|pincode', 'delivery_fee' => 'Delivery charge (₹)|price',
             'min_order' => 'Minimum food value (₹)|price', 'slot_keys' => 'Meals served|slots', 'active' => 'Delivering|bool'], 'defaults' => []],
         'slots' => ['table' => 'catalog_slot', 'title' => 'Meal times', 'fields' => [
-            'label' => 'Meal name|text', 'key' => 'Meal key|slug', 'order_cutoff' => 'Orders close|time',
+            'label' => 'Meal name|text', 'key' => 'Meal key|slug', 'order_cutoff' => 'Orders close|time','order_opens_at'=>'Orders open at|time','order_days_before'=>'Days before delivery ordering opens|int',
             'delivery_from' => 'Delivery starts|optional_time', 'delivery_to' => 'Delivery ends|optional_time',
             'sort' => 'Display order|int', 'active' => 'Available|bool'], 'defaults' => []],
         'banners' => ['table' => 'content_banner', 'title' => 'Offer banners', 'fields' => [
@@ -44,7 +44,7 @@ final class Resources {
         $values = [];
         foreach ($spec['fields'] as $field => $definition) {
             [$label, $type] = explode('|', $definition);
-            $raw = $input[$field] ?? '';
+            $raw = $input[$field] ?? ($field==='in_stock'&&!$id?'1':($field==='order_opens_at'?'00:00:00':($field==='order_days_before'?'1':'')));
             if ($type !== 'slots' && !is_scalar($raw)) throw new HttpError(422, 'Invalid ' . $label . '.');
             $raw = is_string($raw) ? trim($raw) : $raw;
             $value = match ($type) {
@@ -73,6 +73,7 @@ final class Resources {
         if (array_key_exists('image', $spec['defaults']) && ($files['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
             $values['image'] = self::upload($files['image'], match ($key) { 'categories' => 'categories', 'banners' => 'banners', default => 'menu' });
         }
+        if(isset($values['weight'])&&strlen($values['weight'])>100)throw new HttpError(422,'Pack size must be at most 100 characters.');
         if ($key === 'pages') $values['updated_at'] = date('c');
         if($key==='dishes'){
             $tags=$existing?json_decode($existing['tags'],true,64,JSON_THROW_ON_ERROR):[];$tags=array_values(array_filter($tags,fn($tag)=>$tag!=='featured'));if(!empty($input['featured']))$tags[]='featured';$values['tags']=json_encode($tags,JSON_THROW_ON_ERROR);
@@ -106,7 +107,7 @@ final class Resources {
         $this->store->db->rows('UPDATE ' . $spec['table'] . ' SET ' . $field . '=FALSE WHERE tenant_id=? AND id=?', [$this->store->id(), $id]);
     }
     public static function upload(array $file, string $folder): string {
-        if ($file['error'] !== UPLOAD_ERR_OK || $file['size'] > 3 * 1024 * 1024 || !is_uploaded_file($file['tmp_name'])) throw new HttpError(422, 'Choose an image smaller than 3 MB.');
+        if ($file['error'] !== UPLOAD_ERR_OK || $file['size'] > 5 * 1024 * 1024 || !is_uploaded_file($file['tmp_name'])) throw new HttpError(422, 'Choose an image smaller than 5 MB.');
         $size = getimagesize($file['tmp_name']);
         $extension = $size ? ([IMAGETYPE_JPEG => '.jpg', IMAGETYPE_PNG => '.png', IMAGETYPE_WEBP => '.webp'][$size[2]] ?? null) : null;
         if (!$extension || $size[0] * $size[1] > 25000000) throw new HttpError(422, 'Choose a JPG, PNG or WebP image up to 25 megapixels.');

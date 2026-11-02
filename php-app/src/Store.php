@@ -5,7 +5,7 @@ namespace Annam;
 final class Store {
     private const TABLES = ['tenancy_tenantsecrets','orders_customer','orders_address','orders_order','orders_orderevent',
         'billing_invoice','billing_invoicesequence','billing_invoicerequest',
-        'payments_razorpayconnection','payments_paymentintent','payments_refund','payments_paymentevent',
+        'orders_couriercharge','payments_courierpayment','payments_razorpayconnection','payments_paymentintent','payments_refund','payments_paymentevent',
         'messaging_outboundmessage','messaging_whatsappconversation','messaging_whatsappmessage',
         'messaging_whatsappreceipt','messaging_whatsappforwardevent'];
     public readonly array $tenant;
@@ -60,11 +60,18 @@ final class Store {
         $params = [$this->id()];
         if ($kind) { $sql .= ' AND i.fulfilment=?'; $params[] = $kind; }
         if ($query) { $sql .= ' AND i.name ILIKE ?'; $params[] = '%' . $query . '%'; }
-        if ($category) { $sql .= ' AND i.category_id=?'; $params[] = $category; }
+        if ($category) { $ids=$this->family($category);$sql.=' AND i.category_id IN ('.implode(',',array_fill(0,count($ids),'?')).')';array_push($params,...$ids); }
         return $this->db->rows($sql . ' ORDER BY i.sort,i.name', $params);
     }
+    public function pageItems(string $kind,string $query,?int $category,int $page,int $size=30,array $filters=[],string $meal=''):array {
+        $size=max(1,min($size,100));$params=[$this->id()];$where=' WHERE i.tenant_id=?';if($kind){$where.=' AND i.fulfilment=?';$params[]=$kind;}if($query){$where.=' AND i.name ILIKE ?';$params[]='%'.mb_substr($query,0,120).'%';}
+        if($category){$family=$this->family($category);$where.=' AND i.category_id IN ('.implode(',',array_fill(0,count($family),'?')).')';array_push($params,...$family);}
+        foreach(['active','in_stock'] as $field)if(array_key_exists($field,$filters)){$where.=' AND i.'.$field.'=?';$params[]=(bool)$filters[$field];}
+        if($meal){$where.=$meal==='unassigned'?' AND NOT EXISTS':' AND EXISTS';$where.='(SELECT 1 FROM catalog_menuschedule m JOIN catalog_slot s ON s.id=m.slot_id AND s.tenant_id=m.tenant_id WHERE m.tenant_id=i.tenant_id AND m.item_id=i.id';if($meal!=='unassigned'){$where.=' AND s.key=?';$params[]=$meal;}$where.=')';}
+        $total=(int)$this->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem i'.$where,$params)['n'];$page=max(1,min($page,max(1,(int)ceil($total/$size))));$records=$this->db->rows('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id'.$where.' ORDER BY i.sort,i.name,i.id LIMIT '.$size.' OFFSET '.(($page-1)*$size),$params);return compact('records','total','page');
+    }
     public function item(int $id): array {
-        return $this->db->one('SELECT * FROM catalog_menuitem WHERE tenant_id=? AND id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Dish not found.');
+        return $this->db->one('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id WHERE i.tenant_id=? AND i.id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Dish not found.');
     }
     public function categories(): array { return $this->db->rows('SELECT * FROM catalog_menucategory WHERE tenant_id=? ORDER BY sort,name', [$this->id()]); }
     public function pages(): array { return $this->db->rows('SELECT * FROM content_page WHERE tenant_id=? AND published ORDER BY sort,title', [$this->id()]); }
@@ -83,7 +90,7 @@ final class Store {
         $rows = $this->db->rows('SELECT i.*,s.id AS schedule_id,s.mode,s.available,s.qty_limit,s.qty_sold,COALESCE(s.price_override,i.price) AS effective_price FROM catalog_menuschedule s JOIN catalog_menuitem i ON i.id=s.item_id AND i.tenant_id=s.tenant_id WHERE s.tenant_id=? AND s.slot_id=? AND (' . $condition . ') AND i.fulfilment=\'scheduled\' ORDER BY CASE WHEN s.mode=\'date\' THEN 1 ELSE 0 END', $params);
         $chosen = [];
         foreach ($rows as $row) $chosen[(int)$row['id']] = $row;
-        $result = array_filter(array_values($chosen), fn($r) => $r['active'] && ($includeUnavailable || ($r['available'] && ($r['qty_limit'] === null || $r['qty_sold'] < $r['qty_limit']))));
+        $result = array_filter(array_values($chosen), fn($r) => $r['active'] && ($includeUnavailable || ($r['available'] && ($r['in_stock']??true) && ($r['qty_limit'] === null || $r['qty_sold'] < $r['qty_limit']))));
         usort($result, fn($a, $b) => [$a['sort'], $a['name']] <=> [$b['sort'], $b['name']]);
         return array_values($result);
     }
@@ -114,20 +121,29 @@ final class Store {
             }
         });
     }
-    public function zoneQuote(string $pincode, string $slotKey, int $subtotal, ?int $areaId = null): array {
-        if (!preg_match('/^[1-9][0-9]{5}$/D', $pincode)) throw new HttpError(422, 'Enter a valid six-digit pincode.');
-        $zones = $this->db->rows('SELECT * FROM delivery_deliveryzone WHERE tenant_id=? AND active AND pincode=? ORDER BY area_name', [$this->id(), $pincode]);
-        $zones = array_values(array_filter($zones, function ($row) use ($slotKey) {
-            $keys = json_decode($row['slot_keys'], true, 512, JSON_THROW_ON_ERROR);
-            return !$keys || in_array($slotKey, $keys, true);
-        }));
-        if (!$zones) throw new HttpError(422, 'We do not deliver this meal to that pincode.');
-        if (count($zones) > 1 && !$areaId) throw new HttpError(422, 'Choose your delivery area for this pincode.');
-        $zone = null;
-        foreach ($zones as $candidate) if (!$areaId || (int)$candidate['id'] === $areaId) $zone = $candidate;
-        if (!$zone) throw new HttpError(422, 'Choose a valid delivery area.');
-        $minimum = Money::parse($zone['min_order']);
-        if ($subtotal < $minimum) throw new HttpError(422, 'Minimum food value is ' . Money::display($minimum) . '. Add ' . Money::display($minimum - $subtotal) . ' more.');
-        return ['zone' => $zone, 'fee' => Money::parse($zone['delivery_fee']), 'minimum' => $minimum];
+    public function setDayAvailability(string $date,int $slotId,int $itemId,bool $available,int $revision):void {
+        self::date($date);$this->slot($slotId);$item=$this->item($itemId);
+        if($date<date('Y-m-d')||$item['fulfilment']!=='scheduled')throw new HttpError(422,'Choose a current meal date and scheduled dish.');
+        $this->db->transaction(function()use($date,$slotId,$itemId,$available,$revision){
+            $this->lock();if($revision!==$this->menuRevision($date,$slotId))throw new HttpError(409,'This menu changed. Reload before saving.');
+            $saved=$this->db->one('SELECT id FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?',[$this->id(),$slotId,$date]);
+            if(!$saved){
+                // Copy effective inherited rows before saving the first full dated menu.
+                $rows=$this->db->rows("SELECT * FROM catalog_menuschedule WHERE tenant_id=? AND slot_id=? AND ((mode='date' AND on_date=?) OR (mode='weekday' AND weekday=?)) ORDER BY CASE WHEN mode='date' THEN 1 ELSE 0 END",[$this->id(),$slotId,$date,(int)(new \DateTimeImmutable($date))->format('N')-1]);$effective=[];foreach($rows as $r)$effective[$r['item_id']]=$r;
+                foreach($effective as $r)if($r['mode']!=='date')$this->db->rows("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'date',?,NULL,?,?,?,?)",[$this->id(),$r['item_id'],$slotId,$date,$r['available'],$r['qty_limit'],$r['qty_sold'],$r['price_override']]);
+            }
+            $this->db->rows('INSERT INTO catalog_menuday(tenant_id,slot_id,on_date,revision,updated_at) VALUES(?,?,?,1,CURRENT_TIMESTAMP) ON CONFLICT(tenant_id,slot_id,on_date) DO UPDATE SET revision=catalog_menuday.revision+1,updated_at=CURRENT_TIMESTAMP',[$this->id(),$slotId,$date]);
+            $row=$this->db->one("SELECT id FROM catalog_menuschedule WHERE tenant_id=? AND slot_id=? AND item_id=? AND mode='date' AND on_date=?",[$this->id(),$slotId,$itemId,$date]);
+            if($row)$this->db->rows('UPDATE catalog_menuschedule SET available=? WHERE tenant_id=? AND id=?',[$available,$this->id(),$row['id']]);
+            else $this->db->rows("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'date',?,NULL,?,NULL,0,NULL)",[$this->id(),$itemId,$slotId,$date,$available]);
+        });
+    }
+    public function family(int $id):array {
+        $children=[];foreach($this->categories() as $category)if($category['active'])$children[$category['parent_id']][]=(int)$category['id'];
+        $seen=[$id=>true];$todo=[$id];while($todo){$parent=array_pop($todo);foreach($children[$parent]??[] as $child)if(!isset($seen[$child])){$seen[$child]=true;$todo[]=$child;}}
+        return array_keys($seen);
+    }
+    public function zoneQuote(string $pincode,string $slotKey,int $subtotal,?int $areaId=null):array {
+        return (new Delivery($this))->local($pincode,[$slotKey],$subtotal,$areaId);
     }
 }

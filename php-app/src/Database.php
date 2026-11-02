@@ -15,11 +15,15 @@ final class Database {
         $dsn = getenv('DATABASE_DSN') ?: '';
         if (!str_starts_with($dsn, 'pgsql:')) throw new \RuntimeException('Configure a PostgreSQL test database.');
         if (!str_contains($dsn, 'sslmode=')) $dsn .= ';sslmode=' . (getenv('DATABASE_SSLMODE') ?: 'require');
+        if(getenv('APP_ENV')==='production'&&!preg_match('/(?:^|;)sslmode=(?:require|verify-ca|verify-full)(?:;|$)/',$dsn))throw new \RuntimeException('Production PostgreSQL connections require TLS.');
         $this->connection = new \PDO($dsn, getenv('DATABASE_USER') ?: '', getenv('DATABASE_PASSWORD') ?: '', [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_EMULATE_PREPARES => false,
+            \PDO::PGSQL_ATTR_DISABLE_PREPARES => true,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ]);
+        $this->connection->exec("SET statement_timeout='30s'");
+        $this->connection->exec("SET lock_timeout='5s'");
     }
     public function rows(string $sql, array $params = []): array {
         $statement = $this->connection->prepare($sql);
@@ -30,6 +34,8 @@ final class Database {
         $statement->execute();
         return $statement->columnCount() ? $statement->fetchAll() : [];
     }
+    /** Executes only trusted, bundled schema SQL from CLI recovery. */
+    public function schemaScript(string $sql):void {$this->connection->exec($sql);$this->connection->exec('SET search_path TO public');}
     public function one(string $sql, array $params = []): ?array { return $this->rows($sql, $params)[0] ?? null; }
     public function transaction(callable $operation): mixed {
         $nested = $this->connection->inTransaction();

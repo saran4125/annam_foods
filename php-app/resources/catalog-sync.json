@@ -1,0 +1,740 @@
+{
+  "version": "annam-catalog-2026-10-30-v1",
+  "source": "Owner supplied comparison, 30 October 2026; live recheck unavailable (HTTP proxy 403).",
+  "in_stock": [
+    {
+      "name": "Spl Milagu Vadai",
+      "price": "130",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Madras Mixture",
+      "price": "170",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Moru Moru Murukku",
+      "price": "140",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Mani Murukku",
+      "price": "150",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Aval Mixture",
+      "price": "140",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Vella Seedai",
+      "price": "170",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Finger Chips",
+      "price": "80",
+      "category": "Chips"
+    },
+    {
+      "name": "Jack Fruit Chips",
+      "price": "100",
+      "category": "Chips"
+    },
+    {
+      "name": "Wheel Chips",
+      "price": "80",
+      "category": "Chips"
+    },
+    {
+      "name": "Tapioca Chips",
+      "price": "90",
+      "category": "Chips"
+    },
+    {
+      "name": "Corn Chips",
+      "price": "80",
+      "category": "Chips"
+    },
+    {
+      "name": "Chips Combo Pack",
+      "price": "300",
+      "category": "Chips"
+    },
+    {
+      "name": "Ghee Appam",
+      "price": "175",
+      "category": "Sweets"
+    },
+    {
+      "name": "Cashew Halwa",
+      "price": "200",
+      "category": "Halwa"
+    },
+    {
+      "name": "Kalyana Mysurpa",
+      "price": "190",
+      "category": "Sweets"
+    },
+    {
+      "name": "Spl Wheat Halwa",
+      "price": "200",
+      "category": "Halwa"
+    },
+    {
+      "name": "Rava Laddu",
+      "price": "70",
+      "category": "Millets Laddus"
+    },
+    {
+      "name": "Pori Urundai",
+      "price": "90",
+      "category": "Millets Laddus"
+    },
+    {
+      "name": "Mavadu Salt Pickle",
+      "price": "450",
+      "category": "Pickles"
+    },
+    {
+      "name": "Mixed Vegetable Pickle",
+      "price": "170",
+      "category": "Pickles"
+    },
+    {
+      "name": "Ila Vadam",
+      "price": "160",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Javvarisi Vadam Karam",
+      "price": "140",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Ulundhu Appalam",
+      "price": "140",
+      "category": "Appalams"
+    },
+    {
+      "name": "Ulundhu Appalam - Jeera",
+      "price": "150",
+      "category": "Appalams"
+    },
+    {
+      "name": "Spl Ilantha Vadai",
+      "price": "170",
+      "category": "Health Products"
+    },
+    {
+      "name": "Inji Murappa",
+      "price": "90",
+      "category": "Health Products"
+    },
+    {
+      "name": "Sukku Coffee Powder Mix",
+      "price": "120",
+      "category": "Health Products"
+    },
+    {
+      "name": "Sukku-Milagu-Thippli-Panai Karuppathi Cake",
+      "price": "120",
+      "category": "Health Products"
+    },
+    {
+      "name": "Deepavali Legiyam",
+      "price": "180",
+      "category": "Health Products"
+    }
+  ],
+  "diwali": [
+    {
+      "name": "Diwali - Mega Combo Pack",
+      "price": "1800",
+      "category": "Diwali Combos"
+    },
+    {
+      "name": "Diwali - Karam Combo Pack",
+      "price": "700",
+      "category": "Diwali Combos"
+    },
+    {
+      "name": "Diwali - Sweets Combo Pack",
+      "price": "900",
+      "category": "Diwali Combos"
+    },
+    {
+      "name": "Diwali - Mini Gift Combo",
+      "price": "650",
+      "category": "Diwali Combos"
+    },
+    {
+      "name": "Diwali - Assorted Sweets 250gm",
+      "price": "230",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Assorted Sweets 500gm",
+      "price": "360",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Kaju Assorted Sweets 250gm",
+      "price": "400",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Kaju Assorted Sweets 500gm",
+      "price": "750",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Jangiri",
+      "price": "190",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Badhusha",
+      "price": "190",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Kalyana Mysurpa",
+      "price": "190",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Laddu",
+      "price": "190",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Kaju Kathli",
+      "price": "330",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Horlicks Burfi",
+      "price": "280",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Boost Burfi",
+      "price": "280",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Tirunelveli Halwa",
+      "price": "200",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Athirasam",
+      "price": "170",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Manogaram",
+      "price": "170",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali Legiyam",
+      "price": "180",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Rava Laddu (5)",
+      "price": "80",
+      "category": "Diwali Sweets"
+    },
+    {
+      "name": "Diwali - Spl Mixture",
+      "price": "170",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Navadhanya Mixture",
+      "price": "170",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Ribbon Pakkoda",
+      "price": "150",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Karaboondhi",
+      "price": "150",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Karasev",
+      "price": "150",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Omapodi",
+      "price": "150",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Butter Murukku",
+      "price": "150",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Spl Thattai",
+      "price": "150",
+      "category": "Diwali Karams"
+    },
+    {
+      "name": "Diwali - Moru Moru Murukku",
+      "price": "140",
+      "category": "Diwali Karams"
+    }
+  ],
+  "price_updates": [
+    {
+      "name": "Health Pakshanams Combo",
+      "price": "320",
+      "needs_confirmation": false
+    },
+    {
+      "name": "Black Ellu Urundai 100 gm",
+      "price": "120",
+      "needs_confirmation": false
+    },
+    {
+      "name": "Pottu Kadalai Urundai",
+      "price": "120",
+      "needs_confirmation": false
+    },
+    {
+      "name": "Mini Kadalai Urundai",
+      "price": "120",
+      "needs_confirmation": false
+    },
+    {
+      "name": "Mango Ginger Pickle",
+      "price": "160",
+      "needs_confirmation": false
+    },
+    {
+      "name": "Mavadu Karam",
+      "price": "450",
+      "needs_confirmation": true
+    }
+  ],
+  "sold_out": [
+    {
+      "name": "Dhaniya Thool",
+      "price": "95",
+      "category": "Podi"
+    },
+    {
+      "name": "Thani Milagai Thool",
+      "price": "95",
+      "category": "Podi"
+    },
+    {
+      "name": "Manjal Thool",
+      "price": "95",
+      "category": "Podi"
+    },
+    {
+      "name": "Nendram Sweet Chips",
+      "price": "150",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Big Pepper Thattai",
+      "price": "160",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Kamar Kattu",
+      "price": "110",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Gram Dhall",
+      "price": "70",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Moong Dhall",
+      "price": "70",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Onion Ring Chips",
+      "price": "80",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Honey Mittai",
+      "price": "75",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Navadhanya Mixture",
+      "price": "170",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Fried Bengal Gram",
+      "price": "80",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Pavakkai Chips",
+      "price": "100",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "2 Suttu Murukku",
+      "price": "170",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Ribbon Pakkoda",
+      "price": "150",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Masala Pori",
+      "price": "80",
+      "category": "Pakshanams"
+    },
+    {
+      "name": "Kaju Kathli",
+      "price": "350",
+      "category": "Sweets"
+    },
+    {
+      "name": "Spl Milk Halwa",
+      "price": "240",
+      "category": "Sweets"
+    },
+    {
+      "name": "Karupatti Halwa",
+      "price": "280",
+      "category": "Sweets"
+    },
+    {
+      "name": "Ghee Mysurpa",
+      "price": "200",
+      "category": "Sweets"
+    },
+    {
+      "name": "Carrot Halwa",
+      "price": "190",
+      "category": "Sweets"
+    },
+    {
+      "name": "Horlics Burfi",
+      "price": "260",
+      "category": "Sweets"
+    },
+    {
+      "name": "Trattippal",
+      "price": "190",
+      "category": "Sweets"
+    },
+    {
+      "name": "Spl Laddu",
+      "price": "190",
+      "category": "Sweets"
+    },
+    {
+      "name": "Arusuvai Thokku",
+      "price": "280",
+      "category": "Thokku"
+    },
+    {
+      "name": "Mudavattkkal Kizangu Thokku",
+      "price": "280",
+      "category": "Thokku"
+    },
+    {
+      "name": "Onion Thokku",
+      "price": "160",
+      "category": "Thokku"
+    },
+    {
+      "name": "Vallarai Thokku",
+      "price": "200",
+      "category": "Thokku"
+    },
+    {
+      "name": "Andra Avakkai Pickle",
+      "price": "210",
+      "category": "Pickles"
+    },
+    {
+      "name": "Mango Ginger Salt",
+      "price": "150",
+      "category": "Pickles"
+    },
+    {
+      "name": "Narthangai Salt Pickle",
+      "price": "150",
+      "category": "Pickles"
+    },
+    {
+      "name": "Amla Pickle",
+      "price": "170",
+      "category": "Pickles"
+    },
+    {
+      "name": "Tamarai Thandu Vadam",
+      "price": "220",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Kothavarai Vathal",
+      "price": "100",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Gundu Moremilagai",
+      "price": "90",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Kara Murukku Vadam",
+      "price": "175",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Sambar Vadam",
+      "price": "180",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Ompodi Vadam Small",
+      "price": "180",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Arulu Sandigai",
+      "price": "225",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Narthangai Dry Karam Vathal",
+      "price": "90",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Ila Vadam - Red Chilly",
+      "price": "160",
+      "category": "Vathal & Vadagams"
+    },
+    {
+      "name": "Ulundhu Appalam - Omam",
+      "price": "140",
+      "category": "Appalams"
+    },
+    {
+      "name": "Red Chilly Appala Poo",
+      "price": "70",
+      "category": "Appalams"
+    },
+    {
+      "name": "Mini Milagu Appalam",
+      "price": "70",
+      "category": "Appalams"
+    },
+    {
+      "name": "Kerala Pappadam",
+      "price": "90",
+      "category": "Appalams"
+    },
+    {
+      "name": "Karuppu Kavuni Kanji Mix",
+      "price": "270",
+      "category": "Health Products"
+    },
+    {
+      "name": "Honey Amla Dry",
+      "price": "90",
+      "category": "Health Products"
+    }
+  ],
+  "stock_off": [
+    "Mudakkathan Thokku",
+    "Poriyal Podi",
+    "Idly Podi",
+    "Curry Leaves Podi",
+    "Angaya Podi",
+    "Omapodi",
+    "Kerala Mixture",
+    "Mini Thenkuzal 200gm",
+    "Vazhaikkai Karam",
+    "Vazhaikkai Pepper",
+    "Mini Jangiri",
+    "Palgova",
+    "Thuthuvalai Thokku",
+    "Small Onion Garlic Chutney",
+    "Kadarangai Pickle",
+    "Lemon Pickle",
+    "Mango Thokku (101)",
+    "Cut Mango Pickle",
+    "Milagu Kuzambu Mix",
+    "Sundaikkai Salt Vathal",
+    "Narthangai Dry Vathal",
+    "Neetu Moremilagai",
+    "Thalir Vadam - Big",
+    "Special mini Thattai",
+    "Rettai Appalam",
+    "Garlic Appala Poo",
+    "Corn Vathal",
+    "Karuppu Ulundhu Laddu (5)",
+    "Karuppu Ulundhu Kanji Mix"
+  ],
+  "build_only": [
+    "Multigrain Millet Dosa Mix",
+    "Ragi Dosa Mix",
+    "Rava Dosa Mix",
+    "Rava Uppma Mix",
+    "Rice Uppuma Mix",
+    "Wheat Rava Uppma Mix",
+    "Tomato Vathal",
+    "Navadhanya Laddu (5)",
+    "Pachai Payaru Laddu (5)",
+    "Ragi Laddu (5)",
+    "Thinai Laddu (5)"
+  ],
+  "featured": [
+    "Pirandai Podi",
+    "Karuppu Ellu Idly Podi",
+    "Vathakuzambu Paste",
+    "Pirandai Thuvaiyal",
+    "Mudakkathan Thokku",
+    "Mysore Rasam Podi",
+    "Spl Health Mix",
+    "Karuppu Kavuni Kanji Mix"
+  ],
+  "daily_menu": {
+    "date": "2026-10-31",
+    "slots": {
+      "breakfast": [
+        {
+          "name": "Idly with Vadai",
+          "price": "110"
+        },
+        {
+          "name": "Idly (4)",
+          "price": "110"
+        },
+        {
+          "name": "Poori (2)",
+          "price": "110"
+        },
+        {
+          "name": "Plain Dosa (2)",
+          "price": "110"
+        },
+        {
+          "name": "Ghee Pongal",
+          "price": "110"
+        },
+        {
+          "name": "Rasa Vadai (1)",
+          "price": "70"
+        },
+        {
+          "name": "Sambar Vadai (1)",
+          "price": "70"
+        },
+        {
+          "name": "Ghee Podi Dosa (2)",
+          "price": "130"
+        },
+        {
+          "name": "Vadai (1)",
+          "price": "25"
+        },
+        {
+          "name": "Sambar Idly (2)",
+          "price": "80"
+        },
+        {
+          "name": "Ghee Dosa (2)",
+          "price": "120"
+        }
+      ],
+      "lunch": [
+        {
+          "name": "Full meals with rice",
+          "price": "210"
+        },
+        {
+          "name": "Full meals without rice",
+          "price": "160"
+        },
+        {
+          "name": "Spl Bisibelabath",
+          "price": "150"
+        },
+        {
+          "name": "Tomato Rasam",
+          "price": "50"
+        },
+        {
+          "name": "Chow Chow Kootu",
+          "price": "50"
+        },
+        {
+          "name": "Morekuzhambu",
+          "price": "50"
+        },
+        {
+          "name": "Kose Poriyal",
+          "price": "50"
+        }
+      ],
+      "dinner": [
+        {
+          "name": "Kancheepuram Idly (2)",
+          "price": "130"
+        },
+        {
+          "name": "Poori (2)",
+          "price": "110"
+        },
+        {
+          "name": "Idiyappam (4)",
+          "price": "110"
+        },
+        {
+          "name": "Chapathi (1)",
+          "price": "110"
+        },
+        {
+          "name": "Onion Chennai Masala",
+          "price": "80"
+        },
+        {
+          "name": "Only Chapathi",
+          "price": "15"
+        },
+        {
+          "name": "Pasiparuppu Dhall",
+          "price": "60"
+        }
+      ]
+    }
+  },
+  "daily_review": [
+    "Kariveppilai Sadam",
+    "Carrot Poriyal",
+    "Vendaikkai Vathakuzambu",
+    "Rice Uppuma",
+    "Idly (4)"
+  ],
+  "tenant_slug": "annam"
+}

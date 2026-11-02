@@ -34,13 +34,11 @@ final class Security {
         return password_verify($password, $encoded);
     }
     public static function login(Database $db, Store $store, string $username, string $password): bool {
-        // Persistent store-scoped throttle; does not rely on a browser cookie.
-        $key = hash_hmac('sha256', strtolower($username) . '|' . ($_SERVER['REMOTE_ADDR'] ?? ''), getenv('APP_SECRET'));
-        $attempt = $db->one('SELECT count(*) AS attempts FROM php_login_attempt WHERE tenant_id=? AND fingerprint=? AND attempted_at > CURRENT_TIMESTAMP - INTERVAL \'15 minutes\'', [$store->id(), $key]);
-        if ((int)$attempt['attempts'] >= 10) throw new HttpError(429, 'Too many sign-in attempts. Try again in 15 minutes.');
+        Operations::limit($store,'login-ip:'.($_SERVER['REMOTE_ADDR']??'unknown'),30,900);
+        Operations::limit($store,'login-user:'.strtolower($username),10,900);
         $user = $db->one('SELECT u.id,u.username,u.password,u.is_superuser FROM auth_user u WHERE u.username=? AND u.is_active AND (u.is_superuser OR EXISTS (SELECT 1 FROM tenancy_tenantuser m WHERE m.user_id=u.id AND m.tenant_id=?))', [$username, $store->id()]);
         if (!$user || !self::verifyPassword($password, $user['password'])) {
-            $db->rows('INSERT INTO php_login_attempt(tenant_id,fingerprint,attempted_at) VALUES(?,?,CURRENT_TIMESTAMP)', [$store->id(), $key]);
+
             // Comparable PBKDF2 work for unknown usernames; no account-existence message.
             if (!$user) self::verifyPassword($password, 'pbkdf2_sha256$1000000$annam-dummy-salt$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
             return false;
@@ -48,11 +46,13 @@ final class Security {
         session_regenerate_id(true);
         $_SESSION['user_id'] = (int)$user['id'];
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
-        $db->rows('DELETE FROM php_login_attempt WHERE tenant_id=? AND fingerprint=?', [$store->id(), $key]);
+        $_SESSION['signed_in_at']=time();
         return true;
     }
     public static function user(Database $db, Store $store): ?array {
         if (empty($_SESSION['user_id'])) return null;
+        $_SESSION['signed_in_at']??=time();
+        if(time()-$_SESSION['signed_in_at']>28800){unset($_SESSION['user_id']);return null;}
         return $db->one('SELECT u.id,u.username,u.is_superuser,m.role FROM auth_user u LEFT JOIN tenancy_tenantuser m ON m.user_id=u.id AND m.tenant_id=? WHERE u.id=? AND u.is_active AND (u.is_superuser OR m.id IS NOT NULL)', [$store->id(), (int)$_SESSION['user_id']]);
     }
 }
