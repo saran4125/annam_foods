@@ -65,7 +65,7 @@ def main():
     result = {'source': BASE, 'fetched_at': datetime.now(timezone.utc).isoformat(),
               'purpose': 'Public image discovery only; never imports prices, menus, orders or customers.',
               'brand': {}, 'categories': [], 'products': [], 'media_urls': [], 'failures': []}
-    urls = set(); product_slugs = set(); categories = {}
+    urls = set(); product_slugs = set(); categories = {}; api_available = True; public_pages = set(); html_products = {}
     def failure(url, error):
         result['failures'].append({'url': url, 'error': str(error)[:240]})
     try:
@@ -85,7 +85,53 @@ def main():
         categories = {row['slug']: row for row in source.walk(roots.get('categories', []))
                       if row.get('slug') and row.get('name')}
     except Exception as error:
-        failure(source.PUBLIC_API+'/category/getCategories/', error)
+        failure(source.PUBLIC_API+'/category/getCategories/', error); api_available = False
+    # HTML pages expose public image data independently of the catalog API.
+    # Seed saved category paths too, so an API restriction cannot truncate recovery.
+    saved = json.loads((ROOT/'php-app/resources/source-catalog.json').read_text())
+    queue = {BASE+'/categories'} | {BASE+'/categories/'+c['slug'] for c in saved['categories']}
+    queue.update(pages)
+    seen = set()
+    def inspect_page(url):
+        html = fetch_page(url)
+        try: state = source.state_from_html(html)
+        except ValueError: state = {}
+        links = source.Links(); links.feed(html)
+        return html, state, links.links
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        while queue:
+            batch = sorted(queue-seen); queue.clear()
+            if not batch: break
+            futures = {pool.submit(inspect_page, url): url for url in batch}
+            for task in as_completed(futures):
+                url = futures[task]; seen.add(url)
+                try:
+                    html, state, links = task.result(); public_pages.add(url)
+                    urls.update(image_urls(html)); urls.update(image_urls(state))
+                    for row in source.walk(state):
+                        if row.get('slug') and row.get('name') and ('parentId' in row or ('children' in row and 'sellingPrice' not in row)):
+                            categories.setdefault(row['slug'], row)
+                        if row.get('name') and row.get('code') and isinstance(row.get('images'), list):
+                            key = str(row['code'])
+                            html_products[key] = {'source_id': key, 'slug': row.get('slug', ''),
+                                'name': unescape(row['name']).strip(), 'images': source.images(row)}
+                    for link in links:
+                        candidate = urlsplit(urljoin(url, link))
+                        if (candidate.scheme == 'https' and candidate.hostname in {'annamfood.in','www.annamfood.in'}
+                                and not candidate.username and not candidate.password and candidate.port is None
+                                and candidate.path.startswith(('/categories/', '/products/'))):
+                            target = BASE+candidate.path.rstrip('/')
+                            # Only follow pagination explicitly linked by the public site.
+                            if candidate.query and re.fullmatch(r'page=\d{1,3}', candidate.query): target += '?'+candidate.query
+                            if target not in seen: queue.add(target)
+                except Exception as error: failure(url, error)
+            if len(seen|queue)>3500: raise ValueError('Public page crawl exceeded 3,500 pages.')
+    result['public_pages_crawled'] = len(public_pages)
+    result['products'] = list(html_products.values())
+    if not api_available:
+        result['categories'] = [{'source_id': str(c.get('id') or c.get('code') or slug),
+            'slug': slug, 'name': c.get('name',slug), 'image': c.get('image') or ''} for slug,c in categories.items()]
+
     if len(categories)>500: raise ValueError('Public category discovery exceeded 500 categories.')
     def category(slug):
         detail = source.fetch_api('/category/getCategories/', {'category': slug, 'dummy': False})
@@ -98,7 +144,7 @@ def main():
         else: raise ValueError('Public catalog pagination exceeded 50 pages.')
         return current, products, found_urls
     with ThreadPoolExecutor(max_workers=4) as pool:
-        futures = {pool.submit(category, slug): slug for slug in sorted(categories)}
+        futures = {pool.submit(category, slug): slug for slug in sorted(categories) if api_available}
         for task in as_completed(futures):
             slug = futures[task]
             try:
@@ -110,7 +156,7 @@ def main():
     if len(product_slugs)>3000: raise ValueError('Public product discovery exceeded 3,000 products.')
     with ThreadPoolExecutor(max_workers=4) as pool:
         futures = {pool.submit(source.fetch_api, '/products/productDetails/', {'slug': slug, 'dummy': False}): slug
-                   for slug in sorted(product_slugs)}
+                   for slug in sorted(product_slugs) if api_available}
         for task in as_completed(futures):
             slug = futures[task]
             try:
@@ -125,7 +171,7 @@ def main():
             except Exception as error: failure(futures[task], error)
     if len(urls)>5000: raise ValueError('Public image discovery exceeded 5,000 URLs.')
     result['media_urls'] = sorted(urls)
-    result['categories'].sort(key=lambda x:x['slug']); result['products'].sort(key=lambda x:x['slug'])
+    result['categories'].sort(key=lambda x:x['slug']); result['products'] = sorted({p['source_id']:p for p in result['products']}.values(), key=lambda x:x['source_id'])
     output = ROOT/'php-app/resources/live-public-media-source.json'
     output.write_text(json.dumps(result, indent=2, ensure_ascii=False)+'\n')
     print(json.dumps({'categories': len(result['categories']), 'products': len(result['products']),

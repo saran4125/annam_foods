@@ -60,7 +60,7 @@ jobs:
           MEDIA_ROOT = '/tmp/annam-media-ci-tests'
           PY
           PYTHONPATH="/tmp:$GITHUB_WORKSPACE" DJANGO_SETTINGS_MODULE=annam_media_ci_settings uv run python -m pytest -q
-      - name: Discover current public images without changing business data
+      - name: Discover current public images from HTML pages and catalog
         run: python3 scripts/scrape_annam_media.py
       - name: Download and validate original image files
         run: |
