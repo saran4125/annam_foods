@@ -5,7 +5,7 @@ final class Media {
     public static function root(): string {$root=getenv('MEDIA_ROOT')?:'public/media';return str_starts_with($root,'/')?$root:ANNAM_ROOT.'/'.$root;}
     public static function relative(string $name): ?string {
         $name=rawurldecode($name);if(str_starts_with($name,'media/'))$name=substr($name,6);if(str_starts_with($name,'/media/'))$name=substr($name,7);
-        if(!$name||str_starts_with($name,'/')||str_contains($name,'..')||str_contains($name,'\\')||preg_match('/[\x00-\x1f\x7f:?#]/',$name)||!preg_match('/\.(png|jpe?g|webp|gif|avif)$/i',$name))return null;return $name;
+        if(!$name||str_starts_with($name,'/')||str_contains($name,'..')||str_contains($name,'\\')||preg_match('/[\x00-\x1f\x7f:?#]/',$name)||!preg_match('/\.(png|jpe?g|webp|gif|avif|ico)$/i',$name))return null;return $name;
     }
     public static function file(string $name): ?string {
         $relative=self::relative($name);if(!$relative)return null;$root=realpath(self::root());$path=realpath(self::root().'/'.$relative);return $root&&$path&&str_starts_with($path,$root.'/')&&is_file($path)?$path:null;
@@ -23,6 +23,6 @@ final class Media {
         $file=self::file('website/'.$store->id().'/'.$id.'.'.$ext);header('Content-Type: '.$image['content_type']);header('Cache-Control: '.($staff?'private, no-store':'public, max-age=3600'));if($file){header('Content-Length: '.filesize($file));readfile($file);}else{$data=$image['data'];if(is_resource($data))$data=stream_get_contents($data);header('Content-Length: '.strlen($data));echo $data;}
     }
     public static function serve(string $relative): void {
-        if(str_starts_with(rawurldecode($relative),'website/'))throw new HttpError(404,'Image not found.');$file=self::file($relative)??throw new HttpError(404,'Image not found.');if(str_starts_with($file,(realpath(self::root().'/website')?:self::root().'/website').'/'))throw new HttpError(404,'Image not found.');$mime=(new \finfo(FILEINFO_MIME_TYPE))->file($file);if(!in_array($mime,['image/png','image/jpeg','image/webp','image/gif','image/avif'],true))throw new HttpError(404,'Image unavailable.');header('Content-Type: '.$mime);header('Cache-Control: public, max-age=3600');header('Content-Length: '.filesize($file));readfile($file);
+        if(str_starts_with(rawurldecode($relative),'website/'))throw new HttpError(404,'Image not found.');$file=self::file($relative)??throw new HttpError(404,'Image not found.');if(str_starts_with($file,(realpath(self::root().'/website')?:self::root().'/website').'/'))throw new HttpError(404,'Image not found.');$mime=(new \finfo(FILEINFO_MIME_TYPE))->file($file);if(!in_array($mime,['image/png','image/jpeg','image/webp','image/gif','image/avif','image/x-icon','image/vnd.microsoft.icon'],true))throw new HttpError(404,'Image unavailable.');header('Content-Type: '.$mime);header('Cache-Control: public, max-age=3600');header('Content-Length: '.filesize($file));readfile($file);
     }
 }

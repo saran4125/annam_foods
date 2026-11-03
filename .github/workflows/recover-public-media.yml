@@ -1,0 +1,93 @@
+name: Recover original Annam public images
+on:
+  push:
+    branches: [php-rebuild]
+    paths:
+      - '.github/workflows/recover-public-media.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: annam-public-image-recovery
+  cancel-in-progress: false
+jobs:
+  recover:
+    if: github.repository == 'saran4125/annam_foods' && github.ref == 'refs/heads/php-rebuild'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: annam_media_tests
+          POSTGRES_PASSWORD: ephemeral-media-tests-only
+          POSTGRES_DB: annam_media_tests
+        ports: ['5439:5432']
+        options: >-
+          --health-cmd "pg_isready -U annam_media_tests -d annam_media_tests"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+      redis:
+        image: redis:7
+        ports: ['6389:6379']
+    env:
+      POSTGRES_USER: annam_media_tests
+      POSTGRES_PASSWORD: ephemeral-media-tests-only
+      POSTGRES_DB: annam_media_tests
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: 5439
+      REDIS_URL: redis://127.0.0.1:6389/0
+    steps:
+      - name: Check out PHP branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: php-rebuild
+          fetch-depth: 1
+      - name: Check native image recovery tools
+        run: |
+          php -v
+          php -r 'if (!extension_loaded("curl")) {fwrite(STDERR,"PHP curl is required.\n");exit(1);}'
+          python3 -m py_compile scripts/scrape_annam_media.py
+      - name: Validate scraper and image safety contracts
+        run: |
+          python3 scripts/test_scrape_annam_media.py
+          php php-app/tests/public_media.php
+      - name: Required PostgreSQL reference tests before media commits
+        run: |
+          python3 -m pip install 'uv==0.9.8'
+          uv sync --frozen
+          cat > /tmp/annam_media_ci_settings.py <<'PY'
+          from config.settings.dev import *
+          MEDIA_ROOT = '/tmp/annam-media-ci-tests'
+          PY
+          PYTHONPATH="/tmp:$GITHUB_WORKSPACE" DJANGO_SETTINGS_MODULE=annam_media_ci_settings uv run python -m pytest -q
+      - name: Discover current public images without changing business data
+        run: python3 scripts/scrape_annam_media.py
+      - name: Download and validate original image files
+        run: |
+          status=0
+          php php-app/bin/download-public-media.php || status=$?
+          if [ "$status" -ne 0 ] && [ "$status" -ne 2 ]; then exit "$status"; fi
+          php scripts/report_annam_media.php
+      - name: Preserve verified public files in PHP branch only
+        run: |
+          git config user.name 'Annam public media recovery'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A -- media php-app/resources/public-media.json php-app/resources/live-public-media-source.json docs/media-recovery-report.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Recover verified original public storefront images'
+          git push origin HEAD:refs/heads/php-rebuild
+      - name: Keep public recovery results available for review
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: annam-original-public-media
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            media/brand/
+            media/catalog/
+            media/categories/
+            media/site/
+            php-app/resources/public-media.json
+            php-app/resources/live-public-media-source.json
+            docs/media-recovery-report.json

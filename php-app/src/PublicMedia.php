@@ -8,23 +8,27 @@ final class PublicMedia {
     public static function inventory():array {
         $source=json_decode(file_get_contents(ANNAM_ROOT.'/resources/source-catalog.json'),true,512,JSON_THROW_ON_ERROR);$assets=[];
         $add=function(string $url,array $reference,string $folder)use(&$assets){self::url($url);$key=hash('sha256',$url);if(!isset($assets[$key]))$assets[$key]=['url'=>$url,'folder'=>$folder,'references'=>[],'status'=>'pending','path'=>null,'sha256'=>null];$assets[$key]['references'][]=$reference;};
-        foreach($source['products'] as $product)foreach($product['images']??[] as $index=>$url)$add($url,['kind'=>'product','source_id'=>(string)$product['source_id'],'name'=>$product['name'],'image_index'=>$index],'catalog');
-        foreach($source['categories'] as $category)if(!empty($category['image']))$add($category['image'],['kind'=>'category','source_id'=>(string)$category['source_id'],'name'=>$category['name'],'slug'=>$category['slug']],'categories');
-        if(!empty($source['brand']['logo']))$add($source['brand']['logo'],['kind'=>'brand','name'=>'Annam Foods source logo'],'brand');
+        $livePath=ANNAM_ROOT.'/resources/live-public-media-source.json';$live=is_file($livePath)?json_decode(file_get_contents($livePath),true,512,JSON_THROW_ON_ERROR):null;
+        foreach(array_filter([$live,$source]) as $snapshot){
+            foreach($snapshot['products'] as $product)foreach($product['images']??[] as $index=>$url)$add($url,['kind'=>'product','source_id'=>(string)$product['source_id'],'name'=>$product['name'],'image_index'=>$index],'catalog');
+            foreach($snapshot['categories'] as $category)if(!empty($category['image']))$add($category['image'],['kind'=>'category','source_id'=>(string)$category['source_id'],'name'=>$category['name'],'slug'=>$category['slug']],'categories');
+            foreach(['logo','favicon'] as $name)if(!empty($snapshot['brand'][$name]))$add($snapshot['brand'][$name],['kind'=>'brand','name'=>'Annam Foods source '.$name],'brand');
+        }
+        foreach($live['media_urls']??[] as $url)$add($url,['kind'=>'site','name'=>'Public website image'],'site');
         $old=is_file(self::manifest())?json_decode(file_get_contents(self::manifest()),true,512,JSON_THROW_ON_ERROR):[];
         foreach($assets as $key=>&$asset)if(isset($old['assets'][$key]))foreach(['status','path','sha256','bytes','error'] as $field)if(array_key_exists($field,$old['assets'][$key]))$asset[$field]=$old['assets'][$key][$field];unset($asset);
-        return ['version'=>1,'source'=>$source['source'],'source_snapshot'=>$source['fetched_at'],'description'=>'Original public source assets. Only verified downloads may be assigned to catalog records.','assets'=>$assets];
+        return ['version'=>1,'source'=>$source['source'],'source_snapshot'=>$source['fetched_at'],'live_source_snapshot'=>$live['fetched_at']??null,'description'=>'Original public source assets. Only verified downloads may be assigned to catalog records.','assets'=>$assets];
     }
     public static function url(string $url):void {$parts=parse_url($url);if(($parts['scheme']??'')!=='https'||!in_array(strtolower($parts['host']??''),['cdn.commmerce.com','www.annamfood.in','annamfood.in'],true)||isset($parts['user'])||isset($parts['pass'])||isset($parts['port']))throw new \RuntimeException('Only approved original public image hosts may be downloaded.');}
     public static function store(array $asset,string $bytes,string $root):array {
-        self::url($asset['url']);$image=@getimagesizefromstring($bytes);$extension=$image?([IMAGETYPE_JPEG=>'jpg',IMAGETYPE_PNG=>'png',IMAGETYPE_GIF=>'gif',IMAGETYPE_WEBP=>'webp',19=>'avif'][$image[2]]??null):null;
+        self::url($asset['url']);$image=@getimagesizefromstring($bytes);$extension=$image?([IMAGETYPE_JPEG=>'jpg',IMAGETYPE_PNG=>'png',IMAGETYPE_GIF=>'gif',IMAGETYPE_WEBP=>'webp',IMAGETYPE_ICO=>'ico',19=>'avif'][$image[2]]??null):null;
         if(!$extension||strlen($bytes)>15728640||$image[0]*$image[1]>50000000)throw new \RuntimeException('The source did not return a supported image within safe size limits.');
-        if(!in_array($asset['folder'],['catalog','categories','brand'],true))throw new \RuntimeException('Invalid public media destination.');
+        if(!in_array($asset['folder'],['catalog','categories','brand','site'],true))throw new \RuntimeException('Invalid public media destination.');
         $relative=$asset['folder'].'/'.substr(hash('sha256',$asset['url']),0,32).'.'.$extension;$file=$root.'/'.$relative;if(is_link($file))throw new \RuntimeException('Image destination must not be a symlink.');if(!is_dir(dirname($file)))mkdir(dirname($file),0755,true);$tmp=$file.'.'.bin2hex(random_bytes(6));if(file_put_contents($tmp,$bytes,LOCK_EX)===false)throw new \RuntimeException('Cannot save public image.');chmod($tmp,0644);if(!rename($tmp,$file))throw new \RuntimeException('Cannot activate public image.');
         unset($asset['error']);return array_replace($asset,['status'=>'downloaded','path'=>$relative,'sha256'=>hash('sha256',$bytes),'bytes'=>strlen($bytes)]);
     }
     public static function verified(array $asset,string $root):bool {
-        $relative=$asset['path']??'';if(($asset['status']??'')!=='downloaded'||!preg_match('~^(catalog|categories|brand)/[a-f0-9]{32}\.(jpg|png|gif|webp|avif)$~D',$relative))return false;
+        $relative=$asset['path']??'';if(($asset['status']??'')!=='downloaded'||!preg_match('~^(catalog|categories|brand|site)/[a-f0-9]{32}\.(jpg|png|gif|webp|avif|ico)$~D',$relative))return false;
         $base=realpath($root);$file=realpath($root.'/'.$relative);return $base&&$file&&str_starts_with($file,$base.'/')&&is_file($file)&&!is_link($root.'/'.$relative)&&hash_equals((string)$asset['sha256'],hash_file('sha256',$file));
     }
     public static function download(int $limit=PHP_INT_MAX):array {

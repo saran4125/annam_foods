@@ -5,6 +5,6 @@ RewriteRule ^website(?:/|$) - [F,L]
 </IfModule>
 # Media is raster images only; HTML, SVG, scripts, archives and configuration
 # must never be served directly from an uploaded-media directory.
-<FilesMatch "(?i)^(?!.*\.(?:png|jpe?g|webp|gif|avif)$).*$">
+<FilesMatch "(?i)^(?!.*\.(?:png|jpe?g|webp|gif|avif|ico)$).*$">
 Require all denied
 </FilesMatch>
