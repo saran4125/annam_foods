@@ -1,0 +1,2760 @@
+{
+  "tenant": "annam",
+  "matches": [
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17430515831355lunch-cartoon.jpg",
+      "kind": "product",
+      "source_id": "TSL1",
+      "name": "Regular - With Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17430513069491lunch-cartoon.jpg",
+      "kind": "product",
+      "source_id": "TRL4",
+      "name": "Regular - Without Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17892229328394Spl-Lunch-With-Rice.jpg",
+      "kind": "product",
+      "source_id": "TSL2",
+      "name": "Special Lunch - With Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17892228692797Spl-Lunch-Without-Rice.jpg",
+      "kind": "product",
+      "source_id": "TRL3",
+      "name": "Special Lunch - Without Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618441064885Kai-Murukku-3-Web.jpg",
+      "kind": "product",
+      "source_id": "SM2",
+      "name": "2 Suttu Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/178541922872922-Suttu-Murukku.jpg",
+      "kind": "product",
+      "source_id": "SM6",
+      "name": "2 Suttu Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17871461836500Curd-Vadai1-Web.jpg",
+      "kind": "product",
+      "source_id": "SCV2",
+      "name": " - Curd Vadai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17543967744943pasiparuppu-payasam.jpg",
+      "kind": "product",
+      "source_id": "TLA3",
+      "name": "Lunch Add - on - Pasiparuppu Payasam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17543970233357lunch-cartoon.jpg",
+      "kind": "product",
+      "source_id": "TRL6",
+      "name": "Regular Lunch - With Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17543969786470lunch-cartoon.jpg",
+      "kind": "product",
+      "source_id": "TRL5",
+      "name": "Regular Lunch - Without Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17871451952404Sambar.jpg",
+      "kind": "product",
+      "source_id": "SSP1",
+      "name": "Parangikkai Sambar",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17871453709293Poriya.jpg",
+      "kind": "product",
+      "source_id": "SSP4",
+      "name": "Paruppu Ushili",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17871452352788Rasam.jpg",
+      "kind": "product",
+      "source_id": "SSP2",
+      "name": "tomato Rasam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17543970956752Mahalakshi-Pooja.jpg",
+      "kind": "product",
+      "source_id": "TSL3",
+      "name": "Special Lunch - With Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17543959719197Mahalakshi-Pooja.jpg",
+      "kind": "product",
+      "source_id": "MPS1",
+      "name": "Special Lunch - Without Rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17866145983105Ulundhu-Vadai.jpg",
+      "kind": "product",
+      "source_id": "UV5",
+      "name": " - Ulundu Vadai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16796661448260idly.jpg",
+      "kind": "product",
+      "source_id": "SI1",
+      "name": "Idly (4)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17446109418727Chappathi-1.jpg",
+      "kind": "product",
+      "source_id": "BAU1",
+      "name": "Chappathi (3)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17580910257724idly.jpg",
+      "kind": "product",
+      "source_id": "TTD10",
+      "name": "Idly (4)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17865150674231Only-Chapapthi-Web.jpg",
+      "kind": "product",
+      "source_id": "TDO4",
+      "name": "Only Chapathi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17573124921696poori.jpg",
+      "kind": "product",
+      "source_id": "TSD4",
+      "name": "Poori (2)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17614616533078Rava-Kichadi-web.jpg",
+      "kind": "product",
+      "source_id": "TDR5",
+      "name": "Rava Kichadi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/176993184488201001194337.jpg",
+      "kind": "product",
+      "source_id": "TTK1",
+      "name": "Tomato Kuruma",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17694669359242Chappathi-1.jpg",
+      "kind": "product",
+      "source_id": "TDO3",
+      "name": "Chapathi (1)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17446910354981idly.jpg",
+      "kind": "product",
+      "source_id": "TDI3",
+      "name": "Idly (4)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/178642724454521002578665.png",
+      "kind": "product",
+      "source_id": "RDO1",
+      "name": "Only Chapathi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17694064651513Pasiparuppu-Dhall-Web.jpg",
+      "kind": "product",
+      "source_id": "TDP2",
+      "name": "Pasiparuppu Dhall",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17522222499950poori.jpg",
+      "kind": "product",
+      "source_id": "TSD1",
+      "name": "Poori (2)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17664004443853Rice-Uppuma-Web.jpg",
+      "kind": "product",
+      "source_id": "DPK2",
+      "name": "Rice Uppuma",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/178599626699571002545651.jpg",
+      "kind": "product",
+      "source_id": "TLS1",
+      "name": "Kariveppilai Sadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17833809077073Poriyal-Web.jpg",
+      "kind": "product",
+      "source_id": "CPC1",
+      "name": "Carrot Poriyal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17833809247235Rasam-web.jpg",
+      "kind": "product",
+      "source_id": "CPT1",
+      "name": "Tomato Rasam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17833810041447Sambar-Web.jpg",
+      "kind": "product",
+      "source_id": "CPK2",
+      "name": "Vendaikkai Vathakuzambu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17833809878959Lunch-With-Rice-Web.jpg",
+      "kind": "product",
+      "source_id": "TWR1",
+      "name": "Full meals with rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17833808533983Lunch-without-Rice-Web.jpg",
+      "kind": "product",
+      "source_id": "DRL4",
+      "name": "Full meals without rice",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17713243419333Abc-Malt-Web.jpg",
+      "kind": "product",
+      "source_id": "AM4",
+      "name": "ABC Malt",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16766405589367Amla.jpg",
+      "kind": "product",
+      "source_id": "AP1",
+      "name": "Amla Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17567935196727Andra-Avakkai-Pickle.jpg",
+      "kind": "product",
+      "source_id": "AAP1",
+      "name": "Andra Avakkai Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17673488889006Angaya-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "AP3",
+      "name": "Angaya Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17824867527453Arulu-Sandigai-Web.jpg",
+      "kind": "product",
+      "source_id": "AS3",
+      "name": "Arulu Sandigai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17620125967987Arusuvai-Thokku1-Web.jpg",
+      "kind": "product",
+      "source_id": "AT1",
+      "name": "Arusuvai Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17658073202517Athirasam-Web.jpg",
+      "kind": "product",
+      "source_id": "ATH4",
+      "name": "Athirasam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854192665585Athirasam.jpg",
+      "kind": "product",
+      "source_id": "ATH3",
+      "name": "Athirasam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17480949763115Avakkai-Pickle1.jpg",
+      "kind": "product",
+      "source_id": "AP2",
+      "name": "Avakkai pickle - 300Gm(Without Garlic )",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618476649168Aval-Mixture-5-web.jpg",
+      "kind": "product",
+      "source_id": "AM3",
+      "name": "Aval mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17696821957832Aval-Vadagam-Web-new.jpg",
+      "kind": "product",
+      "source_id": "AV1",
+      "name": "Aval Vadagam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17345312467223Baby-Appalam-Wepsite1.jpg",
+      "kind": "product",
+      "source_id": "BA1",
+      "name": "Baby Appalam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16965166826362Badham-halwa.jpg",
+      "kind": "product",
+      "source_id": "BGH1",
+      "name": "Badam Ghee Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17058156623587Ghee-Podi-Dosa.jpg",
+      "kind": "product",
+      "source_id": "BGP1",
+      "name": "Ghee Podi Dosa (2)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17439290386980Pongal.jpg",
+      "kind": "product",
+      "source_id": "BGP2",
+      "name": "Ghee Pongal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17784214703680Big-Pepper-Thattai-Web.jpg",
+      "kind": "product",
+      "source_id": "ST2",
+      "name": "Big Pepper Thattai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17682303901888Black-Ellu-Urundai-1-Web.jpg",
+      "kind": "product",
+      "source_id": "BEU1",
+      "name": "Black Ellu Urundai 100 gm",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17728031489367Bombay-Miixture-Web.jpg",
+      "kind": "product",
+      "source_id": "BM2",
+      "name": "Bombay Mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17620011493157Boost-Burfi-Web.jpg",
+      "kind": "product",
+      "source_id": "DBB1",
+      "name": "Boost Burfi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618442197807Butter-Murkku-Web.jpg",
+      "kind": "product",
+      "source_id": "BM1",
+      "name": "Butter Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854201071048Butter-Murukku.jpg",
+      "kind": "product",
+      "source_id": "BM4",
+      "name": "Butter Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17818559637967Carrot-Halwa-Web.jpg",
+      "kind": "product",
+      "source_id": "CH1",
+      "name": "Carrot Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17857643628105Cashew-Halwa.jpg",
+      "kind": "product",
+      "source_id": "CH2",
+      "name": "Cashew Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16760356332841Chilly-Cashew.jpg",
+      "kind": "product",
+      "source_id": "CRC1",
+      "name": "Chily Roasted Cashew",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17621858888023Coconut-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "CP4",
+      "name": "Coconut Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619303593785Corn-Chips-Web.jpg",
+      "kind": "product",
+      "source_id": "CC1",
+      "name": "Corn Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17365203807784Corn-Vadam-Web1.jpg",
+      "kind": "product",
+      "source_id": "CV2",
+      "name": "Corn Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619155046469Cow-Ghee1-Web.jpg",
+      "kind": "product",
+      "source_id": "CGK1",
+      "name": "Cow Ghee - 1kg",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17678844332124Curry-Leaves-Thokku1-Web.jpg",
+      "kind": "product",
+      "source_id": "CLT1",
+      "name": "Curry Leaves Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17332300461451Curry-Leaves-Podi.jpg",
+      "kind": "product",
+      "source_id": "CLP1",
+      "name": "Curry Leaves Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17319390556025Cut-Mango-Pickle.jpg",
+      "kind": "product",
+      "source_id": "CMP1",
+      "name": "Cut Mango Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623537267460Deepavali-Legiyam-Web.jpg",
+      "kind": "product",
+      "source_id": "DL1",
+      "name": "Deepavali Legiyam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16890818832797Thaniya-Thool.jpg",
+      "kind": "product",
+      "source_id": "TT3",
+      "name": "Dhaniya Thool",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619059942825Plain-Dosa1-Web.jpg",
+      "kind": "product",
+      "source_id": "DOS1",
+      "name": "Plain Dosa (2)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16821524912154Ellu-Podi.jpg",
+      "kind": "product",
+      "source_id": "EP2",
+      "name": "Ellu Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619260629720Finger-Chips-4-web.jpg",
+      "kind": "product",
+      "source_id": "FC2",
+      "name": "Finger Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17620049331949Fried-Bengal-Gram-Web.jpg",
+      "kind": "product",
+      "source_id": "FBG1",
+      "name": "Fried Bengal Gram",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17345323993852Garlic-Appalapoo-Wepsite1.jpg",
+      "kind": "product",
+      "source_id": "GAP1",
+      "name": "Garlic Appala Poo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16808633419089Garlic-Idly-Podi.jpg",
+      "kind": "product",
+      "source_id": "GIP1",
+      "name": "Garlic Idly Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17781646886814Garlic-Kuzambu-Mix-Web.jpg",
+      "kind": "product",
+      "source_id": "GKK1",
+      "name": "Garlic Kuzambu Sadam Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613106795328Garlic-Paruppu-Podi-web.jpg",
+      "kind": "product",
+      "source_id": "GPP1",
+      "name": "Garlic Paruppu Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17709038597385Garlic-Pickle-Web.jpg",
+      "kind": "product",
+      "source_id": "GP1",
+      "name": "Garlic Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619155203192Cow-Ghee1-Web.jpg",
+      "kind": "product",
+      "source_id": "CG1",
+      "name": "Cow Ghee - 500gm",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17791064274790Ghee-Mysurpa1-Web.jpg",
+      "kind": "product",
+      "source_id": "GM1",
+      "name": "Ghee Mysurpa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623488595596Inji-Thokku-Web.jpg",
+      "kind": "product",
+      "source_id": "GT2",
+      "name": "Ginger Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17232142741157Goungura.jpg",
+      "kind": "product",
+      "source_id": "KT1",
+      "name": "Goungura Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17835988474773Gramm-Dhall-Web.jpg",
+      "kind": "product",
+      "source_id": "GD1",
+      "name": "Gram Dhall",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16825010534632Gundu-Morkilagai.jpg",
+      "kind": "product",
+      "source_id": "MG3",
+      "name": "Gundu Moremilagai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17865434363786Combo-Kadalai-Urundai-Web.jpg",
+      "kind": "product",
+      "source_id": "HPC1",
+      "name": "Health Pakshanams Combo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17346276106403Honey-Amla-Dry-Wepsite1.jpg",
+      "kind": "product",
+      "source_id": "HAD1",
+      "name": "Honey Amla Dry",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17620046461358Milagu-Vadai-Wepsite-1.jpg",
+      "kind": "product",
+      "source_id": "HM1",
+      "name": "Honey Mittai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17620012039522Horlicks-Burfi-Web.jpg",
+      "kind": "product",
+      "source_id": "HB1",
+      "name": "Horlics Burfi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613118987188Idly-Podi-WEb.jpg",
+      "kind": "product",
+      "source_id": "IP1",
+      "name": "Idly Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17828638101973Idly-with-Vadai.jpg",
+      "kind": "product",
+      "source_id": "IWV1",
+      "name": "Idly with Vadai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16800751652715Ila-Vadam-Plain.jpg",
+      "kind": "product",
+      "source_id": "IVP1",
+      "name": "Ila Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17371060423537Ila-Vadam-Tomoto.jpg",
+      "kind": "product",
+      "source_id": "TVR1",
+      "name": "Ila Vadam - Red Chilly",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17895500899490Ilantha-Vadai1-Web.jpg",
+      "kind": "product",
+      "source_id": "IV1",
+      "name": "Ilantha Vadai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17616602357645Wepsite4.jpg",
+      "kind": "product",
+      "source_id": "IM3",
+      "name": "Inji Murappa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619264436448Jackfruit-Chips-Web.jpg",
+      "kind": "product",
+      "source_id": "JFC1",
+      "name": "Jack Fruit Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17624376669187Javvarisi-Vadam-New-Web.jpg",
+      "kind": "product",
+      "source_id": "JVP1",
+      "name": "Javvarisi Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17845600095123Javvarisi-Vadam-Karam-New1-Web.jpg",
+      "kind": "product",
+      "source_id": "JVT1",
+      "name": "Javvarisi Vadam Karam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17557841341816Jeera-Appala-Poo.jpg",
+      "kind": "product",
+      "source_id": "JA1",
+      "name": "Jeera Appalapoo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17640875495067Kadarangai-Pickle-Web.jpg",
+      "kind": "product",
+      "source_id": "KP1",
+      "name": "Kadarangai Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16985894546363Kaju-Kathli.jpg",
+      "kind": "product",
+      "source_id": "DKK1",
+      "name": "Kaju Kathli",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17624970369648Kalyana-Mysurpa-Web.jpg",
+      "kind": "product",
+      "source_id": "KM5",
+      "name": "Kalyana Mysurpa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17365203029408Kara-Murukku-Vadam-Web1.jpg",
+      "kind": "product",
+      "source_id": "KMV1",
+      "name": "Kara Murukku Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17554038675179Pidi-Kozhukattai1.jpg",
+      "kind": "product",
+      "source_id": "KPK3",
+      "name": "Kara Pidi Kozhukattai (3)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619390614264Karaboondhi-Web.jpg",
+      "kind": "product",
+      "source_id": "KAR2",
+      "name": "Karaboondhi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854201993521karaboondhi.jpg",
+      "kind": "product",
+      "source_id": "KAR3",
+      "name": "Karaboondhi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623506116857Karasev3-Web.jpg",
+      "kind": "product",
+      "source_id": "PK3",
+      "name": "Karasev",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17770400322537Karivepplai-Vadgagan-New-Web.jpg",
+      "kind": "product",
+      "source_id": "KV1",
+      "name": "Kariveppilai Vadagam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17673603048743Karuppu-Ellu-Sadam-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "KES1",
+      "name": "Karuppu Elllu Sadam Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613093982242Karuppu-Ellu-Idly-Podi-Web3.jpg",
+      "kind": "product",
+      "source_id": "KEI1",
+      "name": "Karuppu Ellu Idly Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17885196276646Karuppu-Kavuni-Kanji-Mavu-New-Web.jpg",
+      "kind": "product",
+      "source_id": "KKM1",
+      "name": "Karuppu Kavuni Kanji Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17156932473202Karuppu-Kavuni-Laddu.jpg",
+      "kind": "product",
+      "source_id": "KKL1",
+      "name": "Karuppu Kavuni Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17886049842463Karuppu-Ulundhu-Kanji-Web1.jpg",
+      "kind": "product",
+      "source_id": "KUK1",
+      "name": "Karuppu Ulundhu Kanji Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17880979875925Karuppu-Ulundhu-Web.jpg",
+      "kind": "product",
+      "source_id": "KUL1",
+      "name": "Karuppu Ulundhu Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17822209106206Kerala-Mixture-Web.jpg",
+      "kind": "product",
+      "source_id": "KM4",
+      "name": "Kerala Mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17358295733644Kerala-Pappadam-Wepsite1.jpg",
+      "kind": "product",
+      "source_id": "KP3",
+      "name": "Kerala Pappadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17248575546647Syndal.jpg",
+      "kind": "product",
+      "source_id": "KS2",
+      "name": "Kondaikadalai Sundal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613113089506Kootu-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "KP5",
+      "name": "Kootu Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17261524852242Kothamalli-Vithai-Podi.jpg",
+      "kind": "product",
+      "source_id": "KP4",
+      "name": "Kothamalli Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17341964265939Kothammali-Wepsite4.jpg",
+      "kind": "product",
+      "source_id": "KT2",
+      "name": "Kothamalli Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17364308913565Kothavarai-Web.jpg",
+      "kind": "product",
+      "source_id": "KV3",
+      "name": "Kothavarai Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17249135027295kozhukattai-combo1.jpg",
+      "kind": "product",
+      "source_id": "KC2",
+      "name": "Kozhukattai combo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17869591781510Spl-Combo-Pack.jpg",
+      "kind": "product",
+      "source_id": "KJS2",
+      "name": "Krishna Jayanthi Special Combo Pack",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17365284454485Kuchi-Vathal-Web.jpg",
+      "kind": "product",
+      "source_id": "KV2",
+      "name": "Kuchi Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17616624533722CoffeePowder1-Web.jpg",
+      "kind": "product",
+      "source_id": "KIC1",
+      "name": "Kumbakonam Iyer Coffee Powder",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17616607478419Lays-Chips4-Web.jpg",
+      "kind": "product",
+      "source_id": "LC2",
+      "name": "Lays Chps",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623516614309Lemon-Pickle2-web.jpg",
+      "kind": "product",
+      "source_id": "LP1",
+      "name": "Lemon Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16777666274983Lemon-without-masala.jpg",
+      "kind": "product",
+      "source_id": "LS4",
+      "name": "Lemon Salt Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17753162924957Lemon-Vathal-new-WEb.jpg",
+      "kind": "product",
+      "source_id": "LV2",
+      "name": "Lemon Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17664182161165Mahali-Pickle-Web1.jpg",
+      "kind": "product",
+      "source_id": "MPK1",
+      "name": "Mahali Karam Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17364313299034Manathakkali-Vathal-Web.jpg",
+      "kind": "product",
+      "source_id": "MVN1",
+      "name": "Manathakkali No Salt Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17364312998641Manathakkali-Vathal-Web.jpg",
+      "kind": "product",
+      "source_id": "MVS1",
+      "name": "Manathakkali Salt Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16804480666504Mango-Ginger-Karam.jpg",
+      "kind": "product",
+      "source_id": "MG1",
+      "name": "Mango Ginger Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16804481193476Mango-Ginger-Salt-pickle.jpg",
+      "kind": "product",
+      "source_id": "MGS1",
+      "name": "Mango Ginger Salt",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16777658521909Mango-Thokkiu.jpg",
+      "kind": "product",
+      "source_id": "MT3",
+      "name": "Mango Thokku (101)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17791928613223Mani-Murukku-Web.jpg",
+      "kind": "product",
+      "source_id": "BMM1",
+      "name": "Mani Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16811944278709Manjal-thool.jpg",
+      "kind": "product",
+      "source_id": "MT4",
+      "name": "Manjal Thool",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623512867650Manogaram2-web.jpg",
+      "kind": "product",
+      "source_id": "MAN1",
+      "name": "Manogaram",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854202476072Manogaram.jpg",
+      "kind": "product",
+      "source_id": "MAN3",
+      "name": "Manogaram",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17865456754361Tapiaco3-Web.jpg",
+      "kind": "product",
+      "source_id": "MKA1",
+      "name": "Maravalli Kizangu Appalam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623511059431Masala-Kadalai-Web.jpg",
+      "kind": "product",
+      "source_id": "MK1",
+      "name": "Masala Kadalai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623515398175Masal-Pori2-Web.jpg",
+      "kind": "product",
+      "source_id": "MP1",
+      "name": "Masala Pori",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16778314139697Mavadu2.jpg",
+      "kind": "product",
+      "source_id": "MK2",
+      "name": "Mavadu Karam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17137946071713Mavadu-Salt.jpg",
+      "kind": "product",
+      "source_id": "MSP1",
+      "name": "Mavadu Salt Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17781679929666Milagu-Kuzambu-Mixn-Web.jpg",
+      "kind": "product",
+      "source_id": "MKP1",
+      "name": "Milagu Kuzambu Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/176900174581267-Web.jpg",
+      "kind": "product",
+      "source_id": "MC3",
+      "name": "milk Cake",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17624970591079Mini-Badhusha-Web.jpg",
+      "kind": "product",
+      "source_id": "MB1",
+      "name": "Mini Badhusha",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17884194667949Mini-Badhusha.jpg",
+      "kind": "product",
+      "source_id": "MB4",
+      "name": "Mini Badusha",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17624980097539Mini-Jangiri-1-Web.jpg",
+      "kind": "product",
+      "source_id": "MJ1",
+      "name": "Mini Jangiri",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17884194348952MiniJangiri.jpg",
+      "kind": "product",
+      "source_id": "MJ2",
+      "name": "Mini Jangiri",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619371198270Kadalai-urundai3-Web.jpg",
+      "kind": "product",
+      "source_id": "KU2",
+      "name": "Mini Kadalai Urundai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17512907006191Mini-Milagu-Appalam.jpg",
+      "kind": "product",
+      "source_id": "MMA1",
+      "name": "Mini Milagu Apapalm",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17345316299421Mini-Pappad-Wepsite1.jpg",
+      "kind": "product",
+      "source_id": "MP2",
+      "name": "Mini Pappad",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618330035531Baby-Pepper-Thattai-1-Web.jpg",
+      "kind": "product",
+      "source_id": "MPT1",
+      "name": "Mini Pepper thattai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618434222101Mini-Thenkuzal-5-Web.jpg",
+      "kind": "product",
+      "source_id": "MTG1",
+      "name": "Mini Thenkuzal 200gm",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17620040326592Mini-Wheat-Biscuit-Web.jpg",
+      "kind": "product",
+      "source_id": "MWB1",
+      "name": "Mini Wheat Biscuit",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17636265556298MixedVegitable-Pickle1-Web.jpg",
+      "kind": "product",
+      "source_id": "MVP1",
+      "name": "Mixed Vegetable Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17835986567265Moon-Dhall-Web.jpg",
+      "kind": "product",
+      "source_id": "MD1",
+      "name": "Moong Dhall",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619364354831Manapparai-Murukku-5-Web.jpg",
+      "kind": "product",
+      "source_id": "MM1",
+      "name": "Moru Moru Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16776040421100Mudakkathan-Rasa-paste.jpg",
+      "kind": "product",
+      "source_id": "MRP2",
+      "name": "Mudakkathan Rasam Paste",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17612134998636Mudakkathan-Thokku-Webspte.jpg",
+      "kind": "product",
+      "source_id": "MT2",
+      "name": "Mudakkathan Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17614654317406Mudavattkkal-Kizangu-Thokku-Web.jpg",
+      "kind": "product",
+      "source_id": "MKT1",
+      "name": "Mudavattkkal Kizangu Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619387963394Mullu-Murukku4-Web.jpg",
+      "kind": "product",
+      "source_id": "DMM2",
+      "name": "Mullu Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17732415741358Miltigrain-Dosa-Mix-Web.jpg",
+      "kind": "product",
+      "source_id": "MMD1",
+      "name": "Multigrain Millet Dosa Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17676172824606Murungai-Keerai-Kollu-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "MKK1",
+      "name": "Murungai Keerai Kollu Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17897353564340Maskoth-Halwa-Web.jpg",
+      "kind": "product",
+      "source_id": "MH1",
+      "name": "Muscoth Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619991585345Mysore-Rasam-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "MRP1",
+      "name": "Mysore Rasam Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17752102161750New1-Web.jpg",
+      "kind": "product",
+      "source_id": "NV1",
+      "name": "Narthangai Dry Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17752102515170Narthangai-Karam-Dry-Vathal-web.jpg",
+      "kind": "product",
+      "source_id": "NDK1",
+      "name": "Narthangai Dry Karam Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17641436428846Kadarangai-Pickle-Web.jpg",
+      "kind": "product",
+      "source_id": "NP2",
+      "name": "Narthangai Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17752102834090Narthangai-Salt-Pickle-Web.jpg",
+      "kind": "product",
+      "source_id": "NS1",
+      "name": "Narthangai Salt Pickle",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17625777834328Varagu-Laddu-Wepsiste.jpg",
+      "kind": "product",
+      "source_id": "NL2",
+      "name": "Navadhanya Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618481215829Navadhanya-Mixture-Web.jpg",
+      "kind": "product",
+      "source_id": "NM1",
+      "name": "Navadhanya Mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17699593156745Navadanya-Adaiy-Mavu-Mix-web.jpg",
+      "kind": "product",
+      "source_id": "NAM1",
+      "name": "Navadhayna Adai Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16825011118331Neetu-Mormilagai.jpg",
+      "kind": "product",
+      "source_id": "MN1",
+      "name": "Neetu Moremilagai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619284004061Nendram-Chips-1-Web.jpg",
+      "kind": "product",
+      "source_id": "NC1",
+      "name": "Nendram Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619278805961Nendram-Fruit-Chips-Web.jpg",
+      "kind": "product",
+      "source_id": "NSC1",
+      "name": "Nendram Fruit Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17568785894125nendram-banana-chips.jpg",
+      "kind": "product",
+      "source_id": "NSC3",
+      "name": "Nendram Sweet Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854217651658Kutty-Combo.jpg",
+      "kind": "product",
+      "source_id": "KJK1",
+      "name": "New Kutty Combo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854215069292Mini-Combo-Pack.jpg",
+      "kind": "product",
+      "source_id": "KJM1",
+      "name": "New Mini Combo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17328905337667Nilakadalai-laddu.jpg",
+      "kind": "product",
+      "source_id": "NL1",
+      "name": "Nilakadalai Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619375323180Ompodi3-Web.jpg",
+      "kind": "product",
+      "source_id": "OP1",
+      "name": "Omapodi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854198243641omapodi.jpg",
+      "kind": "product",
+      "source_id": "OMP2",
+      "name": "Ompodi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/09/17904289164906Ompodi-Vadam-Big-Web.jpg",
+      "kind": "product",
+      "source_id": "OV2",
+      "name": "Ompodi Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16800757431491Ompdi-VAdgam-small.jpg",
+      "kind": "product",
+      "source_id": "OVS1",
+      "name": "Ompodi Vadam Small",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/09/17903399215766Onion-Vathal-Karam3-Web.jpg",
+      "kind": "product",
+      "source_id": "OVK1",
+      "name": "Onion Kara Vadagam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619258036071Onion-Ring-Chips-3-Web.jpg",
+      "kind": "product",
+      "source_id": "ORC1",
+      "name": "Onion Ring Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/09/17903399706279Onion-Vathal-1-Web.jpg",
+      "kind": "product",
+      "source_id": "OV1",
+      "name": "Onion Salt Vadagam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17677161184217Onion-Thokku-Web.jpg",
+      "kind": "product",
+      "source_id": "OT2",
+      "name": "Onion Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16777668592381Tomoto-Onion-Kara-Chutney.jpg",
+      "kind": "product",
+      "source_id": "OTK1",
+      "name": "Onion Tomoto Chutney",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618427487986Oosi-Thenkuzal-Web.jpg",
+      "kind": "product",
+      "source_id": "OT1",
+      "name": "Oosi Thenkuzal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17328905606225Pachai-Payaru.jpg",
+      "kind": "product",
+      "source_id": "PPL1",
+      "name": "Pachai Payaru Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17859400813420Palgova-Web.jpg",
+      "kind": "product",
+      "source_id": "PAL1",
+      "name": "Palgova",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613107036555Paruppu-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "PP5",
+      "name": "Paruppu Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17351328767991Pottukadalai-Laddu.jpg",
+      "kind": "product",
+      "source_id": "PL2",
+      "name": "Pasiparuppu Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619280684115Pavakkai-Chips-4-Web.jpg",
+      "kind": "product",
+      "source_id": "PC1",
+      "name": "Pavakkai Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17865794317499Milagu-appalam-Web.jpg",
+      "kind": "product",
+      "source_id": "PA1",
+      "name": "Pepper Appalam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17345323293279Pepper-Appalapoo-Wepsite1.jpg",
+      "kind": "product",
+      "source_id": "PAP1",
+      "name": "Pepper Apppla Poo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16777651934307Pepper-Rasam-Paste.jpg",
+      "kind": "product",
+      "source_id": "PRP1",
+      "name": "Pepper Rasam Paste",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16812198255999Omam-Vathal.jpg",
+      "kind": "product",
+      "source_id": "MIL1",
+      "name": "Pepper Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17612145455555Pirandai-Podi-Wepsite.jpg",
+      "kind": "product",
+      "source_id": "PP2",
+      "name": "Pirandai Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17677896913539Pirandai-New2-Web.jpg",
+      "kind": "product",
+      "source_id": "PT4",
+      "name": "Pirandai Thuvaiyal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17248582523956Poorna-kozhukattai.jpg",
+      "kind": "product",
+      "source_id": "PK4",
+      "name": "Poorna Kozhukattai (3)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613118746227Poriyal-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "KPP1",
+      "name": "Poriyal Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619308526600Pototo-Karam-Chips-Web.jpg",
+      "kind": "product",
+      "source_id": "PK2",
+      "name": "Pototo Karam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619307185076Pototo-Salt-Chips-Web.jpg",
+      "kind": "product",
+      "source_id": "PS1",
+      "name": "Pototo Salt",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854204753143Maa-Laddu.jpg",
+      "kind": "product",
+      "source_id": "PL1",
+      "name": "Pottu Kadalai Laddu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17620035271175Pottu-Kadalai-Web1.jpg",
+      "kind": "product",
+      "source_id": "PKU1",
+      "name": "Pottu Kadalai Urundai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17873207244904Pottu-Kadalai-Laddu-eb.jpg",
+      "kind": "product",
+      "source_id": "ML1",
+      "name": "Pottukadalai Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17232211581907Spl-Puliyodharai-Paste.jpg",
+      "kind": "product",
+      "source_id": "PP4",
+      "name": "Puliyodharai Paste",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16808539435671Puliyodharai-mix-podi.jpg",
+      "kind": "product",
+      "source_id": "PP7",
+      "name": "Puliyodharai Podi (100gm)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17690047425060Puthina-Podi-New-Web.jpg",
+      "kind": "product",
+      "source_id": "PP8",
+      "name": "Puthina Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17732434078861Ragi-Dosa-Mix-Web.jpg",
+      "kind": "product",
+      "source_id": "RDM2",
+      "name": "Ragi Dosa Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17709049888808Ragi-Laddu-New-web.jpg",
+      "kind": "product",
+      "source_id": "RL1",
+      "name": "Ragi Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17732416154952Rava-Dosa-Mix-Web.jpg",
+      "kind": "product",
+      "source_id": "RDM1",
+      "name": "Rava Dosa Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854205202469Rava-Laddu.jpg",
+      "kind": "product",
+      "source_id": "PKL1",
+      "name": "Rava Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17771078981902Rava-Uppuma-Mix-Web.jpg",
+      "kind": "product",
+      "source_id": "RUK1",
+      "name": "Rava Uppma Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17345323752129Redchilly-Applapoo-Wepsite1.jpg",
+      "kind": "product",
+      "source_id": "RCA1",
+      "name": "Red Chilly Appala Poo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17865455934544Rettai-Appalam-Web.jpg",
+      "kind": "product",
+      "source_id": "RA1",
+      "name": "Rettai Appalam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613179669583Ribbon-Pakkoda-Web3.jpg",
+      "kind": "product",
+      "source_id": "RP1",
+      "name": "Ribbon Pakkoda",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854197166238Ribbon-Pakkoda.jpg",
+      "kind": "product",
+      "source_id": "RP3",
+      "name": "Ribbon Pakkoda",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16800753432923Ribbon-vadam.jpg",
+      "kind": "product",
+      "source_id": "RV2",
+      "name": "Ribbon Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17865457323860Rice-Appalam-2-Web.jpg",
+      "kind": "product",
+      "source_id": "RAH1",
+      "name": "Rice Applam Handmade",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16800748663393Rice-Kool-Vadam-Plain.jpg",
+      "kind": "product",
+      "source_id": "RKV2",
+      "name": "Rice Koozh Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17640746183278Rice-Uppuma-Mix-Website.jpg",
+      "kind": "product",
+      "source_id": "RUM1",
+      "name": "Rice Uppuma Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16760358309526Pepper-Cashew.jpg",
+      "kind": "product",
+      "source_id": "RPC1",
+      "name": "Roaseted Pepper Cashew",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16796492719303vadai1.jpg",
+      "kind": "product",
+      "source_id": "MBS2",
+      "name": "Vadai (1)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613106182000Sambar-Podi-Web.jpg",
+      "kind": "product",
+      "source_id": "SP1",
+      "name": "Sambar Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17756399085852Sambar-Vadam-Web.jpg",
+      "kind": "product",
+      "source_id": "SV1",
+      "name": "Sambar Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17617423597017Senai-Chips-Web1.jpg",
+      "kind": "product",
+      "source_id": "SKC1",
+      "name": "Senai Kizangu Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17780763232090Small-Onon-Garli-Chutney-Web.jpg",
+      "kind": "product",
+      "source_id": "SOG1",
+      "name": "Small Onion Garlic Chutney",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619353238059Spl-Thattai-Web.jpg",
+      "kind": "product",
+      "source_id": "ST1",
+      "name": "Special Big Thattai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619201624864Healthmix-Web.jpg",
+      "kind": "product",
+      "source_id": "HM2",
+      "name": "Special Health Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17895502046660Ilantha-Vadai2-Web.jpg",
+      "kind": "product",
+      "source_id": "SIV1",
+      "name": "spl Ilantha Vadai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17884191944022Laddu-New-web.jpg",
+      "kind": "product",
+      "source_id": "BL1",
+      "name": "spl Laddu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17696145895542Milagu-Vadai4-Web.jpg",
+      "kind": "product",
+      "source_id": "MV1",
+      "name": "Special Milagu Vadai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618330315407Verkadalai-Thattai3-Web.jpg",
+      "kind": "product",
+      "source_id": "DST1",
+      "name": "Special mini Thattai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618158962935Spl-Mixture-Website-3.jpg",
+      "kind": "product",
+      "source_id": "SM1",
+      "name": "Special Mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17613106457887Rasam-Podi-Web-3.jpg",
+      "kind": "product",
+      "source_id": "RP2",
+      "name": "Special Rasam Podi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17642260297529Sukku-Coffee-Mix-Web.jpg",
+      "kind": "product",
+      "source_id": "SCP1",
+      "name": "Sukku Coffee Powder Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17615742182054Wepsite2.jpg",
+      "kind": "product",
+      "source_id": "SMT1",
+      "name": "Sukku - Milagu - Thippli - Panai Karuppathi Cake",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17364313421702Sundaikkai-Vathal-Web.jpg",
+      "kind": "product",
+      "source_id": "SVP1",
+      "name": "Sundaikkai Salt Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17364313735821Sundaikkai-Vathal-Web.jpg",
+      "kind": "product",
+      "source_id": "SV2",
+      "name": "Sundaikkai No Salt Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17248520508806Sweet-Pidi-Kozhukattai1.jpg",
+      "kind": "product",
+      "source_id": "SPK2",
+      "name": "Sweet Pidi Kozhukattai (3)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16873863832483Tamarai-thandu-vadam.jpg",
+      "kind": "product",
+      "source_id": "TTV1",
+      "name": "Tamarai Thandu Vadam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17624324592881Tapiaco-Chips1-web.jpg",
+      "kind": "product",
+      "source_id": "TC1",
+      "name": "Tapiaco Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/09/17903314593683Thalir-Vadam-Big-Web.jpg",
+      "kind": "product",
+      "source_id": "TVB1",
+      "name": "Thalir Vadam - BIg",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16807067061292Milagai-thool.jpg",
+      "kind": "product",
+      "source_id": "TMT1",
+      "name": "Thani MIlagai Thool",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618436873190Mini-Thenkuzal-5-Web.jpg",
+      "kind": "product",
+      "source_id": "THE1",
+      "name": "Thenkuzal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17625778464355Varagu-Laddu1.jpg",
+      "kind": "product",
+      "source_id": "TL2",
+      "name": "Thinai Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17626107384179Thuthuvalai-Thokku-Web.jpg",
+      "kind": "product",
+      "source_id": "TT1",
+      "name": "Thuthuvalai Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16776041521752Thuthuvalai-Rasam-Paste.jpg",
+      "kind": "product",
+      "source_id": "TR1",
+      "name": "Thuthuvalali Rasam Paste",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17867794055421Tirnelveli-Halwa2-Web.jpg",
+      "kind": "product",
+      "source_id": "TH1",
+      "name": "Special Tirunelveli Ghee Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17884194999436Tirunelveli-Halwa.jpg",
+      "kind": "product",
+      "source_id": "TH2",
+      "name": "Tirunelveli Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16964243521017Tirupathi-Laddu1.jpg",
+      "kind": "product",
+      "source_id": "TL1",
+      "name": "Tirupathi Laddu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16922239484843Tomoto-Onion-Kara-Chutney.jpg",
+      "kind": "product",
+      "source_id": "TP2",
+      "name": "Tomato Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16812087736332Tomoto-Vathal.jpg",
+      "kind": "product",
+      "source_id": "TOM1",
+      "name": "Tomato Vathal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16776038032269Tomoto-Rasam-Paste.jpg",
+      "kind": "product",
+      "source_id": "TRP1",
+      "name": "Tomoto Rasam Paste",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/176286797266751000632533.jpg",
+      "kind": "product",
+      "source_id": "TP1",
+      "name": "Trattippal",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17346127351752Omam-Wepsite2.jpg",
+      "kind": "product",
+      "source_id": "UAO1",
+      "name": "Ulundhu Appalam - Omam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17865793934780Ulundhu-Appalam-Jeera3-Web.jpg",
+      "kind": "product",
+      "source_id": "UAJ1",
+      "name": "Ulundhu Applam - Jeera",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619377842638Uppu-Seedai4-Web.jpg",
+      "kind": "product",
+      "source_id": "USC1",
+      "name": "Uppu Seedai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16816420077002ghee-dosa.jpg",
+      "kind": "product",
+      "source_id": "VAD1",
+      "name": "Ghee Dosa (2)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16796493056907Sambar-idly.jpg",
+      "kind": "product",
+      "source_id": "MBV1",
+      "name": "Sambar Idly (2)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16776057436269Vallarai-thokku2.jpg",
+      "kind": "product",
+      "source_id": "VT2",
+      "name": "Vallarai Thokku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17351328079945Varagu-Laddu-Wepsiste.jpg",
+      "kind": "product",
+      "source_id": "VL1",
+      "name": "Varagu Laddu (5)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17869740187284Malahalskhmi-Viradham-Combo1.jpg",
+      "kind": "product",
+      "source_id": "NC4",
+      "name": "Varalahsmi Neivedhyam Combo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16777670923978Vathakuzambu-mix.jpg",
+      "kind": "product",
+      "source_id": "VM1",
+      "name": "Vathakuzambu Paste",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619310914148Vazhaikkai-Karam-Chips-Web.jpg",
+      "kind": "product",
+      "source_id": "VKC1",
+      "name": "Vazhaikkai Karam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619316938501Vazhaikkai-Pepper3-web.jpg",
+      "kind": "product",
+      "source_id": "VPC1",
+      "name": "Vazhaikkai Pepper",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623507763946Vella-Seedai-4-Web.jpg",
+      "kind": "product",
+      "source_id": "VS1",
+      "name": "Vella Seedai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17078085094289Veppam-Poo1.jpg",
+      "kind": "product",
+      "source_id": "VP3",
+      "name": "Veppam Poo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16855407414501Vepplai-kattai.jpg",
+      "kind": "product",
+      "source_id": "VK2",
+      "name": "Veppilai Katti",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17791033674784Wheat-Halwa-Web.jpg",
+      "kind": "product",
+      "source_id": "WH1",
+      "name": "Special Wheat Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17771078575485Wheat-Rava-Uppuma-Mix-Web.jpg",
+      "kind": "product",
+      "source_id": "WRU1",
+      "name": "Wheat Rava Uppum Mix",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619271627311Wheel-Chips-Web.jpg",
+      "kind": "product",
+      "source_id": "WC1",
+      "name": "Wheel Chips",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17833809681040Kootu-Web.jpg",
+      "kind": "product",
+      "source_id": "WR2",
+      "name": "Vazhaithandu Kootu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854205202469Rava-Laddu.jpg",
+      "kind": "product",
+      "source_id": "83891bfd4fafd154ae294e184b32c95db3bce13c81b12e6e6b6e1e77ffdc",
+      "name": "Rava Laddu (5)",
+      "image_index": 0,
+      "matched_by": "unique_exact_name"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17833810726960Lunch-With-Rice-Web.jpg",
+      "kind": "category",
+      "slug": "08th-tuesday-lunch",
+      "source_id": "95",
+      "name": "Tuesday Lunch",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17631829135492Breakfast-Cartoon.jpg",
+      "kind": "category",
+      "slug": "15th-monday-breakfast",
+      "source_id": "91",
+      "name": "Tuesday Breakfast",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17573109579217Dinner-Cartoon.jpg",
+      "kind": "category",
+      "slug": "22nd-tuesday-dinner",
+      "source_id": "68",
+      "name": "Friday Dinner",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17283211423007always-everyone.jpg",
+      "kind": "category",
+      "slug": "always-loved-by-everyone-this-products",
+      "source_id": "ALB1",
+      "name": "These Products Were Always Loved by Everyone",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616784597668Tapiaco3-Web.jpg",
+      "kind": "category",
+      "slug": "appalams",
+      "source_id": "APP1",
+      "name": "Appalams",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616720371300Senai-Chips-Web1.jpg",
+      "kind": "category",
+      "slug": "chips1",
+      "source_id": "CHI1",
+      "name": "Chips",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17631829026620lunch-cartoon.jpg",
+      "kind": "category",
+      "slug": "daily-foods-1",
+      "source_id": "DF1",
+      "name": "Breakfast & Lunch & Dinner",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616932701159Cow-Ghee1-Web.jpg",
+      "kind": "category",
+      "slug": "diary",
+      "source_id": "DIA1",
+      "name": "Dairy",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909837074640Carrot-Halwa1.jpg",
+      "kind": "category",
+      "slug": "halwa",
+      "source_id": "HAL1",
+      "name": "Halwa",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616939678592Karuppu-Kavuni-Kanji-Mavu1-Web.jpg",
+      "kind": "category",
+      "slug": "health-products",
+      "source_id": "HP1",
+      "name": "Health Products",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16782039148340jice.jpg",
+      "kind": "category",
+      "slug": "juices",
+      "source_id": "JUI1",
+      "name": "Juices",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909837747673Kaju-Kathli.jpg",
+      "kind": "category",
+      "slug": "kaju-sweets",
+      "source_id": "KS1",
+      "name": "Kaju Sweets",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616710096153Rasam-Podi-Web-3.jpg",
+      "kind": "category",
+      "slug": "kitchen-podis",
+      "source_id": "KP1",
+      "name": "Kitchen Podis",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17854854964036Krishna-Jayanthi.jpg",
+      "kind": "category",
+      "slug": "krishna-jeyanthi",
+      "source_id": "70",
+      "name": "Krishna Jayanth 2026",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616717253928Milletes-Laddu-Web.jpg",
+      "kind": "category",
+      "slug": "laddus-1",
+      "source_id": "LAD1",
+      "name": "Millets Laddus",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17543976207419Neivedymam-Set.jpg",
+      "kind": "category",
+      "slug": "mahalakshmi-viradham-neivedhyam-set",
+      "source_id": "98",
+      "name": "Varalakshmi Viradham",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618442838568Spl-Mixture-Website-3.jpg",
+      "kind": "category",
+      "slug": "mixture-1",
+      "source_id": "MIX1",
+      "name": "Mixture",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618442641290Kai-Murukku-3-Web.jpg",
+      "kind": "category",
+      "slug": "murukku-1",
+      "source_id": "MUR1",
+      "name": "Murukku",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616712434781Spl-Mixture-Website-3.jpg",
+      "kind": "category",
+      "slug": "pakshanams-1",
+      "source_id": "PAK1",
+      "name": "Pakshanams",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616773186291Lemon-Pickle2-web.jpg",
+      "kind": "category",
+      "slug": "pickles",
+      "source_id": "PIC1",
+      "name": "Pickles",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616709687644Pirandai-Podi-Wepsite.jpg",
+      "kind": "category",
+      "slug": "podi",
+      "source_id": "POD1",
+      "name": "Podi",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16779413694928rasampaste.jpg",
+      "kind": "category",
+      "slug": "rasam-paste",
+      "source_id": "RP1",
+      "name": "Rasam Paste",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/placeholders/product.jpg",
+      "kind": "category",
+      "slug": "ready-to-cook",
+      "source_id": "RTC1",
+      "name": "Ready To Cook",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17261501029088Pirandai.jpg",
+      "kind": "category",
+      "slug": "rice-mix-herbal-podi",
+      "source_id": "RMH1",
+      "name": "Rice Mix Herbal Podi",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16779414528827Rice-Mix-Paste.jpg",
+      "kind": "category",
+      "slug": "rice-mix-paste",
+      "source_id": "RMP1",
+      "name": "Rice Mix Paste",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909839961676Garlic-Paruppu-Podi1.jpg",
+      "kind": "category",
+      "slug": "rice-mix-podi",
+      "source_id": "RMP2",
+      "name": "Rice Mix Podi",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616722477803Kalyana-Mysurpa-Web.jpg",
+      "kind": "category",
+      "slug": "sweets",
+      "source_id": "SWE1",
+      "name": "Sweets",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17892233809936Ganapathy-Web.jpg",
+      "kind": "category",
+      "slug": "tamil-new-year-spl-lunch-1",
+      "source_id": "41",
+      "name": "vinayagar Chathurthi Special Lunch",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618443771356Verkadalai-Thattai3-Web1.jpg",
+      "kind": "category",
+      "slug": "thattai",
+      "source_id": "THA1",
+      "name": "Thattai",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616781782262Pirandai-New2-Web.jpg",
+      "kind": "category",
+      "slug": "thokku",
+      "source_id": "THO1",
+      "name": "Thokku",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17573126589061Dinner-Cartoon.jpg",
+      "kind": "category",
+      "slug": "tuesday-dinner-1",
+      "source_id": "TD1",
+      "name": "Monday Dinner",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616776397235Sundaikkai-Vathal1-Web.jpg",
+      "kind": "category",
+      "slug": "vathal-vadagams",
+      "source_id": "VV1",
+      "name": "Vathal & Vadagams",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17126702804011Carrot-Vathal.jpg",
+      "kind": "category",
+      "slug": "vegitable-vathal-1",
+      "source_id": "VV2",
+      "name": "Vegetable Vathal",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16943551035070Vinayagar1.jpg",
+      "kind": "category",
+      "slug": "vinayagar-chaturthi-combos-1",
+      "source_id": "54",
+      "name": "Vinayagar Chaturthi Kozhukattai",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912779817868Diwali-Combos.jpg",
+      "kind": "category",
+      "slug": "diwali-combos",
+      "source_id": "DC1",
+      "name": "Diwali Combos",
+      "matched_by": "slug"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17913677027478Annams-Diwali.jpg",
+      "kind": "category",
+      "slug": "diwali-2026",
+      "source_id": "DP1",
+      "name": "Diwali 2026",
+      "matched_by": "reviewed_category_alias"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912774959977DiwaliSweets.jpg",
+      "kind": "category",
+      "slug": "diwali-sweets",
+      "source_id": "DS1",
+      "name": "Diwali Sweets",
+      "matched_by": "reviewed_category_alias"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912776051181Diwali-Karams.jpg",
+      "kind": "category",
+      "slug": "diwali-karams",
+      "source_id": "DK1",
+      "name": "Diwali Karams",
+      "matched_by": "reviewed_category_alias"
+    }
+  ],
+  "unmatched": [
+    {
+      "kind": "product",
+      "name": "Ulundhu Appalam",
+      "source_id": "UA1"
+    },
+    {
+      "kind": "product",
+      "name": "Madras Mixture",
+      "source_id": "6e143457f52a9ec22c515e77083ea490e9eafb44f673815ffd02a4d867a1"
+    },
+    {
+      "kind": "product",
+      "name": "Tapioca Chips",
+      "source_id": "737256a7b3cdaf18ceb77dc83fe7c9c4c0b176614929409e93de86bca558"
+    },
+    {
+      "kind": "product",
+      "name": "Chips Combo Pack",
+      "source_id": "6c479ad3dc6064869d0a9c8b6dd59a0369367366aca3185fcf37d6d73c75"
+    },
+    {
+      "kind": "product",
+      "name": "Ghee Appam",
+      "source_id": "9f6e6c6b0efd0cc08dba9d7efbab0ea8ac698a58e58814689a2123ca7338"
+    },
+    {
+      "kind": "product",
+      "name": "Rava Laddu",
+      "source_id": "c87f67fb95c27965fb2e9ab010c8d9604b5aee0725dc16c618f974183b9f"
+    },
+    {
+      "kind": "product",
+      "name": "Pori Urundai",
+      "source_id": "653420172f3b628d51489be51df420bc2f937dc54d9e8ccd90d166b263f1"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Mega Combo Pack",
+      "source_id": "054881aed05c68a221784cb85900f182b11f67932a12fc141977ece78399"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Karam Combo Pack",
+      "source_id": "621cfc8e54ae44e68db102b0681be0947c81a0b3429dc407efc09cc662d4"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Sweets Combo Pack",
+      "source_id": "8bcc834eb9fd86bf303f7976434cbb21ad7307313f2c1386441d16488dd8"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Mini Gift Combo",
+      "source_id": "915752a980197c44e1f0a1daa9f673ba63f01ca1ec0a787540679b8b39e5"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Assorted Sweets 250gm",
+      "source_id": "15352cb531dbe316539c8a826753a5f3510745b50f9a7fce161feb51a2be"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Assorted Sweets 500gm",
+      "source_id": "7f183784bdf535a50576c10ca1eb667d4fe7ac46bc3b14afb469e579d192"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Kaju Assorted Sweets 250gm",
+      "source_id": "cd7c315be122ba27b06b2e52e5a47e6d45888a725e33e6c09f2cf1007506"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Kaju Assorted Sweets 500gm",
+      "source_id": "b6b1efec560b79b8272d301a5a75c2a1f34deaa03e876ce02a7a4ba0410a"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Jangiri",
+      "source_id": "856229b0b41dda35bb833be23258f5079d1293bd63bacbd755d99eb0ecd6"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Badhusha",
+      "source_id": "1618d5449f2b3452f8a654329043079c869d7b273bc74a21f58402fef60e"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Kalyana Mysurpa",
+      "source_id": "15e41b705efbdac88b0be9ef3d57f4f33a7e9906663fee09b5a892201880"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Laddu",
+      "source_id": "36feb3ea5168d5e9ea1a679b2dd2892c8d40b96d7f011be839d420ca8caa"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Kaju Kathli",
+      "source_id": "9e503b968e6bb97bd5c0056a8814dcad8609e979e74ba109a0c29c3c9903"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Horlicks Burfi",
+      "source_id": "ee546aafd80039a4a959bbd99f4a39e148dae6b4196670acc60366847797"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Boost Burfi",
+      "source_id": "e68ff60873cded8254217387e82e28c97e1883af2f6bcfecc563c1c3bcf8"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Tirunelveli Halwa",
+      "source_id": "24c1a72fbc884a3960bdd5d8635aba9bfd1c23da913c855e9f084f54e105"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Athirasam",
+      "source_id": "85ea49af9c2f2747def5a39e264038a3408b01d84f6695df52ff9de09229"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Manogaram",
+      "source_id": "072d783e12c54b20ba74e7c6c63db80988d80c71f83373192cf5c4c56aec"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali Legiyam",
+      "source_id": "6982e318a937695270f508936eccb1d7f4d3354879e1ce4a5f37769634ff"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Spl Mixture",
+      "source_id": "3b7c4852a74027ed886d71fe9b95b52cd57c39b7ed8f923adb237001088b"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Navadhanya Mixture",
+      "source_id": "4f93fe2b0eea134bcd2756af7f65e107feae1d045cbc9b2bfd6d64885905"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Ribbon Pakkoda",
+      "source_id": "e0dcdfc86762baf4fb0c548b39dd7bfca4cccfe4a07f27b9b17992e0b3b6"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Karaboondhi",
+      "source_id": "291f2167226c1595cb90637a6e8b81e9deb19be91ab514cb50aeabfb0a70"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Karasev",
+      "source_id": "01c56ddc36828c34aae657d6061d9c25c6dbd9e275d22a844158df428949"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Omapodi",
+      "source_id": "6ee45a19ed798974c6ffe9b3615ed4a3cbf539a9549242c73446fb60994e"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Butter Murukku",
+      "source_id": "3ce621d4778279be312c3cd7c111d3eab08c23c4b5b5680ace072cbaf4ab"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Spl Thattai",
+      "source_id": "d13b65714938826a5c57d171166deab134e909ac005ca4654b9759a9856f"
+    },
+    {
+      "kind": "product",
+      "name": "Diwali - Moru Moru Murukku",
+      "source_id": "b6a488b5487826338b0b8d06db65b9266dae61d196f8e4fbe7ab9130c46d"
+    },
+    {
+      "kind": "product",
+      "name": "Kamar Kattu",
+      "source_id": "d145e2960e95c3789c00155d6217fbc8b0db1082c8e0de7eb3fd068e71ff"
+    },
+    {
+      "kind": "product",
+      "name": "Spl Milk Halwa",
+      "source_id": "e2d0b6787c409fee8f488c6d4726b6708955f922067bb8bd9c3fdb40070c"
+    },
+    {
+      "kind": "product",
+      "name": "Karupatti Halwa",
+      "source_id": "495f8113d2a545086b5661244fcfd86453602170c7714a8e652d559baf6a"
+    },
+    {
+      "kind": "product",
+      "name": "Mini Milagu Appalam",
+      "source_id": "8d37f0dc672b89bd9fbf17ed1903947e78544b222c5a48399dd6b514c423"
+    },
+    {
+      "kind": "product",
+      "name": "Rasa Vadai (1)",
+      "source_id": "a64d8217f50b5f799a00207b7cc173cbd78a2c472a842f0d7f2a4781ca85"
+    },
+    {
+      "kind": "product",
+      "name": "Sambar Vadai (1)",
+      "source_id": "85e5a529ee64d2c1b2b28cf189f9cda820a6048b63f9119e9075d4941201"
+    },
+    {
+      "kind": "product",
+      "name": "Spl Bisibelabath",
+      "source_id": "4606862eface0cd30b8c3d898ea2caa09b8ee9f2d48ea9aaa6ab21f77201"
+    },
+    {
+      "kind": "product",
+      "name": "Chow Chow Kootu",
+      "source_id": "b82e5714171df4a2cfbca0a8e3563ae0d86f23fa723cf1ba219c8135a62e"
+    },
+    {
+      "kind": "product",
+      "name": "Morekuzhambu",
+      "source_id": "8d63eddf124c9aa2d5c39107174d65c220f5d67641627a5ac4c6730ca5e4"
+    },
+    {
+      "kind": "product",
+      "name": "Kose Poriyal",
+      "source_id": "a1cb2414dd4ade39369072b4a952c1df2c01993057d6dfdcdb7e57ba7a33"
+    },
+    {
+      "kind": "product",
+      "name": "Kancheepuram Idly (2)",
+      "source_id": "085343730b1226f219505cb301035e6766601c51dbcf318cf7526ed63a71"
+    },
+    {
+      "kind": "product",
+      "name": "Idiyappam (4)",
+      "source_id": "e89800b75b5bfad3b0cae4ea2fa98d3b1ece6bd3f2b74ee3668358647e71"
+    },
+    {
+      "kind": "product",
+      "name": "Onion Chennai Masala",
+      "source_id": "a2919bef8031cde41ce15999f5ba555026e0ba99d242921d7cce9b25b75e"
+    }
+  ],
+  "policy": "Original source ID or unambiguous exact name; explicit reviewed Diwali category aliases. No prices, menus or order changes."
+}

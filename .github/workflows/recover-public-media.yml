@@ -62,6 +62,12 @@ jobs:
           PYTHONPATH="/tmp:$GITHUB_WORKSPACE" DJANGO_SETTINGS_MODULE=annam_media_ci_settings uv run python -m pytest -q
       - name: Discover current public images from HTML pages and catalog
         run: python3 scripts/scrape_annam_media.py
+      - name: Compare rendered source and our storefront images
+        run: |
+          python3 -m pip install 'playwright==1.56.0'
+          python3 -m playwright install --with-deps chromium
+          python3 scripts/browser_annam_images.py
+          python3 scripts/build_public_image_matches.py
       - name: Download and validate original image files
         run: |
           status=0
@@ -72,7 +78,7 @@ jobs:
         run: |
           git config user.name 'Annam public media recovery'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add -A -- media php-app/resources/public-media.json php-app/resources/live-public-media-source.json docs/media-recovery-report.json
+          git add -A -- media php-app/resources/public-media.json php-app/resources/live-public-media-source.json php-app/resources/browser-public-media-source.json php-app/resources/public-image-matches.json docs/media-recovery-report.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Recover verified original public storefront images'
           git push origin HEAD:refs/heads/php-rebuild
@@ -91,3 +97,5 @@ jobs:
             php-app/resources/public-media.json
             php-app/resources/live-public-media-source.json
             docs/media-recovery-report.json
+            php-app/resources/browser-public-media-source.json
+            php-app/resources/public-image-matches.json

@@ -9,12 +9,14 @@ final class PublicMedia {
         $source=json_decode(file_get_contents(ANNAM_ROOT.'/resources/source-catalog.json'),true,512,JSON_THROW_ON_ERROR);$assets=[];
         $add=function(string $url,array $reference,string $folder)use(&$assets){self::url($url);$key=hash('sha256',$url);if(!isset($assets[$key]))$assets[$key]=['url'=>$url,'folder'=>$folder,'references'=>[],'status'=>'pending','path'=>null,'sha256'=>null];$assets[$key]['references'][]=$reference;};
         $livePath=ANNAM_ROOT.'/resources/live-public-media-source.json';$live=is_file($livePath)?json_decode(file_get_contents($livePath),true,512,JSON_THROW_ON_ERROR):null;
-        foreach(array_filter([$live,$source]) as $snapshot){
+        $browserPath=ANNAM_ROOT.'/resources/browser-public-media-source.json';$browser=is_file($browserPath)?json_decode(file_get_contents($browserPath),true,512,JSON_THROW_ON_ERROR):null;
+        foreach(array_filter([$browser,$live,$source]) as $snapshot){
             foreach($snapshot['products'] as $product)foreach($product['images']??[] as $index=>$url)$add($url,['kind'=>'product','source_id'=>(string)$product['source_id'],'name'=>$product['name'],'image_index'=>$index],'catalog');
             foreach($snapshot['categories'] as $category)if(!empty($category['image']))$add($category['image'],['kind'=>'category','source_id'=>(string)$category['source_id'],'name'=>$category['name'],'slug'=>$category['slug']],'categories');
             foreach(['logo','favicon'] as $name)if(!empty($snapshot['brand'][$name]))$add($snapshot['brand'][$name],['kind'=>'brand','name'=>'Annam Foods source '.$name],'brand');
         }
-        foreach($live['media_urls']??[] as $url)$add($url,['kind'=>'site','name'=>'Public website image'],'site');
+        foreach(array_unique(array_merge($live['media_urls']??[],$browser['media_urls']??[])) as $url)$add($url,['kind'=>'site','name'=>'Public website image'],'site');
+        $matchesPath=ANNAM_ROOT.'/resources/public-image-matches.json';if(is_file($matchesPath))foreach(json_decode(file_get_contents($matchesPath),true,512,JSON_THROW_ON_ERROR)['matches'] as $match){$url=$match['url'];unset($match['url']);$add($url,$match,$match['kind']==='product'?'catalog':'categories');}
         $old=is_file(self::manifest())?json_decode(file_get_contents(self::manifest()),true,512,JSON_THROW_ON_ERROR):[];
         foreach($assets as $key=>&$asset)if(isset($old['assets'][$key]))foreach(['status','path','sha256','bytes','error'] as $field)if(array_key_exists($field,$old['assets'][$key]))$asset[$field]=$old['assets'][$key][$field];unset($asset);
         return ['version'=>1,'source'=>$source['source'],'source_snapshot'=>$source['fetched_at'],'live_source_snapshot'=>$live['fetched_at']??null,'description'=>'Original public source assets. Only verified downloads may be assigned to catalog records.','assets'=>$assets];

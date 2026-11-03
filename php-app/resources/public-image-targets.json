@@ -1,0 +1,1817 @@
+{
+  "tenant": "annam",
+  "products": [
+    {
+      "name": "Regular - With Rice",
+      "source_id": "TSL1",
+      "image": "catalog/1946f50cb50d8b3e04784679c9715dbf.jpg"
+    },
+    {
+      "name": "Regular - Without Rice",
+      "source_id": "TRL4",
+      "image": "catalog/680112229aebe92475bdbf7ec61ed25c.jpg"
+    },
+    {
+      "name": "Special Lunch - With Rice",
+      "source_id": "TSL2",
+      "image": "catalog/85fa90a483ddbdfaad5226e181fbdadb.jpg"
+    },
+    {
+      "name": "Special Lunch - Without Rice",
+      "source_id": "TRL3",
+      "image": "catalog/abf0d14586fd6adcfaff4e738eb19bdd.jpg"
+    },
+    {
+      "name": "2 Suttu Murukku",
+      "source_id": "SM2",
+      "image": "catalog/7d637a35fedd558f1538f836a12194da.jpg"
+    },
+    {
+      "name": "2 Suttu Murukku",
+      "source_id": "SM6",
+      "image": "catalog/3e14864891fa7a47dbc45278084ab230.jpg"
+    },
+    {
+      "name": " - Curd Vadai",
+      "source_id": "SCV2",
+      "image": "catalog/43e462d1c25302bb21479cceb9da4e88.jpg"
+    },
+    {
+      "name": "Lunch Add - on - Pasiparuppu Payasam",
+      "source_id": "TLA3",
+      "image": "catalog/d60c289c5c464ba96b8f64ccbbe83d0f.jpg"
+    },
+    {
+      "name": "Regular Lunch - With Rice",
+      "source_id": "TRL6",
+      "image": "catalog/2570e029c2b74247b21145e86f03dd29.jpg"
+    },
+    {
+      "name": "Regular Lunch - Without Rice",
+      "source_id": "TRL5",
+      "image": "catalog/7b266cf89bbf54b11200f64b04abd06d.jpg"
+    },
+    {
+      "name": "Parangikkai Sambar",
+      "source_id": "SSP1",
+      "image": "catalog/ea39ce41b1277e85db30761aca9e5245.jpg"
+    },
+    {
+      "name": "Paruppu Ushili",
+      "source_id": "SSP4",
+      "image": "catalog/e1ace572b1da91b7ff22ca0d306168ec.jpg"
+    },
+    {
+      "name": "tomato Rasam",
+      "source_id": "SSP2",
+      "image": "catalog/5a1133bb1437dbefdcf3d7434718e5b2.jpg"
+    },
+    {
+      "name": "Special Lunch - With Rice",
+      "source_id": "TSL3",
+      "image": "catalog/b69866ed022813a5f3aa3d2e1b6f95d6.jpg"
+    },
+    {
+      "name": "Special Lunch - Without Rice",
+      "source_id": "MPS1",
+      "image": "catalog/1f70ad5458ac82fcb49665eaa1c1e4b6.jpg"
+    },
+    {
+      "name": " - Ulundu Vadai",
+      "source_id": "UV5",
+      "image": "catalog/55c7a1db36a9d8e9140125a3c0fd29f3.jpg"
+    },
+    {
+      "name": "Idly (4)",
+      "source_id": "SI1",
+      "image": "catalog/e3bb90320e2d49dab70640ac20e6aaaf.jpg"
+    },
+    {
+      "name": "Chappathi (3)",
+      "source_id": "BAU1",
+      "image": "catalog/631ef69567ec137b9bffa371b2277b85.jpg"
+    },
+    {
+      "name": "Idly (4)",
+      "source_id": "TTD10",
+      "image": "catalog/47909a43ab8b7f4f52e9959e3940113b.jpg"
+    },
+    {
+      "name": "Only Chapathi",
+      "source_id": "TDO4",
+      "image": "catalog/e6b017c0578739f673b7dfd4f15dcdcf.jpg"
+    },
+    {
+      "name": "Poori (2)",
+      "source_id": "TSD4",
+      "image": "catalog/015770b82cbc56741676fbe47b6fd368.jpg"
+    },
+    {
+      "name": "Rava Kichadi",
+      "source_id": "TDR5",
+      "image": "catalog/c60030e3cb325e0f720dbce3b0e170ab.jpg"
+    },
+    {
+      "name": "Tomato Kuruma",
+      "source_id": "TTK1",
+      "image": "catalog/2478d2f8e9d7db6d74b7b56680e93eba.jpg"
+    },
+    {
+      "name": "Chapathi (1)",
+      "source_id": "TDO3",
+      "image": "catalog/376c86e595914e8f0e75d9b1bb9dad46.jpg"
+    },
+    {
+      "name": "Idly (4)",
+      "source_id": "TDI3",
+      "image": "catalog/4c62a11bb304ab2e5dd61e1f62030177.jpg"
+    },
+    {
+      "name": "Only Chapathi",
+      "source_id": "RDO1",
+      "image": "catalog/13e8eb75204387f21bca3e5bce2e2bc4.png"
+    },
+    {
+      "name": "Pasiparuppu Dhall",
+      "source_id": "TDP2",
+      "image": "catalog/f1944730cea71e34e45d0643bc1dbe0f.jpg"
+    },
+    {
+      "name": "Poori (2)",
+      "source_id": "TSD1",
+      "image": "catalog/76aa9b37e34f5899073c7ae9483885ff.jpg"
+    },
+    {
+      "name": "Rice Uppuma",
+      "source_id": "DPK2",
+      "image": "catalog/8ce20885ba2f93dcdca2cc30a9fc3a0c.jpg"
+    },
+    {
+      "name": "Kariveppilai Sadam",
+      "source_id": "TLS1",
+      "image": "catalog/1a1daf7f6685f0cc16cd70e29d28ee9b.jpg"
+    },
+    {
+      "name": "Carrot Poriyal",
+      "source_id": "CPC1",
+      "image": "catalog/1daf5a1e17ab80ea1d465f7d082e8030.jpg"
+    },
+    {
+      "name": "Tomato Rasam",
+      "source_id": "CPT1",
+      "image": "catalog/20021b3f684db0cf6dbf991c8fff6611.jpg"
+    },
+    {
+      "name": "Vendaikkai Vathakuzambu",
+      "source_id": "CPK2",
+      "image": "catalog/241c540197e8af1be12983dd8c7c84d6.jpg"
+    },
+    {
+      "name": "Full meals with rice",
+      "source_id": "TWR1",
+      "image": "catalog/bc22fc2e05b8b7da0f4aef8dbbaf0bbc.jpg"
+    },
+    {
+      "name": "Full meals without rice",
+      "source_id": "DRL4",
+      "image": "catalog/6563e411949775f1a71162f46bc74bd0.jpg"
+    },
+    {
+      "name": "ABC Malt",
+      "source_id": "AM4",
+      "image": "catalog/d0ce94385d6800a696ee733aef61f8b6.jpg"
+    },
+    {
+      "name": "Amla Pickle",
+      "source_id": "AP1",
+      "image": "catalog/03ab42bcc8331a440058a0598cedc226.jpg"
+    },
+    {
+      "name": "Andra Avakkai Pickle",
+      "source_id": "AAP1",
+      "image": "catalog/ca5df525c120dc85dca2b24efeaf4fc1.jpg"
+    },
+    {
+      "name": "Angaya Podi",
+      "source_id": "AP3",
+      "image": "catalog/b9c2eeeb783bef28385eb01ae40cf401.jpg"
+    },
+    {
+      "name": "Arulu Sandigai",
+      "source_id": "AS3",
+      "image": "catalog/8ff88cf1a5b728ef814645da98864cdd.jpg"
+    },
+    {
+      "name": "Arusuvai Thokku",
+      "source_id": "AT1",
+      "image": "catalog/f0a98886ef9791961e40514aaf09c397.jpg"
+    },
+    {
+      "name": "Athirasam",
+      "source_id": "ATH4",
+      "image": "catalog/28ac97d7b8828eab659863d0bfd22dff.jpg"
+    },
+    {
+      "name": "Athirasam",
+      "source_id": "ATH3",
+      "image": "catalog/4792a09e9ea293aeb4b3c938efac1a7f.jpg"
+    },
+    {
+      "name": "Avakkai pickle - 300Gm(Without Garlic )",
+      "source_id": "AP2",
+      "image": "catalog/f534613abc0d8c2b15d344da6a2a3e33.jpg"
+    },
+    {
+      "name": "Aval mixture",
+      "source_id": "AM3",
+      "image": "catalog/487ef2952bddc9ddbf8309fe9623b257.jpg"
+    },
+    {
+      "name": "Aval Vadagam",
+      "source_id": "AV1",
+      "image": "catalog/ad9778fefeb1fec211cdcc83fa6fdf78.jpg"
+    },
+    {
+      "name": "Baby Appalam",
+      "source_id": "BA1",
+      "image": "catalog/97e343013a2e8236e6990f650d8b1044.jpg"
+    },
+    {
+      "name": "Badam Ghee Halwa",
+      "source_id": "BGH1",
+      "image": "catalog/71de2f8c4fe9d5285bf247d46eec0bdc.jpg"
+    },
+    {
+      "name": "Ghee Podi Dosa (2)",
+      "source_id": "BGP1",
+      "image": "catalog/d97592eb077ac585bbd58834fd16be0e.jpg"
+    },
+    {
+      "name": "Ghee Pongal",
+      "source_id": "BGP2",
+      "image": "catalog/f3bc2239383c902fb180ffb657b6c0c1.jpg"
+    },
+    {
+      "name": "Big Pepper Thattai",
+      "source_id": "ST2",
+      "image": "catalog/6c23aab12cac598591be90dfd85c318e.jpg"
+    },
+    {
+      "name": "Black Ellu Urundai 100 gm",
+      "source_id": "BEU1",
+      "image": "catalog/4016e7f43c8cb276e28b02aaa85fb423.jpg"
+    },
+    {
+      "name": "Bombay Mixture",
+      "source_id": "BM2",
+      "image": "catalog/eab082e4cbc04fbcb5b5132daae03023.jpg"
+    },
+    {
+      "name": "Boost Burfi",
+      "source_id": "DBB1",
+      "image": "catalog/f306d51313d68fee53a81d701bd428dc.jpg"
+    },
+    {
+      "name": "Butter Murukku",
+      "source_id": "BM1",
+      "image": "catalog/78eff5e2cbd572650c462908f038a242.jpg"
+    },
+    {
+      "name": "Butter Murukku",
+      "source_id": "BM4",
+      "image": "catalog/f2bd79ae5689e24eff0c7fde717d898f.jpg"
+    },
+    {
+      "name": "Carrot Halwa",
+      "source_id": "CH1",
+      "image": "catalog/a7ca7e3ef4131d148489c663c113ccc2.jpg"
+    },
+    {
+      "name": "Cashew Halwa",
+      "source_id": "CH2",
+      "image": "catalog/8e407ffc0ffb027629f9f1586ce37b5c.jpg"
+    },
+    {
+      "name": "Chily Roasted Cashew",
+      "source_id": "CRC1",
+      "image": "catalog/ec48974d373119e23473437bae9fac1f.jpg"
+    },
+    {
+      "name": "Coconut Podi",
+      "source_id": "CP4",
+      "image": "catalog/4fca02462e79ff37308be6930dbe1350.jpg"
+    },
+    {
+      "name": "Corn Chips",
+      "source_id": "CC1",
+      "image": "catalog/c22aa8c828214876e79c4ad9fd5b0201.jpg"
+    },
+    {
+      "name": "Corn Vathal",
+      "source_id": "CV2",
+      "image": "catalog/0b26c13138630179f7d843362eceeb10.jpg"
+    },
+    {
+      "name": "Cow Ghee - 1kg",
+      "source_id": "CGK1",
+      "image": "catalog/1900fb74cfab38123be8f4cb367c90d1.jpg"
+    },
+    {
+      "name": "Curry Leaves Thokku",
+      "source_id": "CLT1",
+      "image": "catalog/b6c86c7a570377ccc1683c8ed04f2bf3.jpg"
+    },
+    {
+      "name": "Curry Leaves Podi",
+      "source_id": "CLP1",
+      "image": "catalog/1db04fb6f38de23867d305dc1f1f68ad.jpg"
+    },
+    {
+      "name": "Cut Mango Pickle",
+      "source_id": "CMP1",
+      "image": "catalog/852a5d57b5dc3335bb67b9ea614957df.jpg"
+    },
+    {
+      "name": "Deepavali Legiyam",
+      "source_id": "DL1",
+      "image": "catalog/23b58f01ab8fc9db9c86671a7a109010.jpg"
+    },
+    {
+      "name": "Dhaniya Thool",
+      "source_id": "TT3",
+      "image": "catalog/04cd4fb2e4e2884f2dd62ecd29f69be8.jpg"
+    },
+    {
+      "name": "Plain Dosa (2)",
+      "source_id": "DOS1",
+      "image": "catalog/4021c759a03535eec79e5133371a6f9e.jpg"
+    },
+    {
+      "name": "Ellu Podi",
+      "source_id": "EP2",
+      "image": "catalog/8116df24a35e88c7f80bb227f2c4c335.jpg"
+    },
+    {
+      "name": "Finger Chips",
+      "source_id": "FC2",
+      "image": "catalog/0b4a65605508397f599d891a71bb9d1d.jpg"
+    },
+    {
+      "name": "Fried Bengal Gram",
+      "source_id": "FBG1",
+      "image": "catalog/d315a6db648a8b13f76a1f6d86724d18.jpg"
+    },
+    {
+      "name": "Garlic Appala Poo",
+      "source_id": "GAP1",
+      "image": "catalog/c1caf8342bb25dc03d0529703b24acb4.jpg"
+    },
+    {
+      "name": "Garlic Idly Podi",
+      "source_id": "GIP1",
+      "image": "catalog/083ae856bc4f63534f210f270ecea37d.jpg"
+    },
+    {
+      "name": "Garlic Kuzambu Sadam Mix",
+      "source_id": "GKK1",
+      "image": "catalog/6b47fa9a150c2638b838d03c5f375c25.jpg"
+    },
+    {
+      "name": "Garlic Paruppu Podi",
+      "source_id": "GPP1",
+      "image": "catalog/bd1843bf30af01e7f11112f9762266c9.jpg"
+    },
+    {
+      "name": "Garlic Pickle",
+      "source_id": "GP1",
+      "image": "catalog/6a6bc0a7e8b4c75645de1ad216128ec6.jpg"
+    },
+    {
+      "name": "Cow Ghee - 500gm",
+      "source_id": "CG1",
+      "image": "catalog/e1d89da26cd7a8201804e1d117004e61.jpg"
+    },
+    {
+      "name": "Ghee Mysurpa",
+      "source_id": "GM1",
+      "image": "catalog/8780b7402457be89dfe67df2f4046332.jpg"
+    },
+    {
+      "name": "Ginger Thokku",
+      "source_id": "GT2",
+      "image": "catalog/56ecb6feb246fe1a156c5f6156ff1fe7.jpg"
+    },
+    {
+      "name": "Goungura Pickle",
+      "source_id": "KT1",
+      "image": "catalog/88f2953bb735d2a413e898758cab57f1.jpg"
+    },
+    {
+      "name": "Gram Dhall",
+      "source_id": "GD1",
+      "image": "catalog/81bb0bf65b0f40e7462e03734cabc580.jpg"
+    },
+    {
+      "name": "Gundu Moremilagai",
+      "source_id": "MG3",
+      "image": "catalog/3a01120534e8f4f9c16dfa8e604d040a.jpg"
+    },
+    {
+      "name": "Health Pakshanams Combo",
+      "source_id": "HPC1",
+      "image": "catalog/05a412325268372d0a03751f6972f7ca.jpg"
+    },
+    {
+      "name": "Honey Amla Dry",
+      "source_id": "HAD1",
+      "image": "catalog/6e577f3e830bba63a6e0b94a82e837f3.jpg"
+    },
+    {
+      "name": "Honey Mittai",
+      "source_id": "HM1",
+      "image": "catalog/f0df55d0d8b10b7e2dc95db108023c78.jpg"
+    },
+    {
+      "name": "Horlics Burfi",
+      "source_id": "HB1",
+      "image": "catalog/2f0242bdf841d17ef871322a5a38631a.jpg"
+    },
+    {
+      "name": "Idly Podi",
+      "source_id": "IP1",
+      "image": "catalog/85a3186c6bbde7d8078dcb814b7928bb.jpg"
+    },
+    {
+      "name": "Idly with Vadai",
+      "source_id": "IWV1",
+      "image": "catalog/8731bcc4d45dc34f58092a9541f7b248.jpg"
+    },
+    {
+      "name": "Ila Vadam",
+      "source_id": "IVP1",
+      "image": "catalog/04a64b09ce34509c2e01a29e804b2092.jpg"
+    },
+    {
+      "name": "Ila Vadam - Red Chilly",
+      "source_id": "TVR1",
+      "image": "catalog/7b37ef635fa9a100f5014d3a07a2fe5e.jpg"
+    },
+    {
+      "name": "Ilantha Vadai",
+      "source_id": "IV1",
+      "image": "catalog/f1d01b5f9a836fba396385b4c0776b99.jpg"
+    },
+    {
+      "name": "Inji Murappa",
+      "source_id": "IM3",
+      "image": "catalog/a41745422215b3b91a6f9970477d6d15.jpg"
+    },
+    {
+      "name": "Jack Fruit Chips",
+      "source_id": "JFC1",
+      "image": "catalog/ba85ddfea94d888a4b3e6b144322bc20.jpg"
+    },
+    {
+      "name": "Javvarisi Vadam",
+      "source_id": "JVP1",
+      "image": "catalog/6e524d7a68d68dc0549335ba2f9f4d2d.jpg"
+    },
+    {
+      "name": "Javvarisi Vadam Karam",
+      "source_id": "JVT1",
+      "image": "catalog/b0e6f011412a01e500220af25d287887.jpg"
+    },
+    {
+      "name": "Jeera Appalapoo",
+      "source_id": "JA1",
+      "image": "catalog/a5903ec58305c39e4ee148d2ec247b1f.jpg"
+    },
+    {
+      "name": "Kadarangai Pickle",
+      "source_id": "KP1",
+      "image": "catalog/cc75daa7bb47f33419b9d8ef86b3d235.jpg"
+    },
+    {
+      "name": "Kaju Kathli",
+      "source_id": "DKK1",
+      "image": "catalog/3181cbff94382c57f357495e467de3f9.jpg"
+    },
+    {
+      "name": "Kalyana Mysurpa",
+      "source_id": "KM5",
+      "image": "catalog/4b7e3416074352d097f5fa9e8e913a42.jpg"
+    },
+    {
+      "name": "Kara Murukku Vadam",
+      "source_id": "KMV1",
+      "image": "catalog/03ba2dc85629e31d966cd9b363a78149.jpg"
+    },
+    {
+      "name": "Kara Pidi Kozhukattai (3)",
+      "source_id": "KPK3",
+      "image": "catalog/076967524be72e3d875b879824b47228.jpg"
+    },
+    {
+      "name": "Karaboondhi",
+      "source_id": "KAR2",
+      "image": "catalog/8f52d2adc061ea7e1f85607383edd11d.jpg"
+    },
+    {
+      "name": "Karaboondhi",
+      "source_id": "KAR3",
+      "image": "catalog/aa5e47e23dc083e7ac336e409694c17a.jpg"
+    },
+    {
+      "name": "Karasev",
+      "source_id": "PK3",
+      "image": "catalog/f1ae9bf4432069a522ef24aa86ca8ebe.jpg"
+    },
+    {
+      "name": "Kariveppilai Vadagam",
+      "source_id": "KV1",
+      "image": "catalog/e0f197fdca8cfa8f4aefdfcbb722e467.jpg"
+    },
+    {
+      "name": "Karuppu Elllu Sadam Podi",
+      "source_id": "KES1",
+      "image": "catalog/7e1c2b5fab7fb7e5e50e952a985182d0.jpg"
+    },
+    {
+      "name": "Karuppu Ellu Idly Podi",
+      "source_id": "KEI1",
+      "image": "catalog/15b1492d8908a1cb639b1a7dfbb24c49.jpg"
+    },
+    {
+      "name": "Karuppu Kavuni Kanji Mix",
+      "source_id": "KKM1",
+      "image": "catalog/3f8e6de70139d95abca5a5e614736a83.jpg"
+    },
+    {
+      "name": "Karuppu Kavuni Laddu (5)",
+      "source_id": "KKL1",
+      "image": "catalog/b4c2376db3f83e91782449dbf30ec9af.jpg"
+    },
+    {
+      "name": "Karuppu Ulundhu Kanji Mix",
+      "source_id": "KUK1",
+      "image": "catalog/2d2a81e65ce7cf82eb459e91fba6be8c.jpg"
+    },
+    {
+      "name": "Karuppu Ulundhu Laddu (5)",
+      "source_id": "KUL1",
+      "image": "catalog/84689660ab3223603651e949590733a7.jpg"
+    },
+    {
+      "name": "Kerala Mixture",
+      "source_id": "KM4",
+      "image": "catalog/39daffe865bc61ac5af832864cc9b10a.jpg"
+    },
+    {
+      "name": "Kerala Pappadam",
+      "source_id": "KP3",
+      "image": "catalog/4b0d54b61b9ec0b1b6c0be7ff43de448.jpg"
+    },
+    {
+      "name": "Kondaikadalai Sundal",
+      "source_id": "KS2",
+      "image": "catalog/bb821b609696421ed879407c14444b57.jpg"
+    },
+    {
+      "name": "Kootu Podi",
+      "source_id": "KP5",
+      "image": "catalog/36ef07aef9a89cd3eca687c184142c90.jpg"
+    },
+    {
+      "name": "Kothamalli Podi",
+      "source_id": "KP4",
+      "image": "catalog/f1fbcc0f79c9ae00f8b298de6a9da6b8.jpg"
+    },
+    {
+      "name": "Kothamalli Thokku",
+      "source_id": "KT2",
+      "image": "catalog/37c4151a138a59cc0e98271b72b8fa1b.jpg"
+    },
+    {
+      "name": "Kothavarai Vathal",
+      "source_id": "KV3",
+      "image": "catalog/c9c738b3360cbfd511f2f420cb173a6f.jpg"
+    },
+    {
+      "name": "Kozhukattai combo",
+      "source_id": "KC2",
+      "image": "catalog/8bbd9ce010596bc6499c240e4382ebc5.jpg"
+    },
+    {
+      "name": "Krishna Jayanthi Special Combo Pack",
+      "source_id": "KJS2",
+      "image": "catalog/f63ffb46d0eb8c42a5be43ff7d201861.jpg"
+    },
+    {
+      "name": "Kuchi Vadam",
+      "source_id": "KV2",
+      "image": "catalog/3300d45f6bff107622ffcf05a99539be.jpg"
+    },
+    {
+      "name": "Kumbakonam Iyer Coffee Powder",
+      "source_id": "KIC1",
+      "image": "catalog/438087ea333f54da6faf886ae424b37c.jpg"
+    },
+    {
+      "name": "Lays Chps",
+      "source_id": "LC2",
+      "image": "catalog/88e3f87d392e6f6f333ff3a15dc79b39.jpg"
+    },
+    {
+      "name": "Lemon Pickle",
+      "source_id": "LP1",
+      "image": "catalog/27a7faa150f0e5a0d1d94f463c54f467.jpg"
+    },
+    {
+      "name": "Lemon Salt Pickle",
+      "source_id": "LS4",
+      "image": "catalog/dc7e3f58df4a7c86ffaf79ced69c0b4b.jpg"
+    },
+    {
+      "name": "Lemon Vathal",
+      "source_id": "LV2",
+      "image": "catalog/a5deab70a9d435419e4a60c72a3bae47.jpg"
+    },
+    {
+      "name": "Mahali Karam Pickle",
+      "source_id": "MPK1",
+      "image": "catalog/749ce9c1a04890340e0fd12458b25e01.jpg"
+    },
+    {
+      "name": "Manathakkali No Salt Vathal",
+      "source_id": "MVN1",
+      "image": "catalog/0038c87b9f8242298a40c5dcdc8feef8.jpg"
+    },
+    {
+      "name": "Manathakkali Salt Vathal",
+      "source_id": "MVS1",
+      "image": "catalog/6ee4fc2edace68e2e5056f38f8b77a6c.jpg"
+    },
+    {
+      "name": "Mango Ginger Pickle",
+      "source_id": "MG1",
+      "image": "catalog/bdcbd0fab3b65be4b768414cc6c2087d.jpg"
+    },
+    {
+      "name": "Mango Ginger Salt",
+      "source_id": "MGS1",
+      "image": "catalog/7e38a969830c4c6601b64ea4ab5ada14.jpg"
+    },
+    {
+      "name": "Mango Thokku (101)",
+      "source_id": "MT3",
+      "image": "catalog/314ce7b0a5534cb0de10087b424bb06c.jpg"
+    },
+    {
+      "name": "Mani Murukku",
+      "source_id": "BMM1",
+      "image": "catalog/4b45252523acab663681004966c93042.jpg"
+    },
+    {
+      "name": "Manjal Thool",
+      "source_id": "MT4",
+      "image": "catalog/fe38e18937da76a382f580698ac7ff1f.jpg"
+    },
+    {
+      "name": "Manogaram",
+      "source_id": "MAN1",
+      "image": "catalog/c191319d9098b31167e500c97ec719e5.jpg"
+    },
+    {
+      "name": "Manogaram",
+      "source_id": "MAN3",
+      "image": "catalog/f24f9756c7e55718539b770758a1522a.jpg"
+    },
+    {
+      "name": "Maravalli Kizangu Appalam",
+      "source_id": "MKA1",
+      "image": "catalog/65bc73350abc08e7993db6a1b4a59434.jpg"
+    },
+    {
+      "name": "Masala Kadalai",
+      "source_id": "MK1",
+      "image": "catalog/da0c3f61f9c6d68cb19d30bd60299294.jpg"
+    },
+    {
+      "name": "Masala Pori",
+      "source_id": "MP1",
+      "image": "catalog/155236f2dc6b3a03234054c71bada62d.jpg"
+    },
+    {
+      "name": "Mavadu Karam",
+      "source_id": "MK2",
+      "image": "catalog/494c3071246ab036a6c5c9bf0b3682d1.jpg"
+    },
+    {
+      "name": "Mavadu Salt Pickle",
+      "source_id": "MSP1",
+      "image": "catalog/4ade99a3b64eea1f38bfa418b20f0c96.jpg"
+    },
+    {
+      "name": "Milagu Kuzambu Mix",
+      "source_id": "MKP1",
+      "image": "catalog/45d80bbd113b30d6c66150c7471bfdf8.jpg"
+    },
+    {
+      "name": "milk Cake",
+      "source_id": "MC3",
+      "image": "catalog/f3c2ddffb3511dfc1180dd3cc83265ee.jpg"
+    },
+    {
+      "name": "Mini Badhusha",
+      "source_id": "MB1",
+      "image": "catalog/64ab6b5975e22b81a6fa9955786141b0.jpg"
+    },
+    {
+      "name": "Mini Badusha",
+      "source_id": "MB4",
+      "image": "catalog/142b6ccae9435de58a92f9779241a570.jpg"
+    },
+    {
+      "name": "Mini Jangiri",
+      "source_id": "MJ1",
+      "image": "catalog/50888168a5670166d2e39de7826eea80.jpg"
+    },
+    {
+      "name": "Mini Jangiri",
+      "source_id": "MJ2",
+      "image": "catalog/4c976b2e8e7f9c63ccc761d53c1300d7.jpg"
+    },
+    {
+      "name": "Mini Kadalai Urundai",
+      "source_id": "KU2",
+      "image": "catalog/b53b56d35e4107f6dc4eaaa8adfcb4c8.jpg"
+    },
+    {
+      "name": "Mini Milagu Apapalm",
+      "source_id": "MMA1",
+      "image": "catalog/5d99a561d630c7164230ffb8e49fa16f.jpg"
+    },
+    {
+      "name": "Mini Pappad",
+      "source_id": "MP2",
+      "image": "catalog/cf159a8dfa7dbb3d90d8f6ef385f4ba3.jpg"
+    },
+    {
+      "name": "Mini Pepper thattai",
+      "source_id": "MPT1",
+      "image": "catalog/ab0c0ec11a35116d61d3ca20d3ebd57a.jpg"
+    },
+    {
+      "name": "Mini Thenkuzal 200gm",
+      "source_id": "MTG1",
+      "image": "catalog/3bbf42ca28c353ff55a9092100b5b6fb.jpg"
+    },
+    {
+      "name": "Mini Wheat Biscuit",
+      "source_id": "MWB1",
+      "image": "catalog/d57bf2dc6e172514eec685d411829ce2.jpg"
+    },
+    {
+      "name": "Mixed Vegetable Pickle",
+      "source_id": "MVP1",
+      "image": "catalog/8c4b8d45192b714d4c61618b393f16e6.jpg"
+    },
+    {
+      "name": "Moong Dhall",
+      "source_id": "MD1",
+      "image": "catalog/33f8acbeb0d120f7e417984d5ee44199.jpg"
+    },
+    {
+      "name": "Moru Moru Murukku",
+      "source_id": "MM1",
+      "image": "catalog/66e0402c8077651dd08086d24ad09ff3.jpg"
+    },
+    {
+      "name": "Mudakkathan Rasam Paste",
+      "source_id": "MRP2",
+      "image": "catalog/1a2ce71a9688d40a38c0a2fce939c92e.jpg"
+    },
+    {
+      "name": "Mudakkathan Thokku",
+      "source_id": "MT2",
+      "image": "catalog/66539f253e11545a44f5371e7b3a27a9.jpg"
+    },
+    {
+      "name": "Mudavattkkal Kizangu Thokku",
+      "source_id": "MKT1",
+      "image": "catalog/1bbf7a9d214bd23fb794fb84abbc1747.jpg"
+    },
+    {
+      "name": "Mullu Murukku",
+      "source_id": "DMM2",
+      "image": "catalog/9ae92c1b0c67e7b7029fd7008fc31d4b.jpg"
+    },
+    {
+      "name": "Multigrain Millet Dosa Mix",
+      "source_id": "MMD1",
+      "image": "catalog/c770b2d56e588a08f1ee8c87c718d54b.jpg"
+    },
+    {
+      "name": "Murungai Keerai Kollu Podi",
+      "source_id": "MKK1",
+      "image": "catalog/52b4c05bff9a9caf36105805c5b2c497.jpg"
+    },
+    {
+      "name": "Muscoth Halwa",
+      "source_id": "MH1",
+      "image": "catalog/437e33c5f48ff18c87ad299da088b7b5.jpg"
+    },
+    {
+      "name": "Mysore Rasam Podi",
+      "source_id": "MRP1",
+      "image": "catalog/8503452fbe2b056712a6509bf6d6af57.jpg"
+    },
+    {
+      "name": "Narthangai Dry Vathal",
+      "source_id": "NV1",
+      "image": "catalog/7f591709b7a90612f50b5a152d5bee2b.jpg"
+    },
+    {
+      "name": "Narthangai Dry Karam Vathal",
+      "source_id": "NDK1",
+      "image": "catalog/07fb51e75c3a49e68ea4203868dea3c1.jpg"
+    },
+    {
+      "name": "Narthangai Pickle",
+      "source_id": "NP2",
+      "image": "catalog/c4160b3a3ec108e15624dc5afd2d68ec.jpg"
+    },
+    {
+      "name": "Narthangai Salt Pickle",
+      "source_id": "NS1",
+      "image": "catalog/8951c1d78d45e3ff25508043affd56fd.jpg"
+    },
+    {
+      "name": "Navadhanya Laddu (5)",
+      "source_id": "NL2",
+      "image": "catalog/af6c5642c98f7ee9236d058a45a4c683.jpg"
+    },
+    {
+      "name": "Navadhanya Mixture",
+      "source_id": "NM1",
+      "image": "catalog/a4a02fe602dc25021195703e3b6e68ad.jpg"
+    },
+    {
+      "name": "Navadhayna Adai Mix",
+      "source_id": "NAM1",
+      "image": "catalog/87dda570816a4eb1c0dc18e82d2382e2.jpg"
+    },
+    {
+      "name": "Neetu Moremilagai",
+      "source_id": "MN1",
+      "image": "catalog/476b90f18946b0eb686f866ae59746c9.jpg"
+    },
+    {
+      "name": "Nendram Chips",
+      "source_id": "NC1",
+      "image": "catalog/dbfca3790ecfa788dc2e53951e30097d.jpg"
+    },
+    {
+      "name": "Nendram Fruit Chips",
+      "source_id": "NSC1",
+      "image": "catalog/d8473a8e97534405753b501b86766394.jpg"
+    },
+    {
+      "name": "Nendram Sweet Chips",
+      "source_id": "NSC3",
+      "image": "catalog/0af9634970baa7310298c795973d7792.jpg"
+    },
+    {
+      "name": "New Kutty Combo",
+      "source_id": "KJK1",
+      "image": "catalog/74c6035a1a6d7733f95c78d67adedbb0.jpg"
+    },
+    {
+      "name": "New Mini Combo",
+      "source_id": "KJM1",
+      "image": "catalog/a4c0792c11a28a24744d0349bc46499f.jpg"
+    },
+    {
+      "name": "Nilakadalai Laddu (5)",
+      "source_id": "NL1",
+      "image": "catalog/925d1dd044790332d206a387b4ee041a.jpg"
+    },
+    {
+      "name": "Omapodi",
+      "source_id": "OP1",
+      "image": "catalog/9cfe8cb8a343e17fbf205441caced600.jpg"
+    },
+    {
+      "name": "Ompodi",
+      "source_id": "OMP2",
+      "image": "catalog/24f42a0c36a3cb14830ae4117f866234.jpg"
+    },
+    {
+      "name": "Ompodi Vadam",
+      "source_id": "OV2",
+      "image": "catalog/f5d0d6f85f8ff998278b52c43cd2dc06.jpg"
+    },
+    {
+      "name": "Ompodi Vadam Small",
+      "source_id": "OVS1",
+      "image": "catalog/a8012cbbf9943dedbfc348b621a7e229.jpg"
+    },
+    {
+      "name": "Onion Kara Vadagam",
+      "source_id": "OVK1",
+      "image": "catalog/63b66e3d6c9958d0072414619c125929.jpg"
+    },
+    {
+      "name": "Onion Ring Chips",
+      "source_id": "ORC1",
+      "image": "catalog/bf9c65e3815dd223b9be718b100bd136.jpg"
+    },
+    {
+      "name": "Onion Salt Vadagam",
+      "source_id": "OV1",
+      "image": "catalog/20acdb69d699ffd1a9b6904c40101509.jpg"
+    },
+    {
+      "name": "Onion Thokku",
+      "source_id": "OT2",
+      "image": "catalog/6712fe8f2ab1247d80fda8bd15fa6208.jpg"
+    },
+    {
+      "name": "Onion Tomoto Chutney",
+      "source_id": "OTK1",
+      "image": "catalog/cc60546af9e75586c1b044650ada08f9.jpg"
+    },
+    {
+      "name": "Oosi Thenkuzal",
+      "source_id": "OT1",
+      "image": "catalog/bc95e8ff02b4ca51103747155b447df5.jpg"
+    },
+    {
+      "name": "Pachai Payaru Laddu (5)",
+      "source_id": "PPL1",
+      "image": "catalog/d38b5b98fd4333b7bad346499c756563.jpg"
+    },
+    {
+      "name": "Palgova",
+      "source_id": "PAL1",
+      "image": "catalog/774ce54d5dac970c4ec66cbe38e17321.jpg"
+    },
+    {
+      "name": "Paruppu Podi",
+      "source_id": "PP5",
+      "image": "catalog/d866197853a7431aef81c52d099f0a0b.jpg"
+    },
+    {
+      "name": "Pasiparuppu Laddu (5)",
+      "source_id": "PL2",
+      "image": "catalog/7bfb093d438168f3d86a1d390599eacd.jpg"
+    },
+    {
+      "name": "Pavakkai Chips",
+      "source_id": "PC1",
+      "image": "catalog/5703aef4696cf8899867fbb2709f9df0.jpg"
+    },
+    {
+      "name": "Pepper Appalam",
+      "source_id": "PA1",
+      "image": "catalog/413a50d26a0fe7ea3c908c03b21f90f2.jpg"
+    },
+    {
+      "name": "Pepper Apppla Poo",
+      "source_id": "PAP1",
+      "image": "catalog/35b9f753fd1c41fbd016a12e340a80a4.jpg"
+    },
+    {
+      "name": "Pepper Rasam Paste",
+      "source_id": "PRP1",
+      "image": "catalog/d976c3d1e253450948a7c196515c221c.jpg"
+    },
+    {
+      "name": "Pepper Vathal",
+      "source_id": "MIL1",
+      "image": "catalog/798767b6d8170c20fd332be300d52649.jpg"
+    },
+    {
+      "name": "Pirandai Podi",
+      "source_id": "PP2",
+      "image": "catalog/f9ead56818fcd05cd52624e5079acfca.jpg"
+    },
+    {
+      "name": "Pirandai Thuvaiyal",
+      "source_id": "PT4",
+      "image": "catalog/0219748ee23cc5dd1c00386705663000.jpg"
+    },
+    {
+      "name": "Poorna Kozhukattai (3)",
+      "source_id": "PK4",
+      "image": "catalog/979d4790d008567d8847743b0e198b30.jpg"
+    },
+    {
+      "name": "Poriyal Podi",
+      "source_id": "KPP1",
+      "image": "catalog/e5bed4127f6b61a25771e6ffb75ebff8.jpg"
+    },
+    {
+      "name": "Pototo Karam",
+      "source_id": "PK2",
+      "image": "catalog/f84d240d0ae7ba01c8c5d0dd863b308e.jpg"
+    },
+    {
+      "name": "Pototo Salt",
+      "source_id": "PS1",
+      "image": "catalog/827ff96d72d832037a6cffcd497a5b71.jpg"
+    },
+    {
+      "name": "Pottu Kadalai Laddu",
+      "source_id": "PL1",
+      "image": "catalog/7d3fdbc2a071e5cebf4356cc5eabe674.jpg"
+    },
+    {
+      "name": "Pottu Kadalai Urundai",
+      "source_id": "PKU1",
+      "image": "catalog/87c66143fbd319d6adbd5b2261799503.jpg"
+    },
+    {
+      "name": "Pottukadalai Laddu (5)",
+      "source_id": "ML1",
+      "image": "catalog/e8c5c2b2300c6441b088719020f9d121.jpg"
+    },
+    {
+      "name": "Puliyodharai Paste",
+      "source_id": "PP4",
+      "image": "catalog/7e52de176ab108a480df5d05b98135e8.jpg"
+    },
+    {
+      "name": "Puliyodharai Podi (100gm)",
+      "source_id": "PP7",
+      "image": "catalog/831628f9a9ad2dab0cc9aace2a31d89f.jpg"
+    },
+    {
+      "name": "Puthina Podi",
+      "source_id": "PP8",
+      "image": "catalog/e9b6674e7f649b214d0eb75e8d18e4e6.jpg"
+    },
+    {
+      "name": "Ragi Dosa Mix",
+      "source_id": "RDM2",
+      "image": "catalog/eccdd9161354642427551a9fd72ead53.jpg"
+    },
+    {
+      "name": "Ragi Laddu (5)",
+      "source_id": "RL1",
+      "image": "catalog/8ec69208a90d8a99059d315b09641ec2.jpg"
+    },
+    {
+      "name": "Rava Dosa Mix",
+      "source_id": "RDM1",
+      "image": "catalog/a9f058ecb403c0144e9e9f750c523cac.jpg"
+    },
+    {
+      "name": "Rava Laddu (5)",
+      "source_id": "PKL1",
+      "image": "catalog/a69d4034cfcd75ac70c4038848a9356a.jpg"
+    },
+    {
+      "name": "Rava Uppma Mix",
+      "source_id": "RUK1",
+      "image": "catalog/dba8768c534479b45e1ab3fba79f4eb7.jpg"
+    },
+    {
+      "name": "Red Chilly Appala Poo",
+      "source_id": "RCA1",
+      "image": "catalog/8453575bd492fa5de15ec6657f39c682.jpg"
+    },
+    {
+      "name": "Rettai Appalam",
+      "source_id": "RA1",
+      "image": "catalog/665a58d82497905989d851f53ffde389.jpg"
+    },
+    {
+      "name": "Ribbon Pakkoda",
+      "source_id": "RP1",
+      "image": "catalog/c28dad2228d1e2f1af1fe25a290e8599.jpg"
+    },
+    {
+      "name": "Ribbon Pakkoda",
+      "source_id": "RP3",
+      "image": "catalog/2cc4a5e7fb627ebc2ae983a4e6fe8a92.jpg"
+    },
+    {
+      "name": "Ribbon Vadam",
+      "source_id": "RV2",
+      "image": "catalog/4a45b5bb27dc03e9c248a15cd72520af.jpg"
+    },
+    {
+      "name": "Rice Applam Handmade",
+      "source_id": "RAH1",
+      "image": "catalog/c3a30de6aad7d646d4fd04a4917538be.jpg"
+    },
+    {
+      "name": "Rice Koozh Vadam",
+      "source_id": "RKV2",
+      "image": "catalog/7d07857a20642b0658233d54061bde1f.jpg"
+    },
+    {
+      "name": "Rice Uppuma Mix",
+      "source_id": "RUM1",
+      "image": "catalog/d49794e259fe8e9d3a9747422a84302f.jpg"
+    },
+    {
+      "name": "Roaseted Pepper Cashew",
+      "source_id": "RPC1",
+      "image": "catalog/ba6ab28e7b051a353048c186189cb406.jpg"
+    },
+    {
+      "name": "Vadai (1)",
+      "source_id": "MBS2",
+      "image": "catalog/c7e38203859800e37fae40af652c0c5c.jpg"
+    },
+    {
+      "name": "Sambar Podi",
+      "source_id": "SP1",
+      "image": "catalog/220e08e0ee32663efff5501e8b62ac20.jpg"
+    },
+    {
+      "name": "Sambar Vadam",
+      "source_id": "SV1",
+      "image": "catalog/1f4f2f3f3c1ef8bff39b6d9f69a58f7e.jpg"
+    },
+    {
+      "name": "Senai Kizangu Chips",
+      "source_id": "SKC1",
+      "image": "catalog/604c98e61cde317694f3172f86a909e0.jpg"
+    },
+    {
+      "name": "Small Onion Garlic Chutney",
+      "source_id": "SOG1",
+      "image": "catalog/17a8d0434c39df5140ad24bed3dd4e94.jpg"
+    },
+    {
+      "name": "Special Big Thattai",
+      "source_id": "ST1",
+      "image": "catalog/d5d47d14c8f8c6b7bd944a470644efb4.jpg"
+    },
+    {
+      "name": "Special Health Mix",
+      "source_id": "HM2",
+      "image": "catalog/9c83d9e7554c03d281561c7a6764a200.jpg"
+    },
+    {
+      "name": "spl Ilantha Vadai",
+      "source_id": "SIV1",
+      "image": "catalog/6a7a264d3df4718609cb0aab38aa97e5.jpg"
+    },
+    {
+      "name": "spl Laddu",
+      "source_id": "BL1",
+      "image": "catalog/f35015938845c36f0e2c895b02f8654b.jpg"
+    },
+    {
+      "name": "Special Milagu Vadai",
+      "source_id": "MV1",
+      "image": "catalog/ef4474c93f029969d0d222341bc2f914.jpg"
+    },
+    {
+      "name": "Special mini Thattai",
+      "source_id": "DST1",
+      "image": "catalog/18ce19675629eec80be5f751d20e8348.jpg"
+    },
+    {
+      "name": "Special Mixture",
+      "source_id": "SM1",
+      "image": "catalog/f10008db76f67d5f2dfa502f3c767509.jpg"
+    },
+    {
+      "name": "Special Rasam Podi",
+      "source_id": "RP2",
+      "image": "catalog/520802b79e2eb1fecf93c7811bcf8ef3.jpg"
+    },
+    {
+      "name": "Sukku Coffee Powder Mix",
+      "source_id": "SCP1",
+      "image": "catalog/989d84dccd04c68a859af8f49f2e1020.jpg"
+    },
+    {
+      "name": "Sukku - Milagu - Thippli - Panai Karuppathi Cake",
+      "source_id": "SMT1",
+      "image": "catalog/ebee543ed2fb37f2f20200335b2c8c6e.jpg"
+    },
+    {
+      "name": "Sundaikkai Salt Vathal",
+      "source_id": "SVP1",
+      "image": "catalog/72759394120f80169c8729becd637a22.jpg"
+    },
+    {
+      "name": "Sundaikkai No Salt Vathal",
+      "source_id": "SV2",
+      "image": "catalog/4160f40c2715b9f856a8b009ec3a8448.jpg"
+    },
+    {
+      "name": "Sweet Pidi Kozhukattai (3)",
+      "source_id": "SPK2",
+      "image": "catalog/f2c8ba0e991a4104ee6a54d348bef87a.jpg"
+    },
+    {
+      "name": "Tamarai Thandu Vadam",
+      "source_id": "TTV1",
+      "image": "catalog/53297137be6baa82ab03a32c77dc18d4.jpg"
+    },
+    {
+      "name": "Tapiaco Chips",
+      "source_id": "TC1",
+      "image": "catalog/9695475aee13bf92c1d6e8b226f92e7a.jpg"
+    },
+    {
+      "name": "Thalir Vadam - BIg",
+      "source_id": "TVB1",
+      "image": "catalog/7beaf77137e81ab884125ded05eed0ef.jpg"
+    },
+    {
+      "name": "Thani MIlagai Thool",
+      "source_id": "TMT1",
+      "image": "catalog/c9704915ebb64731faf1b4a6398be176.jpg"
+    },
+    {
+      "name": "Thenkuzal",
+      "source_id": "THE1",
+      "image": "catalog/1ff7e0dd631a762de410dcb821c2e3fa.jpg"
+    },
+    {
+      "name": "Thinai Laddu (5)",
+      "source_id": "TL2",
+      "image": "catalog/aad39bdaf08a375e85e04d438f866c7d.jpg"
+    },
+    {
+      "name": "Thuthuvalai Thokku",
+      "source_id": "TT1",
+      "image": "catalog/d6866e973038920b2fc8fd17023fb26a.jpg"
+    },
+    {
+      "name": "Thuthuvalali Rasam Paste",
+      "source_id": "TR1",
+      "image": "catalog/ec31dd0e67e9aa866ae25ccb21ebcb2a.jpg"
+    },
+    {
+      "name": "Special Tirunelveli Ghee Halwa",
+      "source_id": "TH1",
+      "image": "catalog/96c71e165210aeb68e38a5ce18b09a53.jpg"
+    },
+    {
+      "name": "Tirunelveli Halwa",
+      "source_id": "TH2",
+      "image": "catalog/839787a4a4109fc04855233d8c5acad0.jpg"
+    },
+    {
+      "name": "Tirupathi Laddu",
+      "source_id": "TL1",
+      "image": "catalog/b9ad16aca87700ad02be8b242191bb1b.jpg"
+    },
+    {
+      "name": "Tomato Thokku",
+      "source_id": "TP2",
+      "image": "catalog/7f1aa20348cac02d17087764376952bd.jpg"
+    },
+    {
+      "name": "Tomato Vathal",
+      "source_id": "TOM1",
+      "image": "catalog/2370ca87af471a3068a4b35b988e59a5.jpg"
+    },
+    {
+      "name": "Tomoto Rasam Paste",
+      "source_id": "TRP1",
+      "image": "catalog/70d3f8a9a868ac088ab112b8dd85aa12.jpg"
+    },
+    {
+      "name": "Trattippal",
+      "source_id": "TP1",
+      "image": "catalog/7e7e91fa6ac77a666ba998eea25ff3ed.jpg"
+    },
+    {
+      "name": "Ulundhu Appalam",
+      "source_id": "UA1",
+      "image": ""
+    },
+    {
+      "name": "Ulundhu Appalam - Omam",
+      "source_id": "UAO1",
+      "image": "catalog/b45df2f69642e9fe1c03b19af904812f.jpg"
+    },
+    {
+      "name": "Ulundhu Applam - Jeera",
+      "source_id": "UAJ1",
+      "image": "catalog/fd3945e94a51188b70fad47863ba709c.jpg"
+    },
+    {
+      "name": "Uppu Seedai",
+      "source_id": "USC1",
+      "image": "catalog/211f712f98c0dda7596b46ccf0f04f05.jpg"
+    },
+    {
+      "name": "Ghee Dosa (2)",
+      "source_id": "VAD1",
+      "image": "catalog/09d6f25b9a3d7c18ab26a1b281c759d7.jpg"
+    },
+    {
+      "name": "Sambar Idly (2)",
+      "source_id": "MBV1",
+      "image": "catalog/b96baf1ab53ac273f5309f714cc5a68a.jpg"
+    },
+    {
+      "name": "Vallarai Thokku",
+      "source_id": "VT2",
+      "image": "catalog/2b426e0baad36b753191e7a6237e607e.jpg"
+    },
+    {
+      "name": "Varagu Laddu (5)",
+      "source_id": "VL1",
+      "image": "catalog/04bfe5325e8ab0a1b62b5cbc146139d5.jpg"
+    },
+    {
+      "name": "Varalahsmi Neivedhyam Combo",
+      "source_id": "NC4",
+      "image": "catalog/bdae3c76ce2c197560274c50b0014df5.jpg"
+    },
+    {
+      "name": "Vathakuzambu Paste",
+      "source_id": "VM1",
+      "image": "catalog/a9a915c0f212769bd71fabac880546da.jpg"
+    },
+    {
+      "name": "Vazhaikkai Karam",
+      "source_id": "VKC1",
+      "image": "catalog/5cc1ae32bdf4bdaa3b51a39cd3d78b3c.jpg"
+    },
+    {
+      "name": "Vazhaikkai Pepper",
+      "source_id": "VPC1",
+      "image": "catalog/998afe30ef95c4e8974f20742e8788c2.jpg"
+    },
+    {
+      "name": "Vella Seedai",
+      "source_id": "VS1",
+      "image": "catalog/54f498099af8a29aeae9757341e307ac.jpg"
+    },
+    {
+      "name": "Veppam Poo",
+      "source_id": "VP3",
+      "image": "catalog/7dd970d35206f5364f1c241095f5e4c0.jpg"
+    },
+    {
+      "name": "Veppilai Katti",
+      "source_id": "VK2",
+      "image": "catalog/a8a3c4985030b99a37a050d26ada2018.jpg"
+    },
+    {
+      "name": "Special Wheat Halwa",
+      "source_id": "WH1",
+      "image": "catalog/6cf84f88f973d5da2628045709bb3bd8.jpg"
+    },
+    {
+      "name": "Wheat Rava Uppum Mix",
+      "source_id": "WRU1",
+      "image": "catalog/3000a91a14b07bebdb56526809376c12.jpg"
+    },
+    {
+      "name": "Wheel Chips",
+      "source_id": "WC1",
+      "image": "catalog/b9d01ef470f715b0ff98675c6da223cb.jpg"
+    },
+    {
+      "name": "Vazhaithandu Kootu",
+      "source_id": "WR2",
+      "image": "catalog/0af4f24fe8031b12ce762ff26968d955.jpg"
+    },
+    {
+      "name": "Madras Mixture",
+      "source_id": "6e143457f52a9ec22c515e77083ea490e9eafb44f673815ffd02a4d867a1",
+      "image": ""
+    },
+    {
+      "name": "Tapioca Chips",
+      "source_id": "737256a7b3cdaf18ceb77dc83fe7c9c4c0b176614929409e93de86bca558",
+      "image": ""
+    },
+    {
+      "name": "Chips Combo Pack",
+      "source_id": "6c479ad3dc6064869d0a9c8b6dd59a0369367366aca3185fcf37d6d73c75",
+      "image": ""
+    },
+    {
+      "name": "Ghee Appam",
+      "source_id": "9f6e6c6b0efd0cc08dba9d7efbab0ea8ac698a58e58814689a2123ca7338",
+      "image": ""
+    },
+    {
+      "name": "Rava Laddu",
+      "source_id": "c87f67fb95c27965fb2e9ab010c8d9604b5aee0725dc16c618f974183b9f",
+      "image": ""
+    },
+    {
+      "name": "Pori Urundai",
+      "source_id": "653420172f3b628d51489be51df420bc2f937dc54d9e8ccd90d166b263f1",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Mega Combo Pack",
+      "source_id": "054881aed05c68a221784cb85900f182b11f67932a12fc141977ece78399",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Karam Combo Pack",
+      "source_id": "621cfc8e54ae44e68db102b0681be0947c81a0b3429dc407efc09cc662d4",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Sweets Combo Pack",
+      "source_id": "8bcc834eb9fd86bf303f7976434cbb21ad7307313f2c1386441d16488dd8",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Mini Gift Combo",
+      "source_id": "915752a980197c44e1f0a1daa9f673ba63f01ca1ec0a787540679b8b39e5",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Assorted Sweets 250gm",
+      "source_id": "15352cb531dbe316539c8a826753a5f3510745b50f9a7fce161feb51a2be",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Assorted Sweets 500gm",
+      "source_id": "7f183784bdf535a50576c10ca1eb667d4fe7ac46bc3b14afb469e579d192",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Kaju Assorted Sweets 250gm",
+      "source_id": "cd7c315be122ba27b06b2e52e5a47e6d45888a725e33e6c09f2cf1007506",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Kaju Assorted Sweets 500gm",
+      "source_id": "b6b1efec560b79b8272d301a5a75c2a1f34deaa03e876ce02a7a4ba0410a",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Jangiri",
+      "source_id": "856229b0b41dda35bb833be23258f5079d1293bd63bacbd755d99eb0ecd6",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Badhusha",
+      "source_id": "1618d5449f2b3452f8a654329043079c869d7b273bc74a21f58402fef60e",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Kalyana Mysurpa",
+      "source_id": "15e41b705efbdac88b0be9ef3d57f4f33a7e9906663fee09b5a892201880",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Laddu",
+      "source_id": "36feb3ea5168d5e9ea1a679b2dd2892c8d40b96d7f011be839d420ca8caa",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Kaju Kathli",
+      "source_id": "9e503b968e6bb97bd5c0056a8814dcad8609e979e74ba109a0c29c3c9903",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Horlicks Burfi",
+      "source_id": "ee546aafd80039a4a959bbd99f4a39e148dae6b4196670acc60366847797",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Boost Burfi",
+      "source_id": "e68ff60873cded8254217387e82e28c97e1883af2f6bcfecc563c1c3bcf8",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Tirunelveli Halwa",
+      "source_id": "24c1a72fbc884a3960bdd5d8635aba9bfd1c23da913c855e9f084f54e105",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Athirasam",
+      "source_id": "85ea49af9c2f2747def5a39e264038a3408b01d84f6695df52ff9de09229",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Manogaram",
+      "source_id": "072d783e12c54b20ba74e7c6c63db80988d80c71f83373192cf5c4c56aec",
+      "image": ""
+    },
+    {
+      "name": "Diwali Legiyam",
+      "source_id": "6982e318a937695270f508936eccb1d7f4d3354879e1ce4a5f37769634ff",
+      "image": ""
+    },
+    {
+      "name": "Rava Laddu (5)",
+      "source_id": "83891bfd4fafd154ae294e184b32c95db3bce13c81b12e6e6b6e1e77ffdc",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Spl Mixture",
+      "source_id": "3b7c4852a74027ed886d71fe9b95b52cd57c39b7ed8f923adb237001088b",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Navadhanya Mixture",
+      "source_id": "4f93fe2b0eea134bcd2756af7f65e107feae1d045cbc9b2bfd6d64885905",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Ribbon Pakkoda",
+      "source_id": "e0dcdfc86762baf4fb0c548b39dd7bfca4cccfe4a07f27b9b17992e0b3b6",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Karaboondhi",
+      "source_id": "291f2167226c1595cb90637a6e8b81e9deb19be91ab514cb50aeabfb0a70",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Karasev",
+      "source_id": "01c56ddc36828c34aae657d6061d9c25c6dbd9e275d22a844158df428949",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Omapodi",
+      "source_id": "6ee45a19ed798974c6ffe9b3615ed4a3cbf539a9549242c73446fb60994e",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Butter Murukku",
+      "source_id": "3ce621d4778279be312c3cd7c111d3eab08c23c4b5b5680ace072cbaf4ab",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Spl Thattai",
+      "source_id": "d13b65714938826a5c57d171166deab134e909ac005ca4654b9759a9856f",
+      "image": ""
+    },
+    {
+      "name": "Diwali - Moru Moru Murukku",
+      "source_id": "b6a488b5487826338b0b8d06db65b9266dae61d196f8e4fbe7ab9130c46d",
+      "image": ""
+    },
+    {
+      "name": "Kamar Kattu",
+      "source_id": "d145e2960e95c3789c00155d6217fbc8b0db1082c8e0de7eb3fd068e71ff",
+      "image": ""
+    },
+    {
+      "name": "Spl Milk Halwa",
+      "source_id": "e2d0b6787c409fee8f488c6d4726b6708955f922067bb8bd9c3fdb40070c",
+      "image": ""
+    },
+    {
+      "name": "Karupatti Halwa",
+      "source_id": "495f8113d2a545086b5661244fcfd86453602170c7714a8e652d559baf6a",
+      "image": ""
+    },
+    {
+      "name": "Mini Milagu Appalam",
+      "source_id": "8d37f0dc672b89bd9fbf17ed1903947e78544b222c5a48399dd6b514c423",
+      "image": ""
+    },
+    {
+      "name": "Rasa Vadai (1)",
+      "source_id": "a64d8217f50b5f799a00207b7cc173cbd78a2c472a842f0d7f2a4781ca85",
+      "image": ""
+    },
+    {
+      "name": "Sambar Vadai (1)",
+      "source_id": "85e5a529ee64d2c1b2b28cf189f9cda820a6048b63f9119e9075d4941201",
+      "image": ""
+    },
+    {
+      "name": "Spl Bisibelabath",
+      "source_id": "4606862eface0cd30b8c3d898ea2caa09b8ee9f2d48ea9aaa6ab21f77201",
+      "image": ""
+    },
+    {
+      "name": "Chow Chow Kootu",
+      "source_id": "b82e5714171df4a2cfbca0a8e3563ae0d86f23fa723cf1ba219c8135a62e",
+      "image": ""
+    },
+    {
+      "name": "Morekuzhambu",
+      "source_id": "8d63eddf124c9aa2d5c39107174d65c220f5d67641627a5ac4c6730ca5e4",
+      "image": ""
+    },
+    {
+      "name": "Kose Poriyal",
+      "source_id": "a1cb2414dd4ade39369072b4a952c1df2c01993057d6dfdcdb7e57ba7a33",
+      "image": ""
+    },
+    {
+      "name": "Kancheepuram Idly (2)",
+      "source_id": "085343730b1226f219505cb301035e6766601c51dbcf318cf7526ed63a71",
+      "image": ""
+    },
+    {
+      "name": "Idiyappam (4)",
+      "source_id": "e89800b75b5bfad3b0cae4ea2fa98d3b1ece6bd3f2b74ee3668358647e71",
+      "image": ""
+    },
+    {
+      "name": "Onion Chennai Masala",
+      "source_id": "a2919bef8031cde41ce15999f5ba555026e0ba99d242921d7cce9b25b75e",
+      "image": ""
+    }
+  ],
+  "categories": [
+    {
+      "name": "Tuesday Lunch",
+      "slug": "08th-tuesday-lunch",
+      "image": "categories/fbaf952490c9670d990fb6929fa22a5e.jpg"
+    },
+    {
+      "name": "Tuesday Breakfast",
+      "slug": "15th-monday-breakfast",
+      "image": "categories/073e26c45930458805890d34441fc204.jpg"
+    },
+    {
+      "name": "Friday Dinner",
+      "slug": "22nd-tuesday-dinner",
+      "image": "categories/1d6e629f80f0921e281d4b939cb9760f.jpg"
+    },
+    {
+      "name": "These Products Were Always Loved by Everyone",
+      "slug": "always-loved-by-everyone-this-products",
+      "image": "categories/68dd2541db8740ad85a4968f8150c7c3.jpg"
+    },
+    {
+      "name": "Appalams",
+      "slug": "appalams",
+      "image": "categories/750bb67b94b4a7c68f74b30ba76223ea.jpg"
+    },
+    {
+      "name": "Chips",
+      "slug": "chips1",
+      "image": "categories/07df36a089810a5f1173aa1deef3fa34.jpg"
+    },
+    {
+      "name": "Breakfast & Lunch & Dinner",
+      "slug": "daily-foods-1",
+      "image": "categories/feab06124a8800a5bdfbc3daff386921.jpg"
+    },
+    {
+      "name": "Dairy",
+      "slug": "diary",
+      "image": "categories/e7001e66d34deec05a6dd2b41c1715d0.jpg"
+    },
+    {
+      "name": "Halwa",
+      "slug": "halwa",
+      "image": "categories/da906de3ad1560117264c5c5dcb16ad2.jpg"
+    },
+    {
+      "name": "Health Products",
+      "slug": "health-products",
+      "image": "categories/e84792fdcf9aad1cc766de95697ab3ce.jpg"
+    },
+    {
+      "name": "Juices",
+      "slug": "juices",
+      "image": "categories/1ed82493ca0d234a386fd304fde03058.jpg"
+    },
+    {
+      "name": "Kaju Sweets",
+      "slug": "kaju-sweets",
+      "image": "categories/21c475054bc57d2da8c91f90182fce42.jpg"
+    },
+    {
+      "name": "Kitchen Podis",
+      "slug": "kitchen-podis",
+      "image": "categories/b1e1330aa9e0e5baa998d19c18c53fef.jpg"
+    },
+    {
+      "name": "Krishna Jayanth 2026",
+      "slug": "krishna-jeyanthi",
+      "image": "categories/7ec8fc3e3c2775877e007baefafc9f71.jpg"
+    },
+    {
+      "name": "Millets Laddus",
+      "slug": "laddus-1",
+      "image": "categories/0502cd11ee01e2a256d62a2315f79170.jpg"
+    },
+    {
+      "name": "Varalakshmi Viradham",
+      "slug": "mahalakshmi-viradham-neivedhyam-set",
+      "image": "categories/f18ea338e33423cf4d84684f9014a0b7.jpg"
+    },
+    {
+      "name": "Mixture",
+      "slug": "mixture-1",
+      "image": "categories/859293f8ec15a72bc1c29fbf74a5effc.jpg"
+    },
+    {
+      "name": "Murukku",
+      "slug": "murukku-1",
+      "image": "categories/71fde7a8000ca5a0253dc87db19e5228.jpg"
+    },
+    {
+      "name": "Pakshanams",
+      "slug": "pakshanams-1",
+      "image": "categories/0c82c7e6beb59f498de360121f64257b.jpg"
+    },
+    {
+      "name": "Pickles",
+      "slug": "pickles",
+      "image": "categories/83d5d7ed29d7836d54142d12cea47ab8.jpg"
+    },
+    {
+      "name": "Podi",
+      "slug": "podi",
+      "image": "categories/b21b8f188cd934f215c532714b6fe0ac.jpg"
+    },
+    {
+      "name": "Rasam Paste",
+      "slug": "rasam-paste",
+      "image": "categories/6d5e8912690b1f687038bdd90a537058.jpg"
+    },
+    {
+      "name": "Ready To Cook",
+      "slug": "ready-to-cook",
+      "image": "categories/9f013934158dffcdb128d8a8b9e295c2.jpg"
+    },
+    {
+      "name": "Rice Mix Herbal Podi",
+      "slug": "rice-mix-herbal-podi",
+      "image": "categories/359c992c7bd0cfae3d3fc54c5168ef7c.jpg"
+    },
+    {
+      "name": "Rice Mix Paste",
+      "slug": "rice-mix-paste",
+      "image": "categories/ee220f9a0a2ae742d03d2d00a68750fe.jpg"
+    },
+    {
+      "name": "Rice Mix Podi",
+      "slug": "rice-mix-podi",
+      "image": "categories/7f3b429a6c175b253e6b274bf0f0c08b.jpg"
+    },
+    {
+      "name": "Sweets",
+      "slug": "sweets",
+      "image": "categories/055d846b81d8527a4b713e51f8ce214b.jpg"
+    },
+    {
+      "name": "vinayagar Chathurthi Special Lunch",
+      "slug": "tamil-new-year-spl-lunch-1",
+      "image": "categories/b4402a3750f8501bee696cdcd4f303e6.jpg"
+    },
+    {
+      "name": "Thattai",
+      "slug": "thattai",
+      "image": "categories/4502734c79b50a29e1b5b49951497c23.jpg"
+    },
+    {
+      "name": "Thokku",
+      "slug": "thokku",
+      "image": "categories/a1f53e78258a94ffc231c1f5d16937a3.jpg"
+    },
+    {
+      "name": "Monday Dinner",
+      "slug": "tuesday-dinner-1",
+      "image": "categories/d92bee4edc8e3919badc6cf51e89af4e.jpg"
+    },
+    {
+      "name": "Vathal & Vadagams",
+      "slug": "vathal-vadagams",
+      "image": "categories/cd56442b504b4a820864f80ba6e5521f.jpg"
+    },
+    {
+      "name": "Vegetable Vathal",
+      "slug": "vegitable-vathal-1",
+      "image": "categories/4c0025ff2c58b77c38232bb24c75e975.jpg"
+    },
+    {
+      "name": "Vinayagar Chaturthi Kozhukattai",
+      "slug": "vinayagar-chaturthi-combos-1",
+      "image": "categories/b6ff4ab9a138c243e28dce6b1ba85711.jpg"
+    },
+    {
+      "name": "Diwali Combos",
+      "slug": "diwali-combos",
+      "image": "categories/be627634972396485015cdac08d7368e.jpg"
+    },
+    {
+      "name": "Diwali 2026",
+      "slug": "diwali-2026",
+      "image": ""
+    },
+    {
+      "name": "Diwali Sweets",
+      "slug": "diwali-sweets",
+      "image": ""
+    },
+    {
+      "name": "Diwali Karams",
+      "slug": "diwali-karams",
+      "image": ""
+    }
+  ]
+}
