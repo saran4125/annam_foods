@@ -6,8 +6,8 @@ final class PublicMedia {
     public static function root():string {return getenv('PUBLIC_MEDIA_ROOT')?:(Installation::config()?Media::root():dirname(ANNAM_ROOT).'/media');}
     public static function manifest():string{return ANNAM_ROOT.'/resources/public-media.json';}
     public static function inventory():array {
-        $source=json_decode(file_get_contents(ANNAM_ROOT.'/resources/source-catalog.json'),true,512,JSON_THROW_ON_ERROR);$assets=[];
-        $add=function(string $url,array $reference,string $folder)use(&$assets){self::url($url);$key=hash('sha256',$url);if(!isset($assets[$key]))$assets[$key]=['url'=>$url,'folder'=>$folder,'references'=>[],'status'=>'pending','path'=>null,'sha256'=>null];$assets[$key]['references'][]=$reference;};
+        $source=json_decode(file_get_contents(ANNAM_ROOT.'/resources/source-catalog.json'),true,512,JSON_THROW_ON_ERROR);$assets=[];$rejected=[];
+        $add=function(string $url,array $reference,string $folder)use(&$assets,&$rejected){try{self::url($url);}catch(\RuntimeException $error){$rejected[]=['url'=>$url,'error'=>$error->getMessage()];return;}$key=hash('sha256',$url);if(!isset($assets[$key]))$assets[$key]=['url'=>$url,'folder'=>$folder,'references'=>[],'status'=>'pending','path'=>null,'sha256'=>null];$assets[$key]['references'][]=$reference;};
         $livePath=ANNAM_ROOT.'/resources/live-public-media-source.json';$live=is_file($livePath)?json_decode(file_get_contents($livePath),true,512,JSON_THROW_ON_ERROR):null;
         $browserPath=ANNAM_ROOT.'/resources/browser-public-media-source.json';$browser=is_file($browserPath)?json_decode(file_get_contents($browserPath),true,512,JSON_THROW_ON_ERROR):null;
         foreach(array_filter([$browser,$live,$source]) as $snapshot){
@@ -19,7 +19,7 @@ final class PublicMedia {
         $matchesPath=ANNAM_ROOT.'/resources/public-image-matches.json';if(is_file($matchesPath))foreach(json_decode(file_get_contents($matchesPath),true,512,JSON_THROW_ON_ERROR)['matches'] as $match){$url=$match['url'];unset($match['url']);$add($url,$match,$match['kind']==='product'?'catalog':'categories');}
         $old=is_file(self::manifest())?json_decode(file_get_contents(self::manifest()),true,512,JSON_THROW_ON_ERROR):[];
         foreach($assets as $key=>&$asset)if(isset($old['assets'][$key]))foreach(['status','path','sha256','bytes','error'] as $field)if(array_key_exists($field,$old['assets'][$key]))$asset[$field]=$old['assets'][$key][$field];unset($asset);
-        return ['version'=>1,'source'=>$source['source'],'source_snapshot'=>$source['fetched_at'],'live_source_snapshot'=>$live['fetched_at']??null,'description'=>'Original public source assets. Only verified downloads may be assigned to catalog records.','assets'=>$assets];
+        return ['version'=>1,'rejected_sources'=>$rejected,'source'=>$source['source'],'source_snapshot'=>$source['fetched_at'],'live_source_snapshot'=>$live['fetched_at']??null,'description'=>'Original public source assets. Only verified downloads may be assigned to catalog records.','assets'=>$assets];
     }
     public static function url(string $url):void {$parts=parse_url($url);if(($parts['scheme']??'')!=='https'||!in_array(strtolower($parts['host']??''),['cdn.commmerce.com','www.annamfood.in','annamfood.in'],true)||isset($parts['user'])||isset($parts['pass'])||isset($parts['port']))throw new \RuntimeException('Only approved original public image hosts may be downloaded.');}
     public static function store(array $asset,string $bytes,string $root):array {
