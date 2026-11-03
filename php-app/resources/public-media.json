@@ -2,9 +2,869 @@
     "version": 1,
     "source": "https://www.annamfood.in",
     "source_snapshot": "2026-09-28T12:10:34.448174+00:00",
-    "live_source_snapshot": "2026-11-03T06:54:12.427612+00:00",
+    "live_source_snapshot": "2026-11-03T07:02:12.196715+00:00",
     "description": "Original public source assets. Only verified downloads may be assigned to catalog records.",
     "assets": {
+        "fbaf952490c9670d990fb6929fa22a5e62b5e1a7e6eacd8951bdb5ce758bc39b": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17833810726960Lunch-With-Rice-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "95",
+                    "name": "04th Wednesday Lunch",
+                    "slug": "08th-tuesday-lunch"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "95",
+                    "name": "29th Tuesday Lunch",
+                    "slug": "08th-tuesday-lunch"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/fbaf952490c9670d990fb6929fa22a5e.jpg",
+            "sha256": "36c854c873187f48c747354f5a4a2c25fb2a427ad276d60bd6e7d6a5975a5533",
+            "bytes": 112648
+        },
+        "073e26c45930458805890d34441fc2046c6b6061c127fc746449ec17757c7753": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17631829135492Breakfast-Cartoon.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "91",
+                    "name": "04th Wednesday Breakfast",
+                    "slug": "15th-monday-breakfast"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "91",
+                    "name": "29th Tuesday Breakfast",
+                    "slug": "15th-monday-breakfast"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/073e26c45930458805890d34441fc204.jpg",
+            "sha256": "48408314fb87d389eb2b938c3a9db66a0d0c8dfad205ea08a095e04425caca70",
+            "bytes": 62757
+        },
+        "1d6e629f80f0921e281d4b939cb9760fbdae004478284255d42de41efcbc25eb": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17573109579217Dinner-Cartoon.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "68",
+                    "name": "03rd Tuesday Dinner",
+                    "slug": "22nd-tuesday-dinner"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "68",
+                    "name": "25th Friday Dinner",
+                    "slug": "22nd-tuesday-dinner"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/1d6e629f80f0921e281d4b939cb9760f.jpg",
+            "sha256": "59f06686823e67f7f557b2148226c81fe75a856e9241c1030f5ae43ec8b2eeb5",
+            "bytes": 97390
+        },
+        "68dd2541db8740ad85a4968f8150c7c3a043e99ba97b2ca9edacac385df3326e": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17283211423007always-everyone.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "ALB1",
+                    "name": "These  Products Were Always  Loved by  Everyone",
+                    "slug": "always-loved-by-everyone-this-products"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "79",
+                    "name": "These  Products Were Always  Loved by  Everyone",
+                    "slug": "always-loved-by-everyone-this-products"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/68dd2541db8740ad85a4968f8150c7c3.jpg",
+            "sha256": "8c52e6ecc4ecc58629beaa7fda1396fcf2f3014b8dfa627be18a92e7772cb6d7",
+            "bytes": 313955
+        },
+        "750bb67b94b4a7c68f74b30ba76223eac67f5f306e9788cfa0bf86d1e1b20d7c": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616784597668Tapiaco3-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "APP1",
+                    "name": "Appalams",
+                    "slug": "appalams"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "11",
+                    "name": "Appalams",
+                    "slug": "appalams"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/750bb67b94b4a7c68f74b30ba76223ea.jpg",
+            "sha256": "dd1ba97e2f6ae37933c6140857185f61d5eafa57b86e210dfdc17fd256a834b4",
+            "bytes": 71377
+        },
+        "07df36a089810a5f1173aa1deef3fa34b9c806cad397a45d4e4d2665f7ac1cbf": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616720371300Senai-Chips-Web1.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "CHI1",
+                    "name": "Chips",
+                    "slug": "chips1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "17",
+                    "name": "Chips",
+                    "slug": "chips1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/07df36a089810a5f1173aa1deef3fa34.jpg",
+            "sha256": "c72eae94e11fac6194cf6505804b3e99df9821538304f16e4ab31f7a2c2730ac",
+            "bytes": 82995
+        },
+        "feab06124a8800a5bdfbc3daff38692164eab80be914c48995d27b907533f065": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17631829026620lunch-cartoon.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "DF1",
+                    "name": "Breakfast & Lunch & Dinner",
+                    "slug": "daily-foods-1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "15",
+                    "name": "Breakfast & Lunch & Dinner",
+                    "slug": "daily-foods-1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/feab06124a8800a5bdfbc3daff386921.jpg",
+            "sha256": "2bf9eefb4e320df845d35dc28917b1ac27c71dd27ef91d82201f04a0c18e0ebe",
+            "bytes": 92751
+        },
+        "d865def12f62243e887d6353b8e128c7eeb77004621c4dd73bd4e951d0d53d9f": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912776051181Diwali-Karams.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "DK1",
+                    "name": "Diwali Karams",
+                    "slug": "deepavali-karams"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/d865def12f62243e887d6353b8e128c7.jpg",
+            "sha256": "7b54251412de897518613b20e19bca352607473cda6047fc3789881e313cd4ac",
+            "bytes": 182440
+        },
+        "497e9f826e570216a5f662d010476f620d42f9bdda26bdc2587e9b67b498f839": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912774959977DiwaliSweets.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "DS1",
+                    "name": "Diwali Sweets",
+                    "slug": "deepavali-sweets"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/497e9f826e570216a5f662d010476f62.jpg",
+            "sha256": "a865671b7788b8136fce786d6ae0123799ad4f2ae73f548dc60734d6e2a5c7b4",
+            "bytes": 181040
+        },
+        "503d1945c1f9e407718725ec31eecb2207931a349d05b8d3cd3794a98b269311": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17913677027478Annams-Diwali.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "DP1",
+                    "name": "Diwali 2026 Pakshanams",
+                    "slug": "deepavli-2026-pakshanams"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/503d1945c1f9e407718725ec31eecb22.jpg",
+            "sha256": "c261c3ef4d8f00dd643ce93d7e0b8ac9a25659d16239b7364382fed50738fba0",
+            "bytes": 615313
+        },
+        "e7001e66d34deec05a6dd2b41c1715d0465de3ad2759f1c86791a307a1f42801": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616932701159Cow-Ghee1-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "DIA1",
+                    "name": "Diary",
+                    "slug": "diary"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "13",
+                    "name": "Diary",
+                    "slug": "diary"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/e7001e66d34deec05a6dd2b41c1715d0.jpg",
+            "sha256": "30e588ed7f7c705b9a1c8a60044e5fab968ef458e808356de2d43a8525ee946b",
+            "bytes": 61764
+        },
+        "be627634972396485015cdac08d7368eb250920ddfd8c7d50ef5ee6323915317": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912779817868Diwali-Combos.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "DC1",
+                    "name": "Diwali Combos",
+                    "slug": "diwali-combos"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/be627634972396485015cdac08d7368e.jpg",
+            "sha256": "b7621dbbcd9070127a68275542391bae802979aa63aa3f8a37cdf2dfb1c59ec9",
+            "bytes": 183197
+        },
+        "da906de3ad1560117264c5c5dcb16ad289339d97a925fd5c516e7431845feb2e": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909837074640Carrot-Halwa1.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "HAL1",
+                    "name": "Halwa",
+                    "slug": "halwa"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "29",
+                    "name": "Halwa",
+                    "slug": "halwa"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/da906de3ad1560117264c5c5dcb16ad2.jpg",
+            "sha256": "3359e1523c06afa612884b97c9ff7e9420b7127b5906aa64d424e537a180ddc8",
+            "bytes": 138999
+        },
+        "e84792fdcf9aad1cc766de95697ab3cebf3fd4ca977679cccc120b38db672eef": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616939678592Karuppu-Kavuni-Kanji-Mavu1-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "HP1",
+                    "name": "Health Products",
+                    "slug": "health-products"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "22",
+                    "name": "Health Products",
+                    "slug": "health-products"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/e84792fdcf9aad1cc766de95697ab3ce.jpg",
+            "sha256": "b2be85384b3b8b6238165e0d6e0a5e7dc54605ead9afd493f54d792e13a25932",
+            "bytes": 77046
+        },
+        "1ed82493ca0d234a386fd304fde03058059f8b7a6f1909c05443956a95069dad": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16782039148340jice.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "JUI1",
+                    "name": "Juices",
+                    "slug": "juices"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "27",
+                    "name": "Juices",
+                    "slug": "juices"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/1ed82493ca0d234a386fd304fde03058.jpg",
+            "sha256": "49402ddfe648a997417fd6fed6d873f8034fd4a5f88753a82bf0f767dcbb7249",
+            "bytes": 150994
+        },
+        "21c475054bc57d2da8c91f90182fce42354c7d1b7a5956ec0e6bfc6a5c214c89": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909837747673Kaju-Kathli.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "KS1",
+                    "name": "Kaju Sweets",
+                    "slug": "kaju-sweets"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "kaju-sweets",
+                    "name": "Kaju Sweets",
+                    "slug": "kaju-sweets"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/21c475054bc57d2da8c91f90182fce42.jpg",
+            "sha256": "2f6b5752ec9faab7daaf9f9d66032f21ffff47b249865328a2195323dde2dc2b",
+            "bytes": 95118
+        },
+        "b1e1330aa9e0e5baa998d19c18c53fef1301d2c66ad1bb2bd3116d08c4daf7b0": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616710096153Rasam-Podi-Web-3.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "KP1",
+                    "name": "Kitchen Podis",
+                    "slug": "kitchen-podis"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "50",
+                    "name": "Kitchen Podis",
+                    "slug": "kitchen-podis"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/b1e1330aa9e0e5baa998d19c18c53fef.jpg",
+            "sha256": "506764160ed78d6b0790da6763fba6731280ae63b77f9e8461bc94ce93ab31a6",
+            "bytes": 92030
+        },
+        "0502cd11ee01e2a256d62a2315f79170786b9b320b03da12e07fc6992e87a0bb": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616717253928Milletes-Laddu-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "LAD1",
+                    "name": "Millets Laddus",
+                    "slug": "laddus-1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "10",
+                    "name": "Millets Laddus",
+                    "slug": "laddus-1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/0502cd11ee01e2a256d62a2315f79170.jpg",
+            "sha256": "55e81ffd6c3b73c573b9cced4ad04df9be9a4541a8f94b8f0865cdc0db226dfb",
+            "bytes": 86650
+        },
+        "859293f8ec15a72bc1c29fbf74a5effc348ce3129c03ac4ee3f6999803ce6e95": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618442838568Spl-Mixture-Website-3.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "MIX1",
+                    "name": "Mixture",
+                    "slug": "mixture-1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "20",
+                    "name": "Mixture",
+                    "slug": "mixture-1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/859293f8ec15a72bc1c29fbf74a5effc.jpg",
+            "sha256": "b01eecff647f5da4e24fa6724f8231be5eb4e1e0a8fbd0ab726486fe77395966",
+            "bytes": 96599
+        },
+        "71fde7a8000ca5a0253dc87db19e522819752c00e5a69938e9fd269c4da79a3b": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618442641290Kai-Murukku-3-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "MUR1",
+                    "name": "Murukku",
+                    "slug": "murukku-1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "19",
+                    "name": "Murukku",
+                    "slug": "murukku-1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/71fde7a8000ca5a0253dc87db19e5228.jpg",
+            "sha256": "6cdb8f72d35667d458ba5a7fcc4a42c81e03680d14babe4f10003730e1ba2ecc",
+            "bytes": 79468
+        },
+        "0c82c7e6beb59f498de360121f64257b231ea8ce012ac86427602355c88bd511": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616712434781Spl-Mixture-Website-3.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "PAK1",
+                    "name": "Pakshanams",
+                    "slug": "pakshanams-1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "2",
+                    "name": "Pakshanams",
+                    "slug": "pakshanams-1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/0c82c7e6beb59f498de360121f64257b.jpg",
+            "sha256": "b01eecff647f5da4e24fa6724f8231be5eb4e1e0a8fbd0ab726486fe77395966",
+            "bytes": 96599
+        },
+        "83d5d7ed29d7836d54142d12cea47ab89ea8cf476f75606708dae2a7a4088483": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616773186291Lemon-Pickle2-web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "PIC1",
+                    "name": "Pickles",
+                    "slug": "pickles"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "8",
+                    "name": "Pickles",
+                    "slug": "pickles"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/83d5d7ed29d7836d54142d12cea47ab8.jpg",
+            "sha256": "d2bc373ae4a79eacb1a159e0907a1de5860f9919090b7ff9d40e219bf016180e",
+            "bytes": 74051
+        },
+        "b21b8f188cd934f215c532714b6fe0ac89015d683e01155720eace68bfc60d68": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616709687644Pirandai-Podi-Wepsite.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "POD1",
+                    "name": "Podi",
+                    "slug": "podi"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "7",
+                    "name": "Podi",
+                    "slug": "podi"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/b21b8f188cd934f215c532714b6fe0ac.jpg",
+            "sha256": "1b7e74435a0f3f8b99259b10f405164f6617e7cea352fe3e34a3d0d10425dbe2",
+            "bytes": 95176
+        },
+        "6d5e8912690b1f687038bdd90a537058f85717fb412b8f0190cfea2bd51ba424": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16779413694928rasampaste.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "RP1",
+                    "name": "Rasam Paste",
+                    "slug": "rasam-paste"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "24",
+                    "name": "Rasam Paste",
+                    "slug": "rasam-paste"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/6d5e8912690b1f687038bdd90a537058.jpg",
+            "sha256": "df2b3d4258ea3afdbd3ed0eb16698a37cb6c2fd566283f41ea51f37b1819ebf7",
+            "bytes": 285735
+        },
+        "9f013934158dffcdb128d8a8b9e295c2fd9495cf63e762b88b57cfd7100da2cb": {
+            "url": "https://cdn.commmerce.com/placeholders/product.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "RTC1",
+                    "name": "Ready To Cook",
+                    "slug": "ready-to-cook"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "112",
+                    "name": "Ready To Cook",
+                    "slug": "ready-to-cook"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/9f013934158dffcdb128d8a8b9e295c2.jpg",
+            "sha256": "fe28673d8d7c984b450f22514010051d84ecf5da49bc16db4bdc35d74d14f0ec",
+            "bytes": 7722
+        },
+        "359c992c7bd0cfae3d3fc54c5168ef7c736d9f19194e43138f786bf15b2da8fa": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17261501029088Pirandai.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "RMH1",
+                    "name": "Rice Mix Herbal Podi",
+                    "slug": "rice-mix-herbal-podi"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "75",
+                    "name": "Rice Mix Herbal Podi",
+                    "slug": "rice-mix-herbal-podi"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/359c992c7bd0cfae3d3fc54c5168ef7c.jpg",
+            "sha256": "0df61a15d4231f7fa02b7e8e995181b6da8afa11edfb0986d68352d596f065e8",
+            "bytes": 131980
+        },
+        "ee220f9a0a2ae742d03d2d00a68750fe4dbd7d9e7bf5d36c39d2d79b15427f09": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16779414528827Rice-Mix-Paste.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "RMP1",
+                    "name": "Rice Mix Paste",
+                    "slug": "rice-mix-paste"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "26",
+                    "name": "Rice Mix Paste",
+                    "slug": "rice-mix-paste"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/ee220f9a0a2ae742d03d2d00a68750fe.jpg",
+            "sha256": "229cf6ed665456243642f242025affc200f2fdd62ba247c016385f32695a95b5",
+            "bytes": 239911
+        },
+        "7f3b429a6c175b253e6b274bf0f0c08b230be29d8a39bf763148bd6056af64b7": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909839961676Garlic-Paruppu-Podi1.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "RMP2",
+                    "name": "Rice Mix Podi",
+                    "slug": "rice-mix-podi"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "51",
+                    "name": "Rice Mix Podi",
+                    "slug": "rice-mix-podi"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/7f3b429a6c175b253e6b274bf0f0c08b.jpg",
+            "sha256": "875a9ee61110284445dc76a45c2d54cab40c8e67a6aa14f000505132c7aae183",
+            "bytes": 78274
+        },
+        "055d846b81d8527a4b713e51f8ce214b2d5de89872cdb75938e19ca51753ed1c": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616722477803Kalyana-Mysurpa-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "SWE1",
+                    "name": "Sweets",
+                    "slug": "sweets"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "12",
+                    "name": "Sweets",
+                    "slug": "sweets"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/055d846b81d8527a4b713e51f8ce214b.jpg",
+            "sha256": "90d534eddac7de2b36550dd2b6b19651a5fb69e4201cb94bd15ed53261546c9d",
+            "bytes": 73699
+        },
+        "4502734c79b50a29e1b5b49951497c23a12038e618dd78ce215abe600507e106": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618443771356Verkadalai-Thattai3-Web1.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "THA1",
+                    "name": "Thattai",
+                    "slug": "thattai"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "21",
+                    "name": "Thattai",
+                    "slug": "thattai"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/4502734c79b50a29e1b5b49951497c23.jpg",
+            "sha256": "3215ec1864f073875737a02cbcd353adcf3df29691618b1c292d6d9679a9424c",
+            "bytes": 76397
+        },
+        "a1f53e78258a94ffc231c1f5d16937a383c32ad656fd6a00143fbaa0989625a5": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616781782262Pirandai-New2-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "THO1",
+                    "name": "Thokku",
+                    "slug": "thokku"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "23",
+                    "name": "Thokku",
+                    "slug": "thokku"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/a1f53e78258a94ffc231c1f5d16937a3.jpg",
+            "sha256": "8e6f74d2c42a2e7d41df200712b0b44c45d065dbb41450ca3d215b2ab3333b33",
+            "bytes": 81228
+        },
+        "d92bee4edc8e3919badc6cf51e89af4e569ca244dd7d7cbfa8488d03a21a2bc9": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17573126589061Dinner-Cartoon.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "TD1",
+                    "name": "04th Wednesday Dinner",
+                    "slug": "tuesday-dinner-1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "96",
+                    "name": "28th Monday Dinner",
+                    "slug": "tuesday-dinner-1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/d92bee4edc8e3919badc6cf51e89af4e.jpg",
+            "sha256": "59f06686823e67f7f557b2148226c81fe75a856e9241c1030f5ae43ec8b2eeb5",
+            "bytes": 97390
+        },
+        "cd56442b504b4a820864f80ba6e5521f29d9f24ee0aace67cab5fcfa0c34d866": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616776397235Sundaikkai-Vathal1-Web.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "VV1",
+                    "name": "Vathal & Vadagams",
+                    "slug": "vathal-vadagams"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "9",
+                    "name": "Vathal & Vadagams",
+                    "slug": "vathal-vadagams"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/cd56442b504b4a820864f80ba6e5521f.jpg",
+            "sha256": "2a19b85d3ed453375c7c47bdc9debbb2639a8e8fd9c30da97aa43c9dfd02ed3d",
+            "bytes": 84557
+        },
+        "4c0025ff2c58b77c38232bb24c75e975e64af3d68ccb08365d9de88b6210b2ff": {
+            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17126702804011Carrot-Vathal.jpg",
+            "folder": "categories",
+            "references": [
+                {
+                    "kind": "category",
+                    "source_id": "VV2",
+                    "name": "Vegitable Vathal",
+                    "slug": "vegitable-vathal-1"
+                },
+                {
+                    "kind": "category",
+                    "source_id": "40",
+                    "name": "Vegitable Vathal",
+                    "slug": "vegitable-vathal-1"
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "categories/4c0025ff2c58b77c38232bb24c75e975.jpg",
+            "sha256": "cb0c37b88dc32285da9f1362ad5162406a729587262c6d8f85e54ba24eb03111",
+            "bytes": 87882
+        },
         "e488d1f276081e181e65fcdd935b1c67ddc3168b3759507dfb32f044b48fa546": {
             "url": "https://cdn.commmerce.com/uploads/annams/settings/1703057700105716743216796390logo-1.png",
             "folder": "brand",
@@ -662,6 +1522,10 @@
                     "source_id": "AP3",
                     "name": "Angaya Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -758,6 +1622,10 @@
                     "source_id": "AM3",
                     "name": "Aval mixture",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -870,6 +1738,10 @@
                     "source_id": "ST2",
                     "name": "Big Pepper Thattai",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -902,6 +1774,10 @@
                     "source_id": "BM2",
                     "name": "Bombay Mixture",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1062,6 +1938,10 @@
                     "source_id": "CGK1",
                     "name": "Cow Ghee -1kg",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1286,6 +2166,10 @@
                     "source_id": "GPP1",
                     "name": "Garlic Paruppu Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1318,6 +2202,10 @@
                     "source_id": "CG1",
                     "name": "Cow Ghee - 500gm",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1798,6 +2686,10 @@
                     "source_id": "KES1",
                     "name": "Karuppu Elllu Sadam Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1814,6 +2706,10 @@
                     "source_id": "KEI1",
                     "name": "Karuppu Ellu Idly Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1830,6 +2726,10 @@
                     "source_id": "KKM1",
                     "name": "Karuppu Kavuni  Kanji Mix",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1894,6 +2794,10 @@
                     "source_id": "KM4",
                     "name": "Kerala Mixture",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -1958,6 +2862,10 @@
                     "source_id": "KP4",
                     "name": "Kothamalli Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -2534,6 +3442,10 @@
                     "source_id": "MPT1",
                     "name": "Mini Pepper thattai",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -2630,6 +3542,10 @@
                     "source_id": "MRP2",
                     "name": "Mudakkathan Rasam Paste",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -2646,6 +3562,10 @@
                     "source_id": "MT2",
                     "name": "Mudakkathan Thokku",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -2710,6 +3630,10 @@
                     "source_id": "MKK1",
                     "name": "Murungai Keerai Kollu Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -2726,6 +3650,10 @@
                     "source_id": "MH1",
                     "name": "Muscoth Halwa",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -2742,6 +3670,10 @@
                     "source_id": "MRP1",
                     "name": "Mysore Rasam Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -2838,6 +3770,10 @@
                     "source_id": "NM1",
                     "name": "Navadhanya Mixture",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3190,6 +4126,10 @@
                     "source_id": "PP5",
                     "name": "Paruppu Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3270,6 +4210,10 @@
                     "source_id": "PRP1",
                     "name": "Pepper Rasam Paste",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3302,6 +4246,10 @@
                     "source_id": "PP2",
                     "name": "Pirandai Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3318,6 +4266,10 @@
                     "source_id": "PT4",
                     "name": "Pirandai Thuvaiyal",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3446,6 +4398,10 @@
                     "source_id": "PP4",
                     "name": "Puliyodharai Paste",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3478,6 +4434,10 @@
                     "source_id": "PP8",
                     "name": "Puthina Podi",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3830,6 +4790,10 @@
                     "source_id": "ST1",
                     "name": "Spl  Big Thattai",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3846,6 +4810,10 @@
                     "source_id": "HM2",
                     "name": "Spl Health Mix",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3910,6 +4878,10 @@
                     "source_id": "DST1",
                     "name": "Spl mini Thattai",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -3926,6 +4898,10 @@
                     "source_id": "SM1",
                     "name": "Spl Mixutre",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -4150,6 +5126,10 @@
                     "source_id": "TR1",
                     "name": "Thuthuvalali  Rasam Paste",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -4166,6 +5146,10 @@
                     "source_id": "TH1",
                     "name": "Spl Tirunelveli  Ghee Halwa",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -4246,6 +5230,10 @@
                     "source_id": "TRP1",
                     "name": "Tomoto Rasam Paste",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -4406,6 +5394,10 @@
                     "source_id": "VM1",
                     "name": "Vathakuzambu Paste",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -4502,6 +5494,10 @@
                     "source_id": "WH1",
                     "name": "Spl Wheat Halwa",
                     "image_index": 0
+                },
+                {
+                    "kind": "site",
+                    "name": "Public website image"
                 }
             ],
             "status": "downloaded",
@@ -4557,214 +5553,6 @@
             "sha256": "6aede5d1f4c3240f1520aa907eaef93cdd00048c9b2bc6e66a1f69119495f65e",
             "bytes": 78701
         },
-        "fbaf952490c9670d990fb6929fa22a5e62b5e1a7e6eacd8951bdb5ce758bc39b": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17833810726960Lunch-With-Rice-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "95",
-                    "name": "29th Tuesday Lunch",
-                    "slug": "08th-tuesday-lunch"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/fbaf952490c9670d990fb6929fa22a5e.jpg",
-            "sha256": "36c854c873187f48c747354f5a4a2c25fb2a427ad276d60bd6e7d6a5975a5533",
-            "bytes": 112648
-        },
-        "073e26c45930458805890d34441fc2046c6b6061c127fc746449ec17757c7753": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17631829135492Breakfast-Cartoon.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "91",
-                    "name": "29th Tuesday Breakfast",
-                    "slug": "15th-monday-breakfast"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/073e26c45930458805890d34441fc204.jpg",
-            "sha256": "48408314fb87d389eb2b938c3a9db66a0d0c8dfad205ea08a095e04425caca70",
-            "bytes": 62757
-        },
-        "1d6e629f80f0921e281d4b939cb9760fbdae004478284255d42de41efcbc25eb": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17573109579217Dinner-Cartoon.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "68",
-                    "name": "25th Friday Dinner",
-                    "slug": "22nd-tuesday-dinner"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/1d6e629f80f0921e281d4b939cb9760f.jpg",
-            "sha256": "59f06686823e67f7f557b2148226c81fe75a856e9241c1030f5ae43ec8b2eeb5",
-            "bytes": 97390
-        },
-        "68dd2541db8740ad85a4968f8150c7c3a043e99ba97b2ca9edacac385df3326e": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17283211423007always-everyone.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "79",
-                    "name": "These  Products Were Always  Loved by  Everyone",
-                    "slug": "always-loved-by-everyone-this-products"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/68dd2541db8740ad85a4968f8150c7c3.jpg",
-            "sha256": "8c52e6ecc4ecc58629beaa7fda1396fcf2f3014b8dfa627be18a92e7772cb6d7",
-            "bytes": 313955
-        },
-        "750bb67b94b4a7c68f74b30ba76223eac67f5f306e9788cfa0bf86d1e1b20d7c": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616784597668Tapiaco3-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "11",
-                    "name": "Appalams",
-                    "slug": "appalams"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/750bb67b94b4a7c68f74b30ba76223ea.jpg",
-            "sha256": "dd1ba97e2f6ae37933c6140857185f61d5eafa57b86e210dfdc17fd256a834b4",
-            "bytes": 71377
-        },
-        "07df36a089810a5f1173aa1deef3fa34b9c806cad397a45d4e4d2665f7ac1cbf": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616720371300Senai-Chips-Web1.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "17",
-                    "name": "Chips",
-                    "slug": "chips1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/07df36a089810a5f1173aa1deef3fa34.jpg",
-            "sha256": "c72eae94e11fac6194cf6505804b3e99df9821538304f16e4ab31f7a2c2730ac",
-            "bytes": 82995
-        },
-        "feab06124a8800a5bdfbc3daff38692164eab80be914c48995d27b907533f065": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17631829026620lunch-cartoon.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "15",
-                    "name": "Breakfast & Lunch & Dinner",
-                    "slug": "daily-foods-1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/feab06124a8800a5bdfbc3daff386921.jpg",
-            "sha256": "2bf9eefb4e320df845d35dc28917b1ac27c71dd27ef91d82201f04a0c18e0ebe",
-            "bytes": 92751
-        },
-        "e7001e66d34deec05a6dd2b41c1715d0465de3ad2759f1c86791a307a1f42801": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616932701159Cow-Ghee1-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "13",
-                    "name": "Diary",
-                    "slug": "diary"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/e7001e66d34deec05a6dd2b41c1715d0.jpg",
-            "sha256": "30e588ed7f7c705b9a1c8a60044e5fab968ef458e808356de2d43a8525ee946b",
-            "bytes": 61764
-        },
-        "da906de3ad1560117264c5c5dcb16ad289339d97a925fd5c516e7431845feb2e": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909837074640Carrot-Halwa1.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "29",
-                    "name": "Halwa",
-                    "slug": "halwa"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/da906de3ad1560117264c5c5dcb16ad2.jpg",
-            "sha256": "3359e1523c06afa612884b97c9ff7e9420b7127b5906aa64d424e537a180ddc8",
-            "bytes": 138999
-        },
-        "e84792fdcf9aad1cc766de95697ab3cebf3fd4ca977679cccc120b38db672eef": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616939678592Karuppu-Kavuni-Kanji-Mavu1-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "22",
-                    "name": "Health Products",
-                    "slug": "health-products"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/e84792fdcf9aad1cc766de95697ab3ce.jpg",
-            "sha256": "b2be85384b3b8b6238165e0d6e0a5e7dc54605ead9afd493f54d792e13a25932",
-            "bytes": 77046
-        },
-        "1ed82493ca0d234a386fd304fde03058059f8b7a6f1909c05443956a95069dad": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16782039148340jice.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "27",
-                    "name": "Juices",
-                    "slug": "juices"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/1ed82493ca0d234a386fd304fde03058.jpg",
-            "sha256": "49402ddfe648a997417fd6fed6d873f8034fd4a5f88753a82bf0f767dcbb7249",
-            "bytes": 150994
-        },
-        "21c475054bc57d2da8c91f90182fce42354c7d1b7a5956ec0e6bfc6a5c214c89": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909837747673Kaju-Kathli.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "kaju-sweets",
-                    "name": "Kaju Sweets",
-                    "slug": "kaju-sweets"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/21c475054bc57d2da8c91f90182fce42.jpg",
-            "sha256": "2f6b5752ec9faab7daaf9f9d66032f21ffff47b249865328a2195323dde2dc2b",
-            "bytes": 95118
-        },
-        "b1e1330aa9e0e5baa998d19c18c53fef1301d2c66ad1bb2bd3116d08c4daf7b0": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616710096153Rasam-Podi-Web-3.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "50",
-                    "name": "Kitchen Podis",
-                    "slug": "kitchen-podis"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/b1e1330aa9e0e5baa998d19c18c53fef.jpg",
-            "sha256": "506764160ed78d6b0790da6763fba6731280ae63b77f9e8461bc94ce93ab31a6",
-            "bytes": 92030
-        },
         "7ec8fc3e3c2775877e007baefafc9f71ad726e7542392617bca2d9f851bd5b2a": {
             "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17854854964036Krishna-Jayanthi.jpg",
             "folder": "categories",
@@ -4780,22 +5568,6 @@
             "path": "categories/7ec8fc3e3c2775877e007baefafc9f71.jpg",
             "sha256": "0cdea0fa96d00e643ac87d6ffcb9e4c13eb45f4b33deca70d4d850e61e4d853d",
             "bytes": 504382
-        },
-        "0502cd11ee01e2a256d62a2315f79170786b9b320b03da12e07fc6992e87a0bb": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616717253928Milletes-Laddu-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "10",
-                    "name": "Millets Laddus",
-                    "slug": "laddus-1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/0502cd11ee01e2a256d62a2315f79170.jpg",
-            "sha256": "55e81ffd6c3b73c573b9cced4ad04df9be9a4541a8f94b8f0865cdc0db226dfb",
-            "bytes": 86650
         },
         "f18ea338e33423cf4d84684f9014a0b70f5527fdfc65b15170735fb01a78f21c": {
             "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17543976207419Neivedymam-Set.jpg",
@@ -4813,186 +5585,6 @@
             "sha256": "957c3fe95993a327754c0406195a88b30282ed1d782a825157f315211087f33e",
             "bytes": 129195
         },
-        "859293f8ec15a72bc1c29fbf74a5effc348ce3129c03ac4ee3f6999803ce6e95": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618442838568Spl-Mixture-Website-3.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "20",
-                    "name": "Mixture",
-                    "slug": "mixture-1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/859293f8ec15a72bc1c29fbf74a5effc.jpg",
-            "sha256": "b01eecff647f5da4e24fa6724f8231be5eb4e1e0a8fbd0ab726486fe77395966",
-            "bytes": 96599
-        },
-        "71fde7a8000ca5a0253dc87db19e522819752c00e5a69938e9fd269c4da79a3b": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618442641290Kai-Murukku-3-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "19",
-                    "name": "Murukku",
-                    "slug": "murukku-1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/71fde7a8000ca5a0253dc87db19e5228.jpg",
-            "sha256": "6cdb8f72d35667d458ba5a7fcc4a42c81e03680d14babe4f10003730e1ba2ecc",
-            "bytes": 79468
-        },
-        "0c82c7e6beb59f498de360121f64257b231ea8ce012ac86427602355c88bd511": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616712434781Spl-Mixture-Website-3.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "2",
-                    "name": "Pakshanams",
-                    "slug": "pakshanams-1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/0c82c7e6beb59f498de360121f64257b.jpg",
-            "sha256": "b01eecff647f5da4e24fa6724f8231be5eb4e1e0a8fbd0ab726486fe77395966",
-            "bytes": 96599
-        },
-        "83d5d7ed29d7836d54142d12cea47ab89ea8cf476f75606708dae2a7a4088483": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616773186291Lemon-Pickle2-web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "8",
-                    "name": "Pickles",
-                    "slug": "pickles"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/83d5d7ed29d7836d54142d12cea47ab8.jpg",
-            "sha256": "d2bc373ae4a79eacb1a159e0907a1de5860f9919090b7ff9d40e219bf016180e",
-            "bytes": 74051
-        },
-        "b21b8f188cd934f215c532714b6fe0ac89015d683e01155720eace68bfc60d68": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616709687644Pirandai-Podi-Wepsite.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "7",
-                    "name": "Podi",
-                    "slug": "podi"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/b21b8f188cd934f215c532714b6fe0ac.jpg",
-            "sha256": "1b7e74435a0f3f8b99259b10f405164f6617e7cea352fe3e34a3d0d10425dbe2",
-            "bytes": 95176
-        },
-        "6d5e8912690b1f687038bdd90a537058f85717fb412b8f0190cfea2bd51ba424": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16779413694928rasampaste.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "24",
-                    "name": "Rasam Paste",
-                    "slug": "rasam-paste"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/6d5e8912690b1f687038bdd90a537058.jpg",
-            "sha256": "df2b3d4258ea3afdbd3ed0eb16698a37cb6c2fd566283f41ea51f37b1819ebf7",
-            "bytes": 285735
-        },
-        "9f013934158dffcdb128d8a8b9e295c2fd9495cf63e762b88b57cfd7100da2cb": {
-            "url": "https://cdn.commmerce.com/placeholders/product.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "112",
-                    "name": "Ready To Cook",
-                    "slug": "ready-to-cook"
-                },
-                {
-                    "kind": "site",
-                    "name": "Public website image"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/9f013934158dffcdb128d8a8b9e295c2.jpg",
-            "sha256": "fe28673d8d7c984b450f22514010051d84ecf5da49bc16db4bdc35d74d14f0ec",
-            "bytes": 7722
-        },
-        "359c992c7bd0cfae3d3fc54c5168ef7c736d9f19194e43138f786bf15b2da8fa": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17261501029088Pirandai.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "75",
-                    "name": "Rice Mix Herbal Podi",
-                    "slug": "rice-mix-herbal-podi"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/359c992c7bd0cfae3d3fc54c5168ef7c.jpg",
-            "sha256": "0df61a15d4231f7fa02b7e8e995181b6da8afa11edfb0986d68352d596f065e8",
-            "bytes": 131980
-        },
-        "ee220f9a0a2ae742d03d2d00a68750fe4dbd7d9e7bf5d36c39d2d79b15427f09": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16779414528827Rice-Mix-Paste.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "26",
-                    "name": "Rice Mix Paste",
-                    "slug": "rice-mix-paste"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/ee220f9a0a2ae742d03d2d00a68750fe.jpg",
-            "sha256": "229cf6ed665456243642f242025affc200f2fdd62ba247c016385f32695a95b5",
-            "bytes": 239911
-        },
-        "7f3b429a6c175b253e6b274bf0f0c08b230be29d8a39bf763148bd6056af64b7": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16909839961676Garlic-Paruppu-Podi1.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "51",
-                    "name": "Rice Mix Podi",
-                    "slug": "rice-mix-podi"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/7f3b429a6c175b253e6b274bf0f0c08b.jpg",
-            "sha256": "875a9ee61110284445dc76a45c2d54cab40c8e67a6aa14f000505132c7aae183",
-            "bytes": 78274
-        },
-        "055d846b81d8527a4b713e51f8ce214b2d5de89872cdb75938e19ca51753ed1c": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616722477803Kalyana-Mysurpa-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "12",
-                    "name": "Sweets",
-                    "slug": "sweets"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/055d846b81d8527a4b713e51f8ce214b.jpg",
-            "sha256": "90d534eddac7de2b36550dd2b6b19651a5fb69e4201cb94bd15ed53261546c9d",
-            "bytes": 73699
-        },
         "b4402a3750f8501bee696cdcd4f303e6b19ccd338c479158e52f29794ec5beb4": {
             "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17892233809936Ganapathy-Web.jpg",
             "folder": "categories",
@@ -5008,86 +5600,6 @@
             "path": "categories/b4402a3750f8501bee696cdcd4f303e6.jpg",
             "sha256": "1e8ff7e2657795082cc1f3b9703e7509228239f898d488f54a247091c44bfa72",
             "bytes": 41702
-        },
-        "4502734c79b50a29e1b5b49951497c23a12038e618dd78ce215abe600507e106": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17618443771356Verkadalai-Thattai3-Web1.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "21",
-                    "name": "Thattai",
-                    "slug": "thattai"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/4502734c79b50a29e1b5b49951497c23.jpg",
-            "sha256": "3215ec1864f073875737a02cbcd353adcf3df29691618b1c292d6d9679a9424c",
-            "bytes": 76397
-        },
-        "a1f53e78258a94ffc231c1f5d16937a383c32ad656fd6a00143fbaa0989625a5": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616781782262Pirandai-New2-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "23",
-                    "name": "Thokku",
-                    "slug": "thokku"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/a1f53e78258a94ffc231c1f5d16937a3.jpg",
-            "sha256": "8e6f74d2c42a2e7d41df200712b0b44c45d065dbb41450ca3d215b2ab3333b33",
-            "bytes": 81228
-        },
-        "d92bee4edc8e3919badc6cf51e89af4e569ca244dd7d7cbfa8488d03a21a2bc9": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17573126589061Dinner-Cartoon.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "96",
-                    "name": "28th Monday Dinner",
-                    "slug": "tuesday-dinner-1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/d92bee4edc8e3919badc6cf51e89af4e.jpg",
-            "sha256": "59f06686823e67f7f557b2148226c81fe75a856e9241c1030f5ae43ec8b2eeb5",
-            "bytes": 97390
-        },
-        "cd56442b504b4a820864f80ba6e5521f29d9f24ee0aace67cab5fcfa0c34d866": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17616776397235Sundaikkai-Vathal1-Web.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "9",
-                    "name": "Vathal & Vadagams",
-                    "slug": "vathal-vadagams"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/cd56442b504b4a820864f80ba6e5521f.jpg",
-            "sha256": "2a19b85d3ed453375c7c47bdc9debbb2639a8e8fd9c30da97aa43c9dfd02ed3d",
-            "bytes": 84557
-        },
-        "4c0025ff2c58b77c38232bb24c75e975e64af3d68ccb08365d9de88b6210b2ff": {
-            "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17126702804011Carrot-Vathal.jpg",
-            "folder": "categories",
-            "references": [
-                {
-                    "kind": "category",
-                    "source_id": "40",
-                    "name": "Vegitable Vathal",
-                    "slug": "vegitable-vathal-1"
-                }
-            ],
-            "status": "downloaded",
-            "path": "categories/4c0025ff2c58b77c38232bb24c75e975.jpg",
-            "sha256": "cb0c37b88dc32285da9f1362ad5162406a729587262c6d8f85e54ba24eb03111",
-            "bytes": 87882
         },
         "b6ff4ab9a138c243e28dce6b1ba85711317d5ea63e81d67a34a3e6fbca834953": {
             "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/16943551035070Vinayagar1.jpg",
@@ -5146,6 +5658,34 @@
             "path": "site/c1db4432bea94d7247191968843b7b94.png",
             "sha256": "4560fd7dd6b62511776dc61ce56b806a4b1d9f63c30a98afa3798c8f145b9d81",
             "bytes": 20169
+        },
+        "59b0b956400ab0f7ebe1c90b6b9b488ae1b271a12fe18d8b2c143d1b15288455": {
+            "url": "https://cdn.commmerce.com/themes/dodley-fashion/img/icons/minus.png",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/59b0b956400ab0f7ebe1c90b6b9b488a.png",
+            "sha256": "cae6fbc9199a82c028e7de5f9bd7ae6b0d3192f32fb67c0751c6d6cd93c64031",
+            "bytes": 953
+        },
+        "07f239692030b6f7f6f743d44ea991922f756b89e890074a6218595ba59fb6b4": {
+            "url": "https://cdn.commmerce.com/themes/dodley-fashion/img/icons/plus.png",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/07f239692030b6f7f6f743d44ea99192.png",
+            "sha256": "ee5d033e77a8e27620af597b6fbecb52ee1df46e5ee0e8d613df7b5a9c713506",
+            "bytes": 963
         },
         "c8bbd39cee6311492dabc6367158067aafd9e2c0dd02960fb465a57deac32ae6": {
             "url": "https://cdn.commmerce.com/themes/dodley-fashion/img/logo.png",
@@ -5301,6 +5841,20 @@
             "sha256": "59f06686823e67f7f557b2148226c81fe75a856e9241c1030f5ae43ec8b2eeb5",
             "bytes": 97390
         },
+        "6bdbc6a78ddeaf6b984de975693d645237132c315bdd133451cb4a5291ec7aa6": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/09/17907828595921Karupatti-Halwa-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/6bdbc6a78ddeaf6b984de975693d6452.jpg",
+            "sha256": "96e201b18156bde0c6e90f957c6c15bdae111869ef9e04cbf3b7c22eadd76658",
+            "bytes": 104719
+        },
         "fada10bed23cd00f2b78b23fcfc5758d0243cf7c7ec7cafbf85910429b426f99": {
             "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17908642878592Lunch-With-Rice-Web.jpg",
             "folder": "site",
@@ -5357,8 +5911,8 @@
             "sha256": "9ac2575b1265ec6347c9dac11d6cfd4aad8636d1875cae66f11a889d502a4e65",
             "bytes": 1242187
         },
-        "503d1945c1f9e407718725ec31eecb2207931a349d05b8d3cd3794a98b269311": {
-            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17913677027478Annams-Diwali.jpg",
+        "74a9e6b634a7958f714cd00c916087c17d31069040786e87a329730c92a66c7f": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17914696731895Curry-Leaves-Podi-Wen.jpg",
             "folder": "site",
             "references": [
                 {
@@ -5367,9 +5921,541 @@
                 }
             ],
             "status": "downloaded",
-            "path": "site/503d1945c1f9e407718725ec31eecb22.jpg",
-            "sha256": "c261c3ef4d8f00dd643ce93d7e0b8ac9a25659d16239b7364382fed50738fba0",
-            "bytes": 615313
+            "path": "site/74a9e6b634a7958f714cd00c916087c1.jpg",
+            "sha256": "2731d762647b6fa8a9045e9aa6800a05dbdb3ffad8bd095395ea248f22fffa8c",
+            "bytes": 100950
+        },
+        "d72fa937b4ad13b80d8ba66e0165a43c6ae8052ccdebef55f188651c0028446d": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17917969414421Milagu-Kuzambu-Mix-New-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/d72fa937b4ad13b80d8ba66e0165a43c.jpg",
+            "sha256": "ee953fd8cb09dc6957c153355e2f22dbc4e4c98a8f3905af8c7bbba017741c01",
+            "bytes": 77925
+        },
+        "c7e8634cbe572eda2e510d2d0e34142ee4fb3aa96a548e62b6b24b3bc1284a96": {
+            "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17919622684969Garlic-Kuzambu-Mix-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/c7e8634cbe572eda2e510d2d0e34142e.jpg",
+            "sha256": "d71dca029306be356cf1d3efaaf85ec554c51962454a8ec40c7d968c1399300b",
+            "bytes": 102550
+        },
+        "c403cc14b62349764f3a48e753715254065c026ad47306965bdc2b78f7fbdc74": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17885196944050Karuppu-Kavuni-Kanji-Mavu-Pouch-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/c403cc14b62349764f3a48e753715254.jpg",
+            "sha256": "9e47601c1f60b81a3fd8b002e230b2a33e03794c14ae1bebe9abbcce28196b92",
+            "bytes": 98839
+        },
+        "baa99486f1df7c8954886a2ee1bac3603fcfe440cc26bd341e6cdb182ab8b850": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/16776038032269Tomoto-Rasam-Paste.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/baa99486f1df7c8954886a2ee1bac360.jpg",
+            "sha256": "81e238f5b4e95272fb1ffb2a3f7dd1255d4119ae32701f892315be270eb34d23",
+            "bytes": 111449
+        },
+        "9b78c877264ab211583f8b4c59210d4cfd97e0aaf4fda94e848de5b083c5702a": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/16776040421100Mudakkathan-Rasa-paste.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/9b78c877264ab211583f8b4c59210d4c.jpg",
+            "sha256": "0fb19d4d5c1b2b101b8ee0b177aabdaeaa59ae17f066cfd7040729de4673f991",
+            "bytes": 116536
+        },
+        "2f59b65102b638a8a1500f93bdad93cc6d25e8856c6f08b323ac2834280f783e": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/16776041521752Thuthuvalai-Rasam-Paste.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/2f59b65102b638a8a1500f93bdad93cc.jpg",
+            "sha256": "7848fb0a42c02acc73e5652ea112bc2a566012482a901f8108a6935c7f367528",
+            "bytes": 123066
+        },
+        "367a0175d360fdc3d140b1bc068e5ed9e3c7f70a1dc47116183a5a347d4f625b": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/16777651934307Pepper-Rasam-Paste.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/367a0175d360fdc3d140b1bc068e5ed9.jpg",
+            "sha256": "25bdf3830aa0b81e446582dfbc3eccf48c42984ad2505c0e551a6108f0b72ca7",
+            "bytes": 120595
+        },
+        "be9de8bc6aae86cab076d3ac974d2d9ea5bee91d0264f5b4306f9b91a6051474": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/16777670923978Vathakuzambu-mix.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/be9de8bc6aae86cab076d3ac974d2d9e.jpg",
+            "sha256": "1e5f093f572524339ec211b67382ccd1d240d162e32b79a8aaacf539db61fd85",
+            "bytes": 114954
+        },
+        "227c129792b6ac1a675c89da97034c0a20cdceb388992fec1f755cce7d2a2e8f": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17232211581907Spl-Puliyodharai-Paste.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/227c129792b6ac1a675c89da97034c0a.jpg",
+            "sha256": "dc10d9021bdecbbd315200ec7eaf324810c35c7d2382b06649b12552b3538249",
+            "bytes": 125182
+        },
+        "412f6ffd13e733f0c3fe2c4e27fb56aadb94acfaa8edecd3768979325f8cee14": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17261524852242Kothamalli-Vithai-Podi.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/412f6ffd13e733f0c3fe2c4e27fb56aa.jpg",
+            "sha256": "ca760e49113839f71f0a2c5861ae454687acf4ec84131d8975ba4dfa04326f71",
+            "bytes": 154861
+        },
+        "83ceade5337299e6465e8a244b905597dc8f17141472427d7a232e8cf6ab97f4": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17612134998636Mudakkathan-Thokku-Webspte.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/83ceade5337299e6465e8a244b905597.jpg",
+            "sha256": "18c5d898abde45a8b9f52ccd337cebc23d3d3d3c59098109eccccec00d16a80b",
+            "bytes": 94825
+        },
+        "3519655b7dc5c25e53e8c72aea89c31be097653a7dc7365bff8e8c92ac463b8a": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17612145455555Pirandai-Podi-Wepsite.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/3519655b7dc5c25e53e8c72aea89c31b.jpg",
+            "sha256": "d54de5d28065a7940636c5f774a3bf828ff8ede652d0fa8f4795cec8034ba035",
+            "bytes": 108332
+        },
+        "b46a23a0bb681bbcfff029d91a83dd004710ab3a0b7b50ec3c8ecc2dc9e0d932": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17613093982242Karuppu-Ellu-Idly-Podi-Web3.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/b46a23a0bb681bbcfff029d91a83dd00.jpg",
+            "sha256": "9ba23b6e071a745fe298fd735b4a19fc036adc795fe30d4b2289a80e9b024cf7",
+            "bytes": 109917
+        },
+        "0df65c93e925d6a0a078ea14f59afedc1f60f2ae89e6b0a727b7b3e5d544e724": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17613106795328Garlic-Paruppu-Podi-web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/0df65c93e925d6a0a078ea14f59afedc.jpg",
+            "sha256": "20d1c05985e5ddaef103ba78061733be1fee798d66b65c4cf5615c1f78f2b701",
+            "bytes": 105704
+        },
+        "16a1d0459a1c829d40d15e673f2c5134759a76c9739c910c53a7db059f043d28": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17613107036555Paruppu-Podi-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/16a1d0459a1c829d40d15e673f2c5134.jpg",
+            "sha256": "ff417e5e83836cde36af26d0445af57f8436c550e68db18941520703a1898ed1",
+            "bytes": 117013
+        },
+        "1116c30242e3fc8a2506c21e69cb16c1b2832171167072c08d4993251fcc0179": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17618158962935Spl-Mixture-Website-3.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/1116c30242e3fc8a2506c21e69cb16c1.jpg",
+            "sha256": "153a458c293b4d03eb587996f25d41c4761991365fd7a69ec43bfc188f2813bb",
+            "bytes": 110174
+        },
+        "64152a5b69aae8109f82cf8fbee7ae539b1c762ec668b215baaa8ffd5889600e": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17618330035531Baby-Pepper-Thattai-1-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/64152a5b69aae8109f82cf8fbee7ae53.jpg",
+            "sha256": "2b1f63b8ae7fe644edd536c3ef49b1acf7e3a66e351e2dc5f4b0661a530d8c17",
+            "bytes": 90246
+        },
+        "deae14830dea8d16311f56027aa1f32b6de561064a483ab13bf643b0a189c05b": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17618330315407Verkadalai-Thattai3-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/deae14830dea8d16311f56027aa1f32b.jpg",
+            "sha256": "373ed5a1789ce73c2d42990d0381c60ae46cde161e440768f136776922e76816",
+            "bytes": 80430
+        },
+        "800d6f2b02e20b87ec38cf264a3ad399489cdea01f0f0577f4416bdfb8fe32f3": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17618476649168Aval-Mixture-5-web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/800d6f2b02e20b87ec38cf264a3ad399.jpg",
+            "sha256": "ffe1c53f6caf4288a5ab147f90118f98d2bfa9eabfd3c1936a0a8741e3fa8708",
+            "bytes": 100440
+        },
+        "f7b4c856cf39712abfb6a59c82b30efa3d127fe41d61f8739a163ce02ba72c87": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17618481215829Navadhanya-Mixture-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/f7b4c856cf39712abfb6a59c82b30efa.jpg",
+            "sha256": "8eabbbac41cdd89ddc2002f175aca07c64ace49a40b540ff0013822d93496561",
+            "bytes": 109598
+        },
+        "d219c9febd52be7458d248b2788343c1565888984859d0ae8999cce1e0d19b89": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17619155046469Cow-Ghee1-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/d219c9febd52be7458d248b2788343c1.jpg",
+            "sha256": "443fcdc5c282273c70bb4616668153daefa8a0b1cbda10f05c1e6b25e07f30db",
+            "bytes": 70742
+        },
+        "4a9363d5bfb178ed69902c38748b3203c70f55293447955b58688c3bcc9be671": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17619155203192Cow-Ghee1-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/4a9363d5bfb178ed69902c38748b3203.jpg",
+            "sha256": "443fcdc5c282273c70bb4616668153daefa8a0b1cbda10f05c1e6b25e07f30db",
+            "bytes": 70742
+        },
+        "4cdc579de87845cda26aac2d274127836c9134b3c739329717fa49c0d061a0d5": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17619201624864Healthmix-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/4cdc579de87845cda26aac2d27412783.jpg",
+            "sha256": "acccdac592538d3d3571c8983ec0c38426d6760f0e88fd7160b802b25370e10e",
+            "bytes": 103427
+        },
+        "5490c6db7b82b985070e2d53e04a5bee4369a290f9600988cb1d6d6599071b2c": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17619353238059Spl-Thattai-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/5490c6db7b82b985070e2d53e04a5bee.jpg",
+            "sha256": "0b1b59e8024d3ca57c63b46781cb84b73197fe33701e076715d2f0823909e6fd",
+            "bytes": 118547
+        },
+        "d0a33297b5cfc0352cb45b7a86b03aaa116144146cee8a5a36a2a83299212a24": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17619991585345Mysore-Rasam-Podi-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/d0a33297b5cfc0352cb45b7a86b03aaa.jpg",
+            "sha256": "aedcc95ea6e9209afcb3fa785602c5ed59684fc528a40c83e5dd9bbd020d735f",
+            "bytes": 105508
+        },
+        "5f7ef9704de490641d190b59255983b6e8ed92b9e5bd51446542fa667fcb76ab": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17673488889006Angaya-Podi-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/5f7ef9704de490641d190b59255983b6.jpg",
+            "sha256": "55d2b4aeed9e51910c86c41535169f51e9d85b92671ffe892ec968bb21e2dd63",
+            "bytes": 146779
+        },
+        "9aaab744b703481d09ba9eae5110de69e447640947e49286258dc02a204ec42d": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17673603048743Karuppu-Ellu-Sadam-Podi-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/9aaab744b703481d09ba9eae5110de69.jpg",
+            "sha256": "747ed3b23cf98d06245cfe13b2319330353512b23c41ad2426b548a03d295b32",
+            "bytes": 126739
+        },
+        "679c1ba0a38cfdf803aa4f44ad595f56134cb2ff0a451d3ee227f1fbf8cd2288": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17676172824606Murungai-Keerai-Kollu-Podi-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/679c1ba0a38cfdf803aa4f44ad595f56.jpg",
+            "sha256": "822ee21c59d8fec925d144c49c1352daa36cefcbd770612028b994a6703fa14d",
+            "bytes": 138981
+        },
+        "fd0ddae279885430c370433ae51fc93bfad6cbf3fdcd15aea8eba6a8bdce8f22": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17677896913539Pirandai-New2-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/fd0ddae279885430c370433ae51fc93b.jpg",
+            "sha256": "29e58ae6d9d826a6723ca788dd51684d3175e0762a7b357a20be1b2d8b627c48",
+            "bytes": 93133
+        },
+        "1e6a54b0221d643ab92e043a7d3eaef7d0e2b18c96e23e9945ce94d057bab9fc": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17690047425060Puthina-Podi-New-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/1e6a54b0221d643ab92e043a7d3eaef7.jpg",
+            "sha256": "a11dd814a74a5e825fae7de30d9c16f4a05e7dbb653d1a684317ba5b597c10aa",
+            "bytes": 101918
+        },
+        "a99fcfeac39c3a29856193d0d7b26a9817c94ddd6afb81ee2a4dde9be8883e3b": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17728031489367Bombay-Miixture-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/a99fcfeac39c3a29856193d0d7b26a98.jpg",
+            "sha256": "8dbfe08bf98096a440066e554c18ff70a501c6f581ad7071befca84282c1ca15",
+            "bytes": 130779
+        },
+        "8608d5be488ad94eb61643ad3d91875440cba39d958dd1eae0dea41c8d1b8349": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17784214703680Big-Pepper-Thattai-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/8608d5be488ad94eb61643ad3d918754.jpg",
+            "sha256": "d12f9c435c7dc5d5f1fa70b33be9ef1faeb7426673b8e85e651679fa94ec7fed",
+            "bytes": 126571
+        },
+        "c870f50f1300bf5f45cb2c11b868cee04117c5109962aea94a5c700d446648e6": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17791033674784Wheat-Halwa-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/c870f50f1300bf5f45cb2c11b868cee0.jpg",
+            "sha256": "d61550c6b0c0a277dd51eae0ab105c553601aeb32d9ad81fbbe5f8e070b59c17",
+            "bytes": 753671
+        },
+        "3d75c78e7b40563292fdc323426e30c40d4d93c7424eb907fdb8865c2798c878": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17822209106206Kerala-Mixture-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/3d75c78e7b40563292fdc323426e30c4.jpg",
+            "sha256": "5e30c1228d9d9be6e2e79fd9d26d231a6c97bc56e9697a44606032edc6c20b1b",
+            "bytes": 93323
+        },
+        "e81fb50f8d5836ca2bc4573aaed37b11fc637fa202fed01a4f9d9a0a7f68d8ef": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17867794055421Tirnelveli-Halwa2-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/e81fb50f8d5836ca2bc4573aaed37b11.jpg",
+            "sha256": "e4b70b3136c6417a15686804b3879ae40bd158eca643da911b055a0699f05536",
+            "bytes": 137830
+        },
+        "04111f13cd85a3137f86fb932c124e846f55c49f72c5f6ad0ebde328d99c386e": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17885196276646Karuppu-Kavuni-Kanji-Mavu-New-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/04111f13cd85a3137f86fb932c124e84.jpg",
+            "sha256": "40102f25b712a72d5ddd20368e8d18b8fae8135348fe217a20f4d8b28140485e",
+            "bytes": 85124
+        },
+        "f082cc7c765162a1d6a2125f348eff10a70a589bada7fb88fece6d7fab9df865": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17885196944050Karuppu-Kavuni-Kanji-Mavu-Pouch-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/f082cc7c765162a1d6a2125f348eff10.jpg",
+            "sha256": "33b67ca099b5d31b0401dbe2312628e57d3323ed6b64d1ebf92bac075636edc9",
+            "bytes": 112602
+        },
+        "e5cc2da6fdb3aa234f4dfb532216a382e6290a4e8a46bb04464a7064d50f6380": {
+            "url": "https://cdn.commmerce.com/uploads/annams/productImages/thumb/17897353564340Maskoth-Halwa-Web.jpg",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/e5cc2da6fdb3aa234f4dfb532216a382.jpg",
+            "sha256": "d2985b3e945d40b9f215a4f09b22af915c82c86d340b3e58befd0010ade6c3fd",
+            "bytes": 127675
         },
         "7e70f2c03aa142c4b721936b565f48b715f3d76e0e09032b0cf1e29234c06424": {
             "url": "https://cdn.commmerce.com/uploads/annams/wbImages/16743744837209Sugar-Jelly.jpg",
@@ -5818,6 +6904,34 @@
             "path": "site/2fba9259407985d39bd8c2ff82a2cea0.png",
             "sha256": "004d5929e189d1d2db429e228d7fcb335edb284ae86684be120541b806d26ed1",
             "bytes": 1354
+        },
+        "94b625f5f6e5210eb456c386c4146e3da214ae144b2e976e3aaa11e96b734bf2": {
+            "url": "https://cdn.commmerce.com/uploads/staging/wbImages/16146046438555Home-Banner-1-copy.png",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/94b625f5f6e5210eb456c386c4146e3d.png",
+            "sha256": "d287745a80caba47764d1832ec4a3068470ad8549364b771e55991908a1df601",
+            "bytes": 818642
+        },
+        "4928f8ffe9b0a35f1b78e4487d4185039cc5e68ff1abf5bae8090ba0d886de3b": {
+            "url": "https://cdn.commmerce.com/uploads/staging/wbImages/16146047301272Mobile-Banner-1.png",
+            "folder": "site",
+            "references": [
+                {
+                    "kind": "site",
+                    "name": "Public website image"
+                }
+            ],
+            "status": "downloaded",
+            "path": "site/4928f8ffe9b0a35f1b78e4487d418503.png",
+            "sha256": "75e65f8de37062c049714449939c67a0b8e2cbd5446362144b0a2d63d0643492",
+            "bytes": 693985
         },
         "52e99a5d47c7054f28300e67b39942e32130cd45f6708b007bb1e2c9b032c94c": {
             "url": "https://cdn.commmerce.com/uploads/staging/wbImages/16146056394671Product-1.png",

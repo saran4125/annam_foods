@@ -1,11 +1,12 @@
 {
-    "source_assets": 379,
-    "verified_local_images": 379,
+    "source_assets": 426,
+    "verified_local_images": 426,
     "unavailable": 0,
     "pending": 0,
-    "live_source_snapshot": "2026-11-03T06:54:12.427612+00:00",
+    "live_source_snapshot": "2026-11-03T07:02:12.196715+00:00",
+    "public_pages_crawled": 35,
     "live_products_discovered": 0,
-    "live_categories_discovered": 0,
+    "live_categories_discovered": 34,
     "discovery_failures": [
         {
             "url": "https://annams.commmerce.com/store/api/category/getCategories/",
