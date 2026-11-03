@@ -40,7 +40,7 @@ def restore_originals(assets=None):
         data = (root / asset['path']).read_bytes()
         write_missing(asset['path'], data)
         for alias in asset.get('legacy_paths', []):
-            if re.fullmatch(r'(menu|categories)/[a-f0-9]{24}\.(jpg|jpeg|png|webp|gif|avif|ico)', alias):
+            if re.fullmatch(r'(menu|categories|brand)/[a-f0-9]{24}\.(jpg|jpeg|png|webp|gif|avif|ico)', alias):
                 write_missing(alias, data)
     return len(assets)
 

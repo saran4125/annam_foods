@@ -21,7 +21,7 @@ def originals(settings, tmp_path):
     Image.new('RGB', (2, 2), 'red').save(buffer, format='PNG')
     file.write_bytes(buffer.getvalue())
     url = 'https://cdn.commmerce.com/diwali.png'
-    asset = {'url': url, 'status': 'downloaded', 'path': name, 'sha256': hashlib.sha256(file.read_bytes()).hexdigest()}
+    asset = {'url': url, 'status': 'downloaded', 'path': name, 'sha256': hashlib.sha256(file.read_bytes()).hexdigest(), 'legacy_paths': ['brand/' + 'b' * 24 + '.png']}
     deploy = tmp_path / 'deploy'
     deploy.mkdir()
     (deploy / 'annam_public_media.json').write_text(json.dumps({'assets': {'one': asset}}))
@@ -43,6 +43,8 @@ def test_originals_fill_diwali_and_missing_product_images_only_for_annam(origina
     assert apply_originals(tenant)['updated'] == 2
     category.refresh_from_db(); product.refresh_from_db(); foreign.refresh_from_db()
     assert category.image.name == product.image.name == name
+    from apps.content.storage import media_storage
+    assert media_storage().exists('brand/' + 'b' * 24 + '.png')
     assert foreign.image.name == ''
     assert product.price == 10
     assert apply_originals(tenant)['updated'] == 0
