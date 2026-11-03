@@ -1,7 +1,7 @@
 {
-    "source_assets": 401,
-    "verified_local_images": 400,
+    "source_assets": 464,
+    "verified_local_images": 463,
     "unavailable": 1,
     "pending": 0,
-    "recovered_this_run": 9
+    "recovered_this_run": 63
 }

@@ -250,7 +250,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17833809247235Rasam-web.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17908643683806Rasam-web.jpg",
       "kind": "product",
       "source_id": "CPT1",
       "name": "Tomato Rasam",
@@ -442,7 +442,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854201071048Butter-Murukku.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17618442197807Butter-Murkku-Web.jpg",
       "kind": "product",
       "source_id": "BM4",
       "name": "Butter Murukku",
@@ -514,7 +514,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17332300461451Curry-Leaves-Podi.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17914696731895Curry-Leaves-Podi-Wen.jpg",
       "kind": "product",
       "source_id": "CLP1",
       "name": "Curry Leaves Podi",
@@ -594,7 +594,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17781646886814Garlic-Kuzambu-Mix-Web.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17919622684969Garlic-Kuzambu-Mix-Web.jpg",
       "kind": "product",
       "source_id": "GKK1",
       "name": "Garlic Kuzambu Sadam Mix",
@@ -826,7 +826,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854201993521karaboondhi.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17619390614264Karaboondhi-Web.jpg",
       "kind": "product",
       "source_id": "KAR3",
       "name": "Karaboondhi",
@@ -1042,7 +1042,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/16804480666504Mango-Ginger-Karam.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17918969331385Mango-Ginger-PIckle-Web.jpg",
       "kind": "product",
       "source_id": "MG1",
       "name": "Mango Ginger Pickle",
@@ -1090,7 +1090,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854202476072Manogaram.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623512867650Manogaram2-web.jpg",
       "kind": "product",
       "source_id": "MAN3",
       "name": "Manogaram",
@@ -1138,7 +1138,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17781679929666Milagu-Kuzambu-Mixn-Web.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17917969414421Milagu-Kuzambu-Mix-New-Web.jpg",
       "kind": "product",
       "source_id": "MKP1",
       "name": "Milagu Kuzambu Mix",
@@ -1178,7 +1178,7 @@
       "matched_by": "source_id"
     },
     {
-      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17884194348952MiniJangiri.jpg",
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17624980097539Mini-Jangiri-1-Web.jpg",
       "kind": "product",
       "source_id": "MJ2",
       "name": "Mini Jangiri",
@@ -2058,6 +2058,14 @@
       "matched_by": "source_id"
     },
     {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17908129437742Ulundhu-Appalam-2-Web.jpg",
+      "kind": "product",
+      "source_id": "UA1",
+      "name": "Ulundhu Appalam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
       "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17346127351752Omam-Wepsite2.jpg",
       "kind": "product",
       "source_id": "UAO1",
@@ -2202,12 +2210,292 @@
       "matched_by": "source_id"
     },
     {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17757461263280MadrasMIxture-Web.jpg",
+      "kind": "product",
+      "source_id": "6e143457f52a9ec22c515e77083ea490e9eafb44f673815ffd02a4d867a1",
+      "name": "Madras Mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/09/17907739442297Chips-Spl.jpg",
+      "kind": "product",
+      "source_id": "6c479ad3dc6064869d0a9c8b6dd59a0369367366aca3185fcf37d6d73c75",
+      "name": "Chips Combo Pack",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17909533982320Ghee-Appam6-Web.jpg",
+      "kind": "product",
+      "source_id": "9f6e6c6b0efd0cc08dba9d7efbab0ea8ac698a58e58814689a2123ca7338",
+      "name": "Ghee Appam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17537123756014Krishna-Jeyanthi14.jpg",
+      "kind": "product",
+      "source_id": "c87f67fb95c27965fb2e9ab010c8d9604b5aee0725dc16c618f974183b9f",
+      "name": "Rava Laddu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17908401571398Pori-Urundai-Web.jpg",
+      "kind": "product",
+      "source_id": "653420172f3b628d51489be51df420bc2f937dc54d9e8ccd90d166b263f1",
+      "name": "Pori Urundai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912736975077Karam-Combo-Pack.jpg",
+      "kind": "product",
+      "source_id": "621cfc8e54ae44e68db102b0681be0947c81a0b3429dc407efc09cc662d4",
+      "name": "Diwali - Karam Combo Pack",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912736832789Sweet-Combo-Pack.jpg",
+      "kind": "product",
+      "source_id": "8bcc834eb9fd86bf303f7976434cbb21ad7307313f2c1386441d16488dd8",
+      "name": "Diwali - Sweets Combo Pack",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912769374618Gift-Box1-Web.jpg",
+      "kind": "product",
+      "source_id": "915752a980197c44e1f0a1daa9f673ba63f01ca1ec0a787540679b8b39e5",
+      "name": "Diwali - Mini Gift Combo",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912745957370Assorted-Sweets-250gm.jpg",
+      "kind": "product",
+      "source_id": "15352cb531dbe316539c8a826753a5f3510745b50f9a7fce161feb51a2be",
+      "name": "Diwali - Assorted Sweets 250gm",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912703128573Kaji-Kalthi-250gm-Web.jpg",
+      "kind": "product",
+      "source_id": "cd7c315be122ba27b06b2e52e5a47e6d45888a725e33e6c09f2cf1007506",
+      "name": "Diwali - Kaju Assorted Sweets 250gm",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912702777580Kaji-Assorted-500gmWeb.jpg",
+      "kind": "product",
+      "source_id": "b6b1efec560b79b8272d301a5a75c2a1f34deaa03e876ce02a7a4ba0410a",
+      "name": "Diwali - Kaju Assorted Sweets 500gm",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912699678216Jangiri-Web.jpg",
+      "kind": "product",
+      "source_id": "856229b0b41dda35bb833be23258f5079d1293bd63bacbd755d99eb0ecd6",
+      "name": "Diwali - Jangiri",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912703818189Badhusha-Web.jpg",
+      "kind": "product",
+      "source_id": "1618d5449f2b3452f8a654329043079c869d7b273bc74a21f58402fef60e",
+      "name": "Diwali - Badhusha",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912707754286Kalyana-Mysurpa-Web.jpg",
+      "kind": "product",
+      "source_id": "15e41b705efbdac88b0be9ef3d57f4f33a7e9906663fee09b5a892201880",
+      "name": "Diwali - Kalyana Mysurpa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912701169502Laddu-WEb.jpg",
+      "kind": "product",
+      "source_id": "36feb3ea5168d5e9ea1a679b2dd2892c8d40b96d7f011be839d420ca8caa",
+      "name": "Diwali - Laddu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912698311086Kaju-Kathli-Web.jpg",
+      "kind": "product",
+      "source_id": "9e503b968e6bb97bd5c0056a8814dcad8609e979e74ba109a0c29c3c9903",
+      "name": "Diwali - Kaju Kathli",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912707965452Horlicks-Burfi.jpg",
+      "kind": "product",
+      "source_id": "ee546aafd80039a4a959bbd99f4a39e148dae6b4196670acc60366847797",
+      "name": "Diwali - Horlicks Burfi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912708732699Boost-Burfi-Web.jpg",
+      "kind": "product",
+      "source_id": "e68ff60873cded8254217387e82e28c97e1883af2f6bcfecc563c1c3bcf8",
+      "name": "Diwali - Boost Burfi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912783677524Tirunelveli-Halwa-Web.jpg",
+      "kind": "product",
+      "source_id": "24c1a72fbc884a3960bdd5d8635aba9bfd1c23da913c855e9f084f54e105",
+      "name": "Diwali - Tirunelveli Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912701606139AthirasamWeb.jpg",
+      "kind": "product",
+      "source_id": "85ea49af9c2f2747def5a39e264038a3408b01d84f6695df52ff9de09229",
+      "name": "Diwali - Athirasam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912725741272Manogaram-Web.jpg",
+      "kind": "product",
+      "source_id": "072d783e12c54b20ba74e7c6c63db80988d80c71f83373192cf5c4c56aec",
+      "name": "Diwali - Manogaram",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17623537376025Deepavali-Legiyam-Web.jpg",
+      "kind": "product",
+      "source_id": "6982e318a937695270f508936eccb1d7f4d3354879e1ce4a5f37769634ff",
+      "name": "Diwali Legiyam",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
       "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17854205202469Rava-Laddu.jpg",
       "kind": "product",
       "source_id": "83891bfd4fafd154ae294e184b32c95db3bce13c81b12e6e6b6e1e77ffdc",
       "name": "Rava Laddu (5)",
       "image_index": 0,
-      "matched_by": "unique_exact_name"
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912710653143Spl-Mixture-Web.jpg",
+      "kind": "product",
+      "source_id": "3b7c4852a74027ed886d71fe9b95b52cd57c39b7ed8f923adb237001088b",
+      "name": "Diwali - Spl Mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912715002845Navadhanya-Mixture-Web.jpg",
+      "kind": "product",
+      "source_id": "4f93fe2b0eea134bcd2756af7f65e107feae1d045cbc9b2bfd6d64885905",
+      "name": "Diwali - Navadhanya Mixture",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912714264446Ribbon-Pakkoda-Web.jpg",
+      "kind": "product",
+      "source_id": "e0dcdfc86762baf4fb0c548b39dd7bfca4cccfe4a07f27b9b17992e0b3b6",
+      "name": "Diwali - Ribbon Pakkoda",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912714667163Karaboondhi-Web.jpg",
+      "kind": "product",
+      "source_id": "291f2167226c1595cb90637a6e8b81e9deb19be91ab514cb50aeabfb0a70",
+      "name": "Diwali - Karaboondhi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912787617416Karasev-Web-new.jpg",
+      "kind": "product",
+      "source_id": "01c56ddc36828c34aae657d6061d9c25c6dbd9e275d22a844158df428949",
+      "name": "Diwali - Karasev",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912715337190Omapodi-Web.jpg",
+      "kind": "product",
+      "source_id": "6ee45a19ed798974c6ffe9b3615ed4a3cbf539a9549242c73446fb60994e",
+      "name": "Diwali - Omapodi",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912717018876Butter-Murukku-Web.jpg",
+      "kind": "product",
+      "source_id": "3ce621d4778279be312c3cd7c111d3eab08c23c4b5b5680ace072cbaf4ab",
+      "name": "Diwali - Butter Murukku",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17912716009974Spl-Thattai-Web.jpg",
+      "kind": "product",
+      "source_id": "d13b65714938826a5c57d171166deab134e909ac005ca4654b9759a9856f",
+      "name": "Diwali - Spl Thattai",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/179206300956881003119308.jpg",
+      "kind": "product",
+      "source_id": "d145e2960e95c3789c00155d6217fbc8b0db1082c8e0de7eb3fd068e71ff",
+      "name": "Kamar Kattu",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/10/17926777513859Milk-Halwa-Web.jpg",
+      "kind": "product",
+      "source_id": "e2d0b6787c409fee8f488c6d4726b6708955f922067bb8bd9c3fdb40070c",
+      "name": "Spl Milk Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/media/2026/09/17907828595921Karupatti-Halwa-Web.jpg",
+      "kind": "product",
+      "source_id": "495f8113d2a545086b5661244fcfd86453602170c7714a8e652d559baf6a",
+      "name": "Karupatti Halwa",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17843795265947Rasam-Vadai-new-Web.jpg",
+      "kind": "product",
+      "source_id": "a64d8217f50b5f799a00207b7cc173cbd78a2c472a842f0d7f2a4781ca85",
+      "name": "Rasa Vadai (1)",
+      "image_index": 0,
+      "matched_by": "source_id"
+    },
+    {
+      "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17721120698883Sambar-Vadai-Web.jpg",
+      "kind": "product",
+      "source_id": "85e5a529ee64d2c1b2b28cf189f9cda820a6048b63f9119e9075d4941201",
+      "name": "Sambar Vadai (1)",
+      "image_index": 0,
+      "matched_by": "source_id"
     },
     {
       "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17833810726960Lunch-With-Rice-Web.jpg",
@@ -2524,38 +2812,8 @@
   "unmatched": [
     {
       "kind": "product",
-      "name": "Ulundhu Appalam",
-      "source_id": "UA1"
-    },
-    {
-      "kind": "product",
-      "name": "Madras Mixture",
-      "source_id": "6e143457f52a9ec22c515e77083ea490e9eafb44f673815ffd02a4d867a1"
-    },
-    {
-      "kind": "product",
       "name": "Tapioca Chips",
       "source_id": "737256a7b3cdaf18ceb77dc83fe7c9c4c0b176614929409e93de86bca558"
-    },
-    {
-      "kind": "product",
-      "name": "Chips Combo Pack",
-      "source_id": "6c479ad3dc6064869d0a9c8b6dd59a0369367366aca3185fcf37d6d73c75"
-    },
-    {
-      "kind": "product",
-      "name": "Ghee Appam",
-      "source_id": "9f6e6c6b0efd0cc08dba9d7efbab0ea8ac698a58e58814689a2123ca7338"
-    },
-    {
-      "kind": "product",
-      "name": "Rava Laddu",
-      "source_id": "c87f67fb95c27965fb2e9ab010c8d9604b5aee0725dc16c618f974183b9f"
-    },
-    {
-      "kind": "product",
-      "name": "Pori Urundai",
-      "source_id": "653420172f3b628d51489be51df420bc2f937dc54d9e8ccd90d166b263f1"
     },
     {
       "kind": "product",
@@ -2564,133 +2822,8 @@
     },
     {
       "kind": "product",
-      "name": "Diwali - Karam Combo Pack",
-      "source_id": "621cfc8e54ae44e68db102b0681be0947c81a0b3429dc407efc09cc662d4"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Sweets Combo Pack",
-      "source_id": "8bcc834eb9fd86bf303f7976434cbb21ad7307313f2c1386441d16488dd8"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Mini Gift Combo",
-      "source_id": "915752a980197c44e1f0a1daa9f673ba63f01ca1ec0a787540679b8b39e5"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Assorted Sweets 250gm",
-      "source_id": "15352cb531dbe316539c8a826753a5f3510745b50f9a7fce161feb51a2be"
-    },
-    {
-      "kind": "product",
       "name": "Diwali - Assorted Sweets 500gm",
       "source_id": "7f183784bdf535a50576c10ca1eb667d4fe7ac46bc3b14afb469e579d192"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Kaju Assorted Sweets 250gm",
-      "source_id": "cd7c315be122ba27b06b2e52e5a47e6d45888a725e33e6c09f2cf1007506"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Kaju Assorted Sweets 500gm",
-      "source_id": "b6b1efec560b79b8272d301a5a75c2a1f34deaa03e876ce02a7a4ba0410a"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Jangiri",
-      "source_id": "856229b0b41dda35bb833be23258f5079d1293bd63bacbd755d99eb0ecd6"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Badhusha",
-      "source_id": "1618d5449f2b3452f8a654329043079c869d7b273bc74a21f58402fef60e"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Kalyana Mysurpa",
-      "source_id": "15e41b705efbdac88b0be9ef3d57f4f33a7e9906663fee09b5a892201880"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Laddu",
-      "source_id": "36feb3ea5168d5e9ea1a679b2dd2892c8d40b96d7f011be839d420ca8caa"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Kaju Kathli",
-      "source_id": "9e503b968e6bb97bd5c0056a8814dcad8609e979e74ba109a0c29c3c9903"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Horlicks Burfi",
-      "source_id": "ee546aafd80039a4a959bbd99f4a39e148dae6b4196670acc60366847797"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Boost Burfi",
-      "source_id": "e68ff60873cded8254217387e82e28c97e1883af2f6bcfecc563c1c3bcf8"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Tirunelveli Halwa",
-      "source_id": "24c1a72fbc884a3960bdd5d8635aba9bfd1c23da913c855e9f084f54e105"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Athirasam",
-      "source_id": "85ea49af9c2f2747def5a39e264038a3408b01d84f6695df52ff9de09229"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Manogaram",
-      "source_id": "072d783e12c54b20ba74e7c6c63db80988d80c71f83373192cf5c4c56aec"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali Legiyam",
-      "source_id": "6982e318a937695270f508936eccb1d7f4d3354879e1ce4a5f37769634ff"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Spl Mixture",
-      "source_id": "3b7c4852a74027ed886d71fe9b95b52cd57c39b7ed8f923adb237001088b"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Navadhanya Mixture",
-      "source_id": "4f93fe2b0eea134bcd2756af7f65e107feae1d045cbc9b2bfd6d64885905"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Ribbon Pakkoda",
-      "source_id": "e0dcdfc86762baf4fb0c548b39dd7bfca4cccfe4a07f27b9b17992e0b3b6"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Karaboondhi",
-      "source_id": "291f2167226c1595cb90637a6e8b81e9deb19be91ab514cb50aeabfb0a70"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Karasev",
-      "source_id": "01c56ddc36828c34aae657d6061d9c25c6dbd9e275d22a844158df428949"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Omapodi",
-      "source_id": "6ee45a19ed798974c6ffe9b3615ed4a3cbf539a9549242c73446fb60994e"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Butter Murukku",
-      "source_id": "3ce621d4778279be312c3cd7c111d3eab08c23c4b5b5680ace072cbaf4ab"
-    },
-    {
-      "kind": "product",
-      "name": "Diwali - Spl Thattai",
-      "source_id": "d13b65714938826a5c57d171166deab134e909ac005ca4654b9759a9856f"
     },
     {
       "kind": "product",
@@ -2699,33 +2832,8 @@
     },
     {
       "kind": "product",
-      "name": "Kamar Kattu",
-      "source_id": "d145e2960e95c3789c00155d6217fbc8b0db1082c8e0de7eb3fd068e71ff"
-    },
-    {
-      "kind": "product",
-      "name": "Spl Milk Halwa",
-      "source_id": "e2d0b6787c409fee8f488c6d4726b6708955f922067bb8bd9c3fdb40070c"
-    },
-    {
-      "kind": "product",
-      "name": "Karupatti Halwa",
-      "source_id": "495f8113d2a545086b5661244fcfd86453602170c7714a8e652d559baf6a"
-    },
-    {
-      "kind": "product",
       "name": "Mini Milagu Appalam",
       "source_id": "8d37f0dc672b89bd9fbf17ed1903947e78544b222c5a48399dd6b514c423"
-    },
-    {
-      "kind": "product",
-      "name": "Rasa Vadai (1)",
-      "source_id": "a64d8217f50b5f799a00207b7cc173cbd78a2c472a842f0d7f2a4781ca85"
-    },
-    {
-      "kind": "product",
-      "name": "Sambar Vadai (1)",
-      "source_id": "85e5a529ee64d2c1b2b28cf189f9cda820a6048b63f9119e9075d4941201"
     },
     {
       "kind": "product",

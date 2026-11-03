@@ -1,16 +1,20 @@
 {
-    "source_assets": 401,
-    "verified_local_images": 400,
+    "source_assets": 464,
+    "verified_local_images": 463,
     "unavailable": 1,
     "pending": 0,
-    "live_source_snapshot": "2026-11-03T07:39:47.942660+00:00",
-    "public_pages_crawled": 35,
-    "live_products_discovered": 0,
+    "live_source_snapshot": "2026-11-03T07:49:07.043487+00:00",
+    "public_pages_crawled": 425,
+    "live_products_discovered": 366,
     "live_categories_discovered": 34,
     "discovery_failures": [
         {
             "url": "https://annams.commmerce.com/store/api/category/getCategories/",
             "error": "HTTP Error 403: Forbidden"
+        },
+        {
+            "url": "https://www.annamfood.in/sitemap_index.xml",
+            "error": "no element found: line 1, column 0"
         }
     ],
     "unrecovered": [
