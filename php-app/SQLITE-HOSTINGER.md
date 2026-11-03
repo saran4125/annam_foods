@@ -43,11 +43,12 @@ If that history is needed, migrate a backed-up live database copy using the
 provided `bin/migrate-sqlite.php` before cutover; never replace live history with
 this clean seed.
 
-The original product-photo library is not present in the supplied workspace and
-the original image host returns HTTP 403. Available local logos/media are included;
-missing product photos display “Photo coming soon”. Restore your saved media
-folder and matching image references, or upload photos through admin. No invented
-product photos or remote image dependencies have been added.
+Recovered original public product/category photos and website images are included
+in `public_html/media/`. Verified photos are assigned to matching catalog records;
+see `resources/public-media.json` for source URLs and checksums. Photos without a
+matching product remain available in the media folder. Missing photos display
+“Photo coming soon” and can be uploaded through admin. Private uploads and live
+order documents are not part of public website recovery.
 
 ## Payments, WhatsApp and courier notices
 

@@ -20,8 +20,8 @@ the bundled JPEG is encoded for web delivery.
 
 ## Original public image recovery
 
-Only original public storefront images belong in `catalog/`, `categories/` and
-`brand/`. These directories are allowed in Git. `website/` and other private upload
+Only original public storefront images belong in `catalog/`, `categories/`,
+`site/` and `brand/`. These directories are allowed in Git. `website/` and other private upload
 folders remain ignored and must never be committed with customer/invoice material.
 
 `php-app/resources/public-media.json` inventories the URLs from the saved source
@@ -36,6 +36,9 @@ SQLite image assignment command (with the private database settings configured):
 the same verified mapping automatically. Existing owner-uploaded images and other
 stores are preserved. Rebuild the local ZIP after recovery to include the media.
 
-The current environment blocks the source hosts with proxy 403 / direct DNS
-failure. The available supplied original logos are tracked under `brand/`; source
-product-photo recovery is not claimed until verified image files are present.
+The original public photos are now downloaded and tracked in these directories.
+`docs/media-recovery-report.json` records verified counts and any discovery or
+download failures. `live-public-media-source.json` records public-page discoveries;
+the saved catalog supplies older public photo URLs too. No private uploads are
+scraped. Recovery runs on the dedicated `php-rebuild` GitHub Actions workflow
+because this workspace's network cannot reach the source hosts directly.
