@@ -1,0 +1,13 @@
+<?php
+declare(strict_types=1);
+namespace Annam;
+/** Offline copy, preserving IDs, decimal prices, timestamps and encrypted history. */
+final class SqliteMigration {
+    public static function copy(Database $source,string $destination):array {
+        if(!str_starts_with($destination,'/')||str_contains($destination,'/public_html/')||str_starts_with($destination,ANNAM_ROOT.'/public/')||file_exists($destination))throw new \RuntimeException('Choose a new private absolute database path.');
+        if($source->isSqlite()){$source->snapshot($destination);return ['copied'=>true,'driver'=>'sqlite'];}
+        $pdo=new \PDO('sqlite:'.$destination,null,null,[\PDO::ATTR_ERRMODE=>\PDO::ERRMODE_EXCEPTION]);chmod($destination,0600);$pdo->exec(file_get_contents(ANNAM_ROOT.'/resources/sqlite-schema.sql'));$pdo->exec('PRAGMA foreign_keys=OFF');$types=json_decode(file_get_contents(ANNAM_ROOT.'/resources/sqlite-types.json'),true);$counts=[];
+        try{$pdo->beginTransaction();$source->transaction(function()use($source,$pdo,$types,&$counts){$source->rows('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');foreach($types as $table=>$fields){$names=array_keys($fields);$columns=implode(',',array_map(fn($name)=>'"'.$name.'"',$names));$insert=$pdo->prepare('INSERT INTO "'.$table.'" ('.$columns.') VALUES('.implode(',',array_fill(0,count($names),'?')).')');$offset=0;$count=0;do{$rows=$source->rows('SELECT '.$columns.' FROM "'.$table.'" ORDER BY '.(isset($fields['id'])?'id':('"'.$names[0].'"')).' LIMIT 500 OFFSET '.$offset);foreach($rows as $row){foreach($names as $i=>$name){$value=$row[$name];$type=$fields[$name];if(is_resource($value))$value=stream_get_contents($value);if($value!==null&&$type==='TIMESTAMP')$value=SqliteDialect::timestamp($value);$binding=$value===null?\PDO::PARAM_NULL:($type==='BLOB'?\PDO::PARAM_LOB:(is_bool($value)?\PDO::PARAM_BOOL:(is_int($value)?\PDO::PARAM_INT:\PDO::PARAM_STR)));$insert->bindValue($i+1,$value,$binding);}$insert->execute();$count++;}$offset+=500;}while(count($rows)===500);$counts[$table]=$count;}});$pdo->commit();$pdo->exec('PRAGMA foreign_keys=ON');if($pdo->query('PRAGMA foreign_key_check')->fetch())throw new \RuntimeException('Copied database has invalid relationships.');if($pdo->query('PRAGMA integrity_check')->fetchColumn()!=='ok')throw new \RuntimeException('Copied database failed integrity checking.');return ['copied'=>true,'tables'=>count($counts),'rows'=>array_sum($counts),'counts'=>$counts];}
+        catch(\Throwable $e){if($pdo->inTransaction())$pdo->rollBack();$pdo=null;if(is_file($destination))unlink($destination);throw $e;}
+    }
+}

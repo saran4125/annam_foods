@@ -1,5 +1,36 @@
 # Annam Foods — PHP application
 
+**Current production target: PHP with a local SQLite database file.** No cloud
+database is required for the complete local package. Download/build
+`dist/annam-foods-local-sqlite.zip` and follow [SQLITE-HOSTINGER.md](SQLITE-HOSTINGER.md).
+The ZIP contains the reviewed catalog/settings database, available local media and
+unique private first-time setup credentials. Original product photos and live
+Supabase customer/order history are not available in the workspace; the included
+`DATA-INCLUDED.json` states this explicitly.
+
+SQLite uses foreign keys, WAL, FULL synchronization, a busy timeout and BEGIN
+IMMEDIATE write transactions. Financial decimals remain text and exact paise
+aggregates. First-time owner setup is protected by a unique code kept outside
+public_html. No shared default password is supplied.
+
+Developer validation:
+
+```sh
+DATABASE_DSN=sqlite:/PRIVATE/annam-sqlite-test.sqlite php tests/run.php
+DATABASE_DSN=sqlite:/PRIVATE/annam-sqlite-test.sqlite php tests/sqlite_concurrency.php
+DATABASE_DSN=sqlite:/PRIVATE/annam-sqlite-test.sqlite php tests/sqlite_recovery.php
+```
+
+Use only disposable databases containing `test`/`preview` in their filename for
+these commands. Browser tests write isolated test orders, never production data.
+Hosting does not require Python; Playwright is a developer-only test dependency.
+
+The PostgreSQL driver remains available for migration/reference regression tests.
+The following older PostgreSQL staging guide is retained for that purpose; it is
+**not required** for installing the complete local SQLite ZIP.
+
+---
+
 A custom PHP storefront and administration application using the existing
 PostgreSQL/Supabase schema. It is **not a WordPress plugin**. Python, Django,
 Composer and a continuous worker process are not required to serve it. Keep

@@ -20,6 +20,7 @@ if (is_file(ANNAM_ROOT . '/.env')) {
         }
     }
 }
+Installation::load();
 date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'Asia/Kolkata');
 error_reporting(E_ALL);
 ini_set('display_errors', '0');

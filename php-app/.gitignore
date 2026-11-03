@@ -5,3 +5,10 @@
 !/storage/sessions/.gitkeep
 !/storage/logs/.gitkeep
 /dist/
+# Local databases, generated installation keys and complete release staging.
+/build/
+/storage/*.sqlite*
+/storage/installation.json
+/storage/setup.lock
+/storage/backups/
+/storage/bills/

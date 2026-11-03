@@ -30,7 +30,8 @@ final class Reports {
     }
     public function orderGroups(array $input):array {
         $meal="COALESCE(NULLIF(line->>'meal_key',''),s.key,CASE WHEN o.fulfilment='courier' THEN 'snacks' ELSE 'unclassified' END)";
-        $cte="WITH grouped AS (SELECT o.id,COALESCE(string_agg(DISTINCT ".$meal.", '+' ORDER BY ".$meal."),'unclassified') AS meal_group FROM orders_order o LEFT JOIN catalog_slot s ON s.id=o.slot_id AND s.tenant_id=o.tenant_id LEFT JOIN LATERAL jsonb_array_elements(o.items) line ON true WHERE o.tenant_id=? GROUP BY o.id) ";
+        $aggregate=$this->store->db->isSqlite()?"meal_group($meal)":"string_agg(DISTINCT $meal, '+' ORDER BY $meal)";
+        $cte="WITH grouped AS (SELECT o.id,COALESCE(".$aggregate.",'unclassified') AS meal_group FROM orders_order o LEFT JOIN catalog_slot s ON s.id=o.slot_id AND s.tenant_id=o.tenant_id LEFT JOIN LATERAL jsonb_array_elements(o.items) line ON true WHERE o.tenant_id=? GROUP BY o.id) ";
         $counts=$this->store->db->rows($cte.'SELECT meal_group,COUNT(*) AS n FROM grouped GROUP BY meal_group ORDER BY meal_group',[$this->store->id()]);$groups=[];foreach($counts as $r)$groups[$r['meal_group']]=(int)$r['n'];
         $where=' WHERE o.tenant_id=?';$args=[$this->store->id(),$this->store->id()];
         foreach(['meal_group'=>'g.meal_group','status'=>'o.status','channel'=>'o.channel'] as $key=>$column)if(!empty($input[$key])){$where.=' AND '.$column.'=?';$args[]=mb_substr((string)$input[$key],0,100);}

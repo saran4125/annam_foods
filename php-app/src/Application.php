@@ -20,6 +20,8 @@ final class Application {
         echo '<!doctype html><meta charset="utf-8"><title>Annam Foods</title><main style="font:18px system-ui;max-width:640px;margin:80px auto;padding:24px"><h1>Annam Foods</h1><p>' . e($message) . '</p><p><a href="javascript:history.back()">Go back</a> · <a href="/">Home</a></p></main>';
     }
     private function handle(): void {
+        if(Installation::pending()){Installation::handle();return;}
+        if(parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH)==='/setup/'&&Installation::config()){redirect('/manage/login/');}
         if (!in_array(getenv('APP_ENV') ?: 'local', ['local', 'preview','production'], true)) throw new HttpError(503, 'Invalid application environment.');
         if(getenv('APP_ENV')==='production'&&parse_url(getenv('APP_URL')?:'',PHP_URL_SCHEME)!=='https')throw new HttpError(503,'Production requires an HTTPS website URL.');
         $expected = parse_url(getenv('APP_URL') ?: 'http://127.0.0.1:8091', PHP_URL_HOST);

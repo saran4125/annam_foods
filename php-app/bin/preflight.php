@@ -4,10 +4,10 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require dirname(__DIR__) . '/src/bootstrap.php';
 use Annam\Database;
 $checks = ['PHP 8.2+' => version_compare(PHP_VERSION, '8.2.0', '>='),
-           'PDO PostgreSQL' => extension_loaded('pdo_pgsql'),
+           'Configured PDO driver' => extension_loaded(str_starts_with(getenv('DATABASE_DSN')?:'sqlite:','sqlite:')?'pdo_sqlite':'pdo_pgsql'),
            'cURL' => extension_loaded('curl'), 'Multibyte strings' => extension_loaded('mbstring'), 'ZIP export' => extension_loaded('zip'),
            'OpenSSL' => extension_loaded('openssl'), 'Fileinfo' => extension_loaded('fileinfo'),
-           'Private environment' => is_file(ANNAM_ROOT . '/.env'),
+           'Private environment' => is_file(ANNAM_ROOT . '/.env')||is_file(Annam\Installation::file()),
            'Session folder writable' => is_writable(ANNAM_ROOT . '/storage/sessions'),
            'Log folder writable' => is_writable(ANNAM_ROOT . '/storage/logs'),
            'App secret configured' => strlen(getenv('APP_SECRET') ?: '') >= 32];

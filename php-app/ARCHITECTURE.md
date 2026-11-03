@@ -3,8 +3,9 @@
 The `php-rebuild` branch adds the PHP application in `php-app/`. The original
 Django tree is retained as the migration reference and rollback implementation.
 The PHP runtime does not import or invoke Python. It connects directly to the
-existing PostgreSQL schema; Supabase remains the database provider. WordPress is
-not part of the application.
+existing business schema. The production local package stores it in SQLite on
+the hosting account; PostgreSQL is retained as a migration/reference driver.
+WordPress is not part of the application.
 
 ## Request and data flow
 
@@ -164,3 +165,27 @@ media/private recovery keys, and encrypts indexed chunks with authenticated fina
 completion. Verification precedes optional private Supabase Storage upload. Clean
 schema/data restoration is transactional and refuses existing business data.
 Use the matching release/schema and rehearse recovery before production cutover.
+
+## Local-file database release
+
+Database selects SQLite for the local package. SqliteDialect contains the audited
+query translation boundary: PostgreSQL row-lock clauses become whole-writer
+transactions, search/JSON/report syntax is adapted, timestamps are canonical UTC
+and decimal fields retain TEXT affinity. Money aggregates use integer paise rather
+than floating-point SUM. WAL, FULL synchronization, foreign keys and a busy timeout
+are enabled per connection. Nested writes use savepoints; external provider calls
+remain outside critical writer claims.
+
+SqliteMigration copies a consistent read-only PostgreSQL snapshot into the local
+schema, retaining IDs, encrypted data, decimal strings, binary images and history.
+It checks foreign keys/integrity and never changes the source. LocalRecovery uses
+SQLite VACUUM INTO for a consistent snapshot including committed WAL data, then
+authenticated encrypted archiving; restore validates integrity and refuses an
+existing destination. Normal uploads must never replace the live DB/config/media.
+
+Installation reads private local configuration and supplies local database/media
+paths without manual cloud setup. A single-use private activation code protects
+first-owner creation, CSRF and rate limits protect setup requests, and a filesystem
+lock serializes configuration activation. Setup is disabled after activation.
+The local release is a single-host application; multiple independent web servers
+must not share this SQLite file over a network filesystem.

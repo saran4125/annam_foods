@@ -52,3 +52,20 @@ real Razorpay sandbox flows, Meta/n8n templates/callbacks and offsite restore on
 Payments and messaging remain offline by default. The unconfirmed Mavadu price/pack
 size and build-only catalog decisions remain private review notes. Past menus are
 preserved rather than replaced with obsolete imported dates.
+
+## Local SQLite release — 3 November 2026
+
+The same PHP behavior now runs with a private local SQLite file; no cloud database
+is required. All 53 business/security tests run on both drivers. The actual extracted
+SQLite ZIP was tested through one-time setup, login, dated-menu editing, combined
+checkout, one delivery fee, paid bill, phone lookup, reports and mobile storefront.
+Separate process tests cover last-portion contention, duplicate submissions and
+invoice allocation. Encrypted SQLite backup/restore includes committed WAL data,
+rejects tampering and refuses to overwrite an existing database. Migration retains
+the original database as a read-only source.
+
+The clean local seed includes 324 catalog items, 38 categories and 64 delivery
+areas from the reviewed local reference. Test customers/orders/logins and provider
+credentials are excluded. Original product photos and a fresh live Supabase history
+export were unavailable; these remain explicit data-restoration requirements,
+not claimed as completed. The package includes the available original logos/media.

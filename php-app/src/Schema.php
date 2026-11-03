@@ -5,6 +5,7 @@ namespace Annam;
 /** Additive compatibility upgrade for a restored database. No Python is needed. */
 final class Schema {
     public static function ensure(Database $db): void {
+        if($db->isSqlite()){$db->schemaScript(file_get_contents(ANNAM_ROOT.'/resources/sqlite-schema.sql'));return;}
         $db->transaction(function()use($db){
             $db->one("SELECT pg_advisory_xact_lock(hashtext('annam-php-parity-v2'))");
             foreach([

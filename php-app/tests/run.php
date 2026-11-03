@@ -4,7 +4,7 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 use Annam\{Database,Store,Resources,Money,Cart,Security,HttpError};
 
 if (PHP_SAPI !== 'cli') exit(1);
-if (!preg_match('/dbname=[^;]*(?:preview|test)[^;]*(?:;|$)/i', getenv('DATABASE_DSN') ?: '')) {
+if (!preg_match('/(?:dbname=|sqlite:)[^;]*(?:preview|test)[^;]*(?:;|$)/i', getenv('DATABASE_DSN') ?: '')) {
     fwrite(STDERR, "Tests require a disposable database whose name includes preview or test.\n"); exit(1);
 }
 $pdo = new PDO(getenv('DATABASE_DSN'), getenv('DATABASE_USER'), getenv('DATABASE_PASSWORD'), [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
