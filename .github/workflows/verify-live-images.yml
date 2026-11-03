@@ -1,0 +1,65 @@
+name: Verify deployed storefront images
+on:
+  push:
+    branches: [php-rebuild]
+    paths:
+      - '.github/workflows/verify-live-images.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: annam-public-image-verification
+  cancel-in-progress: false
+jobs:
+  recover:
+    if: github.repository == 'saran4125/annam_foods' && github.ref == 'refs/heads/php-rebuild'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: annam_media_tests
+          POSTGRES_PASSWORD: ephemeral-media-tests-only
+          POSTGRES_DB: annam_media_tests
+        ports: ['5439:5432']
+        options: >-
+          --health-cmd "pg_isready -U annam_media_tests -d annam_media_tests"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+      redis:
+        image: redis:7
+        ports: ['6389:6379']
+    env:
+      POSTGRES_USER: annam_media_tests
+      POSTGRES_PASSWORD: ephemeral-media-tests-only
+      POSTGRES_DB: annam_media_tests
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: 5439
+      REDIS_URL: redis://127.0.0.1:6389/0
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: php-rebuild
+      - name: Required PostgreSQL tests before public media commits
+        run: |
+          python3 -m pip install 'uv==0.9.8'
+          uv sync --frozen
+          cat > /tmp/annam_media_ci_settings.py <<'PYSETTINGS'
+          from config.settings.dev import *
+          MEDIA_ROOT = '/tmp/annam-media-ci-tests'
+          PYSETTINGS
+          PYTHONPATH="/tmp:$GITHUB_WORKSPACE" DJANGO_SETTINGS_MODULE=annam_media_ci_settings uv run python -m pytest -q
+      - name: Verify deployed site and archive every public image
+        run: uv run python scripts/verify_live_images.py
+      - name: Save public image verification on PHP branch
+        run: |
+          git config user.name 'Annam public media recovery'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          uv run python - <<'PYARCHIVE'
+          import json,subprocess
+          report=json.load(open('docs/live-image-audit.json'))
+          subprocess.run(['git','add','--','docs/live-image-audit.json']+report['archived_files'],check=True)
+          PYARCHIVE
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Verify deployed storefront images and preserve remaining public photos'
+          git push origin HEAD:refs/heads/php-rebuild

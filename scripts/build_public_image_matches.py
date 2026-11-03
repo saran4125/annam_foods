@@ -30,14 +30,20 @@ def main():
                 if url and name:
                     by_name.setdefault(key(name),[]).insert(0,{'name':name,'images':[url]})
     aliases={'diwali-2026':'deepavli-2026-pakshanams','diwali-sweets':'deepavali-sweets','diwali-karams':'deepavali-karams'}
+    legacy_by_id={str(p['source_id']):p for p in snapshots[-1].get('products',[]) if p.get('images')}
+    reviewed_products={'Tapioca Chips':'TC1','Diwali - Mega Combo Pack':'MCS2','Diwali - Assorted Sweets 500gm':'DTA2','Diwali - Moru Moru Murukku':'DMM1','Mini Milagu Appalam':'MMA1','Idiyappam (4)':'TDI2'}
     matches=[];unmatched=[]
     for p in targets['products']:
-        candidate=by_id.get(str(p['source_id']));method='source_id'
+        candidate=legacy_by_id.get(str(p['source_id'])) or by_id.get(str(p['source_id']));method='saved_catalog_source_id'
+        if p['name'] in reviewed_products:
+            candidate=by_id.get(reviewed_products[p['name']]);method='reviewed_source_spelling_or_dated_name'
+        elif candidate and str(p['source_id']) not in legacy_by_id and key(candidate['name'])!=key(p['name']):
+            candidate=None
         if not candidate:
             candidates=by_name.get(key(p['name']),[])
             # Prefer a fresh browser match; refuse ambiguous names with different photos.
             if candidates:
-                fresh=[c for c in snapshots[0].get('products',[]) if c.get('images') and key(c['name'])==key(p['name'])]
+                fresh=next(([c for c in snap.get('products',[]) if c.get('images') and key(c['name'])==key(p['name'])] for snap in snapshots if any(c.get('images') and key(c['name'])==key(p['name']) for c in snap.get('products',[]))),[])
                 candidates=fresh or candidates
             unique={c['images'][0] for c in candidates}
             if len(unique)==1:candidate=candidates[0];method='unique_exact_name'
