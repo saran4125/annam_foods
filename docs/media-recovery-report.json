@@ -1,0 +1,17 @@
+{
+    "source_assets": 379,
+    "verified_local_images": 379,
+    "unavailable": 0,
+    "pending": 0,
+    "live_source_snapshot": "2026-11-03T06:54:12.427612+00:00",
+    "live_products_discovered": 0,
+    "live_categories_discovered": 0,
+    "discovery_failures": [
+        {
+            "url": "https://annams.commmerce.com/store/api/category/getCategories/",
+            "error": "HTTP Error 403: Forbidden"
+        }
+    ],
+    "unrecovered": [],
+    "scope": "Original public images only; no customer/order data, prices or menu changes."
+}
