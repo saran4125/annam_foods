@@ -21,3 +21,11 @@ private-bills/
 .claude/
 *.sqlite3
 annam-preview-desktop.jpg
+
+# Versioned original public storefront media. Private uploads remain excluded.
+!/media/
+/media/*
+!/media/README.md
+!/media/brand/
+!/media/catalog/
+!/media/categories/

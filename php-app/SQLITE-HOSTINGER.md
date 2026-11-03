@@ -118,3 +118,23 @@ accounts or resetting their passwords.
 Back up first. Replace application source/assets only. **Do not overwrite** your
 existing storage/annam.sqlite, installation.json, media, sessions or backups with
 files from a fresh ZIP. Keep the previous application version for rollback.
+
+## Recover original public photos when network access is available
+
+The source-photo inventory is `resources/public-media.json`. Run the included
+`php bin/download-public-media.php` once on Hostinger or another machine that can
+reach the original public CDN. It resumes verified cached images, validates real
+raster image bytes and preserves original files without generating substitutes.
+On the installed package it saves into public_html/media. Run
+`php bin/apply-public-media.php --apply` afterward to assign verified photos to
+matching source products/categories in the local SQLite database. Existing owner
+uploads are preserved. Do not overwrite your live DB with a new seed just to add
+photos. Back up first.
+
+If shell access is unavailable, these same PHP commands can be run once through
+Hostinger's cron panel using absolute paths. Remove the one-time download cron
+after it finishes. Download the resulting media folder and updated source-photo
+manifest for the repository; never publish the SQLite DB or private keys in Git.
+The repository allows the public brand/catalog/category image folders and keeps
+private website/editor uploads ignored. Source HTTP/DNS failures remain explicit
+in the manifest and do not become broken image URLs on the storefront.
