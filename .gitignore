@@ -21,3 +21,13 @@ private-bills/
 .claude/
 *.sqlite3
 annam-preview-desktop.jpg
+
+# Verified original public catalog assets only. Private uploads remain ignored.
+!/media/
+/media/*
+!/media/catalog/
+!/media/categories/
+!/media/brand/
+!/media/site/
+
+!/media/menu/

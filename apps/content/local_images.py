@@ -29,6 +29,11 @@ def local_image_url(url, tenant_id, *, download=False):
             raise ValueError('Static image file is missing')
         data = Path(source).read_bytes()
     elif url.startswith(('https://', 'http://', '//')):
+        from .public_media import verified_assets, restore_originals
+        cached = verified_assets().get(url)
+        if cached:
+            restore_originals({url: cached})
+            return media_storage().url(cached['path'])
         if not download:
             raise ValueError('External image requires --download')
         parsed = urlsplit(url)
