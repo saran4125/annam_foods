@@ -6,7 +6,6 @@ from django.conf import settings
 from django.db.models import F
 from django.utils import timezone
 from django.views.debug import SafeExceptionReporterFilter
-from .models import RateLimitBucket
 
 
 def client_address(request):
@@ -18,6 +17,8 @@ def client_address(request):
 
 
 def consume_limit(scope,identity,limit,seconds):
+    # Logging/reporters are imported before django.setup() populates the apps.
+    from .models import RateLimitBucket
     now=timezone.now();start=int(now.timestamp())//seconds*seconds
     begins=datetime.fromtimestamp(start,tz=utc.utc);ends=begins+timedelta(seconds=seconds)
     key=hashlib.sha256((scope+'\0'+identity).encode()).hexdigest()
