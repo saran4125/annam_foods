@@ -1,9 +1,9 @@
 {
-    "source_assets": 426,
-    "verified_local_images": 426,
-    "unavailable": 0,
+    "source_assets": 401,
+    "verified_local_images": 400,
+    "unavailable": 1,
     "pending": 0,
-    "live_source_snapshot": "2026-11-03T07:02:12.196715+00:00",
+    "live_source_snapshot": "2026-11-03T07:39:47.942660+00:00",
     "public_pages_crawled": 35,
     "live_products_discovered": 0,
     "live_categories_discovered": 34,
@@ -13,6 +13,12 @@
             "error": "HTTP Error 403: Forbidden"
         }
     ],
-    "unrecovered": [],
+    "unrecovered": [
+        {
+            "url": "https://www.annamfood.in/favicon.ico",
+            "status": "unavailable",
+            "error": "HTTP 404: Original image unavailable."
+        }
+    ],
     "scope": "Original public images only; no customer/order data, prices or menu changes."
 }

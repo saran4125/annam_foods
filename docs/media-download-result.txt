@@ -1,0 +1,7 @@
+{
+    "source_assets": 401,
+    "verified_local_images": 400,
+    "unavailable": 1,
+    "pending": 0,
+    "recovered_this_run": 9
+}

@@ -2221,7 +2221,7 @@
       "url": "https://cdn.commmerce.com/uploads/annams/categoryImages/full/17631829135492Breakfast-Cartoon.jpg",
       "kind": "category",
       "slug": "15th-monday-breakfast",
-      "source_id": "91",
+      "source_id": "TMB1",
       "name": "Tuesday Breakfast",
       "matched_by": "slug"
     },
@@ -2386,7 +2386,7 @@
       "matched_by": "slug"
     },
     {
-      "url": "https://cdn.commmerce.com/placeholders/product.jpg",
+      "url": "https://img.commmerce.com/placeholders/product.jpg",
       "kind": "category",
       "slug": "ready-to-cook",
       "source_id": "RTC1",
