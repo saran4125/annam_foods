@@ -1,0 +1,28 @@
+{
+  "archive": "Annam-Foods-Complete-Protected.zip",
+  "bytes": 144837706,
+  "sha256": "1b1bbcb7dbcfc0d44a8d7d06282ea40ddaf1731788d922eac7eb1d3d76f5a99d",
+  "encryption": "WinZip AES-256; password is shared privately with the owner, never committed",
+  "parts": [
+    {
+      "file": "package.part-000",
+      "bytes": 47185920,
+      "sha256": "fa10b34135b937109a0a4cb73661529d6df3c9b6b77539bb11f7d9f0425e302d"
+    },
+    {
+      "file": "package.part-001",
+      "bytes": 47185920,
+      "sha256": "dd2b901dae2d871f23d5561ff3dbd938a137dd155ca1680ac55be6dc0b766c4f"
+    },
+    {
+      "file": "package.part-002",
+      "bytes": 47185920,
+      "sha256": "3415deccd385a371611d52371739d1e8085e4c82ac73f9196859d3d335fcb16e"
+    },
+    {
+      "file": "package.part-003",
+      "bytes": 3279946,
+      "sha256": "de9b7c15007e6aae80ce5e76536ba4b0aa83e8fee44e9288314ef86cea5e38d0"
+    }
+  ]
+}

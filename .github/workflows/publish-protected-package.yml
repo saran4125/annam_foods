@@ -1,0 +1,51 @@
+name: Publish protected complete PHP download
+on:
+  push:
+    branches: [php-delivery-2026-11-03-1b1bbcb7]
+    paths: ['.github/workflows/publish-protected-package.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: annam-protected-complete-download
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'saran4125/annam_foods' && github.ref == 'refs/heads/php-delivery-2026-11-03-1b1bbcb7'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: php-delivery-2026-11-03-1b1bbcb7
+      - name: Assemble and verify the owner-approved encrypted download
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          root=Path('release/protected-package');manifest=json.loads((root/'manifest.json').read_text())
+          target=Path('/tmp')/manifest['archive']
+          with target.open('wb') as out:
+              for part in manifest['parts']:
+                  data=(root/part['file']).read_bytes()
+                  assert len(data)==part['bytes'] and hashlib.sha256(data).hexdigest()==part['sha256']
+                  out.write(data)
+          assert target.stat().st_size==manifest['bytes']
+          assert hashlib.file_digest(target.open('rb'),'sha256').hexdigest()==manifest['sha256']
+          with zipfile.ZipFile(target) as z:
+              assert all(item.flag_bits&1 for item in z.infolist()),'Plaintext content is not allowed'
+              assert 'Annam-Foods/UPLOAD/annam-private/storage/annam.sqlite' in z.namelist()
+          print('Complete archive hash and encrypted entry checks passed.')
+          PY
+      - name: Publish the direct GitHub download
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag=$(cat release/protected-package/release-tag.txt)
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" /tmp/Annam-Foods-Complete-Protected.zip --clobber
+          else
+            gh release create "$tag" /tmp/Annam-Foods-Complete-Protected.zip --target "$GITHUB_SHA" --title 'Annam Foods — Complete PHP + SQLite package' --notes-file release/protected-package/release-notes.md --latest=false
+          fi
+          gh release view "$tag" --json url --jq .url >> "$GITHUB_STEP_SUMMARY"
