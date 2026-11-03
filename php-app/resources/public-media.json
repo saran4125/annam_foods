@@ -12472,7 +12472,9 @@
       "path": "brand/e488d1f276081e181e65fcdd935b1c67.png",
       "sha256": "431e851d81d925cd2cccef7552c614a01ff4453b303657dfb3c020d6c5d95087",
       "bytes": 249515,
-      "legacy_paths": []
+      "legacy_paths": [
+        "brand/e488d1f276081e181e65fcdd.png"
+      ]
     },
     "6aa4b4eba6cd791ee2e8dd52c5640f5bb228728c8d7efc267e6e1771e81f8aa9": {
       "url": "https://cdn.commmerce.com/uploads/annams/settings/1674454183154316743189332623logo.png",
@@ -12491,7 +12493,9 @@
       "path": "brand/6aa4b4eba6cd791ee2e8dd52c5640f5b.png",
       "sha256": "301be5fd8493fa2d69dd9f363452f663ab5597425aee0833f904120ef72077da",
       "bytes": 820457,
-      "legacy_paths": []
+      "legacy_paths": [
+        "brand/6aa4b4eba6cd791ee2e8dd52.png"
+      ]
     },
     "015770b82cbc56741676fbe47b6fd368f4084a26c915c230aa9616bba24e9151": {
       "url": "https://cdn.commmerce.com/uploads/annams/productImages/full/17573124921696poori.jpg",

@@ -1,0 +1,6 @@
+{
+  "pages_checked": 80,
+  "image_urls_checked": 208,
+  "failed_requests": [],
+  "note": "Six products intentionally remain without image references: their matching originals were not found; see php-image-audit.json."
+}
