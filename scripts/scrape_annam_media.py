@@ -7,6 +7,8 @@ from importlib.util import spec_from_file_location, module_from_spec
 import json
 from pathlib import Path
 import re
+import xml.etree.ElementTree as ET
+from urllib.parse import quote
 from urllib.parse import urlsplit, urljoin
 from urllib.request import Request, urlopen
 
@@ -64,7 +66,7 @@ def fetch_page(url):
 def main():
     result = {'source': BASE, 'fetched_at': datetime.now(timezone.utc).isoformat(),
               'purpose': 'Public image discovery only; never imports prices, menus, orders or customers.',
-              'brand': {}, 'categories': [], 'products': [], 'media_urls': [], 'failures': []}
+              'brand': {}, 'categories': [], 'products': [], 'media_urls': [], 'failures': [], 'page_diagnostics': []}
     urls = set(); product_slugs = set(); categories = {}; api_available = True; public_pages = set(); html_products = {}
     def failure(url, error):
         result['failures'].append({'url': url, 'error': str(error)[:240]})
@@ -91,6 +93,29 @@ def main():
     saved = json.loads((ROOT/'php-app/resources/source-catalog.json').read_text())
     queue = {BASE+'/categories'} | {BASE+'/categories/'+c['slug'] for c in saved['categories']}
     queue.update(pages)
+    targets=json.loads((ROOT/'php-app/resources/public-image-targets.json').read_text())['products']
+    target_names={re.sub(r'[^a-z0-9]','',p['name'].casefold()):p for p in targets}
+    # Public sitemap and product metadata work without running protected browser JS.
+    sitemap_queue={BASE+'/sitemap.xml',BASE+'/sitemap_index.xml'}; sitemap_seen=set()
+    while sitemap_queue:
+        sitemap=sitemap_queue.pop();sitemap_seen.add(sitemap)
+        try:
+            document=ET.fromstring(fetch_page(sitemap))
+            for element in document.iter():
+                if element.tag.split('}')[-1]!='loc' or not element.text:continue
+                parsed=urlsplit(element.text)
+                if parsed.hostname not in {'annamfood.in','www.annamfood.in'}:continue
+                location=BASE+parsed.path
+                if parsed.path.endswith('.xml') and location not in sitemap_seen:sitemap_queue.add(location)
+                elif parsed.path.startswith(('/categories/','/products/')):queue.add(location)
+        except Exception as error:failure(sitemap,error)
+        if len(sitemap_seen|sitemap_queue)>15:break
+    for p in targets:
+        if p.get('image'):continue
+        slug=re.sub(r'[^a-z0-9]+','-',p['name'].casefold()).strip('-')
+        queue.add(BASE+'/products/'+quote(slug))
+        literal=re.sub(r'[^a-z0-9-]+','-',p['name'].casefold()).strip('-')
+        queue.add(BASE+'/products/'+quote(literal))
     seen = set()
     def inspect_page(url):
         html = fetch_page(url)
@@ -108,6 +133,20 @@ def main():
                 try:
                     html, state, links = task.result(); public_pages.add(url)
                     urls.update(image_urls(html)); urls.update(image_urls(state))
+                    snapshot_nodes=[]
+                    for row in source.walk(state):
+                        name=row.get('name') or row.get('productName')
+                        if not isinstance(name,str):continue
+                        photos=source.images(row) if isinstance(row.get('images'),list) else []
+                        if not photos and isinstance(row.get('image'),str) and public_image_url(row['image']):photos=[row['image']]
+                        normalized=re.sub(r'[^a-z0-9]','',name.casefold())
+                        if normalized in target_names:
+                            snapshot_nodes.append({'name':name,'keys':list(row),'images':photos})
+                            if photos:
+                                target=target_names[normalized]
+                                html_products[target['source_id']]={'source_id':target['source_id'],'name':name,'images':photos,'matched_by':'exact_public_metadata_name'}
+                    title=re.search(r'<title[^>]*>(.*?)</title>',html,re.S|re.I)
+                    result['page_diagnostics'].append({'url':url,'title':unescape(title.group(1)).strip() if title else '', 'state_keys':list(state),'product_nodes':snapshot_nodes})
                     for row in source.walk(state):
                         if row.get('slug') and row.get('name') and ('parentId' in row or ('children' in row and 'sellingPrice' not in row)):
                             categories.setdefault(row['slug'], row)

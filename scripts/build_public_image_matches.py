@@ -17,6 +17,18 @@ def main():
                 by_name.setdefault(key(p['name']),[]).append(p)
         for c in snapshot.get('categories',[]):
             if c.get('image'):categories.setdefault(c['slug'],c)
+    # Rendered product images often expose the exact product name in alt text.
+    # Keep these associations even when the public JSON API is unavailable.
+    browser_path=DATA/'browser-public-media-source.json'
+    if browser_path.exists():
+        from scrape_annam_media import public_image_url
+        browser=json.loads(browser_path.read_text())
+        for page in browser.get('pages',[]):
+            for image in page.get('images',[]):
+                url=public_image_url(image.get('src',''))
+                name=image.get('alt','').strip()
+                if url and name:
+                    by_name.setdefault(key(name),[]).insert(0,{'name':name,'images':[url]})
     aliases={'diwali-2026':'deepavli-2026-pakshanams','diwali-sweets':'deepavali-sweets','diwali-karams':'deepavali-karams'}
     matches=[];unmatched=[]
     for p in targets['products']:
@@ -36,6 +48,12 @@ def main():
         source_slug=aliases.get(c['slug'],c['slug']);candidate=categories.get(source_slug)
         if candidate:matches.append({'url':candidate['image'],'kind':'category','slug':c['slug'],'source_id':candidate['source_id'],'name':c['name'],'matched_by':'reviewed_category_alias' if source_slug!=c['slug'] else 'slug'})
         else:unmatched.append({'kind':'category','name':c['name'],'slug':c['slug']})
+    # Reviewed source artwork for the existing Diwali promotional banner.
+    for snapshot in snapshots:
+        banner=next((u for u in snapshot.get('media_urls',[]) if re.search(r'/[0-9]+Diwali-Banner\.jpg$',u)),None)
+        if banner:
+            matches.append({'url':banner,'kind':'banner','title':'Diwali 2026 sweets & pakshanams','name':'Diwali promotion','matched_by':'reviewed_banner_artwork'})
+            break
     report={'tenant':'annam','matches':matches,'unmatched':unmatched,'policy':'Original source ID or unambiguous exact name; explicit reviewed Diwali category aliases. No prices, menus or order changes.'}
     (DATA/'public-image-matches.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
     print(f'Image matches: {len(matches)}; unmatched: {len(unmatched)}',flush=True)

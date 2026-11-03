@@ -16,7 +16,7 @@ final class PublicMedia {
             foreach(['logo','favicon'] as $name)if(!empty($snapshot['brand'][$name]))$add($snapshot['brand'][$name],['kind'=>'brand','name'=>'Annam Foods source '.$name],'brand');
         }
         foreach(array_unique(array_merge($live['media_urls']??[],$browser['media_urls']??[])) as $url)$add($url,['kind'=>'site','name'=>'Public website image'],'site');
-        $matchesPath=ANNAM_ROOT.'/resources/public-image-matches.json';if(is_file($matchesPath))foreach(json_decode(file_get_contents($matchesPath),true,512,JSON_THROW_ON_ERROR)['matches'] as $match){$url=$match['url'];unset($match['url']);$add($url,$match,$match['kind']==='product'?'catalog':'categories');}
+        $matchesPath=ANNAM_ROOT.'/resources/public-image-matches.json';if(is_file($matchesPath))foreach(json_decode(file_get_contents($matchesPath),true,512,JSON_THROW_ON_ERROR)['matches'] as $match){$url=$match['url'];unset($match['url']);$add($url,$match,$match['kind']==='product'?'catalog':($match['kind']==='banner'?'site':'categories'));}
         $old=is_file(self::manifest())?json_decode(file_get_contents(self::manifest()),true,512,JSON_THROW_ON_ERROR):[];
         foreach($assets as $key=>&$asset)if(isset($old['assets'][$key]))foreach(['status','path','sha256','bytes','error'] as $field)if(array_key_exists($field,$old['assets'][$key]))$asset[$field]=$old['assets'][$key][$field];unset($asset);
         return ['version'=>1,'rejected_sources'=>$rejected,'source'=>$source['source'],'source_snapshot'=>$source['fetched_at'],'live_source_snapshot'=>$live['fetched_at']??null,'description'=>'Original public source assets. Only verified downloads may be assigned to catalog records.','assets'=>$assets];
@@ -45,6 +45,7 @@ final class PublicMedia {
     public static function apply(\PDO $db,string $root,?array $manifest=null):array {
         $manifest??=self::inventory();$changed=0;$skipped=0;$storeId=$db->query("SELECT id FROM tenancy_tenant WHERE slug='annam'")->fetchColumn();if(!$storeId)throw new \RuntimeException('Annam store missing.');$db->beginTransaction();
         try{foreach($manifest['assets'] as $asset){if(!self::verified($asset,$root))continue;foreach($asset['references'] as $reference){if($reference['kind']==='product'&&$reference['image_index']===0){$query=$db->prepare("UPDATE catalog_menuitem SET image=? WHERE tenant_id=? AND retailer_id=? AND (image='' OR image=?)");$query->execute([$asset['path'],$storeId,$reference['source_id'],$asset['url']]);$changed+=$query->rowCount();}
+                elseif($reference['kind']==='banner'){$query=$db->prepare("UPDATE content_banner SET image=? WHERE tenant_id=? AND title=? AND (image='' OR image=?)");$query->execute([$asset['path'],$storeId,$reference['title'],$asset['url']]);$changed+=$query->rowCount();}
                 elseif($reference['kind']==='category'){$query=$db->prepare("UPDATE catalog_menucategory SET image=? WHERE tenant_id=? AND slug=? AND (image='' OR image=?)");$query->execute([$asset['path'],$storeId,$reference['slug'],$asset['url']]);$changed+=$query->rowCount();}}}$db->commit();return ['image_references_updated'=>$changed];}catch(\Throwable $error){$db->rollBack();throw $error;}
     }
 }

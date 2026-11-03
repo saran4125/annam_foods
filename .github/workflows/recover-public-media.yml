@@ -63,11 +63,14 @@ jobs:
       - name: Discover current public images from HTML pages and catalog
         run: python3 scripts/scrape_annam_media.py
       - name: Compare rendered source and our storefront images
+        if: false # Source currently returns a browser-verification page; use public SSR metadata.
         run: |
           python3 -m pip install 'playwright==1.56.0'
           python3 -m playwright install --with-deps chromium
           python3 scripts/browser_annam_images.py
-          python3 scripts/build_public_image_matches.py
+
+      - name: Match public source metadata to our catalog
+        run: python3 scripts/build_public_image_matches.py
       - name: Download and validate original image files
         continue-on-error: true
         run: |
@@ -75,6 +78,7 @@ jobs:
           php php-app/bin/download-public-media.php > docs/media-download-result.txt 2>&1 || status=$?
           cat docs/media-download-result.txt
           if [ "$status" -ne 0 ] && [ "$status" -ne 2 ]; then exit "$status"; fi
+          python3 scripts/materialize_legacy_media.py
           php scripts/report_annam_media.php
       - name: Preserve verified public files in PHP branch only
         run: |
