@@ -29,7 +29,7 @@ ini_set('zend.exception_ignore_args', '1');
 ini_set('error_log', ANNAM_ROOT . '/storage/logs/php.log');
 
 function e(mixed $value): string { return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
-function money(mixed $value): string { return Money::display(Money::parse((string)$value)); }
+function money(mixed $value): string { $text=Money::display(Money::parse((string)$value));return str_ends_with($text,'.00')?substr($text,0,-3):$text; }
 function csrf(): string { return '<input type="hidden" name="csrf" value="' . e(Security::csrf()) . '">'; }
 function redirect(string $url): never {
     if (!str_starts_with($url, '/') || str_starts_with($url, '//') || str_contains($url, "\r") || str_contains($url, "\n")) $url = '/';

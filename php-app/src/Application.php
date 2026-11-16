@@ -89,7 +89,7 @@ final class Application {
                 $category = $this->db->one('SELECT * FROM catalog_menucategory WHERE tenant_id=? AND slug=? AND active', [$this->store->id(), $match[1]]) ?? throw new HttpError(404, 'Category not found.');
             }
             $query = trim((string)($_GET['q'] ?? ''));
-            $result=$this->store->pageItems('courier',$query,$category?(int)$category['id']:null,(int)($_GET['page']??1),36,['active'=>true,'in_stock'=>true]);$products=$result['records'];$total=$result['total'];$page=$result['page'];$this->render('shop',compact('products','category','query','total','page')); return;
+            $result=$this->store->pageItems('courier',$query,$category?(int)$category['id']:null,(int)($_GET['page']??1),36,['active'=>true,'in_stock'=>true],'',(string)($_GET['sort']??'featured'));$products=$result['records'];$total=$result['total'];$page=$result['page'];$this->render('shop',compact('products','category','query','total','page')); return;
         }
         if (preg_match('~^/item/(\d+)/$~', $path, $match)) {
             $item = $this->store->item((int)$match[1]);
@@ -113,7 +113,7 @@ final class Application {
         if ($path === '/about/' || preg_match('~^/p/([a-z0-9-]+)/$~', $path, $match)) {
             $slug = $path === '/about/' ? 'about' : $match[1];
             $page = $this->db->one('SELECT * FROM content_page WHERE tenant_id=? AND published AND slug=?', [$this->store->id(), $slug]) ?? throw new HttpError(404, 'Page not found.');
-            $this->render('page', compact('page')); return;
+            $this->render($path==='/about/'?'about':'page', compact('page')); return;
         }
         throw new HttpError(404, 'Page not found.');
     }

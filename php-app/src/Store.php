@@ -63,12 +63,19 @@ final class Store {
         if ($category) { $ids=$this->family($category);$sql.=' AND i.category_id IN ('.implode(',',array_fill(0,count($ids),'?')).')';array_push($params,...$ids); }
         return $this->db->rows($sql . ' ORDER BY i.sort,i.name', $params);
     }
-    public function pageItems(string $kind,string $query,?int $category,int $page,int $size=30,array $filters=[],string $meal=''):array {
+    public function pageItems(string $kind,string $query,?int $category,int $page,int $size=30,array $filters=[],string $meal='',string $sort='featured'):array {
         $size=max(1,min($size,100));$params=[$this->id()];$where=' WHERE i.tenant_id=?';if($kind){$where.=' AND i.fulfilment=?';$params[]=$kind;}if($query){$where.=' AND i.name ILIKE ?';$params[]='%'.mb_substr($query,0,120).'%';}
         if($category){$family=$this->family($category);$where.=' AND i.category_id IN ('.implode(',',array_fill(0,count($family),'?')).')';array_push($params,...$family);}
         foreach(['active','in_stock'] as $field)if(array_key_exists($field,$filters)){$where.=' AND i.'.$field.'=?';$params[]=(bool)$filters[$field];}
-        if($meal){$where.=$meal==='unassigned'?' AND NOT EXISTS':' AND EXISTS';$where.='(SELECT 1 FROM catalog_menuschedule m JOIN catalog_slot s ON s.id=m.slot_id AND s.tenant_id=m.tenant_id WHERE m.tenant_id=i.tenant_id AND m.item_id=i.id';if($meal!=='unassigned'){$where.=' AND s.key=?';$params[]=$meal;}$where.=')';}
-        $total=(int)$this->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem i'.$where,$params)['n'];$page=max(1,min($page,max(1,(int)ceil($total/$size))));$records=$this->db->rows('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id'.$where.' ORDER BY i.sort,i.name,i.id LIMIT '.$size.' OFFSET '.(($page-1)*$size),$params);return compact('records','total','page');
+        if($meal){
+            if($meal==='unassigned'){
+                $where.=" AND NOT EXISTS(SELECT 1 FROM catalog_menuschedule m WHERE m.tenant_id=i.tenant_id AND m.item_id=i.id) AND NOT EXISTS(SELECT 1 FROM catalog_menucategory c JOIN catalog_slot s ON s.key=c.slug AND s.tenant_id=c.tenant_id WHERE c.id=i.category_id AND c.tenant_id=i.tenant_id)";
+            }else{
+                $where.=" AND (EXISTS(SELECT 1 FROM catalog_menuschedule m JOIN catalog_slot s ON s.id=m.slot_id AND s.tenant_id=m.tenant_id WHERE m.tenant_id=i.tenant_id AND m.item_id=i.id AND s.key=?) OR EXISTS(SELECT 1 FROM catalog_menucategory c WHERE c.id=i.category_id AND c.tenant_id=i.tenant_id AND c.slug=?))";
+                array_push($params,$meal,$meal);
+            }
+        }
+        $order=match($sort){'price'=>'CAST(i.price AS DECIMAL) ASC,i.id','-price'=>'CAST(i.price AS DECIMAL) DESC,i.id','name'=>'i.name,i.id',default=>'i.sort,i.name,i.id'};$total=(int)$this->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem i'.$where,$params)['n'];$page=max(1,min($page,max(1,(int)ceil($total/$size))));$records=$this->db->rows('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id'.$where.' ORDER BY '.$order.' LIMIT '.$size.' OFFSET '.(($page-1)*$size),$params);return compact('records','total','page');
     }
     public function item(int $id): array {
         return $this->db->one('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id WHERE i.tenant_id=? AND i.id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Dish not found.');

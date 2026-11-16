@@ -1,0 +1,9 @@
+/* Progressive enhancement for PHP forms using the Python UI components. */
+(()=>{'use strict';
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const toggle=(button,panel)=>{if(!button||!panel)return;const close=()=>{panel.hidden=true;button.setAttribute('aria-expanded','false');};button.addEventListener('click',()=>{panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)$('input',panel)?.focus();});document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});};
+toggle($('[data-nav-toggle]'),$('[data-mobile-nav]'));toggle($('[data-search-toggle]'),$('[data-search-panel]'));
+$$('[data-slider]').forEach(slider=>{const slides=$$('[data-slide]',slider),dots=$$('[data-dot]',slider);let current=0;const show=n=>{current=(n+slides.length)%slides.length;slides.forEach((slide,i)=>{slide.classList.toggle('is-active',i===current);slide.setAttribute('aria-hidden',String(i!==current));$$('a,button',slide).forEach(el=>el.tabIndex=i===current?0:-1);});dots.forEach((dot,i)=>{dot.classList.toggle('is-active',i===current);dot.setAttribute('aria-pressed',String(i===current));});};$('[data-prev]',slider)?.addEventListener('click',()=>show(current-1));$('[data-next]',slider)?.addEventListener('click',()=>show(current+1));dots.forEach((dot,i)=>dot.addEventListener('click',()=>show(i)));if(slides.length)show(0);});
+$$('[data-public-autosubmit]').forEach(el=>el.addEventListener('change',()=>el.form.requestSubmit()));
+const password=$('[data-login-password]');$('[data-password-toggle]')?.addEventListener('click',e=>{const visible=password.type==='password';password.type=visible?'text':'password';e.currentTarget.setAttribute('aria-pressed',String(visible));e.currentTarget.setAttribute('aria-label',visible?'Hide password':'Show password');});
+})();

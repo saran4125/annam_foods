@@ -189,3 +189,12 @@ first-owner creation, CSRF and rate limits protect setup requests, and a filesys
 lock serializes configuration activation. Setup is disabled after activation.
 The local release is a single-host application; multiple independent web servers
 must not share this SQLite file over a network filesystem.
+
+
+## Python reference UI port
+
+The PHP views use Python `main` commit `08b33a1` as the design reference. Shared
+styles, dashboard, checkout, report and order-group components are copied from
+that reference. PHP-only markup adapters use `python-ui.css`/`python-ui.js`.
+Authentication, CSRF, tenant scoping, menus, stock, financial services and provider
+connections remain PHP. See UI-PARITY.md for rebuilding, installation and tests.

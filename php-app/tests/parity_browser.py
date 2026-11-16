@@ -11,22 +11,22 @@ with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  page=browser.new_page(viewport={'width':1440,'height':1050});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto(base+'/manage/');page.get_by_label('Username',exact=True).fill(login['username']);page.get_by_label('Password',exact=True).fill(login['password']);page.locator('button[type=submit]').click();page.wait_for_url('**/manage/')
- for path,heading in [('/manage/categories/','Categories'),('/manage/dishes/?kind=courier','Dishes & products'),('/manage/reports/','Order reports & sales'),('/manage/orders/','Orders & billing'),('/manage/checkout-settings/','Checkout settings'),('/manage/orders/new/','Create booking')]:
+ for path,heading in [('/manage/categories/','Categories'),('/manage/dishes/?kind=courier','Dishes & products'),('/manage/reports/','Order reports & sales'),('/manage/orders/','Orders'),('/manage/checkout-settings/','Checkout settings'),('/manage/orders/new/','Create booking')]:
   response=page.goto(base+path);assert response.status==200,(path,page.locator('body').inner_text());assert page.get_by_role('heading',name=heading,exact=True).is_visible()
- page.goto(base+'/manage/categories/');assert page.get_by_text('Empty categories',exact=True).is_visible();page.get_by_role('link',name='Manage items',exact=True).first.click();assert page.locator('.o-table tbody tr').count()>0;page.screenshot(path=str(artifacts/'category-items.png'),full_page=True)
+ page.goto(base+'/manage/categories/');assert page.get_by_role('link',name=re.compile('^Empty categories')).is_visible();page.get_by_role('link',name='Manage items',exact=True).first.click();assert page.locator('.o-table tbody tr').count()>0;page.screenshot(path=str(artifacts/'category-items.png'),full_page=True)
  date=(datetime.now(ZoneInfo('Asia/Kolkata'))+timedelta(days=1)).strftime('%Y-%m-%d')
  page.goto(base+'/manage/dishes/menu/?date='+date)
  slots=page.locator('nav[aria-label=Meal] a').evaluate_all('(links)=>links.map(o=>({id:new URL(o.href).searchParams.get("slot_id"),label:o.textContent}))')
  for label in ['Breakfast','Lunch']:
   slot=next(s for s in slots if s['label'].strip()==label)
-  page.goto(base+'/manage/dishes/menu/?date='+date+'&slot_id='+slot['id']);picks=page.locator('label.php-menu-pick input[type=checkbox]');assert picks.count()>0
+  page.goto(base+'/manage/dishes/menu/?date='+date+'&slot_id='+slot['id']);picks=page.locator('label.php-menu-pick input[type=checkbox]:not([disabled])');assert picks.count()>0
   for n in range(min(4,picks.count())):
    if not picks.nth(n).is_checked():picks.nth(n).locator('..').click()
    assert picks.nth(n).is_checked()
   page.locator('button[type=submit]').last.click();assert 'saved' in page.locator('body').inner_text().lower()
-  page.goto(base+'/menu/?date='+date)
+  page.goto(base+'/menu/?date='+date+'&slot='+label.lower())
   section=page.locator('section.php-store-section').filter(has=page.get_by_role('heading',name=label,exact=True)).last
-  section.get_by_role('button',name='Add',exact=True).first.click();assert page.get_by_role('heading',name='Your cart',exact=True).is_visible()
+  section.get_by_role('button',name='Add',exact=True).first.click();assert page.get_by_role('heading',name='Your order',exact=True).is_visible()
  assert 'Breakfast + Lunch' in page.locator('body').inner_text() or 'Lunch + Breakfast' in page.locator('body').inner_text()
  page.locator('input[name=pincode]').fill('600005');page.get_by_role('button',name='Check delivery',exact=True).click();assert 'One delivery charge applies' in page.locator('body').inner_text()
  page.get_by_role('link',name='Checkout →').click()

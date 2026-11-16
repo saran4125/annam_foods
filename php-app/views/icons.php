@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); namespace Annam; ?>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="o-home" viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5V20h-5v-5h-6v5H4z"/></symbol>
   <symbol id="o-dish" viewBox="0 0 24 24"><path d="M3 15h18M5 15a7 7 0 0 1 14 0M12 6v2M4 18h16"/></symbol>

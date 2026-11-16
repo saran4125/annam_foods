@@ -1,0 +1,28 @@
+/* PHP adapters for the Python reference components. Shared styles stay canonical. */
+.python-ui .hero2{padding:clamp(2rem,5vw,4.5rem) 0 0}.python-ui .hero2-grid{align-items:center}
+.python-ui .site-nav{position:relative;max-width:none;overflow:visible}
+.python-ui .dishes.php-product-grid{padding:0;margin:24px 0;gap:24px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.python-ui .php-product-grid .dish-media{display:block;aspect-ratio:1;background:var(--surface-alt);overflow:hidden}
+.python-ui .php-product-grid .dish-media img{width:100%;height:100%;object-fit:cover}
+.python-ui .php-product-grid .dish-body h3{margin:0 0 7px;font-size:inherit}
+.python-ui .php-product-grid .dish-body h3 a{color:inherit;text-decoration:none}
+.python-ui .php-product-grid .dish-buy{display:flex;justify-content:space-between;align-items:center}
+.python-ui .php-product-grid .dish-buy form{margin:0}
+.python-ui .o-day-dish.php-menu-pick{border:1px solid var(--rule);border-radius:12px;margin:0;padding:14px;display:flex;gap:14px}
+.python-ui .o-day-dish[hidden]{display:none}.python-ui .o-row-actions{display:flex;gap:3px;align-items:center}
+.python-ui .o-row-actions form,.python-ui .o-table td form{margin:0;display:inline-block}
+.python-ui .o-top-actions:empty{display:none}.python-ui .o-card small{display:block}
+.python-ui .o-pagination{display:flex;justify-content:center;gap:8px;margin:24px 0}
+.python-ui .o-input{max-width:100%}.python-ui .o-cell-actions{white-space:nowrap}
+.python-ui .php-fieldset{border:1px solid var(--rule);border-radius:12px;padding:16px}
+.python-ui .php-fieldset .o-check{margin:12px 0}.python-ui .o-grid-form>.o-field input,.python-ui .o-grid-form>.o-field select,.python-ui .o-grid-form>.o-field textarea{width:100%}
+.python-ui .php-edit-image{width:180px;height:130px;object-fit:cover;border-radius:12px}
+.python-ui .php-checkout{max-width:none}.python-ui .php-date-bar{gap:12px}
+.python-ui .foot-brand>.brand{margin-bottom:18px}.python-ui .foot-brand .brand-name{font-size:1.2rem}
+.python-ui .hero2-title .w>span{transform:none;opacity:1}.python-ui .hero2-tag{display:flex;gap:8px;flex-direction:column}
+@media(max-width:900px){.python-ui .dishes.php-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.python-ui .site-nav{display:none!important}.python-ui .nav-toggle{display:inline-grid!important}.python-ui .head-inner{flex-wrap:nowrap}.python-ui .hero2{padding:42px 0}.python-ui .o-tools{flex-wrap:wrap}}
+@media(max-width:550px){.python-ui .dishes.php-product-grid{gap:14px}.python-ui .hero2{padding:32px 0}.python-ui .o-menu-date{align-items:flex-start}.python-ui .o-menu-date-options{flex-wrap:wrap}.python-ui .o-main{overflow-x:hidden}.python-ui .o-table-wrap{overflow-x:auto}.python-ui .brand-name{display:none}}
+
+.python-ui button.o-icon-btn{border:0}.python-ui button.o-icon-btn:not(:hover){background:transparent}
+@media(max-width:999px){.python-ui .site-nav{display:none!important}.python-ui .nav-toggle{display:inline-grid!important}}
+@media(min-width:1000px){.python-ui .site-nav{display:flex!important}}
