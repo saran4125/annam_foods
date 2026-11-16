@@ -513,6 +513,11 @@ longer part of this application scope.
 
 ## 16. Verification and source map
 
+Homepage product photos can be chosen through `TenantConfig.theme.hero_product_ids`
+(ordered retailer IDs). The reviewed podi selection is installed once by
+`configure_hero_products` during startup. It takes precedence over automatic
+meal/shop picks without changing products, pricing, menus or offer banners.
+
 Meal categories use Breakfast, Lunch, Dinner and Snacks without weekday prefixes.
 `normalize_meal_categories` consolidates imported weekday meal categories during
 startup and after seed/snapshot restoration. It changes category assignments only:

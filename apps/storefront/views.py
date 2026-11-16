@@ -132,10 +132,15 @@ def home(request):
             subtitle=appearance['storefront_copy']['offers.body'], link=reverse('storefront:menu'),
             image=SimpleNamespace(url=design['images']['offers']))]
 
-    # The hero's plate and side dishes: photographed meals first (they look
-    # like a meal), then the shop's popular lines.
+    # An explicit store photo selection takes priority over automatic picks.
+    # Catalog order and seasonal products must not replace the owner's hero.
+    selected_ids = tenant.config.theme.get('hero_product_ids', [])
+    selected_ids = [key for key in selected_ids[:4] if isinstance(key, str)] if isinstance(selected_ids, list) else []
+    selected = {item.retailer_id: item for item in MenuItem.objects.filter(
+        retailer_id__in=selected_ids, active=True).exclude(image='')}
+    chosen_photos = [selected[key] for key in selected_ids if key in selected]
     hero_picks, seen = [], set()
-    for item in [e.item for h in highlights for e in h["entries"]] + popular:
+    for item in chosen_photos + [e.item for h in highlights for e in h["entries"]] + popular:
         if item.image and item.image.name not in seen:  # same photo twice (Idly at two meals) reads as a bug
             hero_picks.append(item)
             seen.add(item.image.name)
