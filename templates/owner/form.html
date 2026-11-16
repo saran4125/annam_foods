@@ -9,7 +9,7 @@
   {% if category %}<p class="o-catalog-form-context">Category: {{ category.name }}</p>{% endif %}
   {% if menu_selection %}<p class="o-catalog-form-context">{% if menu_selection.kind == 'courier' %}Other items{% else %}Meals / {{ menu_selection.label }}{% if menu_selection.on_date %} / {{ menu_selection.on_date|date:"l, j F Y" }}{% endif %}{% endif %}</p>{% endif %}
   {% if form.non_field_errors %}<div class="o-flash o-flash-error" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-  {% if obj and menu_selection.on_date %}<p class="o-callout">Name, photo, price and global visibility update the dish everywhere. {% if menu_selection.carry_forward %}Availability changes also become the default for following breakfast dates without their own saved menu.{% else %}The dated availability below changes only this menu date.{% endif %}</p>{% endif %}
+  {% if obj and menu_selection.on_date %}<p class="o-callout">Name, photo, price and global visibility update the dish everywhere. {% if menu_selection.carry_forward %}Availability changes also become the default for following dates without their own saved menu.{% else %}The dated availability below changes only this menu date.{% endif %}</p>{% endif %}
   <div class="o-grid-form">
   {% for field in form %}
     {% if field.is_hidden %}{{ field }}

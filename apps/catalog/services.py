@@ -29,17 +29,21 @@ class MenuEntry:
         return self.available and not self.sold_out
 
 
-def breakfast_carries_forward(slot):
+def meal_carries_forward(slot):
     tenant = get_current_tenant()
-    return bool(tenant and tenant.pk == slot.tenant_id and slot.key == 'breakfast'
-                and tenant.feature('carry_forward_breakfast'))
+    if not tenant or tenant.pk != slot.tenant_id or slot.key not in ('breakfast', 'lunch', 'dinner'):
+        return False
+    if 'carry_forward_meals' in tenant.config.features:
+        return tenant.feature('carry_forward_meals')
+    # Preserve the earlier breakfast-only setting until the store is upgraded.
+    return slot.key == 'breakfast' and tenant.feature('carry_forward_breakfast')
 
 
 def effective_menu_rows(on_date, slot):
     """Choose scoped rows; a saved date always overrides an inherited default."""
     date_only = MenuDay.objects.filter(slot=slot, on_date=on_date).exists()
     previous = None
-    if not date_only and breakfast_carries_forward(slot):
+    if not date_only and meal_carries_forward(slot):
         previous = MenuDay.objects.filter(slot=slot, on_date__lt=on_date).order_by('-on_date').first()
     if date_only:
         condition = models_q_date(on_date)
@@ -58,9 +62,9 @@ def effective_menu_rows(on_date, slot):
 
 
 def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = False, *, include_inactive=False):
-    """Resolve a saved date, opted-in breakfast default, or legacy weekly menu.
+    """Resolve a saved date, opted-in meal default, or legacy weekly menu.
 
-    Explicitly saved empty menus remain empty. Inherited breakfast rows get fresh
+    Explicitly saved empty menus remain empty. Inherited meal rows get fresh
     daily quantities; the source date's sales never make tomorrow sold out.
     """
     chosen = effective_menu_rows(on_date, slot)

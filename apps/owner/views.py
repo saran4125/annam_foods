@@ -434,7 +434,7 @@ def resource_delete(request, key, pk, *, category=None):
             except (ValidationError, ValueError, KeyError) as exc:
                 messages.error(request, ' '.join(exc.messages) if isinstance(exc, ValidationError) else 'Reload the menu and try again.')
             else:
-                followup = 'Following dates continue this breakfast until another menu is saved.' if selected.get('carry_forward') else 'Other dates are unchanged.'
+                followup = 'Following dates continue this meal until another menu is saved.' if selected.get('carry_forward') else 'Other dates are unchanged.'
                 messages.success(request, f'“{obj}” removed from {selected["on_date"]:%A, %d %B} {selected["label"].lower()}. {followup}')
             return redirect(return_url)
         name = str(obj)
@@ -472,7 +472,7 @@ def resource_toggle(request, key, pk, *, category=None):
         except (ValidationError, ValueError, KeyError) as exc:
             messages.error(request, ' '.join(exc.messages) if isinstance(exc, ValidationError) else 'Reload the menu and try again.')
         else:
-            suffix = '. Following dates continue this breakfast until another menu is saved.' if selected.get('carry_forward') else ' only.'
+            suffix = '. Following dates continue this meal until another menu is saved.' if selected.get('carry_forward') else ' only.'
             messages.success(request, f'“{obj}” availability updated for {selected["on_date"]:%A, %d %B}{suffix}')
         return redirect(_safe_next(request, reverse('owner:list', args=[key])))
     setattr(obj, field_name, not getattr(obj, field_name))
@@ -539,7 +539,7 @@ def settings_view(request):
         "hero_kicker": hero.get("kicker", ""), "hero_title": hero.get("title", ""), "hero_body": hero.get("body", ""),
         "website_ordering": request.tenant.feature("website_ordering"),
         "snacks_courier": request.tenant.feature("snacks_courier"),
-        "carry_forward_breakfast": request.tenant.feature("carry_forward_breakfast"),
+        "carry_forward_meals": request.tenant.feature("carry_forward_meals") if "carry_forward_meals" in features else request.tenant.feature("carry_forward_breakfast"),
     }
     form = forms.SettingsForm(request.POST or None, request.FILES or None, initial=initial)
     if request.method == "POST" and form.is_valid():
@@ -557,7 +557,7 @@ def settings_view(request):
         hero_section = {"kind": "hero", "kicker": d["hero_kicker"], "title": d["hero_title"], "body": d["hero_body"]}
         config.home_sections = [s for s in sections if not (isinstance(s, dict) and s.get("kind") == "hero")] + [hero_section]
         features.update({"website_ordering": d["website_ordering"], "snacks_courier": d["snacks_courier"],
-                         "carry_forward_breakfast": d['carry_forward_breakfast']})
+                         "carry_forward_meals": d['carry_forward_meals']})
         config.features = features
         config.full_clean()
         config.save(update_fields=["brand_name", "tagline", "support_phone", "theme", "home_sections", "features"])
@@ -657,7 +657,7 @@ def daily_menu(request):
         except ValidationError as exc:
             form.add_error(None, exc)
         else:
-            followup = 'Following dates will use this breakfast until another menu is saved.' if selected.get('carry_forward') else 'Other dates are unchanged.'
+            followup = 'Following dates will use this meal until another menu is saved.' if selected.get('carry_forward') else 'Other dates are unchanged.'
             messages.success(request, f'{selected["on_date"]:%A, %d %B} {selected["label"].lower()} menu saved. {followup}')
             return redirect(return_url)
     return render(request, 'owner/daily_menu.html', {'form': form, 'selection': selected, 'return_url': return_url, 'plan': plan})

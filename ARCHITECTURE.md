@@ -516,8 +516,10 @@ longer part of this application scope.
 The owner-requested breakfast list is scheduled once for 16 November 2026 by
 `publish_reviewed_breakfast`. It adds the reviewed products to that date's menu,
 preserves existing dishes and stock, and does not reapply the initial list after
-staff edits. The owner-enabled `carry_forward_breakfast` feature uses the latest
-saved breakfast for subsequent dates without their own saved menu. Explicit
+staff edits. The owner-enabled `carry_forward_meals` feature uses each meal’s latest
+saved menu for subsequent dates without their own saved menu. Breakfast, Lunch
+and Dinner repeat independently. The earlier breakfast-only flag remains
+compatible until the store is upgraded. Explicit
 saved menus, including empty menus, override this default. Materializing a new
 date resets inherited sold quantities while preserving the source date.
 

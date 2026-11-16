@@ -6,8 +6,8 @@
 <form method="post" class="o-card o-daily-menu">
 {% csrf_token %}{{ form.revision }}
 <h2>Choose dishes for {{ selection.on_date|date:"l, j F" }}</h2>
-<p>Select the dishes customers can order for this meal and date. {% if selection.carry_forward %}This breakfast continues on following dates until you save another menu. Already saved dates keep their own menu. Uncheck every dish to pause breakfast until another menu is saved.{% else %}Saving replaces this date’s menu only. Uncheck every dish to offer no {{ selection.label|lower }} that day.{% endif %}</p>
-{% if not plan %}<p class="o-menu-day-note needs-review">{% if selection.carry_forward %}The selection starts with your latest saved breakfast. Add or remove dishes and save to change the default from this date onward.{% else %}The initial selection comes from your existing schedule. Review it against Annam's actual menu before saving this date.{% endif %}</p>{% endif %}
+<p>Select the dishes customers can order for this meal and date. {% if selection.carry_forward %}This {{ selection.label|lower }} menu continues on following dates until you save another menu. Already saved dates keep their own menu. Uncheck every dish to pause {{ selection.label|lower }} until another menu is saved.{% else %}Saving replaces this date’s menu only. Uncheck every dish to offer no {{ selection.label|lower }} that day.{% endif %}</p>
+{% if not plan %}<p class="o-menu-day-note needs-review">{% if selection.carry_forward %}The selection starts with your latest saved {{ selection.label|lower }}. Add or remove dishes and save to change the default from this date onward.{% else %}The initial selection comes from your existing schedule. Review it against Annam's actual menu before saving this date.{% endif %}</p>{% endif %}
 {{ form.non_field_errors }}{{ form.items.errors }}{{ form.revision.errors }}
 <label class="o-search"><svg class="o-ic" aria-hidden="true"><use href="#o-search"/></svg><input type="search" placeholder="Find a dish…" aria-label="Find a dish" data-daily-search></label>
 <div class="o-day-dishes">

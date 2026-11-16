@@ -99,3 +99,32 @@ def test_other_meals_and_other_stores_do_not_inherit_breakfast(repeating):
     with tenant_context(other):
         own_slot = Slot.objects.create(key='breakfast', label='Breakfast', order_cutoff=time(23, 59))
         assert names(DAY + timedelta(days=1), own_slot) == []
+
+
+@pytest.mark.parametrize('meal', ['breakfast', 'lunch', 'dinner'])
+def test_all_requested_meals_repeat_their_own_menu_until_changed(repeating, meal):
+    tenant, _, idly, dosa = repeating
+    config = TenantConfig.objects.get(tenant=tenant)
+    config.features = {'carry_forward_meals': True}
+    config.save(update_fields=['features'])
+    tenant.refresh_from_db()
+    with tenant_context(tenant):
+        slot, _ = Slot.objects.get_or_create(key=meal, defaults={'label': meal.title(), 'order_cutoff': time(23, 59)})
+        save_daily_menu(slot=slot, on_date=DAY, item_ids=[idly.pk], revision=0)
+        assert names(DAY + timedelta(days=1), slot) == [idly.name]
+        save_daily_menu(slot=slot, on_date=DAY + timedelta(days=1), item_ids=[dosa.pk], revision=0)
+        assert names(DAY, slot) == [idly.name]
+        assert names(DAY + timedelta(days=2), slot) == [dosa.name]
+        snacks = Slot.objects.create(key='snacks', label='Snacks', order_cutoff=time(23, 59))
+        assert names(DAY + timedelta(days=2), snacks) == []
+
+
+def test_switching_meal_repetition_off_overrides_the_legacy_breakfast_setting(repeating):
+    tenant, slot, idly, _ = repeating
+    config = TenantConfig.objects.get(tenant=tenant)
+    config.features = {'carry_forward_breakfast': True, 'carry_forward_meals': False}
+    config.save(update_fields=['features'])
+    tenant.refresh_from_db()
+    with tenant_context(tenant):
+        save_daily_menu(slot=slot, on_date=DAY, item_ids=[idly.pk], revision=0)
+        assert names(DAY + timedelta(days=1), slot) == []

@@ -26,8 +26,8 @@ def publish_reviewed_breakfast(tenant):
         raise ValidationError('This breakfast menu belongs to a different store.')
     Tenant.objects.select_for_update().get(pk=tenant.pk)
     config = TenantConfig.objects.select_for_update().get(tenant=tenant)
-    if 'carry_forward_breakfast' not in config.features:
-        config.features = {**config.features, 'carry_forward_breakfast': True}
+    if 'carry_forward_meals' not in config.features:
+        config.features = {**config.features, 'carry_forward_meals': True}
         config.save(update_fields=['features'])
         tenant._state.fields_cache.pop('config', None)
     with tenant_context(tenant):
