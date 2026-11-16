@@ -513,6 +513,13 @@ longer part of this application scope.
 
 ## 16. Verification and source map
 
+Meal categories use Breakfast, Lunch, Dinner and Snacks without weekday prefixes.
+`normalize_meal_categories` consolidates imported weekday meal categories during
+startup and after seed/snapshot restoration. It changes category assignments only:
+saved date menus, recurring availability, product IDs, prices and stock remain
+unchanged. Empty legacy categories are archived to preserve their URLs and metadata;
+shop shelves and festival categories remain independent.
+
 Run PostgreSQL regression tests, Django checks and migration consistency before
 committing. Retired UI behavior tests are replaced by removal/redirect/access/data
 preservation tests; financial, checkout, billing, catalog, messaging and scoped-data

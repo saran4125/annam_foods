@@ -82,7 +82,9 @@ class DishForm(StyledForm):
         self.menu_date = menu_date
         super().__init__(*args, **kwargs)
         self.fields["fulfilment"].choices = [("scheduled", "Daily meal"), ("courier", "Shop item")]
-        self.fields["category"].queryset = MenuCategory.objects.all()
+        self.fields["category"].queryset = MenuCategory.objects.filter(
+            models.Q(active=True) | models.Q(pk=self.instance.category_id)
+        )
         self.fields["slot"].queryset = Slot.objects.all()
         self.fields["slot"].widget.attrs["class"] = "o-input"
         if self.instance.pk:
