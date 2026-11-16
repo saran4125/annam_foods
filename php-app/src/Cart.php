@@ -3,6 +3,19 @@ declare(strict_types=1);
 namespace Annam;
 
 final class Cart {
+    public static function selection(int $id,?string $meal=null,?string $date=null):array {
+        $cart=$_SESSION['cart']??['lines'=>[]];if($date!==null&&($cart['date']??null)!==$date)return ['key'=>null,'quantity'=>0];
+        foreach($cart['lines']??[] as $key=>$quantity)if(self::itemId($key)===$id&&($meal===null||($cart['line_slots'][$key]??$cart['slot_key']??'snacks')===$meal))return ['key'=>(string)$key,'quantity'=>(int)$quantity];
+        return ['key'=>null,'quantity'=>0];
+    }
+    public static function adjust(Store $store,array $input):void {
+        $delta=filter_var($input['delta']??1,FILTER_VALIDATE_INT);if(!in_array($delta,[-1,1],true))throw new HttpError(422,'Choose one more or one fewer item.');
+        if($delta===1){self::add($store,$input);return;}
+        $id=filter_var($input['item_id']??'',FILTER_VALIDATE_INT);if(!$id)throw new HttpError(422,'Choose a valid product.');$item=$store->item($id);
+        $meal=$item['fulfilment']==='scheduled'?$store->slot((int)($input['slot_id']??0))['key']:null;
+        $current=self::selection($id,$meal,$meal?Store::date($input['date']??''):null);if($current['key']===null)throw new HttpError(422,'This item is not in your cart for that meal.');
+        self::set($store,$current['key'],$current['quantity']-1);
+    }
     public static function keys(array $cart):array {
         $keys=[];foreach($cart['lines']??[] as $key=>$quantity)$keys[]=$cart['line_slots'][$key]??($cart['kind']==='courier'?'snacks':(string)($cart['slot_key']??''));
         return array_values(array_unique(array_filter($keys)));
@@ -30,7 +43,7 @@ final class Cart {
     public static function set(Store $store,int|string $key,int $quantity):void {
         $cart=$_SESSION['cart']??['lines'=>[]];if(!isset($cart['lines'][$key]))throw new HttpError(404,'Cart item not found.');
         if($quantity<0||$quantity>99)throw new HttpError(422,'Choose a quantity from 0 to 99.');
-        if(!$quantity)unset($cart['lines'][$key]);else $cart['lines'][$key]=$quantity;self::quote($store,$cart);$_SESSION['cart']=$cart;
+        if(!$quantity)unset($cart['lines'][$key]);else $cart['lines'][$key]=$quantity;self::quote($store,$cart);if(!$cart['lines'])unset($_SESSION['cart']);else $_SESSION['cart']=$cart;
     }
     private static function scheduledItem(Store $store,int $id,string $date,int $slotId,int $quantity):array {
         $slot=$store->slot($slotId);if(!Delivery::slotOpen($slot,$date))throw new HttpError(422,'Ordering is not open for this meal on the selected date.');

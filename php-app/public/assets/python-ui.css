@@ -1,7 +1,7 @@
 /* PHP adapters for the Python reference components. Shared styles stay canonical. */
 .python-ui .hero2{padding:clamp(2rem,5vw,4.5rem) 0 0}.python-ui .hero2-grid{align-items:center}
 .python-ui .site-nav{position:relative;max-width:none;overflow:visible}
-.python-ui .dishes.php-product-grid{padding:0;margin:24px 0;gap:24px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.python-ui .dishes.php-product-grid{padding:0;margin:24px 0}
 .python-ui .php-product-grid .dish-media{display:block;aspect-ratio:1;background:var(--surface-alt);overflow:hidden}
 .python-ui .php-product-grid .dish-media img{width:100%;height:100%;object-fit:cover}
 .python-ui .php-product-grid .dish-body h3{margin:0 0 7px;font-size:inherit}
@@ -20,9 +20,25 @@
 .python-ui .php-checkout{max-width:none}.python-ui .php-date-bar{gap:12px}
 .python-ui .foot-brand>.brand{margin-bottom:18px}.python-ui .foot-brand .brand-name{font-size:1.2rem}
 .python-ui .hero2-title .w>span{transform:none;opacity:1}.python-ui .hero2-tag{display:flex;gap:8px;flex-direction:column}
-@media(max-width:900px){.python-ui .dishes.php-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.python-ui .site-nav{display:none!important}.python-ui .nav-toggle{display:inline-grid!important}.python-ui .head-inner{flex-wrap:nowrap}.python-ui .hero2{padding:42px 0}.python-ui .o-tools{flex-wrap:wrap}}
-@media(max-width:550px){.python-ui .dishes.php-product-grid{gap:14px}.python-ui .hero2{padding:32px 0}.python-ui .o-menu-date{align-items:flex-start}.python-ui .o-menu-date-options{flex-wrap:wrap}.python-ui .o-main{overflow-x:hidden}.python-ui .o-table-wrap{overflow-x:auto}.python-ui .brand-name{display:none}}
+@media(max-width:900px){.python-ui .site-nav{display:none!important}.python-ui .nav-toggle{display:inline-grid!important}.python-ui .head-inner{flex-wrap:nowrap}.python-ui .hero2{padding:42px 0}.python-ui .o-tools{flex-wrap:wrap}}
+@media(max-width:550px){.python-ui .hero2{padding:32px 0}.python-ui .o-menu-date{align-items:flex-start}.python-ui .o-menu-date-options{flex-wrap:wrap}.python-ui .o-main{overflow-x:hidden}.python-ui .o-table-wrap{overflow-x:auto}.python-ui .brand-name{display:none}}
 
 .python-ui button.o-icon-btn{border:0}.python-ui button.o-icon-btn:not(:hover){background:transparent}
 @media(max-width:999px){.python-ui .site-nav{display:none!important}.python-ui .nav-toggle{display:inline-grid!important}}
 @media(min-width:1000px){.python-ui .site-nav{display:flex!important}}
+
+.python-ui .head-actions{flex:0 0 auto}.python-ui .cart-link{flex:none;width:auto;min-width:0}
+.python-ui .section-actions{display:flex;align-items:center;gap:12px}.python-ui .shelf-arrows{display:flex;gap:8px}
+.python-ui .shelf-arrows button:disabled{opacity:.35;cursor:default}.python-ui .shelf-row{scroll-behavior:smooth}
+.python-ui .checkout-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:32px;align-items:start}
+.python-ui .checkout-layout>.summary{position:sticky;top:100px;padding:24px;border:1px solid var(--rule);border-radius:20px;background:var(--surface)}
+.python-ui .checkout-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.python-ui .checkout-card{margin:0}
+.python-ui .checkout-field input,.python-ui .checkout-field select{width:100%;min-height:48px;border:1px solid var(--rule);border-radius:12px;padding:12px;background:var(--surface)}
+.python-ui .php-cart-lines article{align-items:center;gap:16px}.python-ui .cart-thumb{width:72px;height:72px;border-radius:14px;object-fit:cover;flex:none}
+.python-ui .stepper{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--brand);border-radius:999px;overflow:hidden;min-height:36px}
+.python-ui .stepper button{display:grid;place-items:center;background:transparent;border:0;color:var(--brand);min-width:32px;min-height:36px;padding:4px;cursor:pointer}.python-ui .stepper .ic{width:14px;height:14px}
+.python-ui [data-cart-form][aria-busy=true]{opacity:.65}.python-ui .cart-bar[hidden]{display:none}
+@media(max-width:700px){.python-ui .checkout-layout{grid-template-columns:1fr}.python-ui .checkout-layout>.summary{position:static}.python-ui .checkout-fields{grid-template-columns:1fr}.python-ui .shelf-arrows{display:none}.python-ui .section-actions{gap:8px}.python-ui .php-cart-lines article{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.python-ui .shelf-row{scroll-behavior:auto}}
+
+.python-ui [data-cart-count][hidden]{display:none}body.python-ui:has([data-cart-bar][hidden]){padding-bottom:0}

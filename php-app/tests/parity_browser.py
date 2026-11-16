@@ -26,7 +26,7 @@ with sync_playwright() as p:
   page.locator('button[type=submit]').last.click();assert 'saved' in page.locator('body').inner_text().lower()
   page.goto(base+'/menu/?date='+date+'&slot='+label.lower())
   section=page.locator('section.php-store-section').filter(has=page.get_by_role('heading',name=label,exact=True)).last
-  section.get_by_role('button',name='Add',exact=True).first.click();assert page.get_by_role('heading',name='Your order',exact=True).is_visible()
+  section.get_by_role('button',name='Add',exact=True).first.click();page.wait_for_function("document.querySelector('[data-cart-count]').textContent.trim()!=='0'");page.goto(base+'/cart/');assert page.get_by_role('heading',name='Your order',exact=True).is_visible()
  assert 'Breakfast + Lunch' in page.locator('body').inner_text() or 'Lunch + Breakfast' in page.locator('body').inner_text()
  page.locator('input[name=pincode]').fill('600005');page.get_by_role('button',name='Check delivery',exact=True).click();assert 'One delivery charge applies' in page.locator('body').inner_text()
  page.get_by_role('link',name='Checkout →').click()

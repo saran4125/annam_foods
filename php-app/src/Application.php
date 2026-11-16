@@ -65,7 +65,12 @@ final class Application {
         }
         if($workflow->publicRoute($path,$method))return;
         if ($path === '/cart/add/' && $method === 'POST') {
-            Cart::add($this->store, $_POST); $_SESSION['notice'] = 'Added to your cart.'; redirect('/cart/');
+            $ajax=($_SERVER['HTTP_X_REQUESTED_WITH']??'')==='fetch';$before=$_SESSION['cart']??null;
+            try{
+                if(isset($_POST['delta']))Cart::adjust($this->store,$_POST);else Cart::add($this->store,$_POST);
+                if($ajax){$quote=Cart::quote($this->store);$item=$this->store->item((int)$_POST['item_id']);$meal=$item['fulfilment']==='scheduled'?$this->store->slot((int)$_POST['slot_id'])['key']:null;$current=Cart::selection((int)$item['id'],$meal,$meal?$_POST['date']:null);header('Content-Type: application/json');header('Cache-Control: no-store');echo json_encode(['quantity'=>$current['quantity'],'count'=>array_sum($_SESSION['cart']['lines']??[]),'subtotal'=>Money::display($quote['subtotal']),'message'=>'Cart updated.']);return;}
+                $_SESSION['notice']='Added to your cart.';redirect('/cart/');
+            }catch(HttpError $e){if(!$ajax)throw $e;if($before===null)unset($_SESSION['cart']);else $_SESSION['cart']=$before;http_response_code($e->status);header('Content-Type: application/json');header('Cache-Control: no-store');echo json_encode(['error'=>$e->getMessage()]);return;}
         }
         if($path==='/cart/update/'&&$method==='POST'){$quantity=filter_var($_POST['quantity']??'',FILTER_VALIDATE_INT);if($quantity===false)throw new HttpError(422,'Enter a whole quantity.');Cart::set($this->store,(string)($_POST['item_id']??''),$quantity);redirect('/cart/');}
         if ($path === '/cart/clear/' && $method === 'POST') { unset($_SESSION['cart']); redirect('/cart/'); }

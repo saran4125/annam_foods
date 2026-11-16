@@ -34,7 +34,7 @@ final class Orders {
                 $slot=$this->store->db->one('SELECT id FROM catalog_slot WHERE tenant_id=? AND key=?',[$this->store->id(),$line['meal_key']]);
                 $menu=$this->store->menu($quote['date'],(int)$slot['id']);$match=null;foreach($menu as $row)if((int)$row['id']===(int)$line['item_id'])$match=$row;
                 if(!$match)throw new HttpError(409,'A dish is no longer available. Review your cart.');
-                $reserved=$this->store->db->one('UPDATE catalog_menuschedule SET qty_sold=qty_sold+? WHERE tenant_id=? AND id=? AND (qty_limit IS NULL OR qty_sold+?<=qty_limit) RETURNING id',[(int)$line['quantity'],$this->store->id(),$match['schedule_id'],(int)$line['quantity']]);
+                $reserved=$this->store->db->one('UPDATE catalog_menuschedule SET qty_sold=qty_sold+? WHERE tenant_id=? AND id=? AND (qty_limit IS NULL OR qty_sold+?<=qty_limit) RETURNING id',[(int)$line['quantity'],$this->store->id(),$this->store->inventorySchedule($quote['date'],(int)$slot['id'],$match),(int)$line['quantity']]);
                 if(!$reserved)throw new HttpError(409,'A dish has sold out. Review your cart.');
             }
             $customer=$this->customer($details,$channel);$number='';

@@ -83,7 +83,7 @@ try {
     });
     test('forged client prices are ignored and stock limits are checked',function()use($store,$tomorrow,$slot,$item){
         $_SESSION=[];Cart::add($store,['item_id'=>$item,'quantity'=>1,'date'=>$tomorrow,'slot_id'=>$slot,'price'=>'0.01']);
-        check(Cart::quote($store)['subtotal']===11025,'Client price trusted');
+        check(Cart::quote($store)['subtotal']===10050,'Server menu price override was not preserved');
         expectError(fn()=>Cart::add($store,['item_id'=>$item,'quantity'=>1,'date'=>$tomorrow,'slot_id'=>$slot]),422);
     });
     test('Snacks can be added to a meals order',function()use($store,$shop){Cart::add($store,['item_id'=>$shop,'quantity'=>1]);check(in_array('snacks',Cart::keys($_SESSION['cart']),true),'Snacks missing');unset($_SESSION['cart']);});
@@ -112,7 +112,7 @@ try {
     $resources->toggle('dishes',$item);$_SESSION=[];
     $details=['name'=>'PHP test customer','phone'=>'919999999999','email'=>'','line1'=>'Test street','line2'=>'','landmark'=>'','city'=>'Chennai','pincode'=>'600011','zone_id'=>null,'payment_method'=>'manual'];
     $orders=new Annam\Orders($store);$billing=new Annam\Billing($store);$payments=new Annam\Payments($store);$checkout=new Annam\Checkout($store);
-    $db->rows('UPDATE catalog_menuschedule SET qty_limit=NULL,available=TRUE WHERE tenant_id=? AND item_id=? AND on_date=?',[$tenant,$item,$tomorrow]);
+    $db->rows('UPDATE catalog_menuschedule SET qty_limit=NULL,available=TRUE,price_override=NULL WHERE tenant_id=? AND item_id=? AND on_date=?',[$tenant,$item,$tomorrow]);
     $db->rows('UPDATE catalog_menuitem SET price=? WHERE tenant_id=? AND id=?',['350.00',$tenant,$item]);
     $db->rows('UPDATE tenancy_tenantconfig SET features=? WHERE tenant_id=?',[json_encode(['website_ordering'=>true,'manual_payments'=>true,'snacks_courier'=>true]),$tenant]);$store->reload();
     test('checkout refuses unserved pincodes and area minimum bypasses',function()use($store,$checkout,$details,$tomorrow,$slot,$item){
@@ -198,6 +198,27 @@ try {
         $cfg=$store->config['checkout_settings'];$cfg['courier_online_enabled']=true;$db->rows('UPDATE tenancy_tenantconfig SET checkout_settings=? WHERE tenant_id=?',[json_encode($cfg),$store->id()]);$store->reload();$d=$details;$d['city']='Coimbatore';$d['pincode']='641001';$d['country']='India';$q=Annam\Pricing::totals([Annam\Pricing::line($store->item($shop),1)],0,$store->profile())+['kind'=>'courier','zone'=>[],'slot'=>null,'date'=>null,'courier_deferred'=>true];$o=$orders->create($q,$d,'courier-online-fixture','manual','tester');foreach(['confirmed','preparing','out_for_delivery'] as $state)$orders->advance($o['id'],$state,'tester');$courier=new Annam\Courier($store);$courier->dispatch($o['id'],'75','Courier','track-online','tester');$calls=0;$providerOrder='order_courierfixture';
         Annam\Http::$transport=function($method,$url,$headers,$body)use(&$calls,$providerOrder){if($method==='POST'){$calls++;return ['id'=>$providerOrder,'amount'=>$body['amount'],'currency'=>'INR','receipt'=>$body['receipt']];}return ['id'=>'pay_courierfixture','order_id'=>$providerOrder,'amount'=>7500,'currency'=>'INR','status'=>'captured','captured'=>true];};
         $service=new Annam\CourierPayments($store);$p=$service->start($o['id']);$service->start($o['id']);check($calls===1,'Courier provider order duplicated');$e=['razorpay_payment_id'=>'pay_courierfixture','razorpay_order_id'=>$providerOrder,'razorpay_signature'=>'bad'];expectError(fn()=>$service->verify($o['id'],$e),403);$e['razorpay_signature']=hash_hmac('sha256',$providerOrder.'|pay_courierfixture','fixture-secret');$service->verify($o['id'],$e);check(!$courier->get($o['id'])['paid_at'],'Test payment settled courier charge');check($orders->get($o['id'])['payment_status']==='pending','Courier changed food payment');$invalid=['id'=>'pay_courierfixture','order_id'=>$providerOrder,'amount'=>1,'currency'=>'INR','status'=>'captured','captured'=>true];expectError(fn()=>$service->apply($p['id'],$invalid),422);
+    });
+
+
+    test('breakfast lunch and dinner inherit independently until an explicit saved change',function()use($store,$db,$resources,$tenant){
+        $item=$resources->save('dishes',null,['name'=>'Repeat fixture','fulfilment'=>'scheduled','price'=>'125.20','active'=>'1','in_stock'=>'1','sort'=>'0']);
+        $first=date('Y-m-d',strtotime('+30 days'));$next=date('Y-m-d',strtotime('+31 days'));$later=date('Y-m-d',strtotime('+32 days'));
+        foreach(['breakfast','lunch','dinner'] as $key){
+            $slot=$db->one('SELECT id FROM catalog_slot WHERE tenant_id=? AND key=?',[$tenant,$key]);
+            $id=$slot?(int)$slot['id']:insert($db,'catalog_slot',['tenant_id'=>$tenant,'key'=>$key,'label'=>ucfirst($key),'order_cutoff'=>'23:59:59','order_days_before'=>1,'order_opens_at'=>'00:00:00','sort'=>0,'active'=>true]);
+            $store->saveMenu($first,$id,[$item],0);
+            $db->rows("UPDATE catalog_menuschedule SET qty_limit=3,qty_sold=3,price_override='120.10' WHERE tenant_id=? AND slot_id=? AND on_date=? AND item_id=?",[$tenant,$id,$first,$item]);
+            $menu=$store->menu($next,$id);check(count($menu)===1&&(int)$menu[0]['id']===$item,'Next-day meal missing');check($menu[0]['inherited']&&$menu[0]['qty_sold']===0&&$menu[0]['effective_price']==='120.10','Inherited portions or price incorrect');
+            $db->transaction(function()use($store,$db,$next,$id,$menu){$store->lock();$schedule=$store->inventorySchedule($next,$id,$menu[0]);$db->rows('UPDATE catalog_menuschedule SET qty_sold=2 WHERE tenant_id=? AND id=?',[$store->id(),$schedule]);});
+            check((int)$store->menu($next,$id)[0]['qty_sold']===2,'Target-day inventory was lost');
+            $store->setDayAvailability($next,$id,$item,false,0);check($store->menu($next,$id)===[],'Dated removal failed');check($store->menu($later,$id)===[],'An explicitly empty meal reappeared');
+            $source=$db->one('SELECT qty_sold FROM catalog_menuschedule WHERE tenant_id=? AND slot_id=? AND item_id=? AND on_date=?',[$tenant,$id,$item,$first]);check((int)$source['qty_sold']===3,'Previous-day portions changed');
+        }
+        $features=$store->config['features'];$features['carry_forward_meals']=false;$db->rows('UPDATE tenancy_tenantconfig SET features=? WHERE tenant_id=?',[json_encode($features),$tenant]);$store->reload();check(!$store->carriesForward($id),'Explicitly disabled carry-forward was ignored');
+    });
+    test('quantity adjustments use server validation and remove the final cart line',function()use($store,$shop){
+        unset($_SESSION['cart']);Cart::adjust($store,['item_id'=>$shop,'delta'=>1]);check(Cart::selection($shop)['quantity']===1,'Add did not increment');Cart::adjust($store,['item_id'=>$shop,'delta'=>1]);check(Cart::selection($shop)['quantity']===2,'Second increment failed');Cart::adjust($store,['item_id'=>$shop,'delta'=>-1]);check(Cart::selection($shop)['quantity']===1,'Decrement failed');Cart::adjust($store,['item_id'=>$shop,'delta'=>-1]);check(Cart::selection($shop)['quantity']===0,'Last item remains');expectError(fn()=>Cart::adjust($store,['item_id'=>$shop,'delta'=>500]),422);
     });
 
     Annam\Http::$transport=null;

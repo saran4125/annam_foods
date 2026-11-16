@@ -44,3 +44,9 @@ function image_url(?string $name): string {
     if (str_starts_with($name, '/') || str_contains($name, '://')) return '';
     return '/media/' . implode('/', array_map('rawurlencode', explode('/', $name)));
 }
+
+function asset_url(string $name): string {
+    if(!preg_match('/^[a-zA-Z0-9._-]+\.(css|js)$/D',$name))throw new \InvalidArgumentException('Invalid asset.');
+    foreach([ANNAM_ROOT.'/public/assets/',dirname(ANNAM_ROOT).'/public_html/assets/'] as $root)if(is_file($root.$name))return '/assets/'.$name.'?v='.substr(hash_file('sha256',$root.$name),0,12);
+    return '/assets/'.$name;
+}

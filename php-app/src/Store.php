@@ -88,18 +88,38 @@ final class Store {
         if (!$date || $date->format('Y-m-d') !== $value) throw new HttpError(422, 'Choose a valid menu date.');
         return $value;
     }
-    public function menu(string $date, int $slotId, bool $includeUnavailable = false): array {
-        self::date($date); $this->slot($slotId);
-        $day = $this->db->one('SELECT * FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?', [$this->id(), $slotId, $date]);
-        $params = [$this->id(), $slotId, $date];
-        $condition = '(s.mode=\'date\' AND s.on_date=?)';
-        if (!$day) { $condition .= ' OR (s.mode=\'weekday\' AND s.weekday=?)'; $params[] = (int)(new \DateTimeImmutable($date))->format('N') - 1; }
-        $rows = $this->db->rows('SELECT i.*,s.id AS schedule_id,s.mode,s.available,s.qty_limit,s.qty_sold,COALESCE(s.price_override,i.price) AS effective_price FROM catalog_menuschedule s JOIN catalog_menuitem i ON i.id=s.item_id AND i.tenant_id=s.tenant_id WHERE s.tenant_id=? AND s.slot_id=? AND (' . $condition . ') AND i.fulfilment=\'scheduled\' ORDER BY CASE WHEN s.mode=\'date\' THEN 1 ELSE 0 END', $params);
-        $chosen = [];
-        foreach ($rows as $row) $chosen[(int)$row['id']] = $row;
-        $result = array_filter(array_values($chosen), fn($r) => $r['active'] && ($includeUnavailable || ($r['available'] && ($r['in_stock']??true) && ($r['qty_limit'] === null || $r['qty_sold'] < $r['qty_limit']))));
-        usort($result, fn($a, $b) => [$a['sort'], $a['name']] <=> [$b['sort'], $b['name']]);
-        return array_values($result);
+    public function carriesForward(int $slotId): bool {
+        $slot=$this->slot($slotId);if(!in_array($slot['key'],['breakfast','lunch','dinner'],true))return false;
+        return array_key_exists('carry_forward_meals',$this->config['features'])?($this->config['features']['carry_forward_meals']===true):true;
+    }
+    public function effectiveMenuRows(string $date,int $slotId):array {
+        self::date($date);$this->slot($slotId);
+        $day=$this->db->one('SELECT id FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?',[$this->id(),$slotId,$date]);
+        $previous=!$day&&$this->carriesForward($slotId)?$this->db->one('SELECT on_date FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date<? ORDER BY on_date DESC LIMIT 1',[$this->id(),$slotId,$date]):null;
+        $condition="(s.mode='date' AND s.on_date=?)";$params=[$this->id(),$slotId,$date];
+        if($previous){$condition.=" OR (s.mode='date' AND s.on_date=?)";$params[]=$previous['on_date'];}
+        elseif(!$day){$condition.=" OR (s.mode='weekday' AND s.weekday=?)";$params[]=(int)(new \DateTimeImmutable($date))->format('N')-1;}
+        $rows=$this->db->rows('SELECT i.*,s.id AS schedule_id,s.mode,s.on_date AS source_date,s.available,s.qty_limit,s.qty_sold,s.price_override,COALESCE(s.price_override,i.price) AS effective_price FROM catalog_menuschedule s JOIN catalog_menuitem i ON i.id=s.item_id AND i.tenant_id=s.tenant_id WHERE s.tenant_id=? AND s.slot_id=? AND ('.$condition.") AND i.fulfilment='scheduled'",$params);
+        $defaults=[];$dated=[];foreach($rows as $r){$r['inherited']=$r['mode']==='date'&&$r['source_date']!==$date;if($r['inherited'])$r['qty_sold']=0;if($r['mode']==='date'&&$r['source_date']===$date)$dated[(int)$r['id']]=$r;else $defaults[(int)$r['id']]=$r;}
+        return array_replace($defaults,$dated);
+    }
+    public function menu(string $date,int $slotId,bool $includeUnavailable=false):array {
+        $rows=$this->effectiveMenuRows($date,$slotId);
+        $result=array_filter(array_values($rows),fn($r)=>$r['active']&&($includeUnavailable||($r['available']&&($r['in_stock']??true)&&($r['qty_limit']===null||$r['qty_sold']<$r['qty_limit']))));
+        usort($result,fn($a,$b)=>[$a['sort'],$a['name']]<=>[$b['sort'],$b['name']]);return array_values($result);
+    }
+    private function materializeMenu(string $date,int $slotId):void {
+        if($this->db->one('SELECT id FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?',[$this->id(),$slotId,$date]))return;
+        foreach($this->effectiveMenuRows($date,$slotId) as $r)if($r['mode']!=='date'||$r['source_date']!==$date)$this->db->rows("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'date',?,NULL,?,?,?,?)",[$this->id(),$r['id'],$slotId,$date,$r['available'],$r['qty_limit'],$r['qty_sold'],$r['price_override']]);
+        $this->db->rows('INSERT INTO catalog_menuday(tenant_id,slot_id,on_date,revision,updated_at) VALUES(?,?,?,0,CURRENT_TIMESTAMP)',[$this->id(),$slotId,$date]);
+    }
+    public function inventorySchedule(string $date,int $slotId,array $entry):int {
+        if(empty($entry['inherited']))return (int)$entry['schedule_id'];
+        // Called while the order owns the store lock. Tomorrow's reservations
+        // use their own row and never consume yesterday's daily portions.
+        $row=$this->db->one("SELECT id FROM catalog_menuschedule WHERE tenant_id=? AND item_id=? AND slot_id=? AND mode='date' AND on_date=?",[$this->id(),$entry['id'],$slotId,$date]);
+        if(!$row)$row=$this->db->one("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'date',?,NULL,?,?,0,?) RETURNING id",[$this->id(),$entry['id'],$slotId,$date,$entry['available'],$entry['qty_limit'],$entry['price_override']]);
+        return (int)$row['id'];
     }
     public function menuRevision(string $date, int $slotId): int {
         $row = $this->db->one('SELECT revision FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?', [$this->id(), $slotId, self::date($date)]);
@@ -118,6 +138,7 @@ final class Store {
                 $item = $this->item($id);
                 if ($item['fulfilment'] !== 'scheduled' || !$item['active']) throw new HttpError(422, 'Choose active meal dishes only.');
             }
+            $this->materializeMenu($date,$slotId);
             $this->db->rows('INSERT INTO catalog_menuday(tenant_id,slot_id,on_date,revision,updated_at) VALUES(?,?,?,1,CURRENT_TIMESTAMP) ON CONFLICT(tenant_id,slot_id,on_date) DO UPDATE SET revision=catalog_menuday.revision+1,updated_at=CURRENT_TIMESTAMP', [$this->id(), $slotId, $date]);
             // Do not delete schedules or reset stock counters for a previously ordered dish.
             $this->db->rows('UPDATE catalog_menuschedule SET available=FALSE WHERE tenant_id=? AND slot_id=? AND mode=\'date\' AND on_date=?', [$this->id(), $slotId, $date]);
@@ -133,12 +154,7 @@ final class Store {
         if($date<date('Y-m-d')||$item['fulfilment']!=='scheduled')throw new HttpError(422,'Choose a current meal date and scheduled dish.');
         $this->db->transaction(function()use($date,$slotId,$itemId,$available,$revision){
             $this->lock();if($revision!==$this->menuRevision($date,$slotId))throw new HttpError(409,'This menu changed. Reload before saving.');
-            $saved=$this->db->one('SELECT id FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?',[$this->id(),$slotId,$date]);
-            if(!$saved){
-                // Copy effective inherited rows before saving the first full dated menu.
-                $rows=$this->db->rows("SELECT * FROM catalog_menuschedule WHERE tenant_id=? AND slot_id=? AND ((mode='date' AND on_date=?) OR (mode='weekday' AND weekday=?)) ORDER BY CASE WHEN mode='date' THEN 1 ELSE 0 END",[$this->id(),$slotId,$date,(int)(new \DateTimeImmutable($date))->format('N')-1]);$effective=[];foreach($rows as $r)$effective[$r['item_id']]=$r;
-                foreach($effective as $r)if($r['mode']!=='date')$this->db->rows("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'date',?,NULL,?,?,?,?)",[$this->id(),$r['item_id'],$slotId,$date,$r['available'],$r['qty_limit'],$r['qty_sold'],$r['price_override']]);
-            }
+            $this->materializeMenu($date,$slotId);
             $this->db->rows('INSERT INTO catalog_menuday(tenant_id,slot_id,on_date,revision,updated_at) VALUES(?,?,?,1,CURRENT_TIMESTAMP) ON CONFLICT(tenant_id,slot_id,on_date) DO UPDATE SET revision=catalog_menuday.revision+1,updated_at=CURRENT_TIMESTAMP',[$this->id(),$slotId,$date]);
             $row=$this->db->one("SELECT id FROM catalog_menuschedule WHERE tenant_id=? AND slot_id=? AND item_id=? AND mode='date' AND on_date=?",[$this->id(),$slotId,$itemId,$date]);
             if($row)$this->db->rows('UPDATE catalog_menuschedule SET available=? WHERE tenant_id=? AND id=?',[$available,$this->id(),$row['id']]);
