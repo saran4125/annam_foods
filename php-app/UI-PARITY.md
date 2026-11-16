@@ -19,7 +19,8 @@ only the reviewed public catalog, approved delivery zones and local media, with
 no live customer/order history, existing user accounts or provider credentials.
 The ten screenshot-reviewed breakfast products are included; Rava uppuma and
 Rasam Vadai are sold out. Rava uppuma has no verified photo. Existing meal dates
-are preserved. The latest saved Breakfast, Lunch and Dinner continue on later
+are preserved, with the reviewed ten-dish breakfast starting on 16 November 2026.
+The latest saved Breakfast, Lunch and Dinner continue on later
 unsaved dates; a saved changed or empty meal takes precedence. Daily portion
 counters are separate. Staff can disable this under Store settings → Ordering.
 Snacks retain their existing date/weekday schedule. Save the reviewed dishes using
@@ -74,3 +75,6 @@ the browser. Confirm the offer banner, compact Cart, category arrows/counts,
 manage pages and Store settings meal-continuation toggle. No Python service or
 Django database migration is needed. A Git push alone does not update a separately
 hosted PHP server.
+
+For the separately downloadable fresh-install SQLite database and its verification
+limits, see [DATABASE-RELEASE.md](DATABASE-RELEASE.md).

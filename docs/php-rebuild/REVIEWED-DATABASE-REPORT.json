@@ -1,0 +1,202 @@
+{
+  "built_on": "2026-11-16",
+  "source": "Original verified public SQLite snapshot plus reviewed Python manifests at 6b626cb",
+  "live_postgresql_export": false,
+  "live_postgresql_modified": false,
+  "database_checks": {
+    "integrity": "ok",
+    "foreign_keys": "ok",
+    "private_operational_rows": 0,
+    "approved_delivery_records_verified": 64
+  },
+  "counts": {
+    "catalog_catalogsyncrun": 1,
+    "catalog_menucategory": 41,
+    "catalog_menuday": 4,
+    "catalog_menuitem": 325,
+    "catalog_menuschedule": 35,
+    "catalog_slot": 4,
+    "content_banner": 1,
+    "content_page": 4,
+    "content_storefrontimage": 0,
+    "delivery_deliveryzone": 64,
+    "tenancy_billingprofile": 1,
+    "tenancy_tenant": 1,
+    "tenancy_tenantconfig": 1
+  },
+  "breakfast": {
+    "starting_date": "2026-11-16",
+    "scheduled_dishes": 10,
+    "in_stock": 8,
+    "stock_source": "Owner-reviewed screenshot manifest"
+  },
+  "public_menu_comparison": {
+    "breakfast": {
+      "source_url": "https://annam-foods-9j2m.onrender.com/menu/?date=2026-11-16&slot=breakfast",
+      "items": [
+        {
+          "id": 316,
+          "name": "Rasam Vadai (1)",
+          "price": "70",
+          "image": "catalog/bdf62f5daa13cf59cf69bc0ddcdd3037.jpg"
+        },
+        {
+          "id": 325,
+          "name": "Rava uppuma",
+          "price": "110",
+          "image": ""
+        },
+        {
+          "id": 317,
+          "name": "Sambar Vadai (1)",
+          "price": "70",
+          "image": "catalog/66544bd1b11f497462d08bbc285d291f.jpg"
+        },
+        {
+          "id": 17,
+          "name": "Idly (4)",
+          "price": "110",
+          "image": "menu/e3bb90320e2d49dab70640ac.jpg"
+        },
+        {
+          "id": 49,
+          "name": "Ghee Podi Dosa (2)",
+          "price": "130",
+          "image": "menu/d97592eb077ac585bbd58834.jpg"
+        },
+        {
+          "id": 69,
+          "name": "Plain Dosa (2)",
+          "price": "110",
+          "image": "menu/4021c759a03535eec79e5133.jpg"
+        },
+        {
+          "id": 89,
+          "name": "Idly with Vadai",
+          "price": "110",
+          "image": "menu/8731bcc4d45dc34f58092a95.jpg"
+        },
+        {
+          "id": 225,
+          "name": "Vadai (1)",
+          "price": "25",
+          "image": "menu/c7e38203859800e37fae40af.jpg"
+        },
+        {
+          "id": 262,
+          "name": "Ghee Dosa (2)",
+          "price": "120",
+          "image": "menu/09d6f25b9a3d7c18ab26a1b2.jpg"
+        },
+        {
+          "id": 263,
+          "name": "Sambar Idly (2)",
+          "price": "80",
+          "image": "menu/b96baf1ab53ac273f5309f71.jpg"
+        }
+      ],
+      "scope": "Published product names, prices and photograph content only; availability, hidden rows and private tables require direct database access.",
+      "matching_product_records": true,
+      "mismatching_product_ids": []
+    },
+    "lunch": {
+      "source_url": "https://annam-foods-9j2m.onrender.com/menu/?date=2026-11-16&slot=lunch",
+      "items": [
+        {
+          "id": 319,
+          "name": "Chow Chow Kootu",
+          "price": "50",
+          "image": ""
+        },
+        {
+          "id": 321,
+          "name": "Kose Poriyal",
+          "price": "50",
+          "image": ""
+        },
+        {
+          "id": 320,
+          "name": "Morekuzhambu",
+          "price": "50",
+          "image": ""
+        },
+        {
+          "id": 318,
+          "name": "Spl Bisibelabath",
+          "price": "150",
+          "image": ""
+        },
+        {
+          "id": 32,
+          "name": "Tomato Rasam",
+          "price": "50",
+          "image": "menu/20021b3f684db0cf6dbf991c.jpg"
+        },
+        {
+          "id": 34,
+          "name": "Full meals with rice",
+          "price": "210",
+          "image": "menu/bc22fc2e05b8b7da0f4aef8d.jpg"
+        },
+        {
+          "id": 35,
+          "name": "Full meals without rice",
+          "price": "160",
+          "image": "menu/6563e411949775f1a71162f4.jpg"
+        }
+      ],
+      "scope": "Published product names, prices and photograph content only; availability, hidden rows and private tables require direct database access.",
+      "matching_product_records": true,
+      "mismatching_product_ids": []
+    },
+    "dinner": {
+      "source_url": "https://annam-foods-9j2m.onrender.com/menu/?date=2026-11-16&slot=dinner",
+      "items": [
+        {
+          "id": 323,
+          "name": "Idiyappam (4)",
+          "price": "110",
+          "image": "site/d8816bc4207e78f44853df9c8cab8e38.jpg"
+        },
+        {
+          "id": 322,
+          "name": "Kancheepuram Idly (2)",
+          "price": "130",
+          "image": ""
+        },
+        {
+          "id": 324,
+          "name": "Onion Chennai Masala",
+          "price": "80",
+          "image": ""
+        },
+        {
+          "id": 26,
+          "name": "Only Chapathi",
+          "price": "15",
+          "image": "menu/13e8eb75204387f21bca3e5b.png"
+        },
+        {
+          "id": 27,
+          "name": "Pasiparuppu Dhall",
+          "price": "60",
+          "image": "menu/f1944730cea71e34e45d0643.jpg"
+        },
+        {
+          "id": 28,
+          "name": "Poori (2)",
+          "price": "110",
+          "image": "menu/76aa9b37e34f5899073c7ae9.jpg"
+        }
+      ],
+      "scope": "Published product names, prices and photograph content only; availability, hidden rows and private tables require direct database access.",
+      "matching_product_records": true,
+      "mismatching_product_ids": []
+    }
+  },
+  "remaining_comparison": [
+    "Direct PostgreSQL connections closed before authentication; full live database comparison is not complete.",
+    "Published pages do not establish stock flags, hidden rows, settings, accounts or transaction history.",
+    "Original snapshot keeps Chapathi (1), ID 24, in its dinner schedule; the live public dinner page does not show this dish. Source history was preserved rather than inferred/deleted."
+  ]
+}

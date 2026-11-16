@@ -1,6 +1,6 @@
 # Updated PHP downloads
 
-These archives contain PHP application source from commit `d64c3db` on `php-rebuild`.
+These archives contain the current PHP application source and reviewed database release on `php-rebuild`.
 
 - [Download the entire PHP source ZIP](https://github.com/saran4125/annam_foods/raw/refs/heads/php-rebuild/docs/php-rebuild/annam-foods-php-source.zip)
 - [Download the existing-site update ZIP](https://github.com/saran4125/annam_foods/raw/refs/heads/php-rebuild/docs/php-rebuild/annam-foods-php-ui-update.zip)
@@ -14,3 +14,15 @@ inside it: merge the private code and public assets, keep the existing database,
 configuration and media, then restart PHP / clear OPcache and refresh the browser.
 
 SHA-256 checksums are in `PHP-ZIPS-SHA256.txt`.
+
+## Reviewed fresh-install database
+
+[Download the reviewed PHP database ZIP](https://github.com/saran4125/annam_foods/raw/refs/heads/php-rebuild/docs/php-rebuild/annam-foods-php-reviewed-database.zip).
+
+Contains 325 catalog products, 64 approved delivery areas and the reviewed
+breakfast starting menu. Read `READ-DATABASE-FIRST.md` inside the archive.
+This is a reviewed public snapshot plus Python manifests, **not a full live Render
+export**. It contains no existing accounts/orders, uploaded media or provider keys.
+Use it only for a fresh installation. Keep an existing site's database and private
+configuration. `REVIEWED-DATABASE-REPORT.json` documents what was verified and the
+remaining live-data comparison limits.
