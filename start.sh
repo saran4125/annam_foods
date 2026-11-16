@@ -2,6 +2,14 @@
 # Render start: migrate, load Annam on the very first boot only, then serve.
 set -euo pipefail
 
+# Explicit, temporary opt-in for the public PHP snapshot. Existing records stay
+# unchanged. Remove this environment flag after a successful restore deployment.
+restore_missing_php_data() {
+  if [ "${RESTORE_MISSING_PHP_DATA:-0}" = "1" ]; then
+    python manage.py restore_missing_php_data --tenant "${STORE_SLUG:-annam}" --apply
+  fi
+}
+
 python manage.py migrate --noinput
 python manage.py sync_annam_catalog --tenant "${STORE_SLUG:-annam}" --apply --if-provisioned
 python manage.py apply_original_images
@@ -16,12 +24,14 @@ if [ -n "${SEED_OWNER_PASSWORD:-}" ] && [ -n "${SEED_DOMAIN}" ]; then
   (
     SEED_ONLY_IF_EMPTY=1 SEED_DOWNLOAD_ASSETS=1 python scripts/seed_local.py
     python manage.py sync_annam_catalog --tenant "${STORE_SLUG:-annam}" --apply
+    restore_missing_php_data
     python manage.py apply_original_images
     python manage.py materialize_media --download
   ) &
 else
   (
     python manage.py sync_annam_catalog --tenant "${STORE_SLUG:-annam}" --apply
+    restore_missing_php_data
     python manage.py apply_original_images
     python manage.py materialize_media --download
   ) &
