@@ -18,6 +18,7 @@ FEATURES = {
     "cod": Feature(False, "Cash on delivery"),
     "manual_payments": Feature(True, "Owner-recorded offline payments"),
     "snacks_courier": Feature(False, "Courier-fulfilled goods"),
+    "carry_forward_breakfast": Feature(False, "Use the latest saved breakfast on following unsaved dates"),
     "seasonal_offers": Feature(False, "Seasonal collections"),
     "invoice_on_request": Feature(True, "Chat bill requests"),
     "owner_whatsapp_commands": Feature(False, "Owner commands in WhatsApp"),

@@ -4,7 +4,7 @@ from django.db import transaction
 from apps.tenancy.models import TenantConfig
 from apps.tenancy.context import get_current_tenant
 from .models import MenuDay, MenuItem, MenuSchedule, ScheduleMode, Slot
-from .services import models_q_date, models_q_weekday
+from .services import effective_menu_rows
 
 
 def _lock_store(slot):
@@ -19,15 +19,13 @@ def _materialize(slot, on_date):
     plan = MenuDay.objects.filter(slot=slot, on_date=on_date).first()
     if plan:
         return plan
-    weekly, dated = {}, {}
-    rows = MenuSchedule.objects.filter(slot=slot, item__fulfilment='scheduled').filter(
-        models_q_date(on_date) | models_q_weekday(on_date.weekday()))
-    for row in rows:
-        (dated if row.mode == ScheduleMode.DATE else weekly)[row.item_id] = row
-    for item_id, source in {**weekly, **dated}.items():
-        if item_id not in dated:
+    for item_id, source in effective_menu_rows(on_date, slot).items():
+        if source.item.fulfilment != 'scheduled':
+            continue
+        if source.mode != ScheduleMode.DATE or source.on_date != on_date:
+            inherited = source.mode == ScheduleMode.DATE
             MenuSchedule.objects.create(item_id=item_id, slot=slot, mode=ScheduleMode.DATE, on_date=on_date,
-                available=source.available, qty_limit=source.qty_limit, qty_sold=source.qty_sold,
+                available=source.available, qty_limit=source.qty_limit, qty_sold=0 if inherited else source.qty_sold,
                 price_override=source.price_override)
     return MenuDay.objects.create(slot=slot, on_date=on_date)
 

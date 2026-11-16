@@ -10,7 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.tenancy.context import tenant_context
-from apps.tenancy.models import Tenant
+from apps.tenancy.models import Tenant, TenantConfig
 from .daily_menus import save_daily_menu
 from .models import CatalogSyncRun, MenuDay, MenuItem, Slot
 from .services import resolve_menu
@@ -25,6 +25,11 @@ def publish_reviewed_breakfast(tenant):
     if tenant.slug != plan['tenant_slug'] or tenant.slug != catalog['tenant_slug']:
         raise ValidationError('This breakfast menu belongs to a different store.')
     Tenant.objects.select_for_update().get(pk=tenant.pk)
+    config = TenantConfig.objects.select_for_update().get(tenant=tenant)
+    if 'carry_forward_breakfast' not in config.features:
+        config.features = {**config.features, 'carry_forward_breakfast': True}
+        config.save(update_fields=['features'])
+        tenant._state.fields_cache.pop('config', None)
     with tenant_context(tenant):
         if CatalogSyncRun.objects.filter(version=plan['version']).exists():
             return {'already_applied': True}

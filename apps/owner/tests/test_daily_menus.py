@@ -12,6 +12,7 @@ from apps.catalog.services import resolve_menu
 from apps.catalog.daily_menus import save_daily_menu, set_daily_availability
 from apps.orders.services import price_lines, RequestedLine, ItemNotOnMenu
 from apps.tenancy.context import tenant_context
+from apps.tenancy.models import TenantConfig
 from .test_menu_groups import grouped
 from .test_owner import kitchens, catalog, signed_in, owner, HOST, OTHER
 
@@ -185,3 +186,23 @@ def test_saved_empty_date_is_empty_in_management_and_offers_existing_dish_picker
     assert b'No dishes selected for Friday, 23 October breakfast' in page.content
     assert page.context['menu_ui']['counts']['slots'][grouped['breakfast'].pk] == 0
     assert b'Choose dishes' in page.content
+
+
+def test_breakfast_picker_starts_from_the_last_saved_menu_and_saved_edits_continue(signed_in, grouped, kitchens):
+    tenant = kitchens[0]
+    config = TenantConfig.objects.get(tenant=tenant)
+    config.features = {**config.features, 'carry_forward_breakfast': True}
+    config.save(update_fields=['features'])
+    tenant.refresh_from_db()
+    with tenant_context(tenant):
+        save_daily_menu(slot=grouped['breakfast'], on_date=DAY, item_ids=[grouped['b'].pk], revision=0)
+    tomorrow = DAY + timedelta(days=1)
+    response = signed_in.get(picker_url(day=tomorrow), HTTP_HOST=HOST)
+    assert response.status_code == 200
+    assert response.context['form'].initial['items'] == [grouped['b'].pk]
+    assert b'latest saved breakfast' in response.content
+    response = signed_in.post(picker_url(day=tomorrow), {'items': [grouped['shared'].pk], 'revision': '0'}, HTTP_HOST=HOST)
+    assert response.status_code == 302
+    with tenant_context(tenant):
+        assert ids(DAY, grouped['breakfast']) == {grouped['b'].pk}
+        assert ids(DAY + timedelta(days=2), grouped['breakfast']) == {grouped['shared'].pk}

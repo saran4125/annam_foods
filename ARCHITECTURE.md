@@ -515,8 +515,11 @@ longer part of this application scope.
 
 The owner-requested breakfast list is scheduled once for 16 November 2026 by
 `publish_reviewed_breakfast`. It adds the reviewed products to that date's menu,
-preserves existing dishes, stock and other dates, and does not repeat after staff
-edits or publish the same list on later dates automatically.
+preserves existing dishes and stock, and does not reapply the initial list after
+staff edits. The owner-enabled `carry_forward_breakfast` feature uses the latest
+saved breakfast for subsequent dates without their own saved menu. Explicit
+saved menus, including empty menus, override this default. Materializing a new
+date resets inherited sold quantities while preserving the source date.
 
 Homepage product photos can be chosen through `TenantConfig.theme.hero_product_ids`
 (ordered retailer IDs). The reviewed podi selection is installed once by

@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.db.models import Count, Q
 
 from apps.catalog.models import MenuCategory, MenuItem, MenuSchedule, Slot, MenuDay
+from apps.catalog.services import breakfast_carries_forward
 
 
 def menu_selection(params):
@@ -21,7 +22,8 @@ def menu_selection(params):
         return {'kind': kind, 'slot': None, 'meal': 'unassigned', 'label': 'Not assigned', 'slots': slots, 'on_date': on_date}
     default = keys.get('breakfast') or (slots[0] if slots else None)
     slot = keys.get(requested) or default
-    return {'kind': kind, 'slot': slot, 'meal': slot.key, 'label': slot.label, 'slots': slots, 'on_date': on_date}
+    return {'kind': kind, 'slot': slot, 'meal': slot.key, 'label': slot.label, 'slots': slots, 'on_date': on_date,
+            'carry_forward': breakfast_carries_forward(slot)}
 
 
 def menu_items(selection):

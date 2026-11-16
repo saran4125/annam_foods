@@ -49,7 +49,7 @@
 
   <section class="o-card" data-reveal>
     <header class="o-card-head"><h2>Selling</h2></header>
-    {% for f in form %}{% if f.name == "website_ordering" or f.name == "snacks_courier" %}
+    {% for f in form %}{% if f.name == "website_ordering" or f.name == "snacks_courier" or f.name == "carry_forward_breakfast" %}
     {% include "owner/_toggle.html" %}
     {% endif %}{% endfor %}
   </section>

@@ -10,6 +10,7 @@ from decimal import Decimal
 from django.utils import timezone
 
 from .models import MenuCategory, MenuItem, MenuSchedule, ScheduleMode, Slot, MenuDay
+from apps.tenancy.context import get_current_tenant
 
 
 @dataclass(frozen=True)
@@ -28,41 +29,53 @@ class MenuEntry:
         return self.available and not self.sold_out
 
 
-def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = False, *, include_inactive=False):
-    """The menu for one date and slot.
+def breakfast_carries_forward(slot):
+    tenant = get_current_tenant()
+    return bool(tenant and tenant.pk == slot.tenant_id and slot.key == 'breakfast'
+                and tenant.feature('carry_forward_breakfast'))
 
-    An explicitly saved MenuDay uses only dated rows, including an empty menu.
-    Otherwise dated rows override the weekday template dish by dish. Existing
-    schedules are preserved until staff save the actual date's full menu.
-    An item with neither row is simply not on the menu.
 
-    Runs inside the current tenant's scope; callers must already be in one.
-    """
-    weekday = on_date.weekday()
-
+def effective_menu_rows(on_date, slot):
+    """Choose scoped rows; a saved date always overrides an inherited default."""
     date_only = MenuDay.objects.filter(slot=slot, on_date=on_date).exists()
-    condition = models_q_date(on_date) if date_only else models_q_date(on_date) | models_q_weekday(weekday)
+    previous = None
+    if not date_only and breakfast_carries_forward(slot):
+        previous = MenuDay.objects.filter(slot=slot, on_date__lt=on_date).order_by('-on_date').first()
+    if date_only:
+        condition = models_q_date(on_date)
+    elif previous:
+        condition = models_q_date(previous.on_date) | models_q_date(on_date)
+    else:
+        condition = models_q_date(on_date) | models_q_weekday(on_date.weekday())
     rows = MenuSchedule.objects.filter(slot=slot).filter(condition).select_related("item", "slot")
-
-    dated, weekly = {}, {}
+    dated, defaults = {}, {}
     for row in rows:
-        if row.mode == ScheduleMode.DATE:
+        if row.mode == ScheduleMode.DATE and row.on_date == on_date:
             dated[row.item_id] = row
         else:
-            weekly[row.item_id] = row
+            defaults[row.item_id] = row
+    return {**defaults, **dated}
 
-    chosen = {**weekly, **dated}  # dated overwrites weekly on collision
 
+def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = False, *, include_inactive=False):
+    """Resolve a saved date, opted-in breakfast default, or legacy weekly menu.
+
+    Explicitly saved empty menus remain empty. Inherited breakfast rows get fresh
+    daily quantities; the source date's sales never make tomorrow sold out.
+    """
+    chosen = effective_menu_rows(on_date, slot)
     entries = []
     for item_id, row in chosen.items():
         if row.item.fulfilment != "scheduled" or (not row.item.active and not include_inactive):
             continue
+        inherited = row.mode == ScheduleMode.DATE and row.on_date != on_date
+        sold_out = (row.qty_limit is not None and row.qty_limit <= 0) if inherited else row.is_sold_out
         entry = MenuEntry(
             item=row.item,
             slot=row.slot,
             price=row.effective_price,
             available=row.available,
-            sold_out=row.is_sold_out or not row.item.in_stock,
+            sold_out=sold_out or not row.item.in_stock,
             source=row.mode,
         )
         if include_unavailable or entry.is_orderable:

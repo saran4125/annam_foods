@@ -117,6 +117,9 @@ class DishForm(StyledForm):
             self.fields['day_available'] = forms.BooleanField(required=False, initial=initial_available,
                 label='Available on ' + menu_date.strftime('%A, %d %B %Y'),
                 help_text='Changes this date only. Other dates and recurring schedules stay unchanged.')
+            from apps.catalog.services import breakfast_carries_forward
+            if menu_slot and breakfast_carries_forward(menu_slot):
+                self.fields['day_available'].help_text = 'Changes this breakfast and following dates without their own saved menu.'
 
     def clean_image(self):
         return _check_image(self.cleaned_data.get("image"))
@@ -296,6 +299,9 @@ class SettingsForm(forms.Form):
                                 widget=forms.Textarea(attrs={"rows": 3}))
     website_ordering = forms.BooleanField(required=False, label="Take orders on the website")
     snacks_courier = forms.BooleanField(required=False, label="Run the shop (shipped goods)")
+    carry_forward_breakfast = forms.BooleanField(required=False,
+        label="Repeat the latest saved breakfast on following days",
+        help_text="Keep serving the same breakfast until another menu is saved. Already saved dates keep their own menu.")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
