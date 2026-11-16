@@ -1,0 +1,77 @@
+{
+  "tenant_slug": "annam",
+  "version": "owner-breakfast-20261116-v1",
+  "source": "Owner screenshots of annamfood.in/categories/15th-monday-breakfast, 16 November 2026",
+  "items": [
+    {
+      "name": "Rava uppuma",
+      "price": "110",
+      "in_stock": false,
+      "retailer_id": "reviewed-breakfast:rava-uppuma",
+      "image": ""
+    },
+    {
+      "name": "Idly with Vadai",
+      "price": "110",
+      "in_stock": true,
+      "retailer_id": "IWV1",
+      "image": "catalog/8731bcc4d45dc34f58092a9541f7b248.jpg"
+    },
+    {
+      "name": "Idly (4)",
+      "price": "110",
+      "in_stock": true,
+      "retailer_id": "SI1",
+      "image": "catalog/e3bb90320e2d49dab70640ac20e6aaaf.jpg"
+    },
+    {
+      "name": "Plain Dosa (2)",
+      "price": "110",
+      "in_stock": true,
+      "retailer_id": "DOS1",
+      "image": "catalog/4021c759a03535eec79e5133371a6f9e.jpg"
+    },
+    {
+      "name": "Rasam Vadai (1)",
+      "price": "70",
+      "in_stock": false,
+      "retailer_id": "a64d8217f50b5f799a00207b7cc173cbd78a2c472a842f0d7f2a4781ca85",
+      "image": "catalog/bdf62f5daa13cf59cf69bc0ddcdd3037.jpg"
+    },
+    {
+      "name": "Sambar Vadai (1)",
+      "price": "70",
+      "in_stock": true,
+      "retailer_id": "85e5a529ee64d2c1b2b28cf189f9cda820a6048b63f9119e9075d4941201",
+      "image": "catalog/66544bd1b11f497462d08bbc285d291f.jpg"
+    },
+    {
+      "name": "Ghee Podi Dosa (2)",
+      "price": "130",
+      "in_stock": true,
+      "retailer_id": "BGP1",
+      "image": "catalog/d97592eb077ac585bbd58834fd16be0e.jpg"
+    },
+    {
+      "name": "Vadai (1)",
+      "price": "25",
+      "in_stock": true,
+      "retailer_id": "MBS2",
+      "image": "catalog/c7e38203859800e37fae40af652c0c5c.jpg"
+    },
+    {
+      "name": "Sambar Idly (2)",
+      "price": "80",
+      "in_stock": true,
+      "retailer_id": "MBV1",
+      "image": "catalog/b96baf1ab53ac273f5309f714cc5a68a.jpg"
+    },
+    {
+      "name": "Ghee Dosa (2)",
+      "price": "120",
+      "in_stock": true,
+      "retailer_id": "VAD1",
+      "image": "catalog/09d6f25b9a3d7c18ab26a1b281c759d7.jpg"
+    }
+  ]
+}

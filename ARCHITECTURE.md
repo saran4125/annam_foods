@@ -520,6 +520,12 @@ saved date menus, recurring availability, product IDs, prices and stock remain
 unchanged. Empty legacy categories are archived to preserve their URLs and metadata;
 shop shelves and festival categories remain independent.
 
+The owner-reviewed 16 November breakfast snapshot adds ten dishes to Breakfast,
+including sold-out Rava uppuma and Rasam Vadai. `sync_breakfast_catalog --apply`
+runs once per store during startup, preserving later staff edits. It adds no
+weekly or dated schedules. Breakfast's All dishes view includes explicitly
+categorized products, while date views still require a saved or inherited menu.
+
 Run PostgreSQL regression tests, Django checks and migration consistency before
 committing. Retired UI behavior tests are replaced by removal/redirect/access/data
 preservation tests; financial, checkout, billing, catalog, messaging and scoped-data

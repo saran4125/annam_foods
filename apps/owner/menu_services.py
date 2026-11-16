@@ -1,8 +1,8 @@
-"""Menu group selection uses saved schedules, never category-name guesses."""
+"""Catalog groups use explicit meal categories; dated menus use saved schedules."""
 from datetime import date
 from django.http import Http404
 from django.utils import timezone
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from apps.catalog.models import MenuCategory, MenuItem, MenuSchedule, Slot, MenuDay
 
@@ -29,24 +29,26 @@ def menu_items(selection):
     if selection['kind'] == 'courier':
         return items
     if selection['slot'] is None:
-        return items.filter(schedule__isnull=True)
+        return items.filter(schedule__isnull=True).exclude(category__slug__in=[slot.key for slot in selection['slots']])
     if selection['on_date']:
         from apps.catalog.services import resolve_menu
         entries = resolve_menu(selection['on_date'], selection['slot'], include_unavailable=True, include_inactive=True)
         return items.filter(pk__in=[entry.item.pk for entry in entries if entry.available])
-    return items.filter(schedule__slot=selection['slot']).distinct()
+    return items.filter(Q(schedule__slot=selection['slot']) | Q(category__slug=selection['slot'].key)).distinct()
 
 
 def menu_group_counts(on_date=None):
     items = MenuItem.objects.all()
     counts = dict(items.values('fulfilment').annotate(total=Count('pk')).values_list('fulfilment', 'total'))
-    per_slot = dict(MenuSchedule.objects.filter(item__fulfilment='scheduled')
-                    .values('slot_id').annotate(total=Count('item_id', distinct=True)).values_list('slot_id', 'total'))
+    if not on_date:
+        per_slot = {slot.pk: items.filter(fulfilment='scheduled').filter(
+            Q(schedule__slot=slot) | Q(category__slug=slot.key)).distinct().count() for slot in Slot.objects.all()}
     if on_date:
         from apps.catalog.services import resolve_menu
         per_slot = {slot.pk: sum(entry.available for entry in resolve_menu(on_date, slot, include_unavailable=True, include_inactive=True)) for slot in Slot.objects.all()}
     return {'meals': counts.get('scheduled', 0), 'other': counts.get('courier', 0),
-            'unassigned': items.filter(fulfilment='scheduled', schedule__isnull=True).count(), 'slots': per_slot}
+            'unassigned': items.filter(fulfilment='scheduled', schedule__isnull=True).exclude(
+                category__slug__in=Slot.objects.values_list('key', flat=True)).count(), 'slots': per_slot}
 
 
 def menu_categories(items):
