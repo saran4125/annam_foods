@@ -14,6 +14,7 @@ python manage.py migrate --noinput
 python manage.py sync_annam_catalog --tenant "${STORE_SLUG:-annam}" --apply --if-provisioned
 python manage.py normalize_meal_categories --tenant "${STORE_SLUG:-annam}" --if-provisioned
 python manage.py sync_breakfast_catalog --tenant "${STORE_SLUG:-annam}" --apply --if-provisioned
+python manage.py publish_reviewed_breakfast --tenant "${STORE_SLUG:-annam}" --if-provisioned
 python manage.py configure_hero_products --tenant "${STORE_SLUG:-annam}" --if-provisioned
 python manage.py apply_original_images
 python manage.py materialize_media
@@ -30,6 +31,7 @@ if [ -n "${SEED_OWNER_PASSWORD:-}" ] && [ -n "${SEED_DOMAIN}" ]; then
     restore_missing_php_data
     python manage.py normalize_meal_categories --tenant "${STORE_SLUG:-annam}"
     python manage.py sync_breakfast_catalog --tenant "${STORE_SLUG:-annam}" --apply
+    python manage.py publish_reviewed_breakfast --tenant "${STORE_SLUG:-annam}"
     python manage.py configure_hero_products --tenant "${STORE_SLUG:-annam}"
     python manage.py apply_original_images
     python manage.py materialize_media --download
@@ -40,6 +42,7 @@ else
     restore_missing_php_data
     python manage.py normalize_meal_categories --tenant "${STORE_SLUG:-annam}"
     python manage.py sync_breakfast_catalog --tenant "${STORE_SLUG:-annam}" --apply
+    python manage.py publish_reviewed_breakfast --tenant "${STORE_SLUG:-annam}"
     python manage.py configure_hero_products --tenant "${STORE_SLUG:-annam}"
     python manage.py apply_original_images
     python manage.py materialize_media --download

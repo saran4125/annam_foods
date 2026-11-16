@@ -513,6 +513,11 @@ longer part of this application scope.
 
 ## 16. Verification and source map
 
+The owner-requested breakfast list is scheduled once for 16 November 2026 by
+`publish_reviewed_breakfast`. It adds the reviewed products to that date's menu,
+preserves existing dishes, stock and other dates, and does not repeat after staff
+edits or publish the same list on later dates automatically.
+
 Homepage product photos can be chosen through `TenantConfig.theme.hero_product_ids`
 (ordered retailer IDs). The reviewed podi selection is installed once by
 `configure_hero_products` during startup. It takes precedence over automatic
