@@ -68,10 +68,10 @@
     {% if not cart.is_courier %}
     <section class="pincode-box">
       <h2>Where are we delivering?</h2>
-      <form method="post" action="{% url 'storefront:cart_pincode' %}">
+      <form method="post" action="{% url 'storefront:cart_pincode' %}" data-pincode-form>
         {% csrf_token %}
         <input type="text" name="pincode" inputmode="numeric" autocomplete="postal-code"
-               required pattern="[0-9]{6}" placeholder="6-digit pincode" value="{{ cart.pincode }}" aria-label="Delivery pincode">
+               required maxlength="6" pattern="[0-9]{6}" placeholder="6-digit pincode" value="{{ cart.pincode }}" aria-label="Delivery pincode">
         {% if needs_area_choice %}
         <select name="zone_id" aria-label="Your area">
           <option value="">Choose your area</option>
@@ -82,11 +82,13 @@
         {% endif %}
         <button class="btn">Check</button>
       </form>
+      <p data-pincode-feedback role="status" aria-live="polite"></p>
       {% if totals.zone %}
         <p class="ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
           Delivering to {{ totals.zone.area_name }} · ₹{{ totals.zone.delivery_fee|money }} delivery{% if totals.min_order %} · ₹{{ totals.min_order|money }} minimum{% endif %}
         </p>
       {% endif %}
+      {% if needs_area_choice %}<p>Please choose your delivery area.</p>{% endif %}
     </section>
     {% endif %}
 
