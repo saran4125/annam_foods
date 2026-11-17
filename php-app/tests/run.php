@@ -238,6 +238,13 @@ try {
         $o=$orders->get($o['id']);check($o['status']==='confirmed','Verified capture did not confirm order');$receipt=new Annam\CustomerReceipt($store);$state=$receipt->state($o,'fixture');check($state['test']&&$state['download_url']&&!$state['invoice_url'],'Test receipt state incorrect');$pdf=$receipt->pdf($o,true);check(str_starts_with($pdf,'%PDF-'),'Test receipt not PDF');expectError(fn()=>$receipt->pdf($o,false),404);check($before===$db->rows('SELECT * FROM billing_invoicesequence WHERE tenant_id=?',[$tenant]),'Test receipt consumed invoice number');check($billing->forOrder($o['id'])===null,'Test receipt created invoice');
     });
 
+
+    test('signed guest identity survives session expiry and rejects tampered browser cookies',function()use($store,$checkout,$orders,$quote,$details){
+        $saved=$_SESSION;$name='annam_guest_'.$store->id();$key=bin2hex(random_bytes(16));$expires=time()+30*86400;$value=$key.'.'.$expires;$cookie=$value.'.'.hash_hmac('sha256',$name.':'.$value,getenv('APP_SECRET')?:'');
+        $_SESSION=[];$_COOKIE[$name]=$cookie;$reference=bin2hex(random_bytes(16));$o=$orders->create($quote,$details,'web:'.$key.':'.$reference);
+        check($checkout->recent()===$reference,'Recent order lost after session expiry');check($checkout->guest($reference)['id']===$o['id'],'Receipt unavailable after restart');
+        $_SESSION=[];$_COOKIE[$name]=$cookie.'bad';check($checkout->recent()===null,'Tampered cookie exposed order');expectError(fn()=>$checkout->guest($reference),404);unset($_COOKIE[$name]);$_SESSION=$saved;
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

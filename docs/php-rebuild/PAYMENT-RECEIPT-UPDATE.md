@@ -34,3 +34,11 @@ polling, one automatic invoice download, same-browser recent-order navigation,
 foreign-browser denial, mocked signed capture, bad signatures, TEST PDF download
 and absence of financial invoices for test capture. PDF text was extracted and
 checked. These checks used simulated provider evidence, never real charges.
+
+Recent-order follow-up: the empty cart now displays the last order's items,
+quantities, total, fulfilment/payment status and receipt link. A separate signed
+HttpOnly guest cookie retains access for 30 days across browser restarts and PHP
+session cleanup, without extending staff logins. Clearing cookies or switching
+browsers removes guest access. Verified using a real Chromium close/reopen with
+the PHP session cookie removed; another browser remained denied. PHP behavioral
+suite now includes 59 checks.

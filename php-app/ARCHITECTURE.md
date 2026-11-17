@@ -224,3 +224,7 @@ Staff PDF downloads remain behind existing management authorization.
 Transport injection remains CLI-only except explicit local `cli-server` fixture
 routers defining trusted `ANNAM_TEST_TRANSPORT === true`. Never deploy fixture
 routers, credentials, test databases or setup files.
+
+A separate signed HttpOnly guest-order cookie lasts 30 days and restores receipt
+access after a browser restart or PHP session cleanup. Recent-order lookup uses
+the authenticated browser token and tenant; staff session lifetime is unchanged.

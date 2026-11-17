@@ -43,14 +43,14 @@ final class Checkout {
     public static function fingerprint(array $quote,array $details): string { return hash('sha256',json_encode([$quote,$details],JSON_THROW_ON_ERROR)); }
     public function review(array $input): array {
         $this->store->reload();$details=$this->details($input);$cart=$_SESSION['cart']??[];$quote=$this->quote($cart,$details);
-        $reference=str_replace('-','',Store::uuid());$_SESSION['checkout_browser']??=bin2hex(random_bytes(16));
+        $reference=str_replace('-','',Store::uuid());$this->browser();
         $_SESSION['checkout_reviews'][$reference]=['details'=>$details,'cart'=>$cart,'fingerprint'=>self::fingerprint($quote,$details),'expires'=>time()+1800];
         foreach($_SESSION['checkout_reviews'] as $key=>$record)if($record['expires']<time())unset($_SESSION['checkout_reviews'][$key]);
         if(count($_SESSION['checkout_reviews'])>20)$_SESSION['checkout_reviews']=array_slice($_SESSION['checkout_reviews'],-20,null,true);
         return ['reference'=>$reference,'quote'=>$quote,'details'=>$details];
     }
     public function place(string $reference): array {
-        if(!preg_match('/^[a-f0-9]{32}$/D',$reference)||empty($_SESSION['checkout_browser']))throw new HttpError(422,'The checkout review expired.');
+        if(!preg_match('/^[a-f0-9]{32}$/D',$reference)||!$this->browser(false))throw new HttpError(422,'The checkout review expired.');
         $external='web:'.$_SESSION['checkout_browser'].':'.$reference;
         return $this->store->db->transaction(function()use($reference,$external){
             $this->store->lock();$existing=$this->store->db->one('SELECT id FROM orders_order WHERE tenant_id=? AND external_ref=?',[$this->store->id(),$external]);
@@ -65,9 +65,28 @@ final class Checkout {
             $_SESSION['recent_order'][$this->store->id()]=$reference;unset($_SESSION['cart']);return $order;
         });
     }
+    public function browser(bool $create=true): ?string {
+        $name='annam_guest_'.$this->store->id();$key=$_SESSION['checkout_browser']??null;
+        if(!$key){
+            $cookie=$_COOKIE[$name]??'';$parts=is_string($cookie)?explode('.',$cookie):[];
+            if(count($parts)===3&&preg_match('/^[a-f0-9]{32}$/D',$parts[0])&&ctype_digit($parts[1])&&(int)$parts[1]>time()&&(int)$parts[1]<=time()+30*86400&&hash_equals(hash_hmac('sha256',$name.':'.$parts[0].'.'.$parts[1],getenv('APP_SECRET')?:''),$parts[2]))$key=$parts[0];
+        }
+        if(!$key&&$create)$key=bin2hex(random_bytes(16));
+        if($key){
+            $_SESSION['checkout_browser']=$key;
+            if(PHP_SAPI!=='cli'){$expires=time()+30*86400;$value=$key.'.'.$expires;$value.='.'.hash_hmac('sha256',$name.':'.$value,getenv('APP_SECRET')?:'');setcookie($name,$value,['expires'=>$expires,'path'=>'/','secure'=>str_starts_with(getenv('APP_URL')?:'','https://'),'httponly'=>true,'samesite'=>'Lax']);}
+        }
+        return $key;
+    }
+    public function recent(): ?string {
+        $browser=$this->browser(false);if(!$browser)return null;
+        $row=$this->store->db->one('SELECT external_ref FROM orders_order WHERE tenant_id=? AND external_ref LIKE ? ORDER BY placed_at DESC,id DESC LIMIT 1',[$this->store->id(),'web:'.$browser.':%']);
+        if(!$row)return null;$reference=substr($row['external_ref'],strrpos($row['external_ref'],':')+1);
+        return preg_match('/^[a-f0-9]{32}$/D',$reference)?$reference:null;
+    }
     public function guest(string $reference): array {
         $ref=str_replace('-','',$reference);if(!preg_match('/^[a-f0-9]{32}$/D',$ref))throw new HttpError(404,'Order not found.');
-        $keys=array_filter([$_SESSION['checkout_browser']??null,LegacySession::browser($this->store->id())]);
+        $keys=array_filter([$this->browser(false),LegacySession::browser($this->store->id())]);
         foreach($keys as $key){$row=$this->store->db->one('SELECT id FROM orders_order WHERE tenant_id=? AND external_ref=?',[$this->store->id(),'web:'.$key.':'.$ref]);if($row)return (new Orders($this->store))->get((int)$row['id']);}
         throw new HttpError(404,'Order not found for this browser.');
     }
