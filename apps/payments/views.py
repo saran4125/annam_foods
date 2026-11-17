@@ -73,14 +73,16 @@ def verify(request, reference):
 @never_cache
 @require_http_methods(['GET', 'POST'])
 def status(request, reference):
-    intent = guest_intent(request, reference)
-    if request.method == 'POST':
+    order = guest_order(request, reference)
+    intent = PaymentIntent.objects.filter(order=order).first()
+    if request.method == 'POST' and intent:
         try:
             services.reconcile_payment(intent)
         except PaymentError as exc:
             return JsonResponse({'error': str(exc)}, status=503)
-    intent.order.refresh_from_db()
-    return JsonResponse({'paid': intent.order.payment_status == 'paid', 'status': intent.order.payment_status})
+    order.refresh_from_db()
+    from apps.storefront.receipts import receipt_state
+    return JsonResponse(receipt_state(order, reference))
 
 
 @owner_required
@@ -170,3 +172,25 @@ def customer_bill(request, reference):
     order = guest_order(request, reference)
     invoice = get_object_or_404(Invoice.objects.exclude(kind=InvoiceKind.CREDIT_NOTE), order=order)
     return render(request, 'payments/customer_bill.html', {'invoice': invoice, 'reference': reference})
+
+
+@never_cache
+@require_http_methods(['GET'])
+def customer_pdf(request, reference):
+    from apps.billing.models import Invoice, InvoiceKind
+    from apps.billing.pdf import invoice_pdf, test_receipt_pdf
+    order = guest_order(request, reference)
+    if order.payment_status not in ('paid', 'refunded'):
+        raise Http404
+    intent = PaymentIntent.objects.filter(order=order).first()
+    if intent and intent.mode == 'test':
+        if intent.state != 'captured' or order.payment_status != 'paid':
+            raise Http404
+        data, filename = test_receipt_pdf(order), 'TEST-receipt.pdf'
+    else:
+        invoice = get_object_or_404(Invoice.objects.exclude(kind=InvoiceKind.CREDIT_NOTE), order=order)
+        data, filename = invoice_pdf(invoice), 'invoice.pdf'
+    response = HttpResponse(data, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    response['X-Content-Type-Options'] = 'nosniff'
+    return response

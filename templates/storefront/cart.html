@@ -13,6 +13,7 @@
   <div class="empty-cart" data-testid="cart-empty">
     <span class="empty-mark" aria-hidden="true"><svg class="ic"><use href="#i-bag"/></svg></span>
     <p>Nothing here yet.</p>
+    {% if recent_reference %}<p><a class="btn" href="{% url 'storefront:checkout_complete' recent_reference %}">View your recent order</a></p>{% endif %}
     <a class="btn btn-primary" href="{% url 'storefront:menu' %}">Browse today’s menu <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
   </div>
 {% else %}

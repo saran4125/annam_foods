@@ -37,6 +37,7 @@ def checkout(request):
         if form.is_valid():
             try:
                 order, reference, created = place_checkout(request, cart, form.cleaned_data, request.POST.get('checkout_token', ''))
+                request.session[f'recent_order.{request.tenant.pk}'] = reference
                 if created:
                     cart.clear()
                 return redirect('storefront:checkout_complete', reference=uuid.UUID(reference))
@@ -62,6 +63,7 @@ def complete(request, reference):
     if not browser:
         raise Http404
     order = get_object_or_404(Order.objects.select_related('slot'), external_ref=f'web:{browser}:{reference.hex}')
+    request.session[f'recent_order.{request.tenant.pk}'] = reference.hex
     instructions = (request.tenant.config.checkout_settings or {}).get('payment_instructions', '')
     from apps.payments.models import PaymentIntent
     from apps.billing.models import Invoice, InvoiceKind

@@ -314,6 +314,17 @@ def cart_set_pincode(request):
 
 
 def cart_detail(request):
+    from .checkout import browser_key
+    import uuid
+    from apps.orders.models import Order
+    recent_reference = None
+    try:
+        candidate = uuid.UUID(str(request.session.get(f'recent_order.{request.tenant.pk}', '')))
+        browser = browser_key(request, create=False)
+        if browser and Order.objects.filter(external_ref=f'web:{browser}:{candidate.hex}').exists():
+            recent_reference = candidate
+    except (ValueError, TypeError):
+        pass
     cart = Cart(request)
     from apps.delivery.policies import eligible_zones
     totals = cart.totals()
@@ -324,6 +335,7 @@ def cart_detail(request):
         "storefront/cart.html",
         {
             "cart": cart,
+            "recent_reference": recent_reference,
             "totals": totals,
             "zones": zones,
             "needs_area_choice": len(zones) > 1 and not cart.zone,

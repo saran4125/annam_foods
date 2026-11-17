@@ -587,3 +587,11 @@ flat-courier descriptions. New shared services are `delivery.policies`,
 configuration and explicit release prepare the existing messaging sender for
 later activation. Separate Razorpay courier payments remain dormant without an
 enabled connection. Financial and category snapshots remain immutable.
+
+Customer receipts now expose browser-bound status JSON for manual and online
+orders and an attachment PDF route at `bill/download/`. PDFs use ReportLab and
+the bundled DejaVu font, render issued snapshots without remote resource fetches,
+and never allocate invoice numbers. Verified test captures get clearly marked
+simulated receipts without creating invoices. Receipt polling attempts one PDF
+download per order/session with a visible manual fallback. Empty carts link to
+the most recent authorized order in the same browser and tenant.

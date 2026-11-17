@@ -21,6 +21,7 @@ urlpatterns = [
     path("cart/clear/", views.cart_clear, name="cart_clear"),
     path("cart/pincode/", views.cart_set_pincode, name="cart_pincode"),
     path("checkout/", checkout_views.checkout, name="checkout"),
+    path("checkout/complete/<uuid:reference>/bill/download/", payment_views.customer_pdf, name="customer_pdf"),
     path("checkout/complete/<uuid:reference>/bill/", payment_views.customer_bill, name="customer_bill"),
     path("checkout/complete/<uuid:reference>/pay/", payment_views.begin, name="payment_begin"),
     path("checkout/complete/<uuid:reference>/payment/", payment_views.payment, name="payment"),
