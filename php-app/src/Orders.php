@@ -54,6 +54,7 @@ final class Orders {
         return $this->store->db->transaction(function()use($id,$next,$actor,$note,$rider){
             $order=$this->get($id,true);$current=$order['status'];if($current===$next)return $order;
             if(in_array($current,['delivered','cancelled'],true)||($next!=='cancelled'&&!in_array($next,self::FLOW[$current]??[],true)))throw new HttpError(422,'This order cannot move to that status.');
+            if($next!=='cancelled'&&$order['channel']==='web'&&$order['payment_mode']==='online'&&$order['payment_status']!=='paid')throw new HttpError(422,'Verify online payment before confirming or preparing this order.');
             $values=['status'=>$next];if($next==='cancelled')$values['cancelled_reason']=mb_substr($note,0,200);
             if($next==='out_for_delivery'){$values['rider_name']=mb_substr((string)($rider['name']??''),0,120);$values['rider_phone']=mb_substr((string)($rider['phone']??''),0,20);}
             $this->store->update('orders_order',$id,$values);$this->event($id,$current,$next,$actor,$note);
@@ -66,12 +67,13 @@ final class Orders {
         if(!$confirmed)throw new HttpError(422,'Confirm that the payment has actually been received.');
         $result=$this->store->db->transaction(function()use($id,$actor,$reference){
             $order=$this->get($id,true);
-            if($this->store->db->one('SELECT id FROM payments_paymentintent WHERE tenant_id=? AND order_id=?',[$this->store->id(),$id]))throw new HttpError(422,'This payment must be verified through Razorpay.');
+            if($order['payment_mode']==='online'||$this->store->db->one('SELECT id FROM payments_paymentintent WHERE tenant_id=? AND order_id=?',[$this->store->id(),$id]))throw new HttpError(422,'This payment must be verified through Razorpay.');
             if(in_array($order['status'],['cancelled'],true)||$order['payment_status']==='refunded')throw new HttpError(422,'Cancelled or refunded orders cannot be marked paid.');
             if($order['payment_status']!=='paid'){$this->store->update('orders_order',$id,['payment_status'=>'paid','payment_reference'=>mb_substr($reference,0,120)]);$this->event($id,$order['status'],$order['status'],$actor,'Payment receipt confirmed.');}
+            if($order['channel']==='web'&&$order['status']==='placed')$this->advance($id,'confirmed',$actor,'Payment received.');
             return $this->get($id);
         });
-        if((new Billing($this->store))->timing()==='on_payment') (new Billing($this->store))->tryIssue($id);
+        (new Billing($this->store))->afterPayment($id);
         return $result;
     }
     public function staff(array $input,string $actor):array {return (new StaffBooking($this->store))->create($input,$actor);}

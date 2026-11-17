@@ -198,3 +198,29 @@ styles, dashboard, checkout, report and order-group components are copied from
 that reference. PHP-only markup adapters use `python-ui.css`/`python-ui.js`.
 Authentication, CSRF, tenant scoping, menus, stock, financial services and provider
 connections remain PHP. See UI-PARITY.md for rebuilding, installation and tests.
+
+## Customer payment receipts and downloadable PDFs
+
+Normal storefront checkout accepts enabled LIVE Razorpay only, with
+`PAYMENTS_ENABLED=1`. The separate `features.checkout_test_mode` switch exposes
+TEST Razorpay or temporary manual checkout; it must be disabled for live use.
+Unpaid online website orders cannot advance or be manually marked paid. Verified
+capture confirms placed website orders. Paid website invoices issue immediately;
+staff bookings retain configured bill timing. Cancelled late captures stay
+cancelled for refund review.
+
+The private browser-bound receipt has `updates/`, `bill/download/`, and
+`test-receipt/download/` routes. All reuse `Checkout::guest` and tenant scope.
+`CustomerReceipt` derives state from server records. Polling updates payment and
+invoice controls, attempts one download per order/browser session, and retains
+a manual download fallback. Empty carts expose only an authorized recent order.
+
+`InvoicePdf` renders immutable snapshots with vendored TCPDF 6.11.4 and DejaVu
+fonts, requiring no Composer or Python on hosting. No remote images/resources
+are fetched. Verified captured test payments produce prominently marked TEST /
+SIMULATED PAYMENT / NOT AN INVOICE PDFs without invoice rows or numbering.
+Staff PDF downloads remain behind existing management authorization.
+
+Transport injection remains CLI-only except explicit local `cli-server` fixture
+routers defining trusted `ANNAM_TEST_TRANSPORT === true`. Never deploy fixture
+routers, credentials, test databases or setup files.

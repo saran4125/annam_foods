@@ -42,3 +42,7 @@
 @media(prefers-reduced-motion:reduce){.python-ui .shelf-row{scroll-behavior:auto}}
 
 .python-ui [data-cart-count][hidden]{display:none}body.python-ui:has([data-cart-bar][hidden]){padding-bottom:0}
+
+.checkout-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:24px;align-items:start}.checkout-card{background:#fff;border:1px solid #e9e4dc;border-radius:16px;padding:24px;min-width:0}.checkout-layout .btn{margin:6px 4px 6px 0}.checkout-card .php-total{gap:12px}.checkout-card [hidden]{display:none!important}@media(max-width:760px){.checkout-layout{grid-template-columns:1fr}}
+
+.o-status{display:inline-flex;padding:4px 10px;border-radius:999px;background:#f0eee8;font-size:12px;font-weight:600;white-space:nowrap}.o-payment-paid,.o-status-delivered{background:#e4f4e8;color:#27613b}.o-payment-pending,.o-status-placed{background:#fff1d6;color:#855600}.o-status-cancelled,.o-payment-failed{background:#fce9e6;color:#9d3428}.o-count{padding:2px 7px;border-radius:20px;background:#ffffff40}.order-group-row{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.o-table small{display:block;color:#746e66;margin-top:4px}

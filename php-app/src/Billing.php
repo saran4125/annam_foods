@@ -13,6 +13,12 @@ final class Billing {
             if($intent)$this->store->update('payments_paymentintent',$intent['id'],['bill_error'=>'Complete billing settings and review the paid total before issuing.']);return null;
         }
     }
+    public function afterPayment(int $id): ?array {
+        $order=(new Orders($this->store))->get($id);
+        if($order['payment_status']!=='paid'||$order['status']==='cancelled')return null;
+        if($order['channel']==='web'||$this->timing()==='on_payment'||$order['status']==='delivered')return $this->tryIssue($id);
+        return null;
+    }
     private function allocate(array $profile,string $series): array {
         $start=(int)date('Y')-((int)date('n')<4?1:0);$fy=sprintf('%02d-%02d',$start%100,($start+1)%100);
         $this->store->db->rows('INSERT INTO billing_invoicesequence(tenant_id,series,financial_year,next_no) VALUES(?,?,?,1) ON CONFLICT(tenant_id,series,financial_year) DO NOTHING',[$this->store->id(),$series,$fy]);

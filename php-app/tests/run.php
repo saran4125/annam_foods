@@ -32,7 +32,7 @@ try {
     foreach ([$tenant,$other] as $id) {
         $template['tenant_id']=$id;
         foreach ($template as $key=>$value) if ($value===true||$value===false) $template[$key]=$value;
-        $template['features']=json_encode(['snacks_courier'=>true,'website_ordering'=>true,'manual_payments'=>true]);$template['theme']='{}';$template['checkout_settings']='{}';$template['storefront_design']='{}';$template['home_sections']='[]';
+        $template['features']=json_encode(['snacks_courier'=>true,'website_ordering'=>true,'manual_payments'=>true,'checkout_test_mode'=>true]);$template['theme']='{}';$template['checkout_settings']='{}';$template['storefront_design']='{}';$template['home_sections']='[]';
         insert($db,'tenancy_tenantconfig',$template);
     }
     putenv('STORE_SLUG=php-test-'.$suffix); $store=new Store($db); $resources=new Resources($store);
@@ -114,7 +114,7 @@ try {
     $orders=new Annam\Orders($store);$billing=new Annam\Billing($store);$payments=new Annam\Payments($store);$checkout=new Annam\Checkout($store);
     $db->rows('UPDATE catalog_menuschedule SET qty_limit=NULL,available=TRUE,price_override=NULL WHERE tenant_id=? AND item_id=? AND on_date=?',[$tenant,$item,$tomorrow]);
     $db->rows('UPDATE catalog_menuitem SET price=? WHERE tenant_id=? AND id=?',['350.00',$tenant,$item]);
-    $db->rows('UPDATE tenancy_tenantconfig SET features=? WHERE tenant_id=?',[json_encode(['website_ordering'=>true,'manual_payments'=>true,'snacks_courier'=>true]),$tenant]);$store->reload();
+    $db->rows('UPDATE tenancy_tenantconfig SET features=? WHERE tenant_id=?',[json_encode(['website_ordering'=>true,'manual_payments'=>true,'checkout_test_mode'=>true,'snacks_courier'=>true]),$tenant]);$store->reload();
     test('checkout refuses unserved pincodes and area minimum bypasses',function()use($store,$checkout,$details,$tomorrow,$slot,$item){
         Cart::add($store,['item_id'=>$item,'quantity'=>1,'date'=>$tomorrow,'slot_id'=>$slot]);$bad=$details;$bad['pincode']='699999';expectError(fn()=>$checkout->review($bad),422);
         $bad=$details;$bad['zone_id']=999999;expectError(fn()=>$checkout->review($bad),422);
@@ -219,6 +219,23 @@ try {
     });
     test('quantity adjustments use server validation and remove the final cart line',function()use($store,$shop){
         unset($_SESSION['cart']);Cart::adjust($store,['item_id'=>$shop,'delta'=>1]);check(Cart::selection($shop)['quantity']===1,'Add did not increment');Cart::adjust($store,['item_id'=>$shop,'delta'=>1]);check(Cart::selection($shop)['quantity']===2,'Second increment failed');Cart::adjust($store,['item_id'=>$shop,'delta'=>-1]);check(Cart::selection($shop)['quantity']===1,'Decrement failed');Cart::adjust($store,['item_id'=>$shop,'delta'=>-1]);check(Cart::selection($shop)['quantity']===0,'Last item remains');expectError(fn()=>Cart::adjust($store,['item_id'=>$shop,'delta'=>500]),422);
+    });
+
+
+    test('normal checkout refuses manual payment and never selects test credentials',function()use($store,$db,$tenant,$checkout,$details){
+        $saved=$store->config['features'];$flags=$saved;$flags['checkout_test_mode']=false;$db->rows('UPDATE tenancy_tenantconfig SET features=? WHERE tenant_id=?',[json_encode($flags),$tenant]);$store->reload();putenv('PAYMENTS_ENABLED=1');
+        check(!isset($checkout->choices()['manual']),'Manual checkout exposed');expectError(fn()=>$checkout->details($details),422);
+        $live=$db->one("SELECT id FROM payments_razorpayconnection WHERE tenant_id=? AND mode='live' AND enabled",[$tenant]);check(isset($checkout->choices()['online'])===($live!==null),'Live credential selection failed');
+        $db->rows('UPDATE tenancy_tenantconfig SET features=? WHERE tenant_id=?',[json_encode($saved),$tenant]);$store->reload();
+    });
+    test('unpaid online website orders cannot advance or be manually marked paid',function()use($orders,$quote,$online){
+        $o=$orders->create($quote,$online,'receipt-unpaid');expectError(fn()=>$orders->advance($o['id'],'confirmed','tester'),422);expectError(fn()=>$orders->confirm($o['id'],'tester','fake',true),422);check($orders->get($o['id'])['payment_status']==='pending','Unpaid state changed');
+    });
+    test('customer PDFs use immutable snapshots and test receipts allocate no invoice numbers',function()use($store,$orders,$quote,$online,$payments,$connection,$billing,$invoice,$db,$tenant){
+        $pdf=Annam\InvoicePdf::invoice($invoice);check(str_starts_with($pdf,'%PDF-'),'Invoice is not PDF');
+        $o=$orders->create($quote,$online,'receipt-test-capture');$i=$payments->intent($o,$connection);$store->update('payments_paymentintent',$i['id'],['provider_order_id'=>'order_receipt']);
+        $before=$db->rows('SELECT * FROM billing_invoicesequence WHERE tenant_id=?',[$tenant]);$payments->apply($i['id'],['id'=>'pay_receipt','order_id'=>'order_receipt','amount'=>(int)$i['amount'],'currency'=>'INR','status'=>'captured','captured'=>true]);
+        $o=$orders->get($o['id']);check($o['status']==='confirmed','Verified capture did not confirm order');$receipt=new Annam\CustomerReceipt($store);$state=$receipt->state($o,'fixture');check($state['test']&&$state['download_url']&&!$state['invoice_url'],'Test receipt state incorrect');$pdf=$receipt->pdf($o,true);check(str_starts_with($pdf,'%PDF-'),'Test receipt not PDF');expectError(fn()=>$receipt->pdf($o,false),404);check($before===$db->rows('SELECT * FROM billing_invoicesequence WHERE tenant_id=?',[$tenant]),'Test receipt consumed invoice number');check($billing->forOrder($o['id'])===null,'Test receipt created invoice');
     });
 
     Annam\Http::$transport=null;

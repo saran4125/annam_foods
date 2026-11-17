@@ -1,0 +1,3 @@
+TCPDF 6.11.4
+https://codeload.github.com/tecnickcom/TCPDF/tar.gz/refs/tags/6.11.4
+LGPL-3.0; see LICENSE.TXT and font license files.

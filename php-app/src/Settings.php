@@ -34,7 +34,7 @@ final class Settings {
             $color=(string)($input['brand_color']??'');if(!preg_match('/^#[a-fA-F0-9]{6}$/D',$color))throw new HttpError(422,'Choose a valid brand colour.');
             $theme['brand']=$color;$theme['contact_email']=$strings['contact_email'];$theme['announcements']=array_slice(preg_split('/\r?\n/',trim((string)($input['announcements']??'')),-1,PREG_SPLIT_NO_EMPTY),0,8);
             if(($files['logo']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE){$theme['logo_url']='/media/'.Resources::upload($files['logo'],'brand');unset($design['published']['images']['logo']);}
-            foreach(['website_ordering','snacks_courier','manual_payments','cod','carry_forward_meals'] as $key)$features[$key]=!empty($input[$key]);
+            foreach(['checkout_test_mode','website_ordering','snacks_courier','manual_payments','cod','carry_forward_meals'] as $key)$features[$key]=!empty($input[$key]);
             $sections=array_values(array_filter($sections,fn($s)=>($s['kind']??'')!=='hero'));$sections[]=['kind'=>'hero','kicker'=>$strings['hero_kicker'],'title'=>$strings['hero_title'],'body'=>$strings['hero_body']];
             foreach(['brand.name'=>'brand_name','hero.kicker'=>'hero_kicker','hero.title'=>'hero_title','hero.body'=>'hero_body','footer.description'=>'tagline','footer.phone'=>'support_phone','footer.whatsapp'=>'support_phone','footer.email'=>'contact_email','footer.address'=>'footer_address'] as $key=>$source)$copy[$key]=$strings[$source];
             $design['published']['content']=$copy;$design['published']['colors']['brand']=$color;

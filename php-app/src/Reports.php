@@ -32,12 +32,12 @@ final class Reports {
         $meal="COALESCE(NULLIF(line->>'meal_key',''),s.key,CASE WHEN o.fulfilment='courier' THEN 'snacks' ELSE 'unclassified' END)";
         $aggregate=$this->store->db->isSqlite()?"meal_group($meal)":"string_agg(DISTINCT $meal, '+' ORDER BY $meal)";
         $cte="WITH grouped AS (SELECT o.id,COALESCE(".$aggregate.",'unclassified') AS meal_group FROM orders_order o LEFT JOIN catalog_slot s ON s.id=o.slot_id AND s.tenant_id=o.tenant_id LEFT JOIN LATERAL jsonb_array_elements(o.items) line ON true WHERE o.tenant_id=? GROUP BY o.id) ";
-        $counts=$this->store->db->rows($cte.'SELECT meal_group,COUNT(*) AS n FROM grouped GROUP BY meal_group ORDER BY meal_group',[$this->store->id()]);$groups=[];foreach($counts as $r)$groups[$r['meal_group']]=(int)$r['n'];
+        $counts=$this->store->db->rows($cte.'SELECT meal_group,COUNT(*) AS n FROM grouped GROUP BY meal_group ORDER BY meal_group',[$this->store->id()]);$groups=['breakfast'=>0,'lunch'=>0,'dinner'=>0,'snacks'=>0];foreach($counts as $r)$groups[$r['meal_group']]=(int)$r['n'];
         $where=' WHERE o.tenant_id=?';$args=[$this->store->id(),$this->store->id()];
         foreach(['meal_group'=>'g.meal_group','status'=>'o.status','channel'=>'o.channel'] as $key=>$column)if(!empty($input[$key])){$where.=' AND '.$column.'=?';$args[]=mb_substr((string)$input[$key],0,100);}
         if($q=mb_substr(trim((string)($input['q']??'')),0,100)){$where.=' AND (o.order_no ILIKE ? OR c.name ILIKE ? OR c.phone ILIKE ?)';array_push($args,'%'.$q.'%','%'.$q.'%','%'.$q.'%');}
         $from=' FROM grouped g JOIN orders_order o ON o.id=g.id JOIN orders_customer c ON c.id=o.customer_id AND c.tenant_id=o.tenant_id'.$where;$total=(int)$this->store->db->one($cte.'SELECT COUNT(*) AS n'.$from,$args)['n'];$page=max(1,min((int)($input['page']??1),max(1,(int)ceil($total/50))));
-        $records=$this->store->db->rows($cte.'SELECT o.*,c.name AS customer_name,c.phone AS customer_phone,g.meal_group'.$from.' ORDER BY o.placed_at DESC,o.id DESC LIMIT 50 OFFSET '.(($page-1)*50),$args);
+        $records=$this->store->db->rows($cte."SELECT o.*,EXISTS(SELECT 1 FROM payments_paymentintent p WHERE p.tenant_id=o.tenant_id AND p.order_id=o.id AND p.mode='test') AS test_payment,c.name AS customer_name,c.phone AS customer_phone,g.meal_group".$from.' ORDER BY o.placed_at DESC,o.id DESC LIMIT 50 OFFSET '.(($page-1)*50),$args);
         foreach($records as &$row)$row['meal_label']=implode(' + ',array_map('ucfirst',explode('+',$row['meal_group'])));unset($row);
         return compact('records','groups','total','page');
     }

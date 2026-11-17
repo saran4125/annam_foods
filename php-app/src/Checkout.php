@@ -10,14 +10,15 @@ final class Checkout {
         if($result['email']!==''&&!filter_var($result['email'],FILTER_VALIDATE_EMAIL))throw new HttpError(422,'Enter a valid email address.');
         $result['country']=$result['country']?:'India';$result['state']=$result['state']?:'Tamil Nadu';$result['phone']=Orders::phone((string)($input['phone']??''),$result['country']);$result['pincode']=trim((string)($input['pincode']??''));
         if((strcasecmp($result['country'],'India')===0&&!preg_match('/^[1-9][0-9]{5}$/D',$result['pincode']))||strlen($result['pincode'])>20)throw new HttpError(422,'Enter an exact six-digit pincode.');
-        $result['zone_id']=empty($input['zone_id'])?null:(int)$input['zone_id'];$result['payment_method']=(string)($input['payment_method']??'manual');
+        $result['zone_id']=empty($input['zone_id'])?null:(int)$input['zone_id'];$result['payment_method']=(string)($input['payment_method']??'online');
         if(!isset($this->choices()[$result['payment_method']]))throw new HttpError(422,'Choose an available payment method.');return $result;
     }
     public function choices(): array {
-        $result=[];$features=$this->store->config['features'];
-        if(getenv('PAYMENTS_ENABLED')==='1'&&$this->store->db->one('SELECT id FROM payments_razorpayconnection WHERE tenant_id=? AND enabled',[$this->store->id()]))$result['online']='Pay online with Razorpay';
-        if($features['cod']??false)$result['cod']='Cash on delivery';
-        if($features['manual_payments']??true)$result['manual']='Arrange payment with the kitchen';return $result;
+        $result=[];$test=!empty($this->store->config['features']['checkout_test_mode']);
+        $mode=$test?'test':'live';
+        if(getenv('PAYMENTS_ENABLED')==='1'&&$this->store->db->one('SELECT id FROM payments_razorpayconnection WHERE tenant_id=? AND enabled AND mode=?',[$this->store->id(),$mode]))$result['online']=$test?'TEST online payment (simulated)':'Pay online with Razorpay';
+        if($test)$result['manual']='TEST / temporary manual payment';
+        return $result;
     }
     public function quote(array $cart,array $details): array {
         if(!($this->store->config['features']['website_ordering']??true))throw new HttpError(422,'Website ordering is currently closed.');
@@ -35,7 +36,7 @@ final class Checkout {
         }
         if(count($live['meal_keys'])>1)$slot=null;
         $quote=Pricing::totals($lines,$fee,$this->store->profile())+['zone'=>$zone,'kind'=>$cart['kind'],'slot'=>$slot,'date'=>$date,'courier_deferred'=>$delivery['deferred']??false];
-        $connection=$details['payment_method']==='online'?$this->store->db->one('SELECT id,key_id,mode FROM payments_razorpayconnection WHERE tenant_id=? AND enabled',[$this->store->id()]):null;
+        $connection=$details['payment_method']==='online'?$this->store->db->one('SELECT id,key_id,mode FROM payments_razorpayconnection WHERE tenant_id=? AND enabled AND mode=?',[$this->store->id(),!empty($this->store->config['features']['checkout_test_mode'])?'test':'live']):null;
         if($details['payment_method']==='online'&&!$connection)throw new HttpError(422,'Online payments are unavailable.');
         $quote['connection']=$connection;return $quote;
     }
@@ -61,7 +62,7 @@ final class Checkout {
             if(!hash_equals($review['fingerprint'],self::fingerprint($quote,$details)))throw new HttpError(409,'Your cart, prices or delivery settings changed. Please review the total again.');
             $order=(new Orders($this->store))->create($quote,$details,$external);
             if($details['payment_method']==='online') (new Payments($this->store))->intent($order,$quote['connection']);
-            unset($_SESSION['cart']);return $order;
+            $_SESSION['recent_order'][$this->store->id()]=$reference;unset($_SESSION['cart']);return $order;
         });
     }
     public function guest(string $reference): array {

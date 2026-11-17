@@ -13,7 +13,7 @@ foreach (['src','views','resources','deploy','bin','tests','public/assets'] as $
     foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root.'/'.$directory,FilesystemIterator::SKIP_DOTS)) as $file) {
         if (!$file->isFile() || $file->isLink()) continue;
         $relative=substr($file->getPathname(),strlen($root)+1);
-        if (!in_array(strtolower($file->getExtension()),['php','py','md','txt','css','js','png','jpg','webp','svg','avif','gif','json','htaccess'],true)) continue;
+        if (!in_array(strtolower($file->getExtension()),['icc','z','php','py','md','txt','css','js','png','jpg','webp','svg','avif','gif','json','htaccess'],true)) continue;
         $zip->addFile($file->getPathname(),'annam-php-preview/'.$relative);
         $hashes[$relative]=hash_file('sha256',$file->getPathname());
     }

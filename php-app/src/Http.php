@@ -3,14 +3,14 @@ declare(strict_types=1);
 namespace Annam;
 
 final class Http {
-    /** Injection is confined to CLI tests; never selected by browser input. */
+    /** Injection requires CLI or an explicitly trusted local fixture constant; never browser input. */
     public static ?\Closure $transport=null;
     public static function publicUrl(string $url): void {
         $parts=parse_url($url);if(($parts['scheme']??'')!=='https'||empty($parts['host'])||isset($parts['user'])||isset($parts['pass'])||isset($parts['fragment'])||isset($parts['port'])&&$parts['port']!==443)throw new HttpError(422,'Use a public HTTPS webhook URL without credentials.');
         $records=dns_get_record($parts['host'],DNS_A|DNS_AAAA);if(!$records)throw new HttpError(422,'The webhook hostname could not be resolved.');foreach($records as $record){$ip=$record['ip']??$record['ipv6']??'';if(!filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE))throw new HttpError(422,'Webhook addresses must resolve to public servers.');}
     }
     public static function json(string $method,string $url,array $headers=[],?array $body=null,bool $custom=false): array {
-        if(PHP_SAPI==='cli'&&self::$transport)return (self::$transport)($method,$url,$headers,$body);
+        if((PHP_SAPI==='cli'||(PHP_SAPI==='cli-server'&&defined('ANNAM_TEST_TRANSPORT')&&ANNAM_TEST_TRANSPORT===true))&&self::$transport)return (self::$transport)($method,$url,$headers,$body);
         if(!extension_loaded('curl'))throw new HttpError(503,'Enable the PHP cURL extension for provider connections.');
         if($custom)self::publicUrl($url);
         $curl=curl_init($url);$list=['Accept: application/json'];foreach($headers as $key=>$value)$list[]=$key.': '.$value;
