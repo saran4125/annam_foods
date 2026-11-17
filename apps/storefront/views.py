@@ -318,13 +318,15 @@ def cart_detail(request):
     import uuid
     from apps.orders.models import Order
     recent_reference = None
-    try:
-        candidate = uuid.UUID(str(request.session.get(f'recent_order.{request.tenant.pk}', '')))
-        browser = browser_key(request, create=False)
-        if browser and Order.objects.filter(external_ref=f'web:{browser}:{candidate.hex}').exists():
-            recent_reference = candidate
-    except (ValueError, TypeError):
-        pass
+    recent = None
+    browser = browser_key(request, create=False)
+    if browser:
+        recent = Order.objects.filter(external_ref__startswith=f'web:{browser}:').order_by('-placed_at', '-pk').first()
+        if recent:
+            try:
+                recent_reference = uuid.UUID(recent.external_ref.rsplit(':', 1)[-1])
+            except ValueError:
+                pass
     cart = Cart(request)
     from apps.delivery.policies import eligible_zones
     totals = cart.totals()
@@ -336,6 +338,7 @@ def cart_detail(request):
         {
             "cart": cart,
             "recent_reference": recent_reference,
+            "recent_order": recent,
             "totals": totals,
             "zones": zones,
             "needs_area_choice": len(zones) > 1 and not cart.zone,

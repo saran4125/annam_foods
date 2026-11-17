@@ -77,3 +77,21 @@ def test_verified_test_capture_downloads_marked_receipt_without_financial_sequen
     text = '\n'.join(page.extract_text() for page in PdfReader(BytesIO(pdf.content)).pages)
     assert 'SIMULATED PAYMENT' in text and 'NOT AN INVOICE' in text
     assert InvoiceSequence.objects.count() == before and not Invoice.objects.exists()
+
+
+
+def test_guest_recent_order_survives_loss_of_session_but_not_a_different_browser(client, kitchen, menu):
+    url = place(client, menu)
+    cookie_name = 'guest_order_' + str(kitchen.pk)
+    assert int(client.cookies[cookie_name]['max-age']) == 30 * 86400
+    assert client.cookies[cookie_name]['httponly']
+    returning = Client()
+    returning.cookies[cookie_name] = client.cookies[cookie_name].value
+    cart = returning.get('/cart/', HTTP_HOST=HOST)
+    assert b'View your recent order' in cart.content
+    assert b'Veg Meals' in cart.content and b'260' in cart.content
+    assert returning.get(url, HTTP_HOST=HOST).status_code == 200
+    stranger = Client()
+    stranger.cookies[cookie_name] = client.cookies[cookie_name].value + 'tampered'
+    assert b'View your recent order' not in stranger.get('/cart/', HTTP_HOST=HOST).content
+    assert stranger.get(url, HTTP_HOST=HOST).status_code == 404

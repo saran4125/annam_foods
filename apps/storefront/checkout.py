@@ -27,10 +27,21 @@ SALT = 'storefront.checkout.v1'
 def browser_key(request, create=True):
     key = 'checkout.browser.' + str(request.tenant.pk)
     value = request.session.get(key)
+    if not value:
+        try:
+            value = request.get_signed_cookie('guest_order_' + str(request.tenant.pk),
+                                              salt='guest-order-browser', max_age=30 * 86400)
+            if len(value) != 32 or any(c not in '0123456789abcdef' for c in value):
+                value = None
+        except (KeyError, signing.BadSignature):
+            value = None
     if not value and create:
         value = uuid.uuid4().hex
+    if value:
         request.session[key] = value
+        request._guest_order_browser = value
     return value
+
 
 
 def checkout_quote(tenant, cart, details, *, now=None):

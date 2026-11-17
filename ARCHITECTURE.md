@@ -595,3 +595,7 @@ and never allocate invoice numbers. Verified test captures get clearly marked
 simulated receipts without creating invoices. Receipt polling attempts one PDF
 download per order/session with a visible manual fallback. Empty carts link to
 the most recent authorized order in the same browser and tenant.
+
+Guest receipt access uses a signed HttpOnly, SameSite=Lax cookie lasting 30 days,
+separate from staff login sessions. Cart recent-order lookup survives a browser
+restart or session expiry and remains scoped to the cookie browser and tenant.

@@ -39,6 +39,7 @@ MIDDLEWARE = [
     # can still resolve a tenant from the session when on the admin host.
     "apps.tenancy.middleware.TenantMiddleware",
     "apps.operations.middleware.StaffProtectionMiddleware",
+    "apps.storefront.middleware.GuestOrderCookieMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

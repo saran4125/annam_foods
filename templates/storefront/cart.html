@@ -13,7 +13,7 @@
   <div class="empty-cart" data-testid="cart-empty">
     <span class="empty-mark" aria-hidden="true"><svg class="ic"><use href="#i-bag"/></svg></span>
     <p>Nothing here yet.</p>
-    {% if recent_reference %}<p><a class="btn" href="{% url 'storefront:checkout_complete' recent_reference %}">View your recent order</a></p>{% endif %}
+    {% if recent_reference %}<section aria-label="Your recent order"><h2>Your recent order</h2><p><strong>{{ recent_order.order_no }}</strong> · {{ recent_order.get_status_display }} · {{ recent_order.get_payment_status_display }}</p>{% for line in recent_order.items %}<p>{{ line.quantity }} × {{ line.name }}</p>{% endfor %}<p>Total: ₹{{ recent_order.total|money }}</p><p><a class="btn" href="{% url 'storefront:checkout_complete' recent_reference %}">View your recent order</a></p></section>{% endif %}
     <a class="btn btn-primary" href="{% url 'storefront:menu' %}">Browse today’s menu <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
   </div>
 {% else %}
