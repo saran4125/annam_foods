@@ -313,7 +313,7 @@ def confirm_payment(order, *, actor, reference=""):
     """Record staff-confirmed receipt once; settings errors never undo real payment."""
     from apps.orders.models import OrderEvent, OrderStatus
     order = Order.objects.select_for_update().get(pk=order.pk)
-    if order.payment_mode == "online" and hasattr(order, "online_payment") and actor != "razorpay":
+    if (order.payment_mode == "online" or hasattr(order, "online_payment")) and actor != "razorpay":
         raise ValueError("Verify this payment through Razorpay; it cannot be manually marked paid.")
     if order.payment_status == PaymentStatus.PAID:
         return order
@@ -329,10 +329,10 @@ def confirm_payment(order, *, actor, reference=""):
 
 @transaction.atomic
 def collect_on_delivery(order, *, actor):
-    """Record an unpaid staff booking for later collection; never reverse payment."""
-    from apps.orders.models import OrderEvent, OrderStatus, PaymentMode, Channel
+    """Record manual-payment collection later; never reverse or bypass online payment."""
+    from apps.orders.models import OrderEvent, OrderStatus, PaymentMode
     order = Order.objects.select_for_update().get(pk=order.pk)
-    if order.channel not in (Channel.MANUAL, Channel.WHATSAPP) or order.payment_mode == PaymentMode.ONLINE or hasattr(order, 'online_payment'):
+    if order.payment_mode == PaymentMode.ONLINE or hasattr(order, 'online_payment'):
         raise ValueError('Online website payments must be verified by the payment provider.')
     if order.payment_status in (PaymentStatus.PAID, PaymentStatus.REFUNDED) or order.status == OrderStatus.CANCELLED:
         raise ValueError('Paid, refunded or cancelled orders cannot be changed to unpaid.')

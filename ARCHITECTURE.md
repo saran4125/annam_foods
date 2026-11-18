@@ -611,3 +611,8 @@ The staff-only action records the existing COD pending state idempotently, never
 reverses paid/refunded/invoiced orders and cannot change online website payments.
 Fulfilment, including Delivered, does not settle payment. Staff explicitly
 confirm actual collection before invoice issuance. No schema changes are needed.
+
+Collection-on-delivery eligibility follows payment type rather than source:
+existing website orders arranged for manual payment can use the same action.
+Online mode or any provider intent still blocks manual collection/settlement.
+Online unpaid orders show a clear Payment not received status without COD controls.

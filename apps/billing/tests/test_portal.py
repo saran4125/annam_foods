@@ -234,3 +234,30 @@ def test_website_order_cannot_use_staff_collect_on_delivery_action(signed_in, ki
     signed_in.post(f'/billing/orders/{order.pk}/payment/', {'action':'collect_on_delivery'}, HTTP_HOST=HOST)
     order.refresh_from_db()
     assert order.payment_mode == 'online' and order.payment_status == 'pending'
+
+
+
+def test_manual_payment_website_order_can_be_marked_for_collection(signed_in, kitchens, item):
+    signed_in.post('/billing/new/', booking(kitchens[0], item), HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        order=Order.objects.get();order.channel='web';order.save(update_fields=['channel'])
+    page=signed_in.get(f'/billing/orders/{order.pk}/',HTTP_HOST=HOST)
+    assert b'Payment not received' in page.content and b'value="collect_on_delivery"' in page.content
+    signed_in.post(f'/billing/orders/{order.pk}/payment/',{'action':'collect_on_delivery'},HTTP_HOST=HOST)
+    order.refresh_from_db()
+    assert order.payment_mode=='cod' and order.payment_status=='cod_pending' and order.status=='placed'
+    with tenant_context(kitchens[0]):assert not Invoice.objects.exists()
+
+
+def test_online_website_without_intent_still_cannot_be_manually_settled(signed_in, kitchens, item):
+    signed_in.post('/billing/new/', booking(kitchens[0], item), HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        order=Order.objects.get();order.channel='web';order.payment_mode='online';order.save(update_fields=['channel','payment_mode'])
+    page=signed_in.get(f'/billing/orders/{order.pk}/',HTTP_HOST=HOST)
+    assert b'Payment not received' in page.content and b'value="collect_on_delivery"' not in page.content
+    signed_in.post(f'/billing/orders/{order.pk}/payment/',{'confirmed':'yes'},HTTP_HOST=HOST)
+    order.refresh_from_db();assert order.payment_status=='pending'
+    for status, payment in [('cancelled','pending'),('placed','refunded')]:
+        order.status=status;order.payment_status=payment;order.save(update_fields=['status','payment_status'])
+        page=signed_in.get(f'/billing/orders/{order.pk}/',HTTP_HOST=HOST)
+        assert b'Awaiting verified online payment' not in page.content
