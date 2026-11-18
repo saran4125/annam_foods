@@ -76,6 +76,15 @@ final class Orders {
         (new Billing($this->store))->afterPayment($id);
         return $result;
     }
+    public function collectOnDelivery(int $id,string $actor): array {
+        return $this->store->db->transaction(function()use($id,$actor){
+            $o=$this->get($id,true);
+            if(!in_array($o['channel'],['manual','whatsapp'],true)||$o['payment_mode']==='online'||(new Payments($this->store))->forOrder($id))throw new HttpError(422,'Online website payments must be verified by the payment provider.');
+            if(in_array($o['payment_status'],['paid','refunded'],true)||$o['status']==='cancelled'||(new Billing($this->store))->forOrder($id))throw new HttpError(422,'Paid, refunded, invoiced or cancelled orders cannot be changed to unpaid.');
+            if($o['payment_mode']!=='cod'||$o['payment_status']!=='cod_pending'){$this->store->update('orders_order',$id,['payment_mode'=>'cod','payment_status'=>'cod_pending']);$this->event($id,$o['status'],$o['status'],$actor,'Payment not received. Collect on delivery; confirm actual receipt separately.');}
+            return $this->get($id);
+        });
+    }
     public function staff(array $input,string $actor):array {return (new StaffBooking($this->store))->create($input,$actor);}
     private function notify(array $order,string $status): void {
         $flags=$this->store->config['features'];if(!($flags['notify_'.$status]??false))return;

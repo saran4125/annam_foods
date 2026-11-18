@@ -43,13 +43,7 @@ final class Application {
         $workflow=new Workflow($this->store,$this->user,fn($view,$data=[],$admin=false)=>$this->render($view,$data,$admin));
         if($workflow->callbacks($path,$method))return;
         if ($method === 'POST') Security::verifyCsrf();
-        if(str_starts_with($path,'/billing/')){
-            if(!$this->user)redirect('/manage/login/');
-            $aliases=['/billing/'=>'/manage/orders/','/billing/login/'=>'/manage/orders/','/billing/new/'=>'/manage/orders/new/','/billing/settings/'=>'/manage/billing-settings/','/billing/logout/'=>'/manage/logout/'];
-            if(isset($aliases[$path])){if($method==='POST'){$this->admin($aliases[$path],$method);return;}redirect($aliases[$path]);}
-            if(preg_match('~^/billing/(web|manual|whatsapp)/$~',$path,$channel))redirect('/manage/orders/?channel='.$channel[1]);
-            $mapped=preg_replace('~^/billing/~','/manage/',$path);$this->admin($mapped,$method);return;
-        }
+        if(str_starts_with($path,'/billing/')){(new BillingPortal($this->store,$this->user))->handle($path,$method);return;}
 
         if ($path === '/manage/login/') {
             $error = '';

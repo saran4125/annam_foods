@@ -94,3 +94,27 @@ multi-meal choices, and no longer renders the second required Food category fiel
 Validation: Python 671 tests; PHP branch 546 tests; 60 PHP checks; desktop/mobile
 Python picker and PHP booking browser checks, including successful test bookings.
 Both ZIPs retain the Health Mix artwork and all prior management UI fixes.
+
+## Dedicated billing portal and payment not received — 18 November 2026
+
+PHP no longer redirects the billing portal into general management. It now has
+Python-style dedicated overview/source lists, searchable meal picker and booking,
+saved customer lookup, shared billing settings, payment/order detail, provider
+status/refund controls, bill printing and real PDF downloads. Search, payment
+filters, pagination and desktop/mobile layouts are covered by browser checks.
+The portal reuses the existing tenant-scoped services and staff accounts.
+
+Manual and WhatsApp bookings can select Payment not received / collect on
+delivery or record that choice on an unpaid order. Delivery, including Delivered,
+does not mark payment received. After collection, staff explicitly confirm the
+full amount and issue exactly one immutable bill. Paid/refunded/invoiced orders
+cannot be reverted to unpaid; online website payments cannot use this action.
+
+Read BILLING-PORTAL.md inside either ZIP for the route/workflow parity matrix.
+The Python change passed 673 PostgreSQL tests; the PHP branch passed 546
+PostgreSQL reference tests and 62 PHP behavioral checks. Desktop/mobile browser
+checks completed both portals' booking -> collect later -> delivered/unpaid ->
+confirm actual collection -> bill flow, including PDF, CSRF and filtering checks.
+No production order, payment or database record was used for these checks.
+All previous management UI, Health Mix image, checkout, receipts and recent-order
+updates remain included. The separate shop/courier policy change remains pending.

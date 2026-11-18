@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / 'php-app'
 DEST = ROOT / 'docs/php-rebuild'
 DIRECTORIES = ('src', 'views', 'resources', 'bin', 'deploy', 'tests', 'public/assets')
-DOCS = ('README.md', 'ARCHITECTURE.md', 'PARITY.md', 'UI-PARITY.md', 'SQLITE-HOSTINGER.md',
+DOCS = ('BILLING-PORTAL.md', 'README.md', 'ARCHITECTURE.md', 'PARITY.md', 'UI-PARITY.md', 'SQLITE-HOSTINGER.md',
         'storage/sessions/.gitkeep', 'storage/logs/.gitkeep', '.env.example', 'router.php', 'hosting-check.php', 'public/index.php', 'public/.htaccess')
 
 

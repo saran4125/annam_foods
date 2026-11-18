@@ -255,6 +255,16 @@ try {
         check(is_file(ANNAM_ROOT.'/public/assets/health-mix.jpg'),'Health Mix asset not packaged');
     });
 
+
+    test('collection on delivery is unpaid and idempotent until actual payment confirmation',function()use($orders,$quote,$details,$billing,$db,$tenant){
+        $o=$orders->create($quote,$details,'collect-later-test','manual','tester');$orders->collectOnDelivery($o['id'],'tester');$orders->collectOnDelivery($o['id'],'tester');$o=$orders->get($o['id']);check($o['payment_mode']==='cod'&&$o['payment_status']==='cod_pending','Payment was invented');
+        check((int)$db->one("SELECT COUNT(*) AS n FROM orders_orderevent WHERE tenant_id=? AND order_id=? AND note LIKE 'Payment not received.%'",[$tenant,$o['id']])['n']===1,'Duplicate collection event');
+        foreach(['confirmed','preparing','out_for_delivery','delivered'] as $status)$orders->advance($o['id'],$status,'tester');check($orders->get($o['id'])['payment_status']==='cod_pending','Delivery marked payment paid');expectError(fn()=>$billing->issue($o['id']),422);
+        $orders->confirm($o['id'],'tester','cash-collected',true);$bill=$billing->issue($o['id']);check($billing->issue($o['id'])['id']===$bill['id'],'Duplicate bill');expectError(fn()=>$orders->collectOnDelivery($o['id'],'tester'),422);
+    });
+    test('billing portal line input uses server prices and supports meal context',function()use($store,$orders,$shop){
+        $token=bin2hex(random_bytes(16));$_SESSION['staff_tokens'][$token]=time();$input=['name'=>'Portal fixture','phone'=>'919999999999','token'=>$token,'channel'=>'manual','payment_method'=>'cod','booking_lines'=>[['item'=>$shop,'quantity'=>1,'meal'=>'snacks'],['item'=>$shop,'quantity'=>1,'meal'=>'snacks']],'total'=>'0.01'];$o=$orders->staff($input,'tester');check(count($o['items'])===1&&$o['items'][0]['quantity']===2&&$o['payment_status']==='cod_pending','Portal line input lost category or unpaid state');check($o['subtotal']===Money::decimal(2*Money::parse($store->item($shop)['price'])),'Client price trusted');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

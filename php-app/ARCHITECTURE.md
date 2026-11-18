@@ -241,3 +241,20 @@ references. This presentation fallback does not mutate catalog or configuration.
 Staff booking items with one configured meal use that category automatically;
 the redundant category dropdown is removed. A meal choice is retained only for
 items with multiple/unknown assignments, and existing server validation remains.
+
+## Dedicated billing portal and later collection
+
+`BillingPortal` now owns `/billing/` rather than aliasing into `/manage/`. It uses
+the Python billing CSS and item-picker/customer-lookup behavior, with overview,
+manual/website/WhatsApp lists, search/payment filters/pagination, booking,
+shared seller settings, payment confirmation, immutable bills and PDF download.
+The same tenant-scoped `Orders`, `StaffBooking`, `Billing`, `Payments` and
+`CustomerLookup` services remain authoritative. Billing has its own login/logout
+routes using the existing staff accounts and CSRF/session protection.
+
+Staff bookings can select or record Payment not received / collect on delivery.
+`Orders::collectOnDelivery` is idempotent and never reverses paid/refunded/invoiced
+orders or changes online website payment modes. Delivery remains independent of
+payment; only explicit confirmation of actual collection settles the order and
+permits invoice issuance. No schema or production-configuration replacement is
+required. New portal line input supports meal-specific rows and server prices.
