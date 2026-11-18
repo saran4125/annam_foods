@@ -258,3 +258,8 @@ orders or changes online website payment modes. Delivery remains independent of
 payment; only explicit confirmation of actual collection settles the order and
 permits invoice issuance. No schema or production-configuration replacement is
 required. New portal line input supports meal-specific rows and server prices.
+
+The collection option is determined by payment type, not order source. Existing
+manual-payment website orders are eligible too. Online mode or any provider
+intent remains ineligible for manual settlement. Online pending orders show an
+explicit unpaid label; cancelled/refunded orders do not show an awaiting label.

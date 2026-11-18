@@ -31,3 +31,9 @@ acceptance. The shared invoice print layout is retained. Install the full privat
 code and public assets from the update ZIP together; preserve `.env`, database,
 installation state, accounts, orders and uploaded media. No production rows were
 changed for this update.
+
+Website billing clarification: orders arranged for manual payment also show the
+Payment not received / collect on delivery action. This does not enable COD for
+normal online checkout or convert Razorpay orders to manual payments. Online
+orders show a read-only unpaid status and stay provider-verified. Paid, refunded,
+cancelled and invoiced records retain their existing protections.

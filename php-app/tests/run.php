@@ -265,6 +265,11 @@ try {
     test('billing portal line input uses server prices and supports meal context',function()use($store,$orders,$shop){
         $token=bin2hex(random_bytes(16));$_SESSION['staff_tokens'][$token]=time();$input=['name'=>'Portal fixture','phone'=>'919999999999','token'=>$token,'channel'=>'manual','payment_method'=>'cod','booking_lines'=>[['item'=>$shop,'quantity'=>1,'meal'=>'snacks'],['item'=>$shop,'quantity'=>1,'meal'=>'snacks']],'total'=>'0.01'];$o=$orders->staff($input,'tester');check(count($o['items'])===1&&$o['items'][0]['quantity']===2&&$o['payment_status']==='cod_pending','Portal line input lost category or unpaid state');check($o['subtotal']===Money::decimal(2*Money::parse($store->item($shop)['price'])),'Client price trusted');
     });
+
+    test('manual website payment can collect later while online website payment remains protected',function()use($orders,$quote,$details,$online,$billing){
+        $o=$orders->create($quote,$details,'website-manual-collect','web','tester');$orders->collectOnDelivery($o['id'],'tester');$o=$orders->get($o['id']);check($o['payment_mode']==='cod'&&$o['payment_status']==='cod_pending'&&$o['status']==='placed','Website manual collection missing');check(!$billing->forOrder($o['id']),'Unpaid invoice issued');
+        $o=$orders->create($quote,$online,'website-online-collect','web','tester');expectError(fn()=>$orders->collectOnDelivery($o['id'],'tester'),422);expectError(fn()=>$orders->confirm($o['id'],'tester','fake',true),422);
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

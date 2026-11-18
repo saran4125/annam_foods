@@ -118,3 +118,17 @@ confirm actual collection -> bill flow, including PDF, CSRF and filtering checks
 No production order, payment or database record was used for these checks.
 All previous management UI, Health Mix image, checkout, receipts and recent-order
 updates remain included. The separate shop/courier policy change remains pending.
+
+## Website billing collection visibility correction — 18 November 2026
+
+The screenshot reported a Website order, which the earlier source-based check
+excluded. Existing website orders arranged for manual payment now have Payment
+not received / collect on delivery too. Actual online modes/provider intents
+cannot be manually collected or settled, even if the provider intent is missing;
+those orders instead show a clear read-only Payment not received status.
+Normal checkout's payment choices and configuration are unchanged.
+
+Validation: Python full suite 675 passed plus 17 billing-focused checks; PHP
+reference suite 546 passed and 63 PHP business checks passed. Browser checks
+verified manual-payment website collection visibility and online protection on
+both portals at desktop/mobile sizes. Both ZIPs retain all previous changes.
