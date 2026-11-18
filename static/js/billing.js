@@ -33,6 +33,7 @@
   }
   function setupRow(row) {
     const select=row.querySelector('select');
+    const meal=row.querySelector('[name$="-meal"]');
     const remove=row.querySelector('[name$="-DELETE"]');
     if(remove.checked){row.hidden=true;return;}
     const picker=el('details','b-picker');
@@ -49,19 +50,26 @@
     function render(){
       for(const b of filters.children) b.setAttribute('aria-pressed',String(b.dataset.group===group));
       const query=search.value.trim().toLocaleLowerCase();
-      const matches=catalog.filter(item=>(group==='all'||item.groups.includes(group)) && `${item.name} ${item.category}`.toLocaleLowerCase().includes(query));
+      const matches=catalog.filter(item=>(group==='all'||item.groups.includes(group)||(group==='other'&&item.groups.includes('snacks'))) && `${item.name} ${item.category}`.toLocaleLowerCase().includes(query));
       options.replaceChildren();
       for(const item of matches){
-        const button=el('button','b-picker-option');button.type='button';button.dataset.itemId=item.id;button.setAttribute('aria-pressed',String(String(item.id)===select.value));
-        const description=el('span','',item.name);description.append(el('small','',item.category || item.groups.map(key=>groupLabels.find(pair=>pair[0]===key)[1]).join(' · ')));
-        button.append(description,el('strong','',money(Number(item.price))));
-        button.addEventListener('click',()=>{select.value=String(item.id);select.dispatchEvent(new Event('change',{bubbles:true}));picker.open=false;trigger.focus();});
-        options.append(button);
+        // Each choice includes its configured meal; selecting it also sets the
+        // hidden value. Multi-meal dishes remain explicit inside this picker.
+        const meals=group==='all'?item.groups:(group==='other'?item.groups.filter(key=>['other','snacks'].includes(key)):[group]);
+        for(const key of meals){
+          const label=key==='snacks'?'Snacks':groupLabels.find(pair=>pair[0]===key)?.[1] || key;
+          const button=el('button','b-picker-option');button.type='button';button.dataset.itemId=item.id;button.dataset.meal=key;
+          button.setAttribute('aria-pressed',String(String(item.id)===select.value && (meal.value===key || (!meal.value&&item.groups.length===1))));
+          const description=el('span','',item.name);description.append(el('small','',[label,item.category].filter(Boolean).join(' · ')));
+          button.append(description,el('strong','',money(Number(item.price))));
+          button.addEventListener('click',()=>{meal.value=key==='other'?'':key;select.value=String(item.id);select.dispatchEvent(new Event('change',{bubbles:true}));picker.open=false;trigger.focus();});
+          options.append(button);
+        }
       }
       if(!matches.length) options.append(el('p','b-muted','No items found. Try another meal or search.'));
       count.textContent=`${matches.length} item${matches.length===1?'':'s'}`;
     }
-    function updateLabel(){const item=items.get(select.value);trigger.textContent=item?`${item.name} · ${money(Number(item.price))}`:'Choose an item';updateSummary();}
+    function updateLabel(){const item=items.get(select.value);if(item&&!item.groups.includes(meal.value))meal.value=item.groups.length===1&&item.groups[0]!=='other'?item.groups[0]:'';trigger.textContent=item?`${item.name} · ${money(Number(item.price))}`:'Choose an item';updateSummary();}
     select.addEventListener('change',updateLabel);
     search.addEventListener('input',render);
     search.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();options.querySelector('button')?.focus();}if(event.key==='ArrowDown'){event.preventDefault();options.querySelector('button')?.focus();}});

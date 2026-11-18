@@ -168,3 +168,33 @@ def test_booking_picker_groups_items_by_meal_and_keeps_prices_tenant_scoped(sign
     assert b'Not For Sale' not in response.content
     assert b'100.00' in response.content
     assert response.context['lines'].total_form_count() == 1
+
+
+def test_item_selection_infers_its_single_meal_without_a_second_category_field(signed_in, kitchens, item):
+    from apps.catalog.models import Slot, MenuSchedule
+    with tenant_context(kitchens[0]):
+        slot = Slot.objects.create(key='lunch', label='Lunch', order_cutoff='23:59')
+        MenuSchedule.objects.create(item=item, slot=slot, mode='weekday', weekday=0)
+    page = signed_in.get('/billing/new/', HTTP_HOST=HOST)
+    assert b'>Food category</label>' not in page.content
+    data = booking(kitchens[0], item)
+    data.pop('lines-0-meal')
+    response = signed_in.post('/billing/new/', data, HTTP_HOST=HOST)
+    assert response.status_code == 302
+    with tenant_context(kitchens[0]):
+        order = Order.objects.get()
+        assert order.items[0]['meal_key'] == 'lunch'
+        assert order.total == Decimal('200')
+
+
+def test_hidden_meal_value_cannot_override_the_selected_items_actual_meal(signed_in, kitchens, item):
+    from apps.catalog.models import Slot, MenuSchedule
+    with tenant_context(kitchens[0]):
+        slot = Slot.objects.create(key='lunch', label='Lunch', order_cutoff='23:59')
+        MenuSchedule.objects.create(item=item, slot=slot, mode='weekday', weekday=0)
+    data = booking(kitchens[0], item)
+    data['lines-0-meal'] = 'dinner'
+    response = signed_in.post('/billing/new/', data, HTTP_HOST=HOST)
+    assert response.status_code == 200
+    with tenant_context(kitchens[0]):
+        assert not Order.objects.exists()

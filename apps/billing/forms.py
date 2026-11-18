@@ -59,7 +59,7 @@ class PricedItemField(forms.ModelChoiceField):
 
 
 class OrderLineForm(forms.Form):
-    meal = forms.ChoiceField(required=True,label='Food category',choices=[('','Choose food category'),('breakfast','Breakfast'),('lunch','Lunch'),('dinner','Dinner'),('snacks','Snacks')])
+    meal = forms.ChoiceField(required=False, widget=forms.HiddenInput, label='Food category',choices=[('','Choose food category'),('breakfast','Breakfast'),('lunch','Lunch'),('dinner','Dinner'),('snacks','Snacks')])
     item = PricedItemField(queryset=MenuItem.all_tenants.none())
     quantity = forms.IntegerField(min_value=1, max_value=999, initial=1)
 

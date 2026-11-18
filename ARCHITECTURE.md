@@ -599,3 +599,9 @@ the most recent authorized order in the same browser and tenant.
 Guest receipt access uses a signed HttpOnly, SameSite=Lax cookie lasting 30 days,
 separate from staff login sessions. Cart recent-order lookup survives a browser
 restart or session expiry and remains scoped to the cookie browser and tenant.
+
+Staff booking item choices carry their configured meal category. The searchable
+picker records the selected meal in a hidden field, including separate choices
+for multi-meal dishes inside the same picker. There is no second required Food
+category control. Missing values for single-meal items are inferred server-side;
+posted values remain validated against the item's store-scoped assignments.
