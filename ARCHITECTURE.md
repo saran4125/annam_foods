@@ -605,3 +605,9 @@ picker records the selected meal in a hidden field, including separate choices
 for multi-meal dishes inside the same picker. There is no second required Food
 category control. Missing values for single-meal items are inferred server-side;
 posted values remain validated against the item's store-scoped assignments.
+
+Manual/WhatsApp billing now offers Payment not received / collect on delivery.
+The staff-only action records the existing COD pending state idempotently, never
+reverses paid/refunded/invoiced orders and cannot change online website payments.
+Fulfilment, including Delivered, does not settle payment. Staff explicitly
+confirm actual collection before invoice issuance. No schema changes are needed.

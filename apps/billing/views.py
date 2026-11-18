@@ -21,7 +21,7 @@ from apps.owner.forms import BillingSettingsForm
 from apps.tenancy.models import BillingProfile
 from .forms import ManualOrderForm, OrderLines
 from .models import Invoice
-from .services import create_staff_order, confirm_payment, issue_bill, staff_catalog
+from .services import create_staff_order, confirm_payment, collect_on_delivery, issue_bill, staff_catalog
 
 CHANNELS = {"manual": "Manual billing", "web": "Website billing", "whatsapp": "WhatsApp billing"}
 
@@ -136,6 +136,14 @@ def order_detail(request, pk):
 @require_POST
 def order_payment(request, pk):
     order = get_object_or_404(Order.objects, pk=pk)
+    if request.POST.get('action') == 'collect_on_delivery':
+        try:
+            collect_on_delivery(order, actor=f'owner:{request.user.username}')
+        except ValueError as exc:
+            messages.error(request, str(exc))
+        else:
+            messages.success(request, 'Payment not received: collect on delivery. Confirm payment here after collection.')
+        return redirect('billing:order', pk=pk)
     if request.POST.get("confirmed") != "yes":
         messages.error(request, "Confirm receipt of the full payment first.")
         return redirect("billing:order", pk=pk)

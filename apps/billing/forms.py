@@ -25,7 +25,7 @@ class ManualOrderForm(forms.Form):
     postal_code = forms.CharField(required=False,max_length=20)
     zone = AreaField(queryset=DeliveryZone.all_tenants.none(), required=False,
         help_text="Leave empty for collection. Delivery fee and minimum come from the selected area.")
-    payment_mode = forms.ChoiceField(choices=[("manual", "UPI / cash / other payment recorded by staff"), ("cod", "Cash on delivery")])
+    payment_mode = forms.ChoiceField(choices=[("manual", "UPI / cash / other payment recorded by staff"), ("cod", "Payment not received — collect on delivery")])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,7 +33,7 @@ class ManualOrderForm(forms.Form):
         self.fields["zone"].empty_label = "Collection / takeaway"
         self.fields["zone"].label = "Delivery area"
         self.fields["channel"].label = "Order source"
-        self.fields["payment_mode"].choices = [("manual", "Cash / UPI / bank transfer"), ("cod", "Cash on delivery")]
+        self.fields["payment_mode"].choices = [("manual", "Cash / UPI / bank transfer"), ("cod", "Payment not received — collect on delivery")]
         self.fields["name"].widget.attrs.update(placeholder="Customer's full name", autocomplete="name")
         self.fields["phone"].widget.attrs.update(placeholder="Phone number", autocomplete="tel", inputmode="tel")
         self.fields["address"].widget.attrs.update(placeholder="Door number, street and landmark", autocomplete="street-address")

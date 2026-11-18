@@ -198,3 +198,39 @@ def test_hidden_meal_value_cannot_override_the_selected_items_actual_meal(signed
     assert response.status_code == 200
     with tenant_context(kitchens[0]):
         assert not Order.objects.exists()
+
+
+def test_collect_on_delivery_stays_unpaid_after_delivery_until_money_is_confirmed(signed_in, kitchens, item):
+    from apps.orders.services import advance_status
+    from apps.orders.models import OrderEvent
+    signed_in.post('/billing/settings/', _billing_data(), HTTP_HOST=HOST)
+    response = signed_in.post('/billing/new/', booking(kitchens[0], item), HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        order = Order.objects.get()
+    for _ in range(2):
+        assert signed_in.post(f'/billing/orders/{order.pk}/payment/', {'action':'collect_on_delivery'}, HTTP_HOST=HOST).status_code == 302
+    with tenant_context(kitchens[0]):
+        order.refresh_from_db()
+        assert order.payment_mode == 'cod' and order.payment_status == 'cod_pending'
+        assert OrderEvent.objects.filter(order=order,note__startswith='Payment not received.').count() == 1
+        for status in ['confirmed','preparing','out_for_delivery','delivered']:
+            order = advance_status(order,status,actor='test-owner')
+        assert order.payment_status == 'cod_pending' and not Invoice.objects.exists()
+    response = signed_in.post(f'/billing/orders/{order.pk}/payment/', {'confirmed':'yes','reference':'cash-collected'}, HTTP_HOST=HOST)
+    assert response.status_code == 302
+    with tenant_context(kitchens[0]):
+        order.refresh_from_db()
+        assert order.payment_status == 'paid' and Invoice.objects.filter(order=order).count() == 1
+    signed_in.post(f'/billing/orders/{order.pk}/payment/', {'action':'collect_on_delivery'}, HTTP_HOST=HOST)
+    order.refresh_from_db()
+    assert order.payment_status == 'paid'
+
+
+def test_website_order_cannot_use_staff_collect_on_delivery_action(signed_in, kitchens, item):
+    signed_in.post('/billing/new/', booking(kitchens[0], item), HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        order=Order.objects.get()
+        order.channel='web';order.payment_mode='online';order.save(update_fields=['channel','payment_mode'])
+    signed_in.post(f'/billing/orders/{order.pk}/payment/', {'action':'collect_on_delivery'}, HTTP_HOST=HOST)
+    order.refresh_from_db()
+    assert order.payment_mode == 'online' and order.payment_status == 'pending'

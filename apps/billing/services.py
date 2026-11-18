@@ -328,6 +328,26 @@ def confirm_payment(order, *, actor, reference=""):
 
 
 @transaction.atomic
+def collect_on_delivery(order, *, actor):
+    """Record an unpaid staff booking for later collection; never reverse payment."""
+    from apps.orders.models import OrderEvent, OrderStatus, PaymentMode, Channel
+    order = Order.objects.select_for_update().get(pk=order.pk)
+    if order.channel not in (Channel.MANUAL, Channel.WHATSAPP) or order.payment_mode == PaymentMode.ONLINE or hasattr(order, 'online_payment'):
+        raise ValueError('Online website payments must be verified by the payment provider.')
+    if order.payment_status in (PaymentStatus.PAID, PaymentStatus.REFUNDED) or order.status == OrderStatus.CANCELLED:
+        raise ValueError('Paid, refunded or cancelled orders cannot be changed to unpaid.')
+    if order.invoices.exclude(kind=InvoiceKind.CREDIT_NOTE).exists():
+        raise ValueError('An issued bill cannot be changed to unpaid.')
+    if order.payment_mode != PaymentMode.COD or order.payment_status != PaymentStatus.COD_PENDING:
+        order.payment_mode = PaymentMode.COD
+        order.payment_status = PaymentStatus.COD_PENDING
+        order.save(update_fields=['payment_mode', 'payment_status'])
+        OrderEvent.objects.create(order=order, from_status=order.status, to_status=order.status,
+                                 actor=actor[:60], note='Payment not received. Collect on delivery; confirm actual receipt separately.')
+    return order
+
+
+@transaction.atomic
 def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
                        token, actor, address="", zone=None, delivery_date=None, fulfilment_method="", city="", state="Tamil Nadu", country="India", postal_code=""):
     """Capture a phone/counter/chat booking with live prices and a retry-safe key."""
