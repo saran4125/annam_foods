@@ -1,6 +1,6 @@
 # Updated PHP downloads
 
-The source and update archives include the 17 November payment, private invoice PDF, receipt refresh and layout fixes on `php-rebuild`. The separate reviewed database archive is unchanged. See [update instructions](PAYMENT-RECEIPT-UPDATE.md).
+The source and update archives include the 18 November full management-panel UI, automatic meal-pincode checking, visible checkout actions, payment, private invoice PDF, receipt refresh and layout fixes on `php-rebuild`. The separate reviewed database archive is unchanged. See [update instructions](PAYMENT-RECEIPT-UPDATE.md).
 
 - [Download the entire PHP source ZIP](https://github.com/saran4125/annam_foods/raw/refs/heads/php-rebuild/docs/php-rebuild/annam-foods-php-source.zip)
 - [Download the existing-site update ZIP](https://github.com/saran4125/annam_foods/raw/refs/heads/php-rebuild/docs/php-rebuild/annam-foods-php-ui-update.zip)

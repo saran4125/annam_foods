@@ -42,3 +42,31 @@ session cleanup, without extending staff logins. Clearing cookies or switching
 browsers removes guest access. Verified using a real Chromium close/reopen with
 the PHP session cookie removed; another browser remained denied. PHP behavioral
 suite now includes 59 checks.
+
+## Complete PHP UI package — 18 November 2026
+
+Includes the management-panel login, sidebar, dashboard, catalog/menu editor,
+orders and order details, reports, resource lists and settings UI, together with
+all PHP payment/receipt/PDF and persistent recent-order work above. The latest
+meal-pincode auto-check and navigation-blanking fix are now ported from Python.
+Checkout keeps Review & place order and the final confirmation/payment action
+visible on short desktop and mobile screens. Checked pincodes prefill checkout.
+
+The source ZIP is the complete PHP application code. The update ZIP supplies
+private code under annam-private/ and public assets under public_html/assets/.
+Neither archive contains a live database, .env, installation state, account/order
+records, uploaded media, fixture routers or credentials. Keep all those existing
+installation files when applying the update. This is not an EC2 deployment.
+
+Pending policy, not included: removing the courier-enabled/configuration blocker
+for Tamil Nadu shop products was analyzed but has not yet been implemented.
+Normal online checkout still requires configured live Razorpay; temporary test
+checkout stays separate. Do not interpret this package as live provider acceptance.
+
+18 November package validation: 546 PostgreSQL regression tests, 59 PHP behavior
+checks and PHP lint passed. Management UI browser checks covered login, sidebar,
+dashboard, catalog, menu editor, orders, reports, settings, desktop/mobile layout
+and navigation. New checkout browser checks covered automatic/invalid meal
+pincodes, manual retry without document navigation, saved pincode prefill, fixed
+review/place actions and disposable desktop/mobile orders. No live payment or
+production order was used for these package checks.

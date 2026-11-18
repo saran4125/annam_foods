@@ -228,3 +228,7 @@ routers, credentials, test databases or setup files.
 A separate signed HttpOnly guest-order cookie lasts 30 days and restores receipt
 access after a browser restart or PHP session cleanup. Recent-order lookup uses
 the authenticated browser token and tenant; staff session lifetime is unchanged.
+
+Meal-pincode checks use serialized fetch requests and replace the delivery sidebar
+in place, retaining normal form submissions as a fallback. Checkout actions are
+fixed to the viewport bottom so they remain accessible on short/mobile screens.

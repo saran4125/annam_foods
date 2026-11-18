@@ -17,3 +17,74 @@ document.addEventListener('submit',async e=>{const form=e.target;if(!form.matche
 all('[data-shelf-wrap]').forEach(wrap=>{const row=wrap.querySelector('[data-shelf-row]'),prev=wrap.querySelector('[data-shelf-prev]'),next=wrap.querySelector('[data-shelf-next]');if(!row||!prev||!next)return;const state=()=>{prev.disabled=row.scrollLeft<2;next.disabled=row.scrollLeft+row.clientWidth>=row.scrollWidth-2;};prev.addEventListener('click',()=>row.scrollBy({left:-row.clientWidth*.8,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));next.addEventListener('click',()=>row.scrollBy({left:row.clientWidth*.8,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));row.addEventListener('scroll',state,{passive:true});window.addEventListener('resize',state);state();});
 const head=document.querySelector('[data-header]');if(head){const state=()=>{if(window.scrollY>96)head.classList.add('is-scrolled');else if(window.scrollY<24)head.classList.remove('is-scrolled');};window.addEventListener('scroll',state,{passive:true});state();}
 })();
+
+(()=>{
+  /* Check delivery in place; never navigate away from the cart. Requests are
+     serialized so an older pincode cannot overwrite the latest session value. */
+  let pincodeTimer, checkingPincode = false, pendingPincode = false;
+  const pincodeForm = () => document.querySelector('[data-pincode-form]');
+  const pincodeSignature = form => form.elements.pincode.value + ':' + (form.elements.area_id?.value || '');
+  const lockDelivery = message => {
+    const form = pincodeForm();
+    const side = form?.closest('[data-pincode-side]');
+    const feedback = side?.querySelector('[data-pincode-feedback]');
+    if (feedback) feedback.textContent = message;
+    side?.querySelectorAll('.php-success').forEach(el => el.hidden = true);
+    const checkout = side?.querySelector('[data-testid="checkout"]');
+    if (checkout) { checkout.setAttribute('aria-disabled', 'true'); if (checkout.tagName === 'BUTTON') checkout.disabled = true; }
+  };
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-testid="checkout"][aria-disabled="true"]')) event.preventDefault();
+  });
+  const checkPincode = async () => {
+    clearTimeout(pincodeTimer);
+    const form = pincodeForm();
+    if (!form || !/^[1-9][0-9]{5}$/.test(form.elements.pincode.value)) return;
+    pendingPincode = true;
+    if (checkingPincode) return;
+    checkingPincode = true;
+    while (pendingPincode) {
+      pendingPincode = false;
+      const current = pincodeForm();
+      if (!current || !/^[1-9][0-9]{5}$/.test(current.elements.pincode.value)) break;
+      const signature = pincodeSignature(current);
+      lockDelivery('Checking delivery…');
+      try {
+        const response = await fetch(current.action, {method: 'POST', body: new FormData(current), credentials: 'same-origin'});
+        if (!response.ok) throw new Error('Delivery check failed');
+        const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const next = doc.querySelector('[data-pincode-side]');
+        if (!next?.querySelector('[data-pincode-form]')) throw new Error('Invalid delivery response');
+        const live = pincodeForm();
+        if (!live || pincodeSignature(live) !== signature) continue;
+        const focused = document.activeElement === live.elements.pincode;
+        live.closest('[data-pincode-side]').replaceWith(next);
+        const feedback = next.querySelector('[data-pincode-feedback]');
+        const errors = [...next.querySelectorAll('.php-error')].map(el => el.textContent.trim());
+        if (feedback && errors.length) lockDelivery(errors.join(' '));
+        if (focused) next.querySelector('[name="pincode"]').focus({preventScroll: true});
+      } catch {
+        if (pincodeForm() && pincodeSignature(pincodeForm()) === signature) lockDelivery('Could not check delivery. Please try Check again.');
+      }
+    }
+    checkingPincode = false;
+  };
+  document.addEventListener('input', event => {
+    if (!event.target.matches('[data-pincode-form] [name="pincode"]')) return;
+    clearTimeout(pincodeTimer);
+    const form = event.target.form;
+    const area = form.elements.area_id;
+    if (area) area.value = '';
+    lockDelivery(/^[1-9][0-9]{5}$/.test(event.target.value) ? 'Checking delivery…' : 'Enter a complete 6-digit pincode.');
+    if (/^[1-9][0-9]{5}$/.test(event.target.value)) pincodeTimer = setTimeout(checkPincode, 350);
+  });
+  document.addEventListener('change', event => {
+    if (event.target.matches('[data-pincode-form] select[name="area_id"]')) checkPincode();
+  });
+  document.addEventListener('submit', event => {
+    if (!event.target.matches('[data-pincode-form]') || !window.fetch) return;
+    event.preventDefault(); checkPincode();
+  });
+
+
+})();

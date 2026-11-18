@@ -9,7 +9,7 @@ APP = ROOT / 'php-app'
 DEST = ROOT / 'docs/php-rebuild'
 DIRECTORIES = ('src', 'views', 'resources', 'bin', 'deploy', 'tests', 'public/assets')
 DOCS = ('README.md', 'ARCHITECTURE.md', 'PARITY.md', 'UI-PARITY.md', 'SQLITE-HOSTINGER.md',
-        '.env.example', 'router.php', 'hosting-check.php', 'public/index.php', 'public/.htaccess')
+        'storage/sessions/.gitkeep', 'storage/logs/.gitkeep', '.env.example', 'router.php', 'hosting-check.php', 'public/index.php', 'public/.htaccess')
 
 
 def source_files():
@@ -31,14 +31,14 @@ def write_zip(filename, files, instruction):
     with zipfile.ZipFile(DEST / filename, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path, target in sorted(files, key=lambda item: item[1]):
             data = path.read_bytes()
-            info = zipfile.ZipInfo(target, (2026, 11, 17, 0, 0, 0))
+            info = zipfile.ZipInfo(target, (2026, 11, 18, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o100644 << 16
             archive.writestr(info, data)
             checksums[target] = hashlib.sha256(data).hexdigest()
         for name, data in [('CHECKSUMS.json', json.dumps(checksums, indent=2, sort_keys=True)),
                            ('UPDATE-EXISTING-SITE.txt', instruction)]:
-            info = zipfile.ZipInfo(name, (2026, 11, 17, 0, 0, 0))
+            info = zipfile.ZipInfo(name, (2026, 11, 18, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o100644 << 16
             archive.writestr(info, data)
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         relative = path.relative_to(APP).as_posix()
         if relative.startswith('public/assets/'):
             update.append((path, 'public_html/' + relative.removeprefix('public/')))
-        elif not relative.startswith('public/') and relative not in ('.env.example', 'router.php', 'hosting-check.php'):
+        elif not relative.startswith('public/') and relative not in ('storage/sessions/.gitkeep', 'storage/logs/.gitkeep', '.env.example', 'router.php', 'hosting-check.php'):
             update.append((path, 'annam-private/' + relative))
     write_zip('annam-foods-php-ui-update.zip', update, instruction)
     names = ('annam-foods-php-source.zip', 'annam-foods-php-ui-update.zip', 'annam-foods-php-reviewed-database.zip')
