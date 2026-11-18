@@ -232,3 +232,8 @@ the authenticated browser token and tenant; staff session lifetime is unchanged.
 Meal-pincode checks use serialized fetch requests and replace the delivery sidebar
 in place, retaining normal form submissions as a fallback. Checkout actions are
 fixed to the viewport bottom so they remain accessible on short/mobile screens.
+
+The homepage spotlight resolves published artwork first, then a local photograph
+from the linked, tenant-scoped active product. The reviewed Health Mix photo has
+a bundled public-asset fallback for installations missing imported section/media
+references. This presentation fallback does not mutate catalog or configuration.

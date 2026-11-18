@@ -14,6 +14,18 @@ final class Content {
     }
     public function text(string $key): string {return e($this->copy[$key]??'');}
     public function image(string $key,string $fallback=''): string {return $this->images[$key]??image_url($fallback);}
+    public function spotlightImage(array $section): string {
+        // Explicit published artwork always takes precedence over catalog fallbacks.
+        if($image=$this->image('spotlight',(string)($section['image']??'')))return $image;
+        if(!preg_match('~^/item/([0-9]+)/$~D',(string)($section['link']??''),$match))return '';
+        $product=$this->store->db->one('SELECT name,image FROM catalog_menuitem WHERE tenant_id=? AND id=? AND active',[$this->store->id(),(int)$match[1]]);
+        if(!$product)return '';
+        if($product['image']&&Media::file($product['image']))return image_url($product['image']);
+        // The reviewed Health Mix photograph ships as a public asset in both
+        // archive layouts; it works even before uploaded media is restored.
+        if(str_contains(strtolower($product['name']),'health mix'))return '/assets/health-mix.jpg';
+        return '';
+    }
     public function whatsapp(): string {$phone=preg_replace('/\D/','',$this->copy['footer.whatsapp']);if(strlen($phone)===10)$phone='91'.$phone;return preg_match('/^[0-9]{11,15}$/D',$phone)?'https://wa.me/'.$phone:'';}
     public static function link(string $value): string {
         $value=trim($value);if(!$value||preg_match('/[\x00-\x20\\\\]/',$value)||str_starts_with($value,'//'))return '';

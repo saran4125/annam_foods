@@ -70,3 +70,15 @@ and navigation. New checkout browser checks covered automatic/invalid meal
 pincodes, manual retry without document navigation, saved pincode prefill, fixed
 review/place actions and disposable desktop/mobile orders. No live payment or
 production order was used for these package checks.
+
+## Health Mix homepage artwork fix — 18 November 2026
+
+The Health Mix section now restores its reviewed image when the imported section
+has no artwork. Published owner artwork and existing local product photos take
+precedence. The fallback photo is shipped as public_html/assets/health-mix.jpg
+in the update ZIP (php-app/public/assets/health-mix.jpg in the source ZIP), so it
+works without replacing or restoring any uploaded-media folder or database.
+The 17-ingredient heading and responsive image dimensions match Python. A generic
+spotlight without a suitable image uses one column instead of a blank grid area.
+Both archives retain all prior management-panel, payment, invoice and checkout
+updates. Apply the private code and public assets together; clear PHP OPcache.

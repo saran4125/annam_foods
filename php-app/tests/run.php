@@ -245,6 +245,16 @@ try {
         check($checkout->recent()===$reference,'Recent order lost after session expiry');check($checkout->guest($reference)['id']===$o['id'],'Receipt unavailable after restart');
         $_SESSION=[];$_COOKIE[$name]=$cookie.'bad';check($checkout->recent()===null,'Tampered cookie exposed order');expectError(fn()=>$checkout->guest($reference),404);unset($_COOKIE[$name]);$_SESSION=$saved;
     });
+
+    test('spotlight image uses its scoped product and preserves owner artwork',function()use($store,$resources,$otherItem,$db,$tenant){
+        $id=$resources->save('dishes',null,['name'=>'Special Health Mix','fulfilment'=>'courier','price'=>'400','active'=>1,'in_stock'=>1]);$content=new Annam\Content($store);$section=['link'=>'/item/'.$id.'/','image'=>''];
+        check($content->spotlightImage($section)==='/assets/health-mix.jpg','Bundled Health Mix photo missing');
+        $content->images['spotlight']='/platform/assets/fixture/owner-image/';check($content->spotlightImage($section)==='/platform/assets/fixture/owner-image/','Owner artwork overwritten');unset($content->images['spotlight']);
+        check($content->spotlightImage(['link'=>'/item/'.$otherItem.'/','image'=>''])==='','Other tenant product exposed');
+        check($content->spotlightImage(['link'=>'/shop/','image'=>'menu/custom.jpg'])==='/media/menu/custom.jpg','Explicit section photo overwritten');
+        check(is_file(ANNAM_ROOT.'/public/assets/health-mix.jpg'),'Health Mix asset not packaged');
+    });
+
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }
