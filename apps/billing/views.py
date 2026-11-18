@@ -155,9 +155,9 @@ def order_payment(request, pk):
     return _issue(request, order)
 
 
-def _issue(request, order):
+def _issue(request, order, *, allow_unpaid=False):
     try:
-        invoice = issue_bill(order)
+        invoice = issue_bill(order, allow_unpaid=allow_unpaid)
     except (ValueError, ValidationError) as exc:
         messages.error(request, str(exc) + " Payment receipt, if confirmed, remains recorded.")
         return redirect("billing:order", pk=order.pk)
@@ -167,7 +167,7 @@ def _issue(request, order):
 @staff_required
 @require_POST
 def order_bill(request, pk):
-    return _issue(request, get_object_or_404(Order.objects, pk=pk))
+    return _issue(request, get_object_or_404(Order.objects, pk=pk), allow_unpaid=request.POST.get('issue_unpaid') == 'yes')
 
 
 @staff_required

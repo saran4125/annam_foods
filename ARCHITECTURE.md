@@ -616,3 +616,10 @@ Collection-on-delivery eligibility follows payment type rather than source:
 existing website orders arranged for manual payment can use the same action.
 Online mode or any provider intent still blocks manual collection/settlement.
 Online unpaid orders show a clear Payment not received status without COD controls.
+
+Explicit staff billing can issue an unpaid manual/COD bill before collection.
+The immutable buyer snapshot records `payment_status_at_issue=unpaid`; current
+settlement is displayed separately from the frozen invoice amounts and number.
+Delivery never settles payment. Later collection reuses the same invoice.
+Automatic issuance stays paid-only, and online/test payments cannot bypass their
+provider verification through unpaid staff billing.

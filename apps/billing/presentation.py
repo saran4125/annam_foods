@@ -28,6 +28,28 @@ def logo_url(value):
     return ''
 
 
+def invoice_payment(invoice):
+    """Settlement is current metadata; the issued amounts and buyer stay frozen."""
+    issued_unpaid = invoice.kind != 'credit_note' and invoice.buyer.get('payment_status_at_issue') == 'unpaid'
+    status = 'paid'
+    reference = invoice.payment_ref
+    credits = Decimal('0')
+    if issued_unpaid:
+        from apps.orders.models import Order
+        from apps.tenancy.context import tenant_context
+        from .models import Invoice
+        with tenant_context(invoice.tenant):
+            order = Order.objects.filter(pk=invoice.order_id).first() if invoice.order_id else None
+            status = order.payment_status if order else 'pending'
+            reference = order.payment_reference if order and status == 'paid' else ''
+            credits = sum((v for v in Invoice.objects.filter(original=invoice, kind='credit_note').values_list('total',flat=True)), Decimal('0'))
+    paid = status == 'paid'
+    refunded = status == 'refunded'
+    due = max(invoice.total - credits, Decimal('0')) if not paid and not refunded else Decimal('0')
+    return {'issued_unpaid':issued_unpaid, 'payment_received':paid, 'payment_refunded':refunded,
+            'amount_due':due, 'settlement_reference':reference}
+
+
 def receipt_details(invoice):
     seller, buyer = invoice.seller, invoice.buyer
     # New bills keep the logo at issuance. Older bills use their store's current
@@ -64,7 +86,7 @@ def receipt_details(invoice):
     except ValueError:
         delivery_date = None
     tagline = seller.get('tagline', invoice.tenant.config.tagline)
-    return {'logo_url': logo_url(image), 'tagline': tagline, 'delivery_date': delivery_date,
+    return {**invoice_payment(invoice), 'logo_url': logo_url(image), 'tagline': tagline, 'delivery_date': delivery_date,
             'address_lines': address_lines,
             'collection': address.get('fulfilment') == 'Collection',
             'lines': lines, 'discount': discount, 'payment_label': payment,

@@ -261,3 +261,31 @@ def test_online_website_without_intent_still_cannot_be_manually_settled(signed_i
         order.status=status;order.payment_status=payment;order.save(update_fields=['status','payment_status'])
         page=signed_in.get(f'/billing/orders/{order.pk}/',HTTP_HOST=HOST)
         assert b'Awaiting verified online payment' not in page.content
+
+
+def test_unpaid_bill_then_collection_reuses_number(signed_in, kitchens, item):
+    from apps.billing.presentation import receipt_details
+    signed_in.post('/billing/settings/', _billing_data(), HTTP_HOST=HOST)
+    signed_in.post('/billing/new/', booking(kitchens[0], item), HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        order = Order.objects.get()
+    path = f'/billing/orders/{order.pk}/'
+    response = signed_in.post(path+'bill/', {'issue_unpaid':'yes'}, HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        invoice = Invoice.objects.get(order=order)
+        number, buyer = invoice.number, dict(invoice.buyer)
+        assert receipt_details(invoice)['amount_due'] == order.total
+    order.refresh_from_db()
+    assert order.payment_status == 'pending'
+    assert b'UNPAID' in signed_in.get(response['Location'], HTTP_HOST=HOST).content
+    assert b'Confirm payment received' in signed_in.get(path, HTTP_HOST=HOST).content
+    signed_in.post(path+'bill/', {'issue_unpaid':'yes'}, HTTP_HOST=HOST)
+    signed_in.post(path+'payment/', {'action':'collect_on_delivery'}, HTTP_HOST=HOST)
+    signed_in.post(path+'payment/', {'confirmed':'yes','reference':'CASH-COLLECTED'}, HTTP_HOST=HOST)
+    with tenant_context(kitchens[0]):
+        assert Invoice.objects.filter(order=order).count() == 1
+        invoice.refresh_from_db()
+        assert invoice.number == number and invoice.buyer == buyer
+        state = receipt_details(invoice)
+        assert state['payment_received'] and state['amount_due'] == 0
+        assert state['settlement_reference'] == 'CASH-COLLECTED'

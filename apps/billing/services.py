@@ -93,7 +93,7 @@ def _seller_snapshot(tenant, profile):
 
 
 @transaction.atomic
-def issue_bill(order, *, gst_details=None, force=False):
+def issue_bill(order, *, gst_details=None, force=False, allow_unpaid=False):
     """Issue exactly one immutable bill for an eligible order."""
     order = Order.all_tenants.select_for_update().select_related("customer", "tenant").get(pk=order.pk)
     with tenant_context(order.tenant):
@@ -102,8 +102,13 @@ def issue_bill(order, *, gst_details=None, force=False):
             return existing
         if hasattr(order, "online_payment") and order.online_payment.mode == "test":
             raise ValueError("Test payments do not issue real bills. Switch to live mode for production payments.")
-        if order.payment_status != PaymentStatus.PAID:
-            raise ValueError("Payment must be confirmed before issuing a bill.")
+        unpaid = order.payment_status != PaymentStatus.PAID
+        if unpaid:
+            if not allow_unpaid:
+                raise ValueError("Payment must be confirmed before issuing a bill.")
+            if (order.payment_mode not in ('manual', 'cod') or hasattr(order, 'online_payment')
+                    or order.status == 'cancelled' or order.payment_status not in ('pending', 'cod_pending')):
+                raise ValueError('Only an active manual-payment order can receive an unpaid bill.')
         try:
             profile = BillingProfile.objects.get(tenant=order.tenant)
         except BillingProfile.DoesNotExist as exc:
@@ -201,12 +206,13 @@ def issue_bill(order, *, gst_details=None, force=False):
             raise ValueError("Bill total does not match the paid order. Check tax, rounding and order totals before issuing.")
         round_off = (payable - raw_total).quantize(CENT)
         fy, seq, number = allocate_number(order.tenant, day=timezone.localdate())
+        buyer_data['payment_status_at_issue'] = 'unpaid' if unpaid else 'paid'
         return Invoice.objects.create(
             kind=kind, series=InvoiceSeries.BILL, number=number, financial_year=fy, sequence_no=seq,
             order=order, seller=_seller_snapshot(order.tenant, profile), buyer=buyer_data,
             lines=snapshots, taxable=taxable_total, cgst=cgst_total, sgst=sgst_total, igst=igst_total,
             round_off=round_off, total=payable, amount_words=_amount_words(payable),
-            payment_mode=order.payment_mode, payment_ref=order.payment_reference or order.external_ref,
+            payment_mode=order.payment_mode, payment_ref='' if unpaid else (order.payment_reference or order.external_ref),
         )
 
 
@@ -336,8 +342,9 @@ def collect_on_delivery(order, *, actor):
         raise ValueError('Online website payments must be verified by the payment provider.')
     if order.payment_status in (PaymentStatus.PAID, PaymentStatus.REFUNDED) or order.status == OrderStatus.CANCELLED:
         raise ValueError('Paid, refunded or cancelled orders cannot be changed to unpaid.')
-    if order.invoices.exclude(kind=InvoiceKind.CREDIT_NOTE).exists():
-        raise ValueError('An issued bill cannot be changed to unpaid.')
+    invoice = order.invoices.exclude(kind=InvoiceKind.CREDIT_NOTE).first()
+    if invoice and invoice.buyer.get('payment_status_at_issue') != 'unpaid':
+        raise ValueError('An issued paid bill cannot be changed to unpaid.')
     if order.payment_mode != PaymentMode.COD or order.payment_status != PaymentStatus.COD_PENDING:
         order.payment_mode = PaymentMode.COD
         order.payment_status = PaymentStatus.COD_PENDING

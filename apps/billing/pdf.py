@@ -33,14 +33,14 @@ def _document(title, paragraphs, rows):
 def invoice_pdf(invoice):
     bill = receipt_details(invoice)
     seller, buyer = invoice.seller, invoice.buyer
-    details = [seller.get('name'), seller.get('address'),
+    details = [('Payment received' if bill['payment_received'] else 'Payment refunded' if bill['payment_refunded'] else 'UNPAID — PAYMENT NOT RECEIVED'), seller.get('name'), seller.get('address'),
                f"{seller.get('state', '')} · State code {seller.get('state_code', '')}",
                f"GSTIN: {seller.get('gstin', '')} · FSSAI: {seller.get('fssai_no', '')}",
                f'Issued: {invoice.issued_at:%d %b %Y}',
                f"Order: {buyer.get('order_no', '')}", buyer.get('name'), buyer.get('phone'),
                buyer.get('business_name'), buyer.get('gstin'), buyer.get('billing_address'),
                ', '.join(bill['address_lines']),
-               f"Payment: {bill['payment_label']} · Reference: {invoice.payment_ref}"]
+               f"Payment: {bill['payment_label']} · Reference: {bill['settlement_reference']}"]
     rows = [('Items / taxes', 'Amount')]
     for line in bill['lines']:
         text = f"{line['description']}\n{line['quantity']} × ₹{line['unit_price']}"
@@ -53,8 +53,10 @@ def invoice_pdf(invoice):
         rows.append((text, f"₹{line['amount']:.2f}"))
     rows.extend([('Taxable value', f'₹{invoice.taxable:.2f}'), ('CGST', f'₹{invoice.cgst:.2f}'),
                  ('SGST', f'₹{invoice.sgst:.2f}'), ('IGST', f'₹{invoice.igst:.2f}'),
-                 ('Round off', f'₹{invoice.round_off:.2f}'), ('Total paid', f'₹{invoice.total:.2f}'),
+                 ('Round off', f'₹{invoice.round_off:.2f}'), ('Total paid' if bill['payment_received'] else 'Total payable', f'₹{invoice.total:.2f}'),
                  (invoice.amount_words, '')])
+    if bill['issued_unpaid'] and not bill['payment_received'] and not bill['payment_refunded']:
+        rows.append(('Amount due — payment not received', f"₹{bill['amount_due']:.2f}"))
     if buyer.get('courier_deferred'):
         rows.append(('Courier charges are payable separately after dispatch.', ''))
     if seller.get('gst_mode') == 'composition':
