@@ -56,7 +56,7 @@ final class Workflow {
             }
             $intent=$payments->forOrder($id);$invoice=$billing->forOrder($id);$events=$this->store->db->rows('SELECT * FROM orders_orderevent WHERE tenant_id=? AND order_id=? ORDER BY at,id',[$this->store->id(),$id]);$customer=$this->store->row('orders_customer',$order['customer_id']);$charge=(new Courier($this->store))->get($id);$this->view('order-detail',compact('order','intent','invoice','events','customer','charge'),true);return true;
         }
-        if(preg_match('~^/(?:manage/bills|billing/invoices)/(\d+)/download/$~',$path,$match)){header('Content-Type: application/pdf');header('Content-Disposition: attachment; filename="invoice.pdf"');echo InvoicePdf::invoice($billing->get((int)$match[1]));return true;}
+        if(preg_match('~^/(?:manage/bills|billing/invoices)/(\d+)/download/$~',$path,$match)){header('Content-Type: application/pdf');header('Content-Disposition: attachment; filename="invoice.pdf"');$invoice=$billing->get((int)$match[1]);echo InvoicePdf::invoice($invoice,$billing->paymentState($invoice));return true;}
         if(preg_match('~^/(?:manage/bills|billing/invoices)/(\d+)/$~',$path,$match)){$this->bill($billing->get((int)$match[1]));return true;}
         if($path==='/manage/settings/media-backup/'){Settings::owner($this->user);if($method!=='POST')throw new HttpError(405,'Use the download button.');(new Backup($this->store))->download();return true;}
         if(in_array($path,['/manage/billing-settings/','/manage/billing/'],true)){

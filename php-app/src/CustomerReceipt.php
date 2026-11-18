@@ -13,6 +13,6 @@ final class CustomerReceipt {
         $intent=(new Payments($this->store))->forOrder((int)$order['id']);
         if($test){if(($intent['mode']??'')!=='test'||$intent['state']!=='captured'||$order['payment_status']!=='paid')throw new HttpError(404,'Verified test receipt unavailable.');return InvoicePdf::test($order);}
         if(($intent['mode']??'')==='test'||!in_array($order['payment_status'],['paid','refunded'],true))throw new HttpError(404,'Invoice unavailable.');
-        $invoice=(new Billing($this->store))->forOrder((int)$order['id'])??throw new HttpError(404,'Invoice is not issued yet.');return InvoicePdf::invoice($invoice);
+        $invoice=(new Billing($this->store))->forOrder((int)$order['id'])??throw new HttpError(404,'Invoice is not issued yet.');return InvoicePdf::invoice($invoice,(new Billing($this->store))->paymentState($invoice));
     }
 }

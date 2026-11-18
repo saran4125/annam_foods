@@ -5,6 +5,14 @@ namespace Annam;
 final class Billing {
     public function __construct(private Store $store) {}
     public function get(int $id): array {return Store::json($this->store->row('billing_invoice',$id),['seller','buyer','lines']);}
+    public function paymentState(array $invoice): array {
+        $unpaid=($invoice['buyer']['payment_status_at_issue']??'paid')==='unpaid';
+        $order=$unpaid?(new Orders($this->store))->get((int)$invoice['order_id']):null;
+        $status=$order['payment_status']??'paid';$paid=$status==='paid';$refunded=$status==='refunded';
+        $credits=$unpaid?$this->store->db->one("SELECT COALESCE(SUM(total),0) AS total FROM billing_invoice WHERE tenant_id=? AND original_id=? AND kind='credit_note'",[$this->store->id(),$invoice['id']]):null;
+        $due=Money::decimal(max(0,Money::parse($invoice['total'])-Money::parse((string)($credits['total']??'0'))));
+        return ['payment_received'=>$paid,'payment_refunded'=>$refunded,'amount_due'=>($paid||$refunded)?'0.00':$due,'settlement_reference'=>$unpaid?($paid?($order['payment_reference']??''):''):$invoice['payment_ref']];
+    }
     public function timing(): string {return $this->store->db->one('SELECT bill_timing FROM tenancy_billingprofile WHERE tenant_id=?',[$this->store->id()])['bill_timing']??'on_payment';}
     public function forOrder(int $id): ?array {$row=$this->store->db->one("SELECT id FROM billing_invoice WHERE tenant_id=? AND order_id=? AND kind<>'credit_note'",[$this->store->id(),$id]);return $row?$this->get((int)$row['id']):null;}
     public function tryIssue(int $id): ?array {
@@ -26,17 +34,19 @@ final class Billing {
         $number=Settings::number($profile['number_format'],$profile['invoice_prefix'].($series==='credit'?'C':''),$fy,$seq);
         $this->store->update('billing_invoicesequence',$row['id'],['next_no'=>$seq+1]);return ['number'=>$number,'financial_year'=>$fy,'sequence_no'=>$seq];
     }
-    public function issue(int $orderId): array {
-        return $this->store->db->transaction(function()use($orderId){
+    public function issue(int $orderId, bool $allowUnpaid=false): array {
+        return $this->store->db->transaction(function()use($orderId,$allowUnpaid){
             $this->store->lock();$order=(new Orders($this->store))->get($orderId,true);if($existing=$this->forOrder($orderId))return $existing;
-            if($order['payment_status']!=='paid')throw new HttpError(422,'Payment must be received before issuing a bill.');
+            $unpaid=$order['payment_status']!=='paid';if($unpaid&&!$allowUnpaid)throw new HttpError(422,'Payment must be received before issuing a bill.');
             $intent=$this->store->db->one('SELECT id,mode FROM payments_paymentintent WHERE tenant_id=? AND order_id=?',[$this->store->id(),$orderId]);if(($intent['mode']??'')==='test')throw new HttpError(422,'Test payments do not issue real bills.');
+            if($unpaid&&($intent||!in_array($order['payment_mode'],['manual','cod'],true)||!in_array($order['payment_status'],['pending','cod_pending'],true)||$order['status']==='cancelled'))throw new HttpError(422,'Only active manual or COD orders can issue an unpaid bill.');
             $profile=$this->store->profile();Settings::validateProfile($profile);$seller=['name'=>$profile['legal_name'],'address'=>$profile['address'],'state'=>$profile['state'],'state_code'=>$profile['state_code'],'gstin'=>$profile['gstin'],'fssai_no'=>$profile['fssai_no'],'gst_mode'=>$profile['gst_mode'],'sac'=>$profile['sac'],'footer'=>$profile['footer'],'logo_url'=>image_url($this->store->config['theme']['billing_logo_url']??'')?:$this->store->logo(),'tagline'=>$this->store->config['tagline']];
             foreach(['gst_mode','prices_include_tax','round_total','delivery_fee_taxable','tax_rate'] as $key)if(array_key_exists($key,$order['pricing']))$profile[$key]=$order['pricing'][$key];
             Settings::validateProfile($profile);$seller['gst_mode']=$profile['gst_mode'];
             $customer=$this->store->row('orders_customer',$order['customer_id']);$slot=$order['slot_id']?$this->store->slot((int)$order['slot_id']):null;
             $buyer=['name'=>$order['address']['recipient_name']??$customer['name'],'phone'=>$order['address']['phone']??$customer['phone'],'delivery_address'=>$order['address'],'order_no'=>$order['order_no'],'channel'=>$order['channel'],'delivery_date'=>$order['delivery_date']??'','slot'=>implode(' + ',array_map('ucfirst',array_values(array_unique(array_filter(array_column($order['items'],'meal_key'))))))?:($slot['label']??''), 'courier_deferred'=>$order['address']['courier_deferred']??false,'gstin'=>'','business_name'=>'','billing_address'=>''];
             if($order['buyer_gst'])$buyer=array_replace($buyer,$order['buyer_gst']);elseif(!$order['pricing'])foreach(['gstin','business_name','billing_address'] as $key)$buyer[$key]=$customer[$key];
+            $buyer['payment_status_at_issue']=$unpaid?'unpaid':'paid';
             $regular=$profile['gst_mode']==='regular';$kind=$regular?'tax_invoice':($profile['gst_mode']==='composition'?'bill_of_supply':'bill');
             $interstate=!empty($order['address']['state_code'])&&$order['address']['state_code']!==$profile['state_code'];
             $source=$order['items'];$sum=array_sum(array_map(fn($line)=>Money::parse((string)$line['line_total']),$source));$discount=Money::parse($order['discount']);if($discount>$sum)throw new HttpError(422,'The order discount is invalid.');$remaining=$discount;$lines=[];$totals=['taxable'=>0,'cgst'=>0,'sgst'=>0,'igst'=>0];
@@ -49,7 +59,7 @@ final class Billing {
             $fee=Money::parse($order['delivery_fee']);if($fee)$lines[]=$this->line('Delivery fee',1,$order['delivery_fee'],$fee,$regular&&$profile['delivery_fee_taxable']?Money::parse((string)$profile['tax_rate']):0,0,$profile['sac'],$profile,$interstate,$totals);
             $raw=array_sum($totals);$total=$profile['round_total']?Money::ratio($raw,100)*100:$raw;
             if($total!==Money::parse($order['total']))throw new HttpError(422,'Bill total does not match the paid order. Review tax and rounding settings.');
-            $values=['kind'=>$kind,'series'=>'bill','order_id'=>$orderId,'original_id'=>null,'seller'=>json_encode($seller,JSON_THROW_ON_ERROR),'buyer'=>json_encode($buyer,JSON_THROW_ON_ERROR),'lines'=>json_encode($lines,JSON_THROW_ON_ERROR),'round_off'=>Money::signedDecimal($total-$raw),'total'=>Money::decimal($total),'amount_words'=>self::words($total),'payment_mode'=>$order['payment_mode'],'payment_ref'=>mb_substr($order['payment_reference']?:$order['external_ref'],0,120),'pdf'=>'','issued_at'=>date('c'),'sent_customer_at'=>null,'sent_owner_at'=>null]+$this->allocate($profile,'bill');
+            $values=['kind'=>$kind,'series'=>'bill','order_id'=>$orderId,'original_id'=>null,'seller'=>json_encode($seller,JSON_THROW_ON_ERROR),'buyer'=>json_encode($buyer,JSON_THROW_ON_ERROR),'lines'=>json_encode($lines,JSON_THROW_ON_ERROR),'round_off'=>Money::signedDecimal($total-$raw),'total'=>Money::decimal($total),'amount_words'=>self::words($total),'payment_mode'=>$order['payment_mode'],'payment_ref'=>($unpaid?'':mb_substr($order['payment_reference']?:$order['external_ref'],0,120)),'pdf'=>'','issued_at'=>date('c'),'sent_customer_at'=>null,'sent_owner_at'=>null]+$this->allocate($profile,'bill');
             foreach($totals as $key=>$amount)$values[$key]=Money::decimal($amount);$row=$this->store->insert('billing_invoice',$values);if($intent)$this->store->update('payments_paymentintent',$intent['id'],['bill_error'=>'']);return $this->get((int)$row['id']);
         });
     }

@@ -52,7 +52,7 @@ final class BillingPortal {
         }
         if(preg_match('~^/billing/(?:bills|invoices)/(\d+)/(download/)?$~',$path,$m)){
             if($method!=='GET')throw new HttpError(405,'GET required.');$invoice=$billing->get((int)$m[1]);
-            if(!empty($m[2])){header('Content-Type: application/pdf');header('Content-Disposition: attachment; filename="invoice.pdf"');echo InvoicePdf::invoice($invoice);return;}
+            if(!empty($m[2])){header('Content-Type: application/pdf');header('Content-Disposition: attachment; filename="invoice.pdf"');echo InvoicePdf::invoice($invoice,$billing->paymentState($invoice));return;}
             $store=$this->store;require ANNAM_ROOT.'/views/bill.php';return;
         }
         if(preg_match('~^/billing/orders/(\d+)/(payment/|bill/|reconcile/|refund/)?$~',$path,$m)){
@@ -69,7 +69,7 @@ final class BillingPortal {
                     if(($_POST['action']??'')==='collect_on_delivery'){$orders->collectOnDelivery((int)$order['id'],$actor);$_SESSION['notice']='Payment not received: collect on delivery. Confirm actual collection here later.';redirect('/billing/orders/'.$order['id'].'/');}
                     $orders->confirm((int)$order['id'],$actor,(string)($_POST['reference']??''),($_POST['confirmed']??'')==='yes');
                 }
-                $invoice=$billing->issue((int)$order['id']);redirect('/billing/bills/'.$invoice['id'].'/');
+                $invoice=$billing->issue((int)$order['id'],($_POST['issue_unpaid']??'')==='yes');redirect('/billing/bills/'.$invoice['id'].'/');
             }
             if($method!=='GET')throw new HttpError(405,'GET required.');$intent=(new Payments($this->store))->forOrder((int)$order['id']);$invoice=$billing->forOrder((int)$order['id']);$channel=$order['channel'];$this->view('billing-order',compact('order','intent','invoice','channel'));return;
         }

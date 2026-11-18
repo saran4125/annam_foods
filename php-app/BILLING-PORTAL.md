@@ -37,3 +37,11 @@ Payment not received / collect on delivery action. This does not enable COD for
 normal online checkout or convert Razorpay orders to manual payments. Online
 orders show a read-only unpaid status and stay provider-verified. Paid, refunded,
 cancelled and invoiced records retain their existing protections.
+
+### Bills before collection
+Staff can explicitly choose **Issue bill — payment not received** for an active
+manual-payment or cash-on-delivery order. The bill and PDF show UNPAID and the
+amount due. Issuance and delivery do not mark payment received. Confirm actual
+collection later on the billing order; the existing bill number and frozen
+financial snapshots are reused. Online/provider and simulated payments cannot
+use this action. Automatic issuance continues to require verified payment.

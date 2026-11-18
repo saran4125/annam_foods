@@ -270,6 +270,15 @@ try {
         $o=$orders->create($quote,$details,'website-manual-collect','web','tester');$orders->collectOnDelivery($o['id'],'tester');$o=$orders->get($o['id']);check($o['payment_mode']==='cod'&&$o['payment_status']==='cod_pending'&&$o['status']==='placed','Website manual collection missing');check(!$billing->forOrder($o['id']),'Unpaid invoice issued');
         $o=$orders->create($quote,$online,'website-online-collect','web','tester');expectError(fn()=>$orders->collectOnDelivery($o['id'],'tester'),422);expectError(fn()=>$orders->confirm($o['id'],'tester','fake',true),422);
     });
+    test('explicit unpaid bill preserves balance and reuses the invoice after collection',function()use($orders,$quote,$details,$online,$billing){
+        $o=$orders->create($quote,$details,'explicit-unpaid-invoice','manual','tester');$bill=$billing->issue($o['id'],true);$buyer=$bill['buyer'];
+        check($orders->get($o['id'])['payment_status']==='pending','Issuing marked paid');check(!$billing->paymentState($bill)['payment_received'],'Unpaid label missing');
+        check($billing->paymentState($bill)['amount_due']===$o['total'],'Wrong balance');check($billing->issue($o['id'],true)['id']===$bill['id'],'Duplicate unpaid bill');
+        $orders->collectOnDelivery($o['id'],'tester');foreach(['confirmed','preparing','out_for_delivery','delivered'] as $status)$orders->advance($o['id'],$status,'tester');
+        check(!$billing->paymentState($bill)['payment_received'],'Delivery settled payment');$orders->confirm($o['id'],'tester','cash-collected',true);
+        $settled=$billing->issue($o['id']);check($settled['id']===$bill['id']&&$settled['number']===$bill['number']&&$settled['buyer']===$buyer,'Invoice was replaced');check($billing->paymentState($bill)['payment_received'],'Collection not reflected');
+        $o=$orders->create($quote,$online,'online-unpaid-invoice-denied','web','tester');expectError(fn()=>$billing->issue($o['id'],true),422);
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }
