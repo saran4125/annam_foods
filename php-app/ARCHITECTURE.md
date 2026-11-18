@@ -237,3 +237,7 @@ The homepage spotlight resolves published artwork first, then a local photograph
 from the linked, tenant-scoped active product. The reviewed Health Mix photo has
 a bundled public-asset fallback for installations missing imported section/media
 references. This presentation fallback does not mutate catalog or configuration.
+
+Staff booking items with one configured meal use that category automatically;
+the redundant category dropdown is removed. A meal choice is retained only for
+items with multiple/unknown assignments, and existing server validation remains.

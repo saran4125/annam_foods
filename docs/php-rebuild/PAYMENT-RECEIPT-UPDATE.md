@@ -82,3 +82,15 @@ The 17-ingredient heading and responsive image dimensions match Python. A generi
 spotlight without a suitable image uses one column instead of a blank grid area.
 Both archives retain all prior management-panel, payment, invoice and checkout
 updates. Apply the private code and public assets together; clear PHP OPcache.
+
+## Staff booking category selection fix — 18 November 2026
+
+The duplicate category selection is removed for PHP booking items assigned to a
+single meal (and shop items, which already belong to Snacks). Their existing
+category is carried automatically; multi-meal/unknown items retain an explicit
+choice so no fulfilment category is guessed. Server assignment checks remain.
+Python's searchable item picker now records the chosen meal directly, including
+multi-meal choices, and no longer renders the second required Food category field.
+Validation: Python 671 tests; PHP branch 546 tests; 60 PHP checks; desktop/mobile
+Python picker and PHP booking browser checks, including successful test bookings.
+Both ZIPs retain the Health Mix artwork and all prior management UI fixes.
