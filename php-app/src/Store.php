@@ -80,7 +80,22 @@ final class Store {
     public function item(int $id): array {
         return $this->db->one('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id WHERE i.tenant_id=? AND i.id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Dish not found.');
     }
-    public function categories(): array { return $this->db->rows('SELECT * FROM catalog_menucategory WHERE tenant_id=? ORDER BY sort,name', [$this->id()]); }
+    public function categories(): array {
+        $categories=$this->db->rows('SELECT * FROM catalog_menucategory WHERE tenant_id=? ORDER BY sort,name',[$this->id()]);
+        $photos=[];$children=[];
+        foreach($this->db->rows("SELECT category_id,image FROM catalog_menuitem WHERE tenant_id=? AND image<>'' ORDER BY active DESC,in_stock DESC,sort,id",[$this->id()]) as $item)$photos[$item['category_id']]??=$item['image'];
+        foreach($categories as $category)if($category['active'])$children[$category['parent_id']][]=$category['id'];
+        foreach($categories as &$category){
+            if($category['image'])continue;
+            $todo=[$category['id']];$seen=[];
+            while($todo){$id=array_shift($todo);if(isset($seen[$id]))continue;$seen[$id]=true;if(isset($photos[$id])){$category['image']=$photos[$id];break;}array_push($todo,...($children[$id]??[]));}
+        }unset($category);return $categories;
+    }
+    public function setItemFlag(int $id,string $field,bool $enabled):void {
+        if(!in_array($field,['active','in_stock'],true))throw new HttpError(422,'Choose a valid product setting.');
+        $this->item($id);
+        $this->db->rows('UPDATE catalog_menuitem SET '.$field.'=? WHERE tenant_id=? AND id=?',[$enabled,$this->id(),$id]);
+    }
     public function pages(): array { return $this->db->rows('SELECT * FROM content_page WHERE tenant_id=? AND published ORDER BY sort,title', [$this->id()]); }
     public function logo(): string { return image_url($this->config['theme']['logo_url'] ?? '') ?: '/media/brand/annam-logo.png'; }
     public static function date(string $value): string {

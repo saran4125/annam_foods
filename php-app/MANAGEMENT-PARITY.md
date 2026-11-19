@@ -50,7 +50,7 @@ instance still resets ephemeral SQLite data.
 - Store/checkout/billing settings saves; report filters, cancellation toggle, CSV and invalid date/range handling.
 - Inbox 30-contact/50-message pagination, search, older-page polling pause, fresh-message polling, mark-read and prefilled billing handoff; offline sending remains disabled.
 - Desktop/mobile manual/COD booking through delivery, confirmed collection, immutable invoice and PDF download.
-- 70 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+- 72 PHP behavioral checks and 546 PostgreSQL reference tests pass.
 
 ## Simple menu reactivation
 
@@ -66,3 +66,18 @@ Category product counts include both scheduled meals and shop products, using
 the same enabled/in-stock filters as their linked item lists. The label no longer
 claims a dish is on the website regardless of daily menus or category visibility.
 Category visibility remains independent of each product’s stock and sale status.
+
+## Category simplicity and preview storage
+
+Category names and the single item-count link now open the same unfiltered list.
+Stock/on-sale counts are plain text; there is no second filtered destination.
+Missing category images use a scoped dish photo (including active descendants),
+preserving existing artwork. Category editing no longer asks for image uploads.
+Stock POSTs submit an explicit desired state so retrying cannot reverse it.
+
+The Render free preview uses /tmp SQLite and loses edits whenever its container
+is replaced, including redeploys. These UI fixes cannot make ephemeral storage
+persistent. Keep the existing preview running while choosing durable hosting;
+the Hostinger package already stores its SQLite file outside the public folder
+on the hosting account. Preserve the current database/config/media when updating.
+Do not overwrite a live database with the reviewed demo seed.

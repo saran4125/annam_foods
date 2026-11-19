@@ -26,7 +26,7 @@ final class ParityRoutes {
         if($suffix==='menu/')return false;
         if(preg_match('~^(\d+)/(stock|toggle|archive)/$~',$suffix,$m)){
             if($method!=='POST')throw new HttpError(405,'Use the action form.');$item=$this->store->item((int)$m[1]);$this->assertCategory($category,$item);
-            if($m[2]==='stock')$this->store->db->rows('UPDATE catalog_menuitem SET in_stock=NOT in_stock WHERE tenant_id=? AND id=?',[$this->store->id(),$item['id']]);
+            if($m[2]==='stock'){if(!in_array($_POST['enabled']??null,['0','1'],true))throw new HttpError(422,'Refresh the item list before changing stock.');$this->store->setItemFlag((int)$item['id'],'in_stock',$_POST['enabled']==='1');}
             elseif($m[2]==='toggle'&&!empty($_POST['menu_date']))$this->store->setDayAvailability(Store::date($_POST['menu_date']),(int)$_POST['menu_slot_id'],(int)$item['id'],!empty($_POST['available']),(int)$_POST['revision']);
             elseif($m[2]==='archive'&&!empty($_POST['menu_date']))$this->store->setDayAvailability(Store::date($_POST['menu_date']),(int)$_POST['menu_slot_id'],(int)$item['id'],false,(int)$_POST['revision']);
             elseif($m[2]==='archive')(new Resources($this->store))->removeFromSale('dishes',(int)$item['id']);else (new Resources($this->store))->toggle('dishes',(int)$item['id']);redirect($this->back($base));

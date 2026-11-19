@@ -1,3 +1,27 @@
+# Hostinger category and stock update — 19 November 2026
+
+This code update simplifies categories to one unfiltered item list, automatically
+uses a dish photo when a category has no artwork, removes the category photo
+upload field, and makes repeated stock submissions keep the requested state.
+It includes all earlier billing and management changes listed below.
+
+For an existing Hostinger installation, back up then merge `annam-private/`
+and `public_html/assets/` into the matching folders. Preserve the existing
+SQLite database, installation.json, .env, media and other runtime files.
+No database/owner configuration replacement or stock reset is required.
+Clear PHP OPcache/restart PHP and refresh management pages after uploading.
+This is an update package; it does not include a first-install database or media.
+
+The free Render preview uses temporary /tmp SQLite. Redeploying it recreates its
+data; this code change cannot make free Render storage persistent. This release
+is prepared on a separate Hostinger branch to avoid triggering that redeploy.
+Hostinger keeps the database under annam-private/storage on persistent hosting.
+
+Validation: 72 PHP behavior checks, 546 PostgreSQL reference tests, and local
+Chromium desktop/mobile category/photo/repeated-stock/form checks passed.
+
+---
+
 # Payment and customer invoice update
 
 Python main: customer invoice links now work for manual paid orders too, with

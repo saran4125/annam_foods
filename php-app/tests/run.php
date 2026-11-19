@@ -329,6 +329,21 @@ try {
         $listed=$store->pageItems('','',$parent,1,30,['active'=>true,'in_stock'=>true],'');check($listed['total']===$row['website'],'Count differs from linked filtered list');
         $db->rows('UPDATE catalog_menucategory SET active=FALSE WHERE tenant_id=? AND id=?',[$tenant,$parent]);$rows=$routes->categories();$row=array_values(array_filter($rows,fn($r)=>(int)$r['id']===$parent))[0];check($row['website']===2,'Category visibility confused with product status');
     });
+    test('category photos use a scoped dish without replacing saved artwork',function()use($store,$resources,$db,$tenant){
+        $category=$resources->save('categories',null,['name'=>'Automatic photo','slug'=>'automatic-photo','active'=>1]);
+        $item=$resources->save('dishes',null,['name'=>'Photo dish','category_id'=>$category,'fulfilment'=>'scheduled','price'=>'10','active'=>1,'in_stock'=>1]);
+        $db->rows("UPDATE catalog_menuitem SET image='menu/fixture.jpg' WHERE tenant_id=? AND id=?",[$tenant,$item]);
+        $row=array_values(array_filter($store->categories(),fn($c)=>(int)$c['id']===$category))[0];check($row['image']==='menu/fixture.jpg','Dish photo not used');
+        check($resources->get('categories',$category)['image']==='','Fallback mutated category');
+        $db->rows("UPDATE catalog_menucategory SET image='categories/original.jpg' WHERE tenant_id=? AND id=?",[$tenant,$category]);
+        $row=array_values(array_filter($store->categories(),fn($c)=>(int)$c['id']===$category))[0];check($row['image']==='categories/original.jpg','Existing artwork lost');
+    });
+    test('repeated stock requests set the requested state without reversing it',function()use($store,$resources,$otherItem){
+        $id=$resources->save('dishes',null,['name'=>'Repeated stock','fulfilment'=>'scheduled','price'=>'10','active'=>1,'in_stock'=>0]);
+        $store->setItemFlag($id,'in_stock',true);$store->setItemFlag($id,'in_stock',true);check((bool)$store->item($id)['in_stock'],'Repeated enable reversed stock');
+        $store->setItemFlag($id,'in_stock',false);$store->setItemFlag($id,'in_stock',false);check(!$store->item($id)['in_stock'],'Repeated disable reversed stock');
+        expectError(fn()=>$store->setItemFlag($otherItem,'in_stock',true),404);expectError(fn()=>$store->setItemFlag($id,'price',true),422);
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }
