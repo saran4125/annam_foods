@@ -1,5 +1,8 @@
 # Annam Foods — PHP application
 
+For a separate Render comparison service, use the root Blueprint on
+`php-rebuild` and follow [RENDER-PREVIEW.md](RENDER-PREVIEW.md).
+
 **Current production target: PHP with a local SQLite database file.** No cloud
 database is required for the complete local package. Download/build
 `dist/annam-foods-local-sqlite.zip` and follow [SQLITE-HOSTINGER.md](SQLITE-HOSTINGER.md).
