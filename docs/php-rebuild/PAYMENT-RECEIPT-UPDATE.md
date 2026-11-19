@@ -1,3 +1,16 @@
+# Cart layout update — 19 November 2026
+
+Includes the Python reference cart layout: compact dish rows, +/- quantities,
+meal/date context, pincode panel, delivery notes, separate totals and full-width
+checkout action. Auto pincode validation and saved meal delivery after quantity
+updates are retained. Includes the category, stock and billing changes below.
+Apply this code-only update to the existing Hostinger installation; preserve
+the database, private configuration, installation.json and uploaded media.
+The Render preview is intentionally not redeployed because its temporary
+database would reset.
+
+---
+
 # Hostinger category and stock update — 19 November 2026
 
 This code update simplifies categories to one unfiltered item list, automatically

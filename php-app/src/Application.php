@@ -102,10 +102,10 @@ final class Application {
         }
         if ($path === '/cart/') {
             try{$quote=Cart::quote($this->store);}catch(HttpError $exception){$this->render('cart-stale',['error'=>$exception->getMessage()]);return;} $delivery = null; $error = '';
-            if ($method === 'POST' && $quote['lines']) {
+            if ($quote['lines'] && ($method === 'POST' || ($quote['cart']['kind']==='scheduled' && !empty($_SESSION['cart']['pincode'])))) {
                 try {
                     $subtotal = $quote['subtotal'];
-                    $pin=trim((string)($_POST['pincode']??''));$area=!empty($_POST['area_id'])?(int)$_POST['area_id']:null;
+                    $pin=trim((string)($_POST['pincode']??($_SESSION['cart']['pincode']??'')));$areaValue=$method==='POST'?($_POST['area_id']??null):($_SESSION['cart']['zone_id']??null);$area=$areaValue?(int)$areaValue:null;
                     if($quote['cart']['kind']==='scheduled')$delivery=(new Delivery($this->store))->local($pin,$quote['meal_keys'],$subtotal,$area);
                     else $delivery=(new Delivery($this->store))->snacks(['pincode'=>$pin,'zone_id'=>$area,'city'=>$_POST['city']??'','country'=>$_POST['country']??'India'],$subtotal);
                     $_SESSION['cart']['pincode']=$pin;$_SESSION['cart']['zone_id']=$area;

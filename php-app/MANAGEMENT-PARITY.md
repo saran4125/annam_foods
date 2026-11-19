@@ -81,3 +81,16 @@ persistent. Keep the existing preview running while choosing durable hosting;
 the Hostinger package already stores its SQLite file outside the public folder
 on the hosting account. Preserve the current database/config/media when updating.
 Do not overwrite a live database with the reviewed demo seed.
+
+## Customer cart reference layout
+
+The cart now uses the Python reference cart/context/line/pincode/totals classes,
+with compact server-priced +/- controls, vegetarian markers, a meal/date label,
+fresh-order and add-more links. The right side separates pincode, delivery notes,
+subtotal/delivery/total and a full-width continue action. Area selection appears
+only when the entered pincode has multiple areas. Automatic pincode checking and
+normal POST fallback remain; meal checkout is unavailable until delivery validates.
+Saved meal delivery is recalculated after quantity changes and reloads so displayed
+fees and totals use current prices and minimums. Empty-cart recent-order access
+and existing shop delivery validation remain. Verified desktop/mobile, auto
+pincode success/error recovery, quantity changes and final-item removal locally.
