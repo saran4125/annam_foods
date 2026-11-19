@@ -50,7 +50,7 @@ instance still resets ephemeral SQLite data.
 - Store/checkout/billing settings saves; report filters, cancellation toggle, CSV and invalid date/range handling.
 - Inbox 30-contact/50-message pagination, search, older-page polling pause, fresh-message polling, mark-read and prefilled billing handoff; offline sending remains disabled.
 - Desktop/mobile manual/COD booking through delivery, confirmed collection, immutable invoice and PDF download.
-- 69 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+- 70 PHP behavioral checks and 546 PostgreSQL reference tests pass.
 
 ## Simple menu reactivation
 
@@ -61,3 +61,8 @@ change; cancelling does nothing. Unchecking removes the dish from this menu
 without hiding it globally. Portion limits, sold counts and price overrides stay
 intact. Historical dates, tenant scope and menu revision conflicts remain guarded.
 The switches and Save action also work without JavaScript.
+
+Category product counts include both scheduled meals and shop products, using
+the same enabled/in-stock filters as their linked item lists. The label no longer
+claims a dish is on the website regardless of daily menus or category visibility.
+Category visibility remains independent of each product’s stock and sale status.

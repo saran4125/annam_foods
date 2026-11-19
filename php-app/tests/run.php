@@ -319,6 +319,16 @@ try {
         check(!$store->item($id)['active']&&!$store->item($id)['in_stock'],'Rejected save changed product');
         check($store->menuRevision($tomorrow,$slot)===$revision,'Rejected save changed menu');
     });
+    test('category counts include enabled meals and shop products with matching stock filters',function()use($store,$resources,$db,$tenant,$otherItem){
+        $parent=$resources->save('categories',null,['name'=>'Count meals','slug'=>'count-meals','active'=>1]);
+        $child=$resources->save('categories',null,['name'=>'Count child','slug'=>'count-child','active'=>1]);
+        $db->rows('UPDATE catalog_menucategory SET parent_id=? WHERE tenant_id=? AND id=?',[$parent,$tenant,$child]);
+        foreach([['scheduled',1,1],['courier',1,1],['scheduled',0,1],['scheduled',1,0]] as [$kind,$active,$stock])$resources->save('dishes',null,['name'=>'Count fixture '.$kind.$active.$stock,'fulfilment'=>$kind,'price'=>'80','active'=>$active,'in_stock'=>$stock,'category_id'=>$child]);
+        $routes=new Annam\ParityRoutes($store,['id'=>1],fn()=>null);$rows=$routes->categories();$row=array_values(array_filter($rows,fn($r)=>(int)$r['id']===$parent))[0];
+        check($row['website']===2&&$row['total']===4,'Meals omitted or unavailable dishes included');
+        $listed=$store->pageItems('','',$parent,1,30,['active'=>true,'in_stock'=>true],'');check($listed['total']===$row['website'],'Count differs from linked filtered list');
+        $db->rows('UPDATE catalog_menucategory SET active=FALSE WHERE tenant_id=? AND id=?',[$tenant,$parent]);$rows=$routes->categories();$row=array_values(array_filter($rows,fn($r)=>(int)$r['id']===$parent))[0];check($row['website']===2,'Category visibility confused with product status');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }
