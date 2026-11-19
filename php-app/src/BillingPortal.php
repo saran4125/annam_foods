@@ -9,7 +9,7 @@ final class BillingPortal {
     public static function paymentLabel(string $value):string {return ['pending'=>'Awaiting payment','paid'=>'Paid','failed'=>'Failed','refunded'=>'Refunded','cod_pending'=>'Cash on delivery'][$value]??$value;}
     public static function channelLabel(string $value):string {return ['manual'=>'Entered by the kitchen','web'=>'Website','whatsapp'=>'WhatsApp'][$value]??$value;}
     private function view(string $view,array $data=[]):void {
-        $billingPortal=true;$store=$this->store;$user=$this->user;$path=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);$notice=$_SESSION['notice']??'';unset($_SESSION['notice']);extract($data,EXTR_SKIP);
+        $billingPortal=true;$store=$this->store;$user=$this->user;$path=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);$notice=$_SESSION['notice']??'';$notice_error=!empty($_SESSION['notice_error']);unset($_SESSION['notice'],$_SESSION['notice_error']);extract($data,EXTR_SKIP);
         ob_start();require ANNAM_ROOT.'/views/'.$view.'.php';$content=ob_get_clean();require ANNAM_ROOT.'/views/billing-layout.php';
     }
     public function handle(string $path,string $method):void {
@@ -38,17 +38,18 @@ final class BillingPortal {
         }
         if($path==='/billing/new/'){
             if($method==='POST'){
-                $input=$_POST;$input['payment_method']=$input['payment_mode']??'manual';$input['zone_id']=$input['zone']??'';$input['fulfilment_method']=($input['fulfilment_method']??'')==='courier'?'courier':'local';$input['booking_lines']=[];
+                try{$input=$_POST;$input['payment_method']=$input['payment_mode']??'manual';$input['zone_id']=$input['zone']??'';$input['fulfilment_method']=($input['fulfilment_method']??'')==='courier'?'courier':'local';$input['booking_lines']=[];
                 $n=filter_var($input['lines-TOTAL_FORMS']??'',FILTER_VALIDATE_INT);if($n===false||$n<1||$n>50)throw new HttpError(422,'Choose 1 to 50 item rows.');
                 for($i=0;$i<$n;$i++)if(empty($input['lines-'.$i.'-DELETE']))$input['booking_lines'][]=['item'=>$input['lines-'.$i.'-item']??'','quantity'=>$input['lines-'.$i.'-quantity']??'','meal'=>$input['lines-'.$i.'-meal']??''];
-                $o=$orders->staff($input,$actor);redirect('/billing/orders/'.$o['id'].'/');
+                $o=$orders->staff($input,$actor);redirect('/billing/orders/'.$o['id'].'/');}catch(HttpError|\InvalidArgumentException $error){if($error instanceof HttpError&&$error->status!==422)throw $error;http_response_code(422);$this->booking($error->getMessage(),$_POST);return;}
             }
             $this->booking();return;
         }
         if($path==='/billing/settings/'){
             Settings::owner($this->user);
-            if($method==='POST'){$input=$_POST;$input['bill_timing']='on_payment';(new Settings($this->store))->profile($input);$_SESSION['notice']='Billing settings saved for all three order sources.';redirect($path);}
-            $profile=$this->store->profile();$this->view('billing-settings',compact('profile'));return;
+            $profile=$this->store->profile();$form_error='';
+            if($method==='POST'){try{$input=$_POST;$input['bill_timing']='on_payment';(new Settings($this->store))->profile($input);$_SESSION['notice']='Billing settings saved for all three order sources.';redirect($path);}catch(HttpError|\InvalidArgumentException $error){if($error instanceof HttpError&&$error->status!==422)throw $error;http_response_code(422);$form_error=$error->getMessage();$profile=array_replace($profile,$_POST);foreach(['prices_include_tax','round_total','delivery_fee_taxable'] as $field)$profile[$field]=!empty($_POST[$field]);}}
+            $this->view('billing-settings',compact('profile','form_error'));return;
         }
         if(preg_match('~^/billing/(?:bills|invoices)/(\d+)/(download/)?$~',$path,$m)){
             if($method!=='GET')throw new HttpError(405,'GET required.');$invoice=$billing->get((int)$m[1]);
@@ -65,11 +66,11 @@ final class BillingPortal {
                     else{if(($_POST['confirmed_refund']??'')!=='yes')throw new HttpError(422,'Confirm the full refund before submitting.');$payments->refund((int)$order['id'],(string)($_POST['reason']??''),$actor);}
                     $_SESSION['notice']='Provider status checked. Financial status changes only after provider verification.';redirect('/billing/orders/'.$order['id'].'/');
                 }
-                if($action==='payment/'){
+                try{if($action==='payment/'){
                     if(($_POST['action']??'')==='collect_on_delivery'){$orders->collectOnDelivery((int)$order['id'],$actor);$_SESSION['notice']='Payment not received: collect on delivery. Confirm actual collection here later.';redirect('/billing/orders/'.$order['id'].'/');}
                     $orders->confirm((int)$order['id'],$actor,(string)($_POST['reference']??''),($_POST['confirmed']??'')==='yes');
                 }
-                $invoice=$billing->issue((int)$order['id'],($_POST['issue_unpaid']??'')==='yes');redirect('/billing/bills/'.$invoice['id'].'/');
+                $invoice=$billing->issue((int)$order['id'],($_POST['issue_unpaid']??'')==='yes');redirect('/billing/bills/'.$invoice['id'].'/');}catch(HttpError|\InvalidArgumentException $error){if($error instanceof HttpError&&$error->status!==422)throw $error;$_SESSION['notice_error']=true;$_SESSION['notice']=$error->getMessage().' Any payment already confirmed remains recorded.';redirect('/billing/orders/'.$order['id'].'/');}
             }
             if($method!=='GET')throw new HttpError(405,'GET required.');$intent=(new Payments($this->store))->forOrder((int)$order['id']);$invoice=$billing->forOrder((int)$order['id']);$channel=$order['channel'];$this->view('billing-order',compact('order','intent','invoice','channel'));return;
         }

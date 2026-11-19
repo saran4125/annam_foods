@@ -45,3 +45,37 @@ amount due. Issuance and delivery do not mark payment received. Confirm actual
 collection later on the billing order; the existing bill number and frozen
 financial snapshots are reused. Online/provider and simulated payments cannot
 use this action. Automatic issuance continues to require verified payment.
+
+### Complete billing-page review — 19 November 2026
+
+Reviewed the portal overview, all three order-source lists, customer/item entry,
+saved booking, payment controls, business settings, receipt and downloadable PDF
+on desktop and mobile. The saved booking now separates customer/items/final
+total from payment/bill actions. Invalid submissions retain entered customer and
+line data. Payment/bill errors return to the same order without undoing a
+confirmed payment. Settings validation also retains the entered values.
+
+The final receipt uses explicit Back to order and New booking links, rather than
+browser history. PDF download and print actions remain available and are excluded
+from printed content. Unpaid bills use an amber label and amount due; paid,
+refunded and credit documents have distinct labels. Refunded documents and credit
+notes never advertise an outstanding payment. Credit notes retain their original
+bill reference and reason. Downloaded PDFs use readable dates, aligned item and
+amount columns, available issuer artwork and only applicable GST sections.
+All amounts, document numbers, snapshots and later same-number settlement remain
+unchanged by this presentation work.
+
+Validation includes mixed Breakfast + Lunch bookings, invalid form retention,
+unpaid issuance, later confirmed receipt against the same number, delivery/COD
+regression, credit/refund display, desktop/mobile receipt and A4 print checks.
+A 50-item invoice was checked for multi-page PDF/print completeness, including
+its final item, total and legal footer. Provider calls remain offline in these
+local acceptance tests; no real customer messages or payments were sent.
+
+Run the repeatable browser acceptance against a disposable seeded local service:
+`PHP_TEST_BASE=http://127.0.0.1:PORT PHP_TEST_LOGIN=/private/test-login.json python php-app/tests/billing_final_browser.py`.
+The private login file supplies `username` and `password`; the script refuses
+non-local target hosts. Artifacts default to `/tmp/annam-billing-final-audit`.
+
+Current automated regression totals: 67 PHP behavioral checks and 546 PostgreSQL
+reference tests pass, alongside the browser/PDF acceptance above.

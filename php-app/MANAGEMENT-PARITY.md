@@ -50,4 +50,4 @@ instance still resets ephemeral SQLite data.
 - Store/checkout/billing settings saves; report filters, cancellation toggle, CSV and invalid date/range handling.
 - Inbox 30-contact/50-message pagination, search, older-page polling pause, fresh-message polling, mark-read and prefilled billing handoff; offline sending remains disabled.
 - Desktop/mobile manual/COD booking through delivery, confirmed collection, immutable invoice and PDF download.
-- 66 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+- 67 PHP behavioral checks and 546 PostgreSQL reference tests pass.

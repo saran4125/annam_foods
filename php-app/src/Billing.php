@@ -7,8 +7,10 @@ final class Billing {
     public function get(int $id): array {return Store::json($this->store->row('billing_invoice',$id),['seller','buyer','lines']);}
     public function paymentState(array $invoice): array {
         $unpaid=($invoice['buyer']['payment_status_at_issue']??'paid')==='unpaid';
-        $order=$unpaid?(new Orders($this->store))->get((int)$invoice['order_id']):null;
-        $status=$order['payment_status']??'paid';$paid=$status==='paid';$refunded=$status==='refunded';
+        $credit=$invoice['kind']==='credit_note';
+        $order=!empty($invoice['order_id'])?(new Orders($this->store))->get((int)$invoice['order_id']):null;
+        $status=$order&&$order['payment_status']==='refunded'?'refunded':($unpaid?($order['payment_status']??'pending'):'paid');
+        if($credit)return ['payment_received'=>false,'payment_refunded'=>false,'amount_due'=>'0.00','settlement_reference'=>$invoice['payment_ref'],'original_number'=>!empty($invoice['original_id'])?$this->get((int)$invoice['original_id'])['number']:''];$paid=$status==='paid';$refunded=$status==='refunded';
         $credits=$unpaid?$this->store->db->one("SELECT COALESCE(SUM(total),0) AS total FROM billing_invoice WHERE tenant_id=? AND original_id=? AND kind='credit_note'",[$this->store->id(),$invoice['id']]):null;
         $due=Money::decimal(max(0,Money::parse($invoice['total'])-Money::parse((string)($credits['total']??'0'))));
         return ['payment_received'=>$paid,'payment_refunded'=>$refunded,'amount_due'=>($paid||$refunded)?'0.00':$due,'settlement_reference'=>$unpaid?($paid?($order['payment_reference']??''):''):$invoice['payment_ref']];

@@ -291,6 +291,10 @@ try {
         $reports=new Annam\Reports($store);$all=$reports->orderGroups(['meal_group'=>'all']);$default=$reports->orderGroups([]);check($all['total']===$default['total']&&$all['total']>0,'All orders were filtered out');
         expectError(fn()=>$reports->data(['start'=>'2026-02-31T00:00','end'=>'2026-03-04T00:00']),422);expectError(fn()=>$reports->data(['start'=>'2026-11-20T12:00','end'=>'2026-11-20T11:00']),422);
     });
+    test('refunded bills and credit notes never display an unpaid receivable',function()use($billing,$invoice,$store){
+        $before=$billing->get((int)$invoice['id']);$store->update('orders_order',$before['order_id'],['payment_status'=>'refunded']);$state=$billing->paymentState($before);check($state['payment_refunded']&&!$state['payment_received']&&$state['amount_due']==='0.00','Refund labelled as outstanding');
+        $credits=$store->db->rows("SELECT id FROM billing_invoice WHERE tenant_id=? AND original_id=? AND kind='credit_note'",[$store->id(),$before['id']]);check((bool)$credits,'Credit fixture missing');$credit=$billing->get((int)$credits[0]['id']);$state=$billing->paymentState($credit);check($state['amount_due']==='0.00'&&$state['settlement_reference']===$credit['payment_ref']&&$state['original_number']===$before['number'],'Credit payment metadata is misleading');check($billing->get((int)$before['id'])===$before,'Display changed immutable bill');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }
