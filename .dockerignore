@@ -16,7 +16,13 @@ php-app/storage
 php-app/build
 php-app/dist
 php-app/SETUP-ACCESS.txt
-media
+# Only intentionally public, versioned catalog media enters the image.
+media/*
+!media/brand
+!media/catalog
+!media/categories
+!media/menu
+!media/site
 private-bills
 staticfiles
 wordpress/data/assets

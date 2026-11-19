@@ -18,7 +18,7 @@ ln -sfn /tmp/annam-php-preview/sessions php-app/storage/sessions
 ln -sfn /tmp/annam-php-preview/logs php-app/storage/logs
 /opt/seed-venv/bin/python php-app/deploy/render-init.py
 # SQLite's schema is already present; restore only the bundled public media.
-php -r 'require "php-app/src/bootstrap.php"; $store=new Annam\Store(new Annam\Database()); Annam\Media::restore($store);'
+php php-app/deploy/render-media.php
 chown -R www-data:www-data /tmp/annam-php-preview php-app/storage
 # Render supplies PORT; Apache must listen on the same port.
 port="${PORT:-10000}"

@@ -35,3 +35,11 @@ not supplied. Compare management UI/actions tab by tab on desktop and mobile.
 The existing Python site/database are never connected or modified.
 
 Local build: `docker build -f Dockerfile.render-php -t annam-php-render .`.
+
+Public product/category/menu artwork and logos committed under `media/brand`,
+`catalog`, `categories`, `menu` and `site` are included in the Docker image. Startup
+restores missing files and assigns checksum-verified original photos to empty
+catalog/category fields. Existing uploaded artwork takes priority. Private
+`media/website` files and other upload folders remain excluded. The restore does
+not download images, modify prices, or touch production data. Originals absent
+from the public bundle remain unavailable.
