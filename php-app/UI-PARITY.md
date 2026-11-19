@@ -1,3 +1,5 @@
+Current management comparison and limitations: [MANAGEMENT-PARITY.md](MANAGEMENT-PARITY.md).
+
 # Python UI on the PHP application
 
 The UI reference is Python commit `6b626cb` on `main`. Runtime remains PHP 8.2+

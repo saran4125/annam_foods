@@ -162,11 +162,13 @@ final class Application {
         }
         if (preg_match('~^/manage/([a-z-]+)/(new|\d+)/$~', $path, $match)) {
             $key = $match[1]; $spec = Resources::definition($key); $id = $match[2] === 'new' ? null : (int)$match[2];
-            if ($method === 'POST') {
-                $resources->save($key, $id, $_POST, $_FILES); $_SESSION['notice'] = 'Saved successfully.'; redirect('/manage/' . $key . '/');
-            }
             $record = $id ? $resources->get($key, $id) : ['active' => true, 'is_veg' => true, 'sort' => 0, 'price' => '0', 'delivery_fee' => '0', 'min_order' => '0', 'fulfilment' => $_GET['kind'] ?? 'scheduled'];
-            $this->render('resource-edit', compact('key', 'spec', 'id', 'record'), true); return;
+            $form_error='';
+            if ($method === 'POST') {
+                try{$resources->save($key, $id, $_POST, $_FILES); $_SESSION['notice'] = 'Saved successfully.'; redirect('/manage/' . $key . '/');}
+                catch(HttpError|\InvalidArgumentException $error){if($error instanceof HttpError&&$error->status!==422)throw $error;$form_error=$error->getMessage();http_response_code(422);$record=array_replace($record,$_POST);}
+            }
+            $this->render('resource-edit', compact('key', 'spec', 'id', 'record','form_error'), true); return;
         }
         if (preg_match('~^/manage/([a-z-]+)/$~', $path, $match) && isset(Resources::DEFINITIONS[$match[1]])) {
             $key = $match[1]; $spec = Resources::definition($key); $records = $resources->list($key);

@@ -279,6 +279,18 @@ try {
         $settled=$billing->issue($o['id']);check($settled['id']===$bill['id']&&$settled['number']===$bill['number']&&$settled['buyer']===$buyer,'Invoice was replaced');check($billing->paymentState($bill)['payment_received'],'Collection not reflected');
         $o=$orders->create($quote,$online,'online-unpaid-invoice-denied','web','tester');expectError(fn()=>$billing->issue($o['id'],true),422);
     });
+    test('weekly meal edits preserve date menus and reservation counters and reject other stores',function()use($store,$resources,$slot,$otherSlot,$otherItem,$db,$tenant,$tomorrow){
+        $id=$resources->save('dishes',null,['name'=>'Weekly editor fixture','fulfilment'=>'scheduled','price'=>'80','active'=>1,'in_stock'=>1]);
+        $store->saveWeeklyMembership($id,$slot,[0,2]);
+        $row=$db->one("SELECT * FROM catalog_menuschedule WHERE tenant_id=? AND item_id=? AND slot_id=? AND mode='weekday' AND weekday=0",[$tenant,$id,$slot]);$db->rows('UPDATE catalog_menuschedule SET qty_sold=3 WHERE id=?',[$row['id']]);
+        $store->saveMenu($tomorrow,$slot,[$id],$store->menuRevision($tomorrow,$slot));$revision=$store->menuRevision($tomorrow,$slot);
+        $store->saveWeeklyMembership($id,$slot,[2,4]);$row=$db->one('SELECT * FROM catalog_menuschedule WHERE id=?',[$row['id']]);check(!$row['available']&&(int)$row['qty_sold']===3,'Weekly reservation history lost');check($store->menuRevision($tomorrow,$slot)===$revision,'Dated menu rewritten');
+        expectError(fn()=>$store->saveWeeklyMembership($id,$otherSlot,[0]),404);expectError(fn()=>$store->saveWeeklyMembership($otherItem,$slot,[0]),404);expectError(fn()=>$store->saveWeeklyMembership($id,$slot,['bad']),422);
+    });
+    test('all-orders category includes bookings and report ranges reject invalid calendar dates',function()use($store){
+        $reports=new Annam\Reports($store);$all=$reports->orderGroups(['meal_group'=>'all']);$default=$reports->orderGroups([]);check($all['total']===$default['total']&&$all['total']>0,'All orders were filtered out');
+        expectError(fn()=>$reports->data(['start'=>'2026-02-31T00:00','end'=>'2026-03-04T00:00']),422);expectError(fn()=>$reports->data(['start'=>'2026-11-20T12:00','end'=>'2026-11-20T11:00']),422);
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

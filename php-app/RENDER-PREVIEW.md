@@ -43,3 +43,9 @@ catalog/category fields. Existing uploaded artwork takes priority. Private
 `media/website` files and other upload folders remain excluded. The restore does
 not download images, modify prices, or touch production data. Originals absent
 from the public bundle remain unavailable.
+
+New preview instances also apply the committed owner-reviewed catalog snapshot
+and the original dated lunch/dinner and reviewed breakfast menus. Carry-forward
+uses those saved dates; dated category names are not treated as a weekly plan.
+This runs only once per newly initialized preview database, before staff edits.
+Historical live orders, customers and invoices are not fabricated to match counts.

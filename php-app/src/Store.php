@@ -125,6 +125,16 @@ final class Store {
         $row = $this->db->one('SELECT revision FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?', [$this->id(), $slotId, self::date($date)]);
         return (int)($row['revision'] ?? 0);
     }
+    public function saveWeeklyMembership(int $itemId,int $slotId,array $days):void {
+        $item=$this->item($itemId);$this->slot($slotId);if($item['fulfilment']!=='scheduled')throw new HttpError(422,'Weekly meal schedules require a meal dish.');
+        foreach($days as $day)if(!is_scalar($day)||filter_var($day,FILTER_VALIDATE_INT)===false||(int)$day<0||(int)$day>6)throw new HttpError(422,'Choose valid weekdays.');$days=array_values(array_unique(array_map('intval',$days)));
+        $this->db->transaction(function()use($itemId,$slotId,$days){$this->lock();
+            foreach(range(0,6) as $day){$row=$this->db->one("SELECT id FROM catalog_menuschedule WHERE tenant_id=? AND item_id=? AND slot_id=? AND mode='weekday' AND weekday=?",[$this->id(),$itemId,$slotId,$day]);$available=in_array($day,$days,true);
+                if($row)$this->db->rows('UPDATE catalog_menuschedule SET available=? WHERE tenant_id=? AND id=?',[$available,$this->id(),$row['id']]);
+                elseif($available)$this->db->rows("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'weekday',NULL,?,TRUE,NULL,0,NULL)",[$this->id(),$itemId,$slotId,$day]);
+            }
+        });
+    }
     public function saveMenu(string $date, int $slotId, array $ids, int $revision): void {
         self::date($date); $this->slot($slotId);
         if ($date < date('Y-m-d')) throw new HttpError(422, 'Historical menus cannot be changed.');

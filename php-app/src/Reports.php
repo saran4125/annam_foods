@@ -6,7 +6,7 @@ final class Reports {
     public function __construct(private Store $store){}
     public static function mealExpression():string {return "COALESCE(NULLIF(line->>'meal_key',''),s.key,CASE WHEN o.fulfilment='courier' THEN 'snacks' ELSE 'unclassified' END)";}
     public function data(array $input):array {
-        try{$start=new \DateTimeImmutable((string)($input['start']??date('Y-m-d').'T00:00'));$end=new \DateTimeImmutable((string)($input['end']??date('Y-m-d\TH:i:s',time()+1)));}catch(\Exception){throw new HttpError(422,'Choose valid start and end dates/times.');}
+        try{$parse=function(string $value):\DateTimeImmutable{$date=new \DateTimeImmutable($value);$errors=\DateTimeImmutable::getLastErrors();if($errors&&($errors['warning_count']||$errors['error_count']))throw new \InvalidArgumentException();return $date;};$start=$parse((string)($input['start']??date('Y-m-d').'T00:00'));$end=$parse((string)($input['end']??date('Y-m-d\TH:i:s',time()+1)));}catch(\Exception){throw new HttpError(422,'Choose valid start and end dates/times.');}
         if($end<=$start)throw new HttpError(422,'End must be after start. The end time is excluded.');
         $condition="o.tenant_id=? AND o.placed_at>=? AND o.placed_at<? AND NOT EXISTS(SELECT 1 FROM payments_paymentintent p WHERE p.tenant_id=o.tenant_id AND p.order_id=o.id AND p.mode='test')";$params=[$this->store->id(),$start->format('c'),$end->format('c')];
         if(empty($input['include_cancelled']))$condition.=" AND o.status<>'cancelled'";
@@ -34,7 +34,7 @@ final class Reports {
         $cte="WITH grouped AS (SELECT o.id,COALESCE(".$aggregate.",'unclassified') AS meal_group FROM orders_order o LEFT JOIN catalog_slot s ON s.id=o.slot_id AND s.tenant_id=o.tenant_id LEFT JOIN LATERAL jsonb_array_elements(o.items) line ON true WHERE o.tenant_id=? GROUP BY o.id) ";
         $counts=$this->store->db->rows($cte.'SELECT meal_group,COUNT(*) AS n FROM grouped GROUP BY meal_group ORDER BY meal_group',[$this->store->id()]);$groups=['breakfast'=>0,'lunch'=>0,'dinner'=>0,'snacks'=>0];foreach($counts as $r)$groups[$r['meal_group']]=(int)$r['n'];
         $where=' WHERE o.tenant_id=?';$args=[$this->store->id(),$this->store->id()];
-        foreach(['meal_group'=>'g.meal_group','status'=>'o.status','channel'=>'o.channel'] as $key=>$column)if(!empty($input[$key])){$where.=' AND '.$column.'=?';$args[]=mb_substr((string)$input[$key],0,100);}
+        foreach(['meal_group'=>'g.meal_group','status'=>'o.status','channel'=>'o.channel'] as $key=>$column)if(!empty($input[$key])&&$input[$key]!=='all'){$where.=' AND '.$column.'=?';$args[]=mb_substr((string)$input[$key],0,100);}
         if($q=mb_substr(trim((string)($input['q']??'')),0,100)){$where.=' AND (o.order_no ILIKE ? OR c.name ILIKE ? OR c.phone ILIKE ?)';array_push($args,'%'.$q.'%','%'.$q.'%','%'.$q.'%');}
         $from=' FROM grouped g JOIN orders_order o ON o.id=g.id JOIN orders_customer c ON c.id=o.customer_id AND c.tenant_id=o.tenant_id'.$where;$total=(int)$this->store->db->one($cte.'SELECT COUNT(*) AS n'.$from,$args)['n'];$page=max(1,min((int)($input['page']??1),max(1,(int)ceil($total/50))));
         $records=$this->store->db->rows($cte."SELECT o.*,EXISTS(SELECT 1 FROM payments_paymentintent p WHERE p.tenant_id=o.tenant_id AND p.order_id=o.id AND p.mode='test') AS test_payment,c.name AS customer_name,c.phone AS customer_phone,g.meal_group".$from.' ORDER BY o.placed_at DESC,o.id DESC LIMIT 50 OFFSET '.(($page-1)*50),$args);

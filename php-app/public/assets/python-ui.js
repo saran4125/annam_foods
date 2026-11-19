@@ -88,3 +88,6 @@ const head=document.querySelector('[data-header]');if(head){const state=()=>{if(
 
 
 })();
+
+// Confirm reversible removal actions before submitting.
+document.addEventListener('submit',event=>{const form=event.target;if(form.matches('form[data-confirm]')&&!confirm(form.dataset.confirm))event.preventDefault();});
