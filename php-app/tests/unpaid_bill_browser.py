@@ -25,7 +25,7 @@ with sync_playwright() as p:
   assert page.request.post(url+'payment/',form={'confirmed':'yes'}).status==403
   page.get_by_role('link',name='Manage delivery',exact=True).click()
   for status in ['confirmed','preparing','out_for_delivery','delivered']:
-   page.locator('select[name=status]').select_option(status);page.get_by_role('button',name='Update order',exact=True).click()
+   page.get_by_role('button',name=status.replace('_',' ').capitalize(),exact=True).click()
   page.goto(url);expect(page.locator('main')).to_contain_text('Delivered');expect(page.locator('main')).to_contain_text('Payment not received — collect on delivery.');assert page.get_by_role('link',name='View / print bill',exact=False).count()==1;page.screenshot(path=f'/tmp/php-billing-unpaid-{width}.png',full_page=True)
   page.locator('label.o-check').click();expect(page.locator('[name=confirmed]')).to_be_checked();page.locator('[name=reference]').fill('fixture-cash-collected');page.get_by_role('button',name='Confirm payment received').click();page.wait_for_url('**/billing/bills/*/');expect(page.locator('.af-receipt-badge')).to_contain_text('Payment received');bill=page.url;assert bill==bill_unpaid
   page.goto(url);expect(page.get_by_role('link',name='View / print bill',exact=False)).to_be_visible();assert page.get_by_role('button',name='Payment not received · collect on delivery',exact=True).count()==0

@@ -11,7 +11,7 @@ included in this report or the repository.
 | Tab | Comparison / corrections |
 | --- | --- |
 | Dashboard | Shared overview/cards/menu layout; reviewed preview catalog and dated menus restored. |
-| Orders | Python-style meal counts, combined-order row, search/status toolbar, status/total column order, empty state and conditional pagination. `all` no longer filters out orders. |
+| Orders | Python-style meal counts, combined-order row, search/status toolbar, status/total column order, empty state and conditional pagination. Individual orders now use the items/customer/payment cards, status action buttons and history timeline. `all` no longer filters out orders. |
 | Order reports & sales | Four headline figures, expandable receipt totals, refresh control, full styled date/meal/product/date filters, cancelled-order switch, six-column quantities table and CSV. Invalid report ranges remain in the form. |
 | WhatsApp inbox | Shared two-pane inbox and disconnected state; search, unread totals, contact/message pagination, message history, periodic refresh, draft-preserving polling, read action and billing handoff. Offline reply controls stay disabled. |
 | Dishes & products | Meal/date lists and day switches, corrected column alignment, weekly meal/time controls, inline validation. Reviewed 10/7/7 breakfast/lunch/dinner menus seed only fresh previews. |
