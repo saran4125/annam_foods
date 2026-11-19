@@ -50,4 +50,14 @@ instance still resets ephemeral SQLite data.
 - Store/checkout/billing settings saves; report filters, cancellation toggle, CSV and invalid date/range handling.
 - Inbox 30-contact/50-message pagination, search, older-page polling pause, fresh-message polling, mark-read and prefilled billing handoff; offline sending remains disabled.
 - Desktop/mobile manual/COD booking through delivery, confirmed collection, immutable invoice and PDF download.
-- 67 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+- 69 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+
+## Simple menu reactivation
+
+Hidden and out-of-stock meal dishes stay selectable in Choose dishes. Their
+labels explain the current state and that selecting then saving enables the
+product and marks it in stock across its menus. Only selected recovery candidates
+change; cancelling does nothing. Unchecking removes the dish from this menu
+without hiding it globally. Portion limits, sold counts and price overrides stay
+intact. Historical dates, tenant scope and menu revision conflicts remain guarded.
+The switches and Save action also work without JavaScript.

@@ -135,19 +135,22 @@ final class Store {
             }
         });
     }
-    public function saveMenu(string $date, int $slotId, array $ids, int $revision): void {
+    public function saveMenu(string $date, int $slotId, array $ids, int $revision, array $makeOrderable = []): void {
         self::date($date); $this->slot($slotId);
         if ($date < date('Y-m-d')) throw new HttpError(422, 'Historical menus cannot be changed.');
         $ids = array_values(array_unique(array_map('intval', $ids)));
         if (count($ids) > 500) throw new HttpError(422, 'Too many selected dishes.');
-        $this->db->transaction(function () use ($date, $slotId, $ids, $revision): void {
+        $makeOrderable = array_values(array_intersect($ids, array_map('intval', $makeOrderable)));
+        $this->db->transaction(function () use ($date, $slotId, $ids, $revision, $makeOrderable): void {
             // Serialize full-menu saves against the same store, including the first save.
             $this->db->one('SELECT id FROM tenancy_tenant WHERE id=? FOR UPDATE', [$this->id()]);
             if ($revision !== $this->menuRevision($date, $slotId)) throw new HttpError(409, 'This menu changed in another window. Reload it before saving.');
             foreach ($ids as $id) {
                 $item = $this->item($id);
-                if ($item['fulfilment'] !== 'scheduled' || !$item['active']) throw new HttpError(422, 'Choose active meal dishes only.');
+                if ($item['fulfilment'] !== 'scheduled' || (!$item['active'] && !in_array($id,$makeOrderable,true))) throw new HttpError(422, 'Choose active meal dishes only.');
             }
+            // Reactivation is explicit in the picker, atomic with the menu revision check.
+            foreach ($makeOrderable as $id) $this->db->rows('UPDATE catalog_menuitem SET active=TRUE,in_stock=TRUE WHERE tenant_id=? AND id=?',[$this->id(),$id]);
             $this->materializeMenu($date,$slotId);
             $this->db->rows('INSERT INTO catalog_menuday(tenant_id,slot_id,on_date,revision,updated_at) VALUES(?,?,?,1,CURRENT_TIMESTAMP) ON CONFLICT(tenant_id,slot_id,on_date) DO UPDATE SET revision=catalog_menuday.revision+1,updated_at=CURRENT_TIMESTAMP', [$this->id(), $slotId, $date]);
             // Do not delete schedules or reset stock counters for a previously ordered dish.

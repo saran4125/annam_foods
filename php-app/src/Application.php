@@ -137,12 +137,12 @@ final class Application {
             $slotId = (int)($_POST['slot_id'] ?? $_GET['slot_id'] ?? ($slots[0]['id'] ?? 0));
             $slot = $this->store->slot($slotId);
             if ($method === 'POST') {
-                $this->store->saveMenu($date, $slotId, (array)($_POST['items'] ?? []), (int)($_POST['revision'] ?? -1));
+                $this->store->saveMenu($date, $slotId, (array)($_POST['items'] ?? []), (int)($_POST['revision'] ?? -1), (array)($_POST['make_orderable'] ?? []));
                 $_SESSION['notice'] = 'Menu saved for ' . $date . ' · ' . $slot['label'] . '.';
                 redirect('/manage/dishes/menu/?date=' . $date . '&slot_id=' . $slotId);
             }
             $entries = $this->store->menu($date, $slotId, true);
-            $selected = array_column(array_filter($entries, fn($i) => $i['available']), 'id');
+            $selected = array_column(array_filter($entries, fn($i) => $i['available'] && ($i['in_stock'] ?? true)), 'id');
             $items = $this->store->items('scheduled'); $revision = $this->store->menuRevision($date, $slotId);
             $this->render('daily-menu', compact('date', 'slots', 'slot', 'slotId', 'selected', 'items', 'revision'), true); return;
         }

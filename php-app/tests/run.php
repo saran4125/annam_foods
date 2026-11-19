@@ -295,6 +295,30 @@ try {
         $before=$billing->get((int)$invoice['id']);$store->update('orders_order',$before['order_id'],['payment_status'=>'refunded']);$state=$billing->paymentState($before);check($state['payment_refunded']&&!$state['payment_received']&&$state['amount_due']==='0.00','Refund labelled as outstanding');
         $credits=$store->db->rows("SELECT id FROM billing_invoice WHERE tenant_id=? AND original_id=? AND kind='credit_note'",[$store->id(),$before['id']]);check((bool)$credits,'Credit fixture missing');$credit=$billing->get((int)$credits[0]['id']);$state=$billing->paymentState($credit);check($state['amount_due']==='0.00'&&$state['settlement_reference']===$credit['payment_ref']&&$state['original_number']===$before['number'],'Credit payment metadata is misleading');check($billing->get((int)$before['id'])===$before,'Display changed immutable bill');
     });
+    test('menu picker restores only explicitly selected dishes and preserves sold portions',function()use($store,$resources,$slot,$db,$tenant,$after){
+        $hidden=$resources->save('dishes',null,['name'=>'Picker hidden','fulfilment'=>'scheduled','price'=>'80']);
+        $stock=$resources->save('dishes',null,['name'=>'Picker stock','fulfilment'=>'scheduled','price'=>'90','active'=>1,'in_stock'=>0]);
+        $untouched=$resources->save('dishes',null,['name'=>'Picker untouched','fulfilment'=>'scheduled','price'=>'100']);
+        $store->saveMenu($after,$slot,[$stock],$store->menuRevision($after,$slot));
+        $db->rows("UPDATE catalog_menuschedule SET qty_sold=2,qty_limit=5,price_override='85.00' WHERE tenant_id=? AND item_id=? AND slot_id=? AND on_date=?",[$tenant,$stock,$slot,$after]);
+        expectError(fn()=>$store->saveMenu($after,$slot,[$hidden],$store->menuRevision($after,$slot)),422);
+        $store->saveMenu($after,$slot,[$hidden,$stock],$store->menuRevision($after,$slot),[$hidden,$stock,$untouched]);
+        foreach([$hidden,$stock] as $id){$item=$store->item($id);check((bool)$item['active']&&(bool)$item['in_stock'],'Chosen dish not restored');}
+        check(!$store->item($untouched)['active'],'Unselected hidden dish changed');
+        $rows=$store->effectiveMenuRows($after,$slot);check((int)$rows[$stock]['qty_sold']===2&&(int)$rows[$stock]['qty_limit']===5&&$rows[$stock]['price_override']==='85.00','Portions or price reset');
+        check(count($store->menu($after,$slot))===2,'Restored dishes not orderable');
+        $store->saveMenu($after,$slot,[],$store->menuRevision($after,$slot));check($store->item($hidden)['active']&&!$store->menu($after,$slot),'Removing from menu hid product globally');
+    });
+    test('menu restoration rejects stale historical foreign and shop selections atomically',function()use($store,$resources,$slot,$otherItem,$shop,$tomorrow){
+        $id=$resources->save('dishes',null,['name'=>'Picker rejected','fulfilment'=>'scheduled','price'=>'80','in_stock'=>0]);
+        $revision=$store->menuRevision($tomorrow,$slot);
+        expectError(fn()=>$store->saveMenu($tomorrow,$slot,[$id],$revision-1,[$id]),409);
+        expectError(fn()=>$store->saveMenu(date('Y-m-d',strtotime('-1 day')),$slot,[$id],0,[$id]),422);
+        expectError(fn()=>$store->saveMenu($tomorrow,$slot,[$id,$otherItem],$revision,[$id,$otherItem]),404);
+        expectError(fn()=>$store->saveMenu($tomorrow,$slot,[$id,$shop],$revision,[$id,$shop]),422);
+        check(!$store->item($id)['active']&&!$store->item($id)['in_stock'],'Rejected save changed product');
+        check($store->menuRevision($tomorrow,$slot)===$revision,'Rejected save changed menu');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

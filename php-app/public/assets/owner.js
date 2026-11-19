@@ -39,6 +39,15 @@
     $$('[data-daily-choice]').forEach(row => { row.hidden = !row.dataset.name.includes(query); });
   });
 
+  $$('[data-daily-choice]').forEach(row => {
+    const input = $('input[name="items[]"]', row), note = $('[data-availability-note]', row);
+    if (!input || !note) return;
+    const original = note.textContent;
+    input.addEventListener('change', () => {
+      note.textContent = input.checked ? 'Will be enabled & marked in stock when you save.' : original;
+    });
+  });
+
   /* Photo drop zones: drag-over state and instant preview */
   $$('[data-drop]').forEach(zone => {
     const input = $('input[type=file]', zone), preview = $('[data-preview]', zone);
