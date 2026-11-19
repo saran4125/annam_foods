@@ -1,26 +1,15 @@
-# PHP comparison environment only. Existing Python resources are not referenced.
-# This uses paid plans for a second database and durable uploaded photos.
-databases:
-  - name: annam-php-preview-db
-    region: singapore
-    plan: basic-256mb
-    databaseName: annam_php_preview
-    user: annam_php_preview
-
+# Temporary PHP UI preview: free web service, no external database or paid disk.
+# Render can still apply its own account-verification requirements.
 services:
   - type: web
     name: annam-foods-php-preview
     runtime: docker
     branch: php-rebuild
     region: singapore
-    plan: starter
+    plan: free
     dockerfilePath: ./Dockerfile.render-php
     dockerContext: .
     healthCheckPath: /healthz
-    disk:
-      name: annam-php-preview-data
-      mountPath: /var/annam-data
-      sizeGB: 1
     envVars:
       - key: APP_ENV
         value: preview
@@ -36,16 +25,6 @@ services:
         value: annam-php-owner
       - key: SEED_OWNER_PASSWORD
         generateValue: true
-      - key: POSTGRES_DB
-        fromDatabase: {name: annam-php-preview-db, property: database}
-      - key: POSTGRES_USER
-        fromDatabase: {name: annam-php-preview-db, property: user}
-      - key: POSTGRES_PASSWORD
-        fromDatabase: {name: annam-php-preview-db, property: password}
-      - key: POSTGRES_HOST
-        fromDatabase: {name: annam-php-preview-db, property: host}
-      - key: POSTGRES_PORT
-        fromDatabase: {name: annam-php-preview-db, property: port}
       - key: PAYMENTS_ENABLED
         value: "0"
       - key: MESSAGING_ENABLED

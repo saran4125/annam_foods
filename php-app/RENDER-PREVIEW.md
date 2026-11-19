@@ -1,36 +1,37 @@
-# Render PHP comparison preview
+# Free Render PHP UI preview
 
-On the `php-rebuild` branch, the root `render.yaml` creates
-`annam-foods-php-preview` and its own `annam-php-preview-db` in Singapore.
-Choose **New → Blueprint → saran4125/annam_foods → php-rebuild**, file
-`render.yaml`. Review the resources and Render's estimated price, then deploy.
-The web service, persistent disk and database use paid plans. This does not
-reference or modify the existing `annam-foods` / `annam-db` Python services.
-The former Python demo Blueprint is retained as `render.python.yaml`.
+On `php-rebuild`, the root `render.yaml` requests one **free Docker web service**,
+`annam-foods-php-preview`. It requests no database, persistent disk or other paid
+resource. Render can independently require account verification; this file cannot
+bypass Render's account policies.
 
-After deployment open the new service URL followed by `/manage/login/` (or
-`/billing/login/`). Username: `annam-php-owner`. The generated password is in
-that service's **Environment → SEED_OWNER_PASSWORD**. Do not share it publicly.
-It is set only at first initialization; later redeploys preserve changed accounts,
-orders, catalog edits and uploaded media. Changing the seed variable later does
-not reset the existing account's password.
+Choose **New → Blueprint → saran4125/annam_foods → php-rebuild**, path `render.yaml`.
+Refresh/retry an older Blueprint review to load the latest commit. The resource
+review should list only the free web service. Do not deploy `main` for PHP.
 
-Apache serves the PHP application, CSS and JavaScript. Python is installed only
-for the startup schema migrations and existing catalog seeder; Django does not
-serve requests. `APP_URL` is derived from Render's assigned hostname. Only
-`php-app/public` is exposed, and uploaded photos/sessions/logs live on the disk.
+For a manually created Web Service use the same repo/branch, Docker runtime,
+Dockerfile `./Dockerfile.render-php`, root context `.`, **Free** instance and health
+path `/healthz`. Add `APP_SECRET`, `SECRET_KEY`, `SECRETS_KEY` and
+`SEED_OWNER_PASSWORD` as distinct private random values (at least 32 characters),
+`SEED_OWNER_USERNAME=annam-php-owner`, `STORE_SLUG=annam`, `PAYMENTS_ENABLED=0`,
+`MESSAGING_ENABLED=0`, `REQUIRE_CRON=0`. Blueprint generates these secrets for you.
+No database environment variables are needed.
 
-This preview starts from the repository's reference catalog/settings, **not a
-live database copy**. It contains no live customer/order history or integration
-credentials. Bundled photos are restored; unavailable original photos may remain
-missing. For exact data comparisons, arrange an explicit sanitized backup into
-this preview database separately. Never point it at the existing production DB.
-Startup refuses any database name other than `annam_php_preview`.
+Open the new service URL plus `/manage/login/` or `/billing/login/`. Username:
+`annam-php-owner`; password: the service's **Environment → SEED_OWNER_PASSWORD**.
+Never post this value publicly. Apache serves PHP. Python initializes an isolated
+SQLite reference catalog at startup; Django does not serve requests. Only
+`php-app/public` is web-accessible. Local build contexts exclude secrets/databases.
 
-Real payments and outbound messaging stay disabled, and no worker/cron is
-provisioned. Test manual orders, menus, billing and management actions here.
-External-provider end-to-end acceptance is separate. Compare each management
-tab with Python on desktop/mobile before declaring UI/function parity.
+**Temporary testing only:** SQLite, uploaded images, sessions, test orders and
+edits live under `/tmp/annam-php-preview`. They can disappear on redeploy, instance
+replacement or restart. A new instance rebuilds the reference catalog and owner
+login; do not enter real customer orders or rely on this for permanent storage.
+The free service can sleep and take time to wake up. Payments/messages stay off.
 
-Build locally with `docker build -f Dockerfile.render-php -t annam-php-render .`.
-The build context excludes local secrets, databases, uploads and runtime files.
+The reference catalog/settings and bundled media come from this repository,
+not a live Python database clone. Missing original photos and live history are
+not supplied. Compare management UI/actions tab by tab on desktop and mobile.
+The existing Python site/database are never connected or modified.
+
+Local build: `docker build -f Dockerfile.render-php -t annam-php-render .`.
