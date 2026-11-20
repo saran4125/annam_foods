@@ -22,8 +22,9 @@ final class Workflow {
     public function publicRoute(string $path,string $method): bool {
         $checkout=new Checkout($this->store);
         if($path==='/checkout/'){
-            if($method==='POST'){$review=$checkout->review($_POST);$this->view('checkout-review',$review);return true;}
-            $quote=Cart::quote($this->store);if(!$quote['lines'])redirect('/cart/');$choices=$checkout->choices();$areas=$this->store->db->rows('SELECT id,area_name,pincode FROM delivery_deliveryzone WHERE tenant_id=? AND active ORDER BY area_name',[$this->store->id()]);$this->view('checkout',compact('quote','choices','areas'));return true;
+            $form_error='';
+            if($method==='POST'){try{$review=$checkout->review($_POST);$this->view('checkout-review',$review);return true;}catch(HttpError $error){if($error->status!==422)throw $error;$form_error=$error->getMessage();http_response_code(422);}}
+            $quote=Cart::quote($this->store);if(!$quote['lines'])redirect('/cart/');$choices=$checkout->choices();$areas=$this->store->db->rows('SELECT id,area_name,pincode FROM delivery_deliveryzone WHERE tenant_id=? AND active ORDER BY area_name',[$this->store->id()]);$this->view('checkout',compact('quote','choices','areas','form_error'));return true;
         }
         if($path==='/checkout/place/'&&$method==='POST'){$reference=(string)($_POST['reference']??'');$placed=$checkout->place($reference);if($placed['payment_mode']==='online'&&!in_array($placed['payment_status'],['paid','refunded'],true)){try{(new Payments($this->store))->start((int)$placed['id']);}catch(HttpError|ProviderError $error){$_SESSION['notice']='Payment setup is pending. Retry from this order; do not place another order.';}}redirect('/checkout/complete/'.$reference.'/');}
         if(preg_match('~^/checkout/complete/([a-f0-9-]{32,36})/(updates/|bill/download/|test-receipt/download/|pay/|payment/|verify/|status/|bill/|courier-pay/|courier-verify/|courier-payment/)?$~',$path,$match)){

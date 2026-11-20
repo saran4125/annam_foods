@@ -1,3 +1,12 @@
+# Checkout inline validation — 20 November 2026
+
+Invalid phone numbers and delivery details now keep the customer on checkout
+with their entered details and a visible error. Correcting the error allows
+review without refilling the form. Includes mobile-number format guidance.
+Preserve existing database/configuration/media when applying this code update.
+
+---
+
 # Checkout delivery-field update — 20 November 2026
 
 Removes the delivery-area dropdown from customer checkout. Pincode-based delivery

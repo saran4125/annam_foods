@@ -112,3 +112,13 @@ automatically; an area previously selected in the cart is retained only while
 the checkout pincode matches that cart pincode. Editing the pincode drops that
 old area selection. Ambiguous pincodes still require the cart's area choice;
 checkout never guesses a charge or bypasses serviceability.
+
+## Checkout validation matches the Python form flow
+
+Review validation errors (HTTP 422) now re-render the checkout form with an
+escaped alert rather than escaping to the plain application error page. Contact
+and address inputs and payment choice retain submitted values. Mobile-number
+format help explains the accepted ten-digit/country-code forms. Other HTTP
+errors retain their existing handling. Chromium checked invalid phone and
+unserviceable pincode, preserved fields, correction to review and final local
+test placement. Phone validation itself remains enforced.
