@@ -94,3 +94,15 @@ Saved meal delivery is recalculated after quantity changes and reloads so displa
 fees and totals use current prices and minimums. Empty-cart recent-order access
 and existing shop delivery validation remain. Verified desktop/mobile, auto
 pincode success/error recovery, quantity changes and final-item removal locally.
+
+## Quantity contrast and preview checkout
+
+The PHP stepper adapter now uses --on-brand for its buttons, matching the
+reference orange stepper instead of painting orange symbols on orange. Both
+server-rendered SVG controls and AJAX-created text controls were checked.
+The guarded disposable Render initializer enables checkout_test_mode on startup,
+including existing preview databases, with payments and messaging forced offline.
+A labelled TEST / temporary manual payment permits review/test placement without
+any provider charge. Production choices and live-payment requirements are unchanged.
+Local Chromium verified adding, visible +/- before/after reload, delivery details,
+review and final disposable test order creation.

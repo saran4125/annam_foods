@@ -1,3 +1,15 @@
+# Quantity buttons and preview checkout — 20 November 2026
+
+Fixes invisible +/- symbols by restoring the reference stepper contrast. Render
+preview checkout now explicitly uses labelled TEST / temporary manual payment,
+so its review action can be tested while all payment/message providers stay off.
+The preview flag is configured only by the guarded Render initializer; uploading
+this Hostinger update does not enable temporary payments on a production store.
+For real online orders, configure the enabled LIVE payment connection as usual.
+Preserve existing Hostinger database, installation configuration and media.
+
+---
+
 # Cart layout update — 19 November 2026
 
 Includes the Python reference cart layout: compact dish rows, +/- quantities,
