@@ -106,3 +106,9 @@ A labelled TEST / temporary manual payment permits review/test placement without
 any provider charge. Production choices and live-payment requirements are unchanged.
 Local Chromium verified adding, visible +/- before/after reload, delivery details,
 review and final disposable test order creation.
+
+Checkout no longer shows a delivery-area dropdown. The pincode resolves delivery
+automatically; an area previously selected in the cart is retained only while
+the checkout pincode matches that cart pincode. Editing the pincode drops that
+old area selection. Ambiguous pincodes still require the cart's area choice;
+checkout never guesses a charge or bypasses serviceability.

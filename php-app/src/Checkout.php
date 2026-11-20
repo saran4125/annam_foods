@@ -10,7 +10,8 @@ final class Checkout {
         if($result['email']!==''&&!filter_var($result['email'],FILTER_VALIDATE_EMAIL))throw new HttpError(422,'Enter a valid email address.');
         $result['country']=$result['country']?:'India';$result['state']=$result['state']?:'Tamil Nadu';$result['phone']=Orders::phone((string)($input['phone']??''),$result['country']);$result['pincode']=trim((string)($input['pincode']??''));
         if((strcasecmp($result['country'],'India')===0&&!preg_match('/^[1-9][0-9]{5}$/D',$result['pincode']))||strlen($result['pincode'])>20)throw new HttpError(422,'Enter an exact six-digit pincode.');
-        $result['zone_id']=empty($input['zone_id'])?null:(int)$input['zone_id'];$result['payment_method']=(string)($input['payment_method']??'online');
+        $savedArea=$result['pincode']===($_SESSION['cart']['pincode']??null)?($_SESSION['cart']['zone_id']??null):null;
+        $zoneId=$input['zone_id']??$savedArea; $result['zone_id']=empty($zoneId)?null:(int)$zoneId;$result['payment_method']=(string)($input['payment_method']??'online');
         if(!isset($this->choices()[$result['payment_method']]))throw new HttpError(422,'Choose an available payment method.');return $result;
     }
     public function choices(): array {

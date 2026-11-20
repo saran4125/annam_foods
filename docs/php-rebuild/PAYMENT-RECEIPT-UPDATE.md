@@ -1,3 +1,11 @@
+# Checkout delivery-field update — 20 November 2026
+
+Removes the delivery-area dropdown from customer checkout. Pincode-based delivery
+validation remains, with any same-pincode area selected in the cart retained.
+Preserve the existing database, installation configuration and media on upload.
+
+---
+
 # Quantity buttons and preview checkout — 20 November 2026
 
 Fixes invisible +/- symbols by restoring the reference stepper contrast. Render
