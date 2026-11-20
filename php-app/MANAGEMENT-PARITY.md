@@ -132,3 +132,18 @@ received. Existing staff-issued unpaid bills are now downloadable by the same
 authorized customer browser. Issuance rules and test-payment financial-invoice
 restrictions remain unchanged. Summary downloads share the browser-bound guest
 authorization used by all receipt routes.
+
+## Checkout and pending-PDF layout polish
+
+Checkout labels use top-aligned flex fields and consistent 48px inputs; payment
+spans the form width. At tablet width the summary follows the form, while desktop
+retains two columns and phones use single-column fields. The floating chat
+control is hidden on checkout to prevent covering inputs. Desktop/tablet/phone
+geometry checks confirm aligned first-row inputs and no page-width overflow.
+Pending summaries now follow the invoice PDF design: logo, brand/tagline, order
+metadata, customer/delivery, item/unit-price rows, totals, amount in words, balance
+and seller footer. Status and non-invoice wording remain explicit. Existing
+numbered invoice snapshots and payment state are unchanged. PDF logos are
+embedded locally; the bundled opaque print logo works without GD/Imagick and
+legacy billing-logo aliases resolve correctly. Verified one-page sample PDF
+with embedded image and 73 native PHP checks plus 546 PostgreSQL reference tests.

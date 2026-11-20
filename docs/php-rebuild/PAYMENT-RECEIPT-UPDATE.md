@@ -1,3 +1,15 @@
+# Checkout and document layout polish — 20 November 2026
+
+Aligned checkout inputs, full-width payment selector, tablet/mobile layout and
+non-overlapping floating controls. Pending-order PDFs now use the branded bill
+layout with logo, customer/delivery details, items, totals, amount in words and
+seller footer; they remain clearly marked pending and not a tax invoice.
+Legacy and transparent bundled logos now embed correctly in PDF downloads even
+without optional image extensions. Existing invoice/payment records are preserved.
+Apply the code-only update while keeping database, configuration and media.
+
+---
+
 # Customer invoice section — 20 November 2026
 
 Confirmation pages now always show an Invoice & receipt section. Pending orders

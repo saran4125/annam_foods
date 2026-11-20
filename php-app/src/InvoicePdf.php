@@ -4,6 +4,17 @@ namespace Annam;
 
 /** All amounts and legal details come from the issued immutable snapshot. */
 final class InvoicePdf {
+    private static function logo(string $source):?string {
+        if($source==='/static/branding/annam-bill-logo.png')$source='/media/brand/annam-bill-logo.png';
+        $file=Media::file($source)??Media::file('brand/annam-bill-logo.png');
+        $file??=ANNAM_ROOT.'/resources/public-files/brand/annam-bill-logo.png';
+        if(!is_readable($file))return null;
+        $data=file_get_contents($file);
+        // Stock PHP hosts may not have GD/Imagick. The bundled print logo has
+        // an opaque background, so TCPDF can embed it without those extensions.
+        if(!function_exists('imagecreatefrompng')&&!class_exists('Imagick')&&str_starts_with($data,"\x89PNG")&&(in_array(ord($data[25]),[4,6],true)||str_contains($data,'tRNS')))$data=file_get_contents(ANNAM_ROOT.'/resources/public-files/brand/annam-bill-logo-print.jpg');
+        return '@'.base64_encode($data);
+    }
     private static function document(string $title,string $html,bool $heading=true): string {
         require_once ANNAM_ROOT.'/resources/vendor/tcpdf/tcpdf.php';
         $pdf=new \TCPDF();$pdf->setPrintHeader(false);$pdf->setPrintFooter(false);$pdf->SetCreator('Annam Foods');$pdf->SetTitle($title);$pdf->SetMargins(16,16,16);$pdf->SetAutoPageBreak(true,16);$pdf->SetFont('dejavusans','',10);$pdf->AddPage();$pdf->writeHTML(($heading?'<h1>'.e($title).'</h1>':'').$html);return $pdf->Output('receipt.pdf','S');
@@ -12,7 +23,7 @@ final class InvoicePdf {
         $payment??=['payment_received'=>($invoice['buyer']['payment_status_at_issue']??'paid')!=='unpaid','payment_refunded'=>false,'amount_due'=>$invoice['total'],'settlement_reference'=>$invoice['payment_ref']];
         $seller=$invoice['seller'];$buyer=$invoice['buyer'];$credit=$invoice['kind']==='credit_note';$regular=($seller['gst_mode']??'')==='regular';
         $status=$credit?'CREDIT NOTE ISSUED':(!empty($payment['payment_refunded'])?'PAYMENT REFUNDED':($payment['payment_received']?'PAYMENT RECEIVED':'UNPAID — PAYMENT NOT RECEIVED'));
-        $logo=Media::file((string)($seller['logo_url']??''));$html=($logo?'<p style="text-align:center"><img src="'.e($logo).'" width="90"></p>':'').'<h2 style="text-align:center">'.e($seller['name']).'</h2><p style="text-align:center">'.e($seller['tagline']??'').'<br><b>'.e($status).'</b></p>';
+        $logo=self::logo((string)($seller['logo_url']??''));$html=($logo?'<p style="text-align:center"><img src="'.e($logo).'" width="90"></p>':'').'<h2 style="text-align:center">'.e($seller['name']).'</h2><p style="text-align:center">'.e($seller['tagline']??'').'<br><b>'.e($status).'</b></p>';
         $html.='<table cellpadding="5"><tr><td><b>Document number</b><br>'.e($invoice['number']).'</td><td align="right"><b>Issued</b><br>'.e(date('j M Y, g:i A',strtotime($invoice['issued_at']))).'</td></tr><tr><td><b>Order</b><br>'.e($buyer['order_no']??'').'</td><td align="right"><b>Meal / delivery</b><br>'.e($buyer['slot']??'').(!empty($buyer['delivery_date'])?'<br>'.e(date('j M Y',strtotime($buyer['delivery_date']))):'').'</td></tr></table>';
         if($credit&&!empty($payment['original_number']))$html.='<p>Original bill: '.e($payment['original_number']).'</p>';
         $address=$buyer['delivery_address']??[];$delivery=($address['fulfilment']??'')==='Collection'?'Collection':implode(', ',array_unique(array_filter(array_map(fn($k)=>$address[$k]??'', ['line1','line2','landmark','area','city','state','country','pincode']))));
@@ -31,12 +42,24 @@ final class InvoicePdf {
         $html.='<p>'.nl2br(e($seller['footer']??'')).'</p><p>Authorised signatory</p><hr><p><b>'.e($seller['name']).'</b><br>'.nl2br(e($seller['address'])).'<br>'.e(($seller['state']??'').' · State code '.($seller['state_code']??'')).'<br>FSSAI: '.e($seller['fssai_no']??'');if(!empty($seller['gstin']))$html.='<br>GSTIN: '.e($seller['gstin']);$html.='</p>';
         return self::document(ucwords(str_replace('_',' ',$invoice['kind'])).' '.$invoice['number'],$html,false);
     }
-    public static function summary(array $order):string {
-        $html='<p><b>ORDER SUMMARY — NOT A TAX INVOICE</b></p><p>Payment status: '.e(ucfirst(str_replace('_',' ',$order['payment_status']))).'</p><p>Order: '.e($order['order_no']).'</p><p>'.e($order['address']['recipient_name']??'').'<br>'.e($order['address']['phone']??'').'</p>';
-        $address=$order['address'];$html.='<p>'.e(implode(', ',array_filter(array_map(fn($key)=>$address[$key]??'', ['line1','line2','landmark','city','state','country','pincode'])))).'</p><table cellpadding="7" border="1"><tr><th width="72%">Items</th><th width="28%">Amount</th></tr>';
-        foreach($order['items'] as $line)$html.='<tr><td width="72%">'.e($line['quantity'].' × '.$line['name']).'</td><td width="28%">₹'.e($line['line_total']).'</td></tr>';
-        $html.='</table><p>Items: ₹'.e($order['subtotal']).'<br>Delivery: ₹'.e($order['delivery_fee']).'<br><b>Order total: ₹'.e($order['total']).'</b></p><p>This summary does not confirm payment. An invoice will be available here when issued by the kitchen.</p>';
-        return self::document('Order summary',$html);
+    public static function summary(array $order,?Store $store=null):string {
+        $profile=$store?->db->one('SELECT * FROM tenancy_billingprofile WHERE tenant_id=?',[$store->id()])??[];
+        $name=$profile['legal_name']??$store?->name()??'Annam Foods';$tagline=$store?->config['tagline']??'';
+        $logo=self::logo($store?->config['theme']['billing_logo_url']??($store?->logo()??'/media/brand/annam-logo.png'));
+        $html=($logo?'<p style="text-align:center"><img src="'.e($logo).'" width="90"></p>':'').'<h2 style="text-align:center">'.e($name).'</h2><p style="text-align:center">'.e($tagline).'<br><b>ORDER SUMMARY · '.e(strtoupper(str_replace('_',' ',$order['payment_status']))).'</b><br>Not a tax invoice · No payment receipt implied</p>';
+        $html.='<table cellpadding="6"><tr><td width="60%"><b>Order reference</b><br>'.e($order['order_no']).'</td><td width="40%" align="right"><b>Order date</b><br>'.e(date('j M Y',strtotime($order['placed_at']))).'</td></tr></table>';
+        $address=$order['address'];$html.='<h3>Customer &amp; delivery</h3><p><b>'.e($address['recipient_name']??'').'</b><br>'.e($address['phone']??'').'<br>'.e(implode(', ',array_filter(array_map(fn($key)=>$address[$key]??'', ['line1','line2','landmark','city','state','country','pincode'])))).'</p>';
+        if(!empty($order['delivery_date']))$html.='<p><b>Delivery date:</b> '.e(date('D, j M Y',strtotime($order['delivery_date']))).'</p>';
+        $html.='<table cellpadding="8" border="1"><thead><tr style="background-color:#f5f1ea"><th width="72%"><b>Your order</b></th><th width="28%" align="right"><b>Amount</b></th></tr></thead><tbody>';
+        foreach($order['items'] as $line)$html.='<tr><td width="72%"><b>'.e($line['name']).'</b><br>'.e($line['quantity'].' × ₹'.$line['unit_price']).'</td><td width="28%" align="right">₹'.e($line['line_total']).'</td></tr>';
+        $html.='</tbody></table><br><table cellpadding="6">';
+        $adjustment=Money::parse($order['total'])-Money::parse($order['subtotal'])-Money::parse($order['delivery_fee']);
+        foreach(['Items subtotal'=>$order['subtotal'],'Delivery charge'=>$order['delivery_fee'],'Tax, discounts & rounding'=>Money::signedDecimal($adjustment)] as $label=>$amount)$html.='<tr><td width="72%">'.e($label).'</td><td width="28%" align="right">₹'.e($amount).'</td></tr>';
+        $html.='<tr style="background-color:#f5f1ea"><td width="72%"><b>Order total</b></td><td width="28%" align="right"><b>₹'.e($order['total']).'</b></td></tr></table><p>'.e(Billing::words(Money::parse($order['total']))).'</p>';
+        if(!in_array($order['payment_status'],['paid','refunded'],true))$html.='<p><b>Payment not received — amount due ₹'.e($order['total']).'</b></p>';
+        $html.='<p>This document follows your order details. The numbered invoice will be available once issued by the kitchen.</p><h3>Thank you for ordering with us!</h3><p>'.nl2br(e($profile['footer']??'')).'</p><hr><p><b>'.e($name).'</b><br>'.nl2br(e($profile['address']??'')).'</p>';
+        if(!empty($profile['fssai_no']))$html.='<p>FSSAI: '.e($profile['fssai_no']).'</p>';
+        return self::document('Order summary · '.$order['order_no'],$html,false);
     }
     public static function test(array $order): string {
         $html='<p>TEST / SIMULATED PAYMENT / NOT AN INVOICE</p><p>No real money collected. No financial invoice number allocated.</p><p>'.e($order['order_no']).' · '.e($order['address']['recipient_name']??'').'</p>';
