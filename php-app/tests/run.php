@@ -344,6 +344,11 @@ try {
         $store->setItemFlag($id,'in_stock',false);$store->setItemFlag($id,'in_stock',false);check(!$store->item($id)['in_stock'],'Repeated disable reversed stock');
         expectError(fn()=>$store->setItemFlag($otherItem,'in_stock',true),404);expectError(fn()=>$store->setItemFlag($id,'price',true),422);
     });
+    test('pending customer summaries allocate no invoice and issued unpaid bills are downloadable',function()use($store,$orders,$quote,$details,$billing,$db,$tenant){
+        $order=$orders->create($quote,$details,'pending-customer-document','manual','tester');$receipt=new Annam\CustomerReceipt($store);
+        $before=$db->rows('SELECT * FROM billing_invoicesequence WHERE tenant_id=?',[$tenant]);$pdf=Annam\InvoicePdf::summary($order);check(str_starts_with($pdf,'%PDF-'),'Summary is not PDF');check(!$billing->forOrder($order['id']),'Summary created financial invoice');check($before===$db->rows('SELECT * FROM billing_invoicesequence WHERE tenant_id=?',[$tenant]),'Summary consumed bill number');
+        $billing->issue($order['id'],true);$state=$receipt->state($order,'fixture');check(!$state['paid']&&$state['download_url']&&$state['invoice_url'],'Issued unpaid bill hidden');check(str_starts_with($receipt->pdf($order,false),'%PDF-'),'Unpaid bill PDF missing');check($orders->get($order['id'])['payment_status']==='pending','Document marked unpaid order paid');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

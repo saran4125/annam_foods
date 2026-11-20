@@ -50,7 +50,7 @@ instance still resets ephemeral SQLite data.
 - Store/checkout/billing settings saves; report filters, cancellation toggle, CSV and invalid date/range handling.
 - Inbox 30-contact/50-message pagination, search, older-page polling pause, fresh-message polling, mark-read and prefilled billing handoff; offline sending remains disabled.
 - Desktop/mobile manual/COD booking through delivery, confirmed collection, immutable invoice and PDF download.
-- 72 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+- 73 PHP behavioral checks and 546 PostgreSQL reference tests pass.
 
 ## Simple menu reactivation
 
@@ -122,3 +122,13 @@ format help explains the accepted ten-digit/country-code forms. Other HTTP
 errors retain their existing handling. Chromium checked invalid phone and
 unserviceable pincode, preserved fields, correction to review and final local
 test placement. Phone validation itself remains enforced.
+
+## Documents on pending customer orders
+
+The confirmation page always shows Invoice & receipt and an authenticated
+order-summary PDF download. Summaries are explicitly NOT A TAX INVOICE, derive
+from saved order snapshots, and never allocate invoice numbers or mark payment
+received. Existing staff-issued unpaid bills are now downloadable by the same
+authorized customer browser. Issuance rules and test-payment financial-invoice
+restrictions remain unchanged. Summary downloads share the browser-bound guest
+authorization used by all receipt routes.

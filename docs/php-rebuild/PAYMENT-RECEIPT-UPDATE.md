@@ -1,3 +1,13 @@
+# Customer invoice section — 20 November 2026
+
+Confirmation pages now always show an Invoice & receipt section. Pending orders
+can download a clearly labelled non-invoice order summary. Staff-issued unpaid
+bills are available as invoice PDF downloads too. Payment remains pending until
+collection/capture is confirmed. No invoice is invented for test/unpaid orders.
+Preserve database, private configuration and uploaded media during updates.
+
+---
+
 # Checkout inline validation — 20 November 2026
 
 Invalid phone numbers and delivery details now keep the customer on checkout

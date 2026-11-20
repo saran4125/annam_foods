@@ -31,6 +31,13 @@ final class InvoicePdf {
         $html.='<p>'.nl2br(e($seller['footer']??'')).'</p><p>Authorised signatory</p><hr><p><b>'.e($seller['name']).'</b><br>'.nl2br(e($seller['address'])).'<br>'.e(($seller['state']??'').' · State code '.($seller['state_code']??'')).'<br>FSSAI: '.e($seller['fssai_no']??'');if(!empty($seller['gstin']))$html.='<br>GSTIN: '.e($seller['gstin']);$html.='</p>';
         return self::document(ucwords(str_replace('_',' ',$invoice['kind'])).' '.$invoice['number'],$html,false);
     }
+    public static function summary(array $order):string {
+        $html='<p><b>ORDER SUMMARY — NOT A TAX INVOICE</b></p><p>Payment status: '.e(ucfirst(str_replace('_',' ',$order['payment_status']))).'</p><p>Order: '.e($order['order_no']).'</p><p>'.e($order['address']['recipient_name']??'').'<br>'.e($order['address']['phone']??'').'</p>';
+        $address=$order['address'];$html.='<p>'.e(implode(', ',array_filter(array_map(fn($key)=>$address[$key]??'', ['line1','line2','landmark','city','state','country','pincode'])))).'</p><table cellpadding="7" border="1"><tr><th width="72%">Items</th><th width="28%">Amount</th></tr>';
+        foreach($order['items'] as $line)$html.='<tr><td width="72%">'.e($line['quantity'].' × '.$line['name']).'</td><td width="28%">₹'.e($line['line_total']).'</td></tr>';
+        $html.='</table><p>Items: ₹'.e($order['subtotal']).'<br>Delivery: ₹'.e($order['delivery_fee']).'<br><b>Order total: ₹'.e($order['total']).'</b></p><p>This summary does not confirm payment. An invoice will be available here when issued by the kitchen.</p>';
+        return self::document('Order summary',$html);
+    }
     public static function test(array $order): string {
         $html='<p>TEST / SIMULATED PAYMENT / NOT AN INVOICE</p><p>No real money collected. No financial invoice number allocated.</p><p>'.e($order['order_no']).' · '.e($order['address']['recipient_name']??'').'</p>';
         foreach($order['items'] as $line)$html.='<p>'.e($line['quantity'].' × '.$line['name'].' — ₹'.$line['line_total']).'</p>';
