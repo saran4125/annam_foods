@@ -2,14 +2,15 @@
 declare(strict_types=1);
 if(PHP_SAPI!=='cli')exit(1);
 require dirname(__DIR__).'/src/bootstrap.php';
-if(getenv('APP_ENV')!=='preview'||getenv('DATABASE_DSN')!=='sqlite:/tmp/annam-php-preview/annam.sqlite')throw new RuntimeException('Only the disposable preview may be seeded.');
+$previewRoot=getenv('PREVIEW_DATA_ROOT')?:'/tmp/annam-php-preview';
+if(!in_array($previewRoot,['/tmp/annam-php-preview','/var/data/annam-php-preview'],true)||getenv('APP_ENV')!=='preview'||getenv('DATABASE_DSN')!=='sqlite:'.$previewRoot.'/annam.sqlite')throw new RuntimeException('Only the disposable preview may be seeded.');
 // This provider-disabled disposable preview must have an explicit test route
 // through checkout. Never expose manual fallback in normal production checkout.
 if(getenv('PAYMENTS_ENABLED')!=='0'||getenv('MESSAGING_ENABLED')!=='0')throw new RuntimeException('Preview providers must remain disabled.');
 $store=new Annam\Store(new Annam\Database());
 $features=$store->config['features'];$features['checkout_test_mode']=true;
 $store->db->rows('UPDATE tenancy_tenantconfig SET features=? WHERE tenant_id=?',[json_encode($features),$store->id()]);$store->reload();
-$marker='/tmp/annam-php-preview/new-catalog';if(!is_file($marker))return;
+$marker=$previewRoot.'/new-catalog';if(!is_file($marker))return;
 $resources=new Annam\Resources($store);
 (new Annam\CatalogSync($store))->run(true);
 $store->db->transaction(function()use($store,$resources){

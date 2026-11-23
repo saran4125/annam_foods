@@ -349,6 +349,12 @@ try {
         $before=$db->rows('SELECT * FROM billing_invoicesequence WHERE tenant_id=?',[$tenant]);$pdf=Annam\InvoicePdf::summary($order);check(str_starts_with($pdf,'%PDF-'),'Summary is not PDF');check(!$billing->forOrder($order['id']),'Summary created financial invoice');check($before===$db->rows('SELECT * FROM billing_invoicesequence WHERE tenant_id=?',[$tenant]),'Summary consumed bill number');
         $billing->issue($order['id'],true);$state=$receipt->state($order,'fixture');check(!$state['paid']&&$state['download_url']&&$state['invoice_url'],'Issued unpaid bill hidden');check(str_starts_with($receipt->pdf($order,false),'%PDF-'),'Unpaid bill PDF missing');check($orders->get($order['id'])['payment_status']==='pending','Document marked unpaid order paid');
     });
+    test('editing product details without a stock field preserves the latest saved stock value',function()use($store,$resources){
+        $input=['name'=>'Persistent stock edit','fulfilment'=>'scheduled','price'=>'70','active'=>1];$id=$resources->save('dishes',null,$input+['in_stock'=>1]);
+        $resources->save('dishes',$id,$input);check((bool)$store->item($id)['in_stock'],'Detail edit reset latest in-stock value');
+        $store->setItemFlag($id,'in_stock',false);$resources->save('dishes',$id,$input);check(!$store->item($id)['in_stock'],'Detail edit reset latest out-of-stock value');
+        $resources->save('dishes',$id,$input+['in_stock'=>1]);check((bool)$store->item($id)['in_stock'],'Explicit stock change ignored');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

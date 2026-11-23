@@ -50,7 +50,7 @@ instance still resets ephemeral SQLite data.
 - Store/checkout/billing settings saves; report filters, cancellation toggle, CSV and invalid date/range handling.
 - Inbox 30-contact/50-message pagination, search, older-page polling pause, fresh-message polling, mark-read and prefilled billing handoff; offline sending remains disabled.
 - Desktop/mobile manual/COD booking through delivery, confirmed collection, immutable invoice and PDF download.
-- 73 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+- 74 PHP behavioral checks and 546 PostgreSQL reference tests pass.
 
 ## Simple menu reactivation
 
@@ -147,3 +147,33 @@ numbered invoice snapshots and payment state are unchanged. PDF logos are
 embedded locally; the bundled opaque print logo works without GD/Imagick and
 legacy billing-logo aliases resolve correctly. Verified one-page sample PDF
 with embedded image and 73 native PHP checks plus 546 PostgreSQL reference tests.
+
+## Latest stock is authoritative
+
+Product edits which omit the stock field now preserve the existing in_stock
+value. Explicit stock inputs still update it. This covers both true and false
+without setting a new global default or hardcoding product names.
+
+Render's isolated initializer now supports PREVIEW_DATA_ROOT=/var/data/annam-php-preview
+only when /var/data is an actual mounted filesystem. Database, media, private
+bills and sessions use the same root. Existing database files are integrity
+checked and preserved; a .database-initialized marker prevents silently seeding
+demo data when a previously initialized database disappears. The first catalog
+import is still guarded by new-catalog. No paid plan/disk is enabled automatically.
+The default FREE Render service remains temporary and loses all local data when
+its container is replaced. Setting a directory name cannot make it persistent.
+
+Hostinger uses its existing private persistent SQLite file. Apply the code-only
+update while preserving storage/annam.sqlite, installation.json, .env and media.
+Do not replace the live database with the reviewed database ZIP or run a catalog
+import to repair stock. If moving a Render preview to a mounted disk, first
+export a consistent database/media backup and restore it there; keep credentials
+and application secrets. Attaching a Render disk requires an eligible paid plan.
+
+Verification: 74 native checks and 546 PostgreSQL reference tests. Docker
+acceptance uses Rasam Vadai (1) and Rava uppuma with differing stock states,
+replaces the whole container using the same volume, checks a later update after
+restart, and verifies missing databases fail rather than reimporting defaults.
+Run with PHP_PREVIEW_TEST_ENV=/private/test.env python php-app/tests/preview_stock_persistence.py
+after building Dockerfile.render-php with PHP_PREVIEW_TEST_IMAGE set to its tag.
+The test creates its own volume and containers and removes them afterwards.

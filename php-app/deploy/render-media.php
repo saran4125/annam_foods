@@ -3,7 +3,8 @@ declare(strict_types=1);
 // Restore committed PUBLIC artwork only, for the disposable Render preview.
 if(PHP_SAPI!=='cli')exit(1);
 require dirname(__DIR__).'/src/bootstrap.php';
-if(getenv('APP_ENV')!=='preview'||getenv('DATABASE_DSN')!=='sqlite:/tmp/annam-php-preview/annam.sqlite')throw new RuntimeException('This restore is only for the temporary PHP preview.');
+$previewRoot=getenv('PREVIEW_DATA_ROOT')?:'/tmp/annam-php-preview';
+if(!in_array($previewRoot,['/tmp/annam-php-preview','/var/data/annam-php-preview'],true)||getenv('APP_ENV')!=='preview'||getenv('DATABASE_DSN')!=='sqlite:'.$previewRoot.'/annam.sqlite')throw new RuntimeException('This restore is only for the temporary PHP preview.');
 $store=new Annam\Store(new Annam\Database());
 Annam\Media::restore($store);
 $root=Annam\Media::root();$source=dirname(ANNAM_ROOT).'/media';$copied=0;

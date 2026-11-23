@@ -1,3 +1,26 @@
+# Persistent stock update — 23 November 2026
+
+The latest saved product stock value is preserved when editing other product
+details. Explicit stock changes remain supported; no product is forced to a
+hardcoded default.
+
+For Hostinger, merge this code-only update into the existing installation. Keep
+annam-private/storage/annam.sqlite, installation.json, .env and uploaded media.
+Do not upload a replacement demo database or rerun catalog seeding.
+
+Optional Render persistence support now requires a real mounted /var/data disk
+and PREVIEW_DATA_ROOT=/var/data/annam-php-preview. Existing databases are preserved
+and missing initialized databases refuse demo reseeding. The FREE preview still
+has ephemeral storage; this release does not purchase or attach a disk. Back up
+and restore the current database before moving it. Hostinger remains the chosen
+permanent destination.
+
+Verified: latest true/false states survived replacement of a disposable container
+using the same persistent volume, later updates survived restart, and missing
+databases were not reseeded. 74 PHP checks and 546 reference tests passed.
+
+---
+
 # Checkout and document layout polish — 20 November 2026
 
 Aligned checkout inputs, full-width payment selector, tablet/mobile layout and

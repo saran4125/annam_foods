@@ -11,11 +11,20 @@ from uuid import UUID
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-DIRECTORY = Path('/tmp/annam-php-preview')
+DIRECTORY = Path(os.environ.get('PREVIEW_DATA_ROOT', '/tmp/annam-php-preview'))
+if str(DIRECTORY) not in ('/tmp/annam-php-preview', '/var/data/annam-php-preview'):
+    raise RuntimeError('Unsupported preview data directory')
+INITIALIZED = DIRECTORY / '.database-initialized'
 DESTINATION = DIRECTORY / 'annam.sqlite'
 if DESTINATION.exists():
-    print('Existing temporary preview database preserved.')
+    with sqlite3.connect(f'file:{DESTINATION}?mode=ro', uri=True) as existing:
+        if existing.execute('PRAGMA quick_check').fetchone()[0] != 'ok':
+            raise RuntimeError('Existing database failed integrity check; restore a backup, do not reseed')
+    INITIALIZED.touch(exist_ok=True)
+    print('Existing preview database preserved, including latest stock settings.')
     sys.exit(0)
+if INITIALIZED.exists():
+    raise RuntimeError('Previously initialized database is missing; restore a backup instead of seeding defaults')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.render_preview'
 import django
 django.setup()
@@ -72,5 +81,6 @@ target.close()
 source.close()
 pending.chmod(0o600)
 pending.rename(DESTINATION)
+INITIALIZED.touch(exist_ok=True)
 (DIRECTORY / 'new-catalog').touch()
-print('Temporary PHP SQLite preview initialized; no external database used.')
+print('PHP SQLite preview initialized; no external database used.')
