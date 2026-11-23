@@ -61,12 +61,16 @@ final class Store {
         if ($kind) { $sql .= ' AND i.fulfilment=?'; $params[] = $kind; }
         if ($query) { $sql .= ' AND i.name ILIKE ?'; $params[] = '%' . $query . '%'; }
         if ($category) { $ids=$this->family($category);$sql.=' AND i.category_id IN ('.implode(',',array_fill(0,count($ids),'?')).')';array_push($params,...$ids); }
-        return $this->db->rows($sql . ' ORDER BY i.sort,i.name', $params);
+        return (new Inventory($this))->decorate($this->db->rows($sql . ' ORDER BY i.sort,i.name', $params));
     }
     public function pageItems(string $kind,string $query,?int $category,int $page,int $size=30,array $filters=[],string $meal='',string $sort='featured'):array {
+        $inventory=new Inventory($this);
         $size=max(1,min($size,100));$params=[$this->id()];$where=' WHERE i.tenant_id=?';if($kind){$where.=' AND i.fulfilment=?';$params[]=$kind;}if($query){$where.=' AND i.name ILIKE ?';$params[]='%'.mb_substr($query,0,120).'%';}
         if($category){$family=$this->family($category);$where.=' AND i.category_id IN ('.implode(',',array_fill(0,count($family),'?')).')';array_push($params,...$family);}
-        foreach(['active','in_stock'] as $field)if(array_key_exists($field,$filters)){$where.=' AND i.'.$field.'=?';$params[]=(bool)$filters[$field];}
+        foreach(['active','in_stock'] as $field)if(array_key_exists($field,$filters)){
+            if($field==='in_stock'){$empty="EXISTS(SELECT 1 FROM catalog_inventorybucket v WHERE v.tenant_id=i.tenant_id AND v.item_id=i.id AND v.slot_id IS NULL AND v.tracked AND v.remaining=0 AND i.fulfilment='courier')";$where.=$filters[$field]?' AND i.in_stock AND NOT '.$empty:' AND (NOT i.in_stock OR '.$empty.')';}
+            else{$where.=' AND i.'.$field.'=?';$params[]=(bool)$filters[$field];}
+        }
         if($meal){
             if($meal==='unassigned'){
                 $where.=" AND NOT EXISTS(SELECT 1 FROM catalog_menuschedule m WHERE m.tenant_id=i.tenant_id AND m.item_id=i.id) AND NOT EXISTS(SELECT 1 FROM catalog_menucategory c JOIN catalog_slot s ON s.key=c.slug AND s.tenant_id=c.tenant_id WHERE c.id=i.category_id AND c.tenant_id=i.tenant_id)";
@@ -75,10 +79,10 @@ final class Store {
                 array_push($params,$meal,$meal);
             }
         }
-        $order=match($sort){'price'=>'CAST(i.price AS DECIMAL) ASC,i.id','-price'=>'CAST(i.price AS DECIMAL) DESC,i.id','name'=>'i.name,i.id',default=>'i.sort,i.name,i.id'};$total=(int)$this->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem i'.$where,$params)['n'];$page=max(1,min($page,max(1,(int)ceil($total/$size))));$records=$this->db->rows('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id'.$where.' ORDER BY '.$order.' LIMIT '.$size.' OFFSET '.(($page-1)*$size),$params);return compact('records','total','page');
+        $order=match($sort){'price'=>'CAST(i.price AS DECIMAL) ASC,i.id','-price'=>'CAST(i.price AS DECIMAL) DESC,i.id','name'=>'i.name,i.id',default=>'i.sort,i.name,i.id'};$total=(int)$this->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem i'.$where,$params)['n'];$page=max(1,min($page,max(1,(int)ceil($total/$size))));$records=$this->db->rows('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id'.$where.' ORDER BY '.$order.' LIMIT '.$size.' OFFSET '.(($page-1)*$size),$params);$records=(new Inventory($this))->decorate($records);return compact('records','total','page');
     }
     public function item(int $id): array {
-        return $this->db->one('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id WHERE i.tenant_id=? AND i.id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Dish not found.');
+        $row=$this->db->one('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id WHERE i.tenant_id=? AND i.id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Dish not found.');return (new Inventory($this))->decorate([$row])[0];
     }
     public function categories(): array {
         $categories=$this->db->rows('SELECT * FROM catalog_menucategory WHERE tenant_id=? ORDER BY sort,name',[$this->id()]);
@@ -119,8 +123,8 @@ final class Store {
         return array_replace($defaults,$dated);
     }
     public function menu(string $date,int $slotId,bool $includeUnavailable=false):array {
-        $rows=$this->effectiveMenuRows($date,$slotId);
-        $result=array_filter(array_values($rows),fn($r)=>$r['active']&&($includeUnavailable||($r['available']&&($r['in_stock']??true)&&($r['qty_limit']===null||$r['qty_sold']<$r['qty_limit']))));
+        $rows=(new Inventory($this))->decorate(array_values($this->effectiveMenuRows($date,$slotId)),$date,$slotId);
+        $result=array_filter(array_values($rows),fn($r)=>$r['active']&&($includeUnavailable||($r['available']&&($r['in_stock']??true)&&(!$r['quantity_tracked']||$r['stock_quantity']>0)&&($r['qty_limit']===null||$r['qty_sold']<$r['qty_limit']))));
         usort($result,fn($a,$b)=>[$a['sort'],$a['name']]<=>[$b['sort'],$b['name']]);return array_values($result);
     }
     private function materializeMenu(string $date,int $slotId):void {

@@ -108,3 +108,5 @@
     });
   });
 })();
+
+(()=>{const form=document.querySelector('[data-quantity-editor]');if(!form)return;const toggle=form.querySelector('[data-quantity-toggle]'),fields=form.querySelector('[data-quantity-fields]');const update=()=>{fields.hidden=!toggle.checked;};toggle.addEventListener('change',update);update();})();

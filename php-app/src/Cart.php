@@ -24,7 +24,7 @@ final class Cart {
     public static function add(Store $store,array $input):void {
         $id=filter_var($input['item_id']??'',FILTER_VALIDATE_INT);$quantity=filter_var($input['quantity']??'1',FILTER_VALIDATE_INT);
         if(!$id||!$quantity||$quantity<1||$quantity>99)throw new HttpError(422,'Choose a quantity between 1 and 99.');
-        $item=$store->item($id);if(!$item['active']||!($item['in_stock']??true))throw new HttpError(422,'This item is unavailable.');
+        $item=$store->item($id);Inventory::check($item,$quantity);if(!$item['active']||!($item['in_stock']??true))throw new HttpError(422,'This item is unavailable.');
         if(!($store->config['features']['website_ordering']??true))throw new HttpError(422,'Website ordering is closed.');
         if($item['fulfilment']==='courier'&&!($store->config['features']['snacks_courier']??false))throw new HttpError(422,'Shop ordering is closed.');
         $slot=$item['fulfilment']==='scheduled'?$store->slot((int)($input['slot_id']??0)):null;
@@ -37,7 +37,7 @@ final class Cart {
         if(!empty($cart['pincode'])&&($message=(new Delivery($store))->restriction($cart['pincode'],[...$current,$meal],$cart['zone_id']??null)))throw new HttpError(422,$message);
         $key=(string)$id;if(isset($cart['lines'][$key])&&($cart['line_slots'][$key]??$cart['slot_key']??$meal)!==$meal)$key=$meal.':'.$id;
         $next=($cart['lines'][$key]??0)+$quantity;if($next>99)throw new HttpError(422,'Maximum quantity is 99 per item.');
-        if($slot)self::scheduledItem($store,$id,$date,(int)$slot['id'],$next);
+        Inventory::check($item,$next);if($slot)self::scheduledItem($store,$id,$date,(int)$slot['id'],$next);
         $cart['lines'][$key]=$next;$cart['line_slots'][$key]=$meal;$_SESSION['cart']=$cart;
     }
     public static function set(Store $store,int|string $key,int $quantity):void {
@@ -48,14 +48,14 @@ final class Cart {
     private static function scheduledItem(Store $store,int $id,string $date,int $slotId,int $quantity):array {
         $slot=$store->slot($slotId);if(!Delivery::slotOpen($slot,$date))throw new HttpError(422,'Ordering is not open for this meal on the selected date.');
         if(in_array($date,$store->config['checkout_settings']['closed_dates']??[],true))throw new HttpError(422,'The kitchen is closed on this date.');
-        foreach($store->menu($date,$slotId) as $entry)if((int)$entry['id']===$id){if($entry['qty_limit']!==null&&$quantity>$entry['qty_limit']-$entry['qty_sold'])throw new HttpError(422,'Not enough portions are available.');return $entry;}
+        foreach($store->menu($date,$slotId) as $entry)if((int)$entry['id']===$id){Inventory::check($entry,$quantity);if($entry['qty_limit']!==null&&$quantity>$entry['qty_limit']-$entry['qty_sold'])throw new HttpError(422,'Not enough portions are available.');return $entry;}
         throw new HttpError(422,'This dish is not available for the selected meal and date.');
     }
     public static function quote(Store $store,?array $cart=null):array {
         $cart??=$_SESSION['cart']??['lines'=>[]];$lines=[];$subtotal=0;$keys=[];
         foreach($cart['lines'] as $key=>$quantity){
             if(!is_int($quantity)||$quantity<1||$quantity>99)throw new HttpError(422,'Invalid cart quantity.');
-            $id=self::itemId($key);$item=$store->item($id);if(!$item['active']||!($item['in_stock']??true))throw new HttpError(422,'A cart item is no longer available. Remove it before proceeding.');
+            $id=self::itemId($key);$item=$store->item($id);Inventory::check($item,$quantity);if(!$item['active']||!($item['in_stock']??true))throw new HttpError(422,'A cart item is no longer available. Remove it before proceeding.');
             $meal=$cart['line_slots'][$key]??($item['fulfilment']==='courier'?'snacks':$store->slot((int)$cart['slot_id'])['key']);
             if($cart['kind']==='courier'&&$item['fulfilment']!=='courier')throw new HttpError(422,'Invalid shop cart.');
             $price=$item['price'];if($item['fulfilment']==='scheduled'){$slot=$store->db->one('SELECT id FROM catalog_slot WHERE tenant_id=? AND key=?',[$store->id(),$meal])??throw new HttpError(422,'Choose a valid meal.');$price=self::scheduledItem($store,$id,$cart['date'],(int)$slot['id'],$quantity)['effective_price'];}

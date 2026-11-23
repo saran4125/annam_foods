@@ -1,3 +1,30 @@
+## Optional quantity tracking
+
+Every existing and new dish/product starts with quantity tracking off. In
+Dishes & products, use the Quantity column (also available from Edit), turn
+**Track quantity** on, enter a whole number and save. Choose **Add stock** for
+new deliveries, or **Set available quantity** to correct the current balance.
+Off means unlimited quantity; existing In stock and On sale switches still apply.
+
+Shop stock is shared across all orders. Meal stock belongs to the selected
+meal and delivery date; it does not automatically copy to tomorrow. Choose the
+dish in that date's menu separately. Manual bills use the delivery date, or
+today when no date is entered.
+
+Saved website, manual and WhatsApp orders reserve stock once, including unpaid
+orders. Cart changes, payment confirmation and invoice issue do not deduct it.
+At zero the item cannot be ordered; adding stock makes it available again if
+its other availability switches permit it. Cancellation returns the reserved
+quantity once. Existing historical orders are not retrospectively deducted.
+Concurrent orders cannot oversell a tracked balance; stale stock forms ask
+staff to review the latest balance before saving.
+
+The update adds inventory tables automatically to the existing database.
+Preserve the database, configuration and media when uploading code. Temporary
+Render storage still resets when replaced; use persistent Hostinger storage.
+
+---
+
 # Management comparison — 19 November 2026
 
 Reference: Python `annam-foods-9j2m.onrender.com`. Target: PHP

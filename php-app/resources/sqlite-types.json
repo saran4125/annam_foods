@@ -580,5 +580,33 @@
     "created_at": "TIMESTAMP",
     "tenant_id": "INTEGER",
     "user_id": "INTEGER"
+  },
+  "catalog_inventorybucket": {
+    "id": "INTEGER",
+    "tenant_id": "INTEGER",
+    "item_id": "INTEGER",
+    "bucket_key": "TEXT",
+    "slot_id": "INTEGER",
+    "on_date": "DATE",
+    "tracked": "BOOLEAN",
+    "remaining": "INTEGER",
+    "revision": "INTEGER"
+  },
+  "orders_stockreservation": {
+    "id": "INTEGER",
+    "tenant_id": "INTEGER",
+    "order_id": "INTEGER",
+    "reservation_key": "TEXT",
+    "bucket_id": "INTEGER",
+    "schedule_id": "INTEGER",
+    "quantity": "INTEGER",
+    "released": "BOOLEAN",
+    "created_at": "TIMESTAMP",
+    "released_at": "TIMESTAMP"
+  },
+  "orders_inventoryclaim": {
+    "id": "INTEGER",
+    "tenant_id": "INTEGER",
+    "order_id": "INTEGER"
   }
 }

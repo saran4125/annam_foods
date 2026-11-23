@@ -29,14 +29,6 @@ final class Orders {
             $this->store->lock();
             if(!in_array($channel,['web','manual','whatsapp'],true)||!in_array($details['payment_method'],['online','manual','cod'],true))throw new HttpError(422,'Invalid order channel or payment method.');
             $existing=$this->store->db->one('SELECT id FROM orders_order WHERE tenant_id=? AND external_ref=?',[$this->store->id(),$external]);if($existing)return $this->get((int)$existing['id']);
-            if($channel==='web'&&!empty($quote['date']))foreach($quote['lines'] as $line){
-                if(($line['meal_key']??'snacks')==='snacks')continue;
-                $slot=$this->store->db->one('SELECT id FROM catalog_slot WHERE tenant_id=? AND key=?',[$this->store->id(),$line['meal_key']]);
-                $menu=$this->store->menu($quote['date'],(int)$slot['id']);$match=null;foreach($menu as $row)if((int)$row['id']===(int)$line['item_id'])$match=$row;
-                if(!$match)throw new HttpError(409,'A dish is no longer available. Review your cart.');
-                $reserved=$this->store->db->one('UPDATE catalog_menuschedule SET qty_sold=qty_sold+? WHERE tenant_id=? AND id=? AND (qty_limit IS NULL OR qty_sold+?<=qty_limit) RETURNING id',[(int)$line['quantity'],$this->store->id(),$this->store->inventorySchedule($quote['date'],(int)$slot['id'],$match),(int)$line['quantity']]);
-                if(!$reserved)throw new HttpError(409,'A dish has sold out. Review your cart.');
-            }
             $customer=$this->customer($details,$channel);$number='';
             for($i=0;$i<10;$i++){$number=strtoupper(substr($this->store->tenant['slug'],0,8)).'-'.date('Ymd').'-'.random_int(1000,9999);if(!$this->store->db->one('SELECT id FROM orders_order WHERE tenant_id=? AND order_no=?',[$this->store->id(),$number]))break;}
             $address=array_intersect_key($details,array_flip(['line1','line2','landmark','pincode','city','state','country','zone_id']));
@@ -44,6 +36,7 @@ final class Orders {
             $address['courier_deferred']=$quote['courier_deferred']??false;
             if(!empty($details['collection']))$address['fulfilment']='Collection';
             $row=$this->store->insert('orders_order',['order_no'=>$number,'customer_id'=>$customer['id'],'channel'=>$channel,'source'=>$channel==='web'?'storefront':($channel==='whatsapp'?'wa_chat':'owner'),'payment_mode'=>$details['payment_method'],'fulfilment'=>$quote['kind'],'external_ref'=>$external,'payment_reference'=>'','buyer_gst'=>'{}','pricing'=>json_encode($quote['pricing'],JSON_THROW_ON_ERROR),'rider_name'=>'','rider_phone'=>'','status'=>'placed','payment_status'=>$details['payment_method']==='cod'?'cod_pending':'pending','slot_id'=>$quote['slot']['id']??null,'delivery_date'=>$quote['date']??null,'items'=>json_encode($quote['lines'],JSON_THROW_ON_ERROR),'address'=>json_encode($address,JSON_THROW_ON_ERROR),'subtotal'=>Money::decimal($quote['subtotal']),'delivery_fee'=>Money::decimal($quote['delivery_fee']),'discount'=>'0.00','total'=>Money::decimal($quote['total']),'coupon_code'=>'','placed_at'=>date('c'),'cancelled_reason'=>'']);
+            (new Inventory($this->store))->reserve((int)$row['id'],$quote,$channel);
             $this->event((int)$row['id'],'','placed',$actor,'Order placed.');$saved=$this->get((int)$row['id']);if($address['courier_deferred'])(new Courier($this->store))->prepare($saved);return $saved;
         });
     }
@@ -55,7 +48,7 @@ final class Orders {
             $order=$this->get($id,true);$current=$order['status'];if($current===$next)return $order;
             if(in_array($current,['delivered','cancelled'],true)||($next!=='cancelled'&&!in_array($next,self::FLOW[$current]??[],true)))throw new HttpError(422,'This order cannot move to that status.');
             if($next!=='cancelled'&&$order['channel']==='web'&&$order['payment_mode']==='online'&&$order['payment_status']!=='paid')throw new HttpError(422,'Verify online payment before confirming or preparing this order.');
-            $values=['status'=>$next];if($next==='cancelled')$values['cancelled_reason']=mb_substr($note,0,200);
+            $values=['status'=>$next];if($next==='cancelled'){$values['cancelled_reason']=mb_substr($note,0,200);(new Inventory($this->store))->release($id);}
             if($next==='out_for_delivery'){$values['rider_name']=mb_substr((string)($rider['name']??''),0,120);$values['rider_phone']=mb_substr((string)($rider['phone']??''),0,20);}
             $this->store->update('orders_order',$id,$values);$this->event($id,$current,$next,$actor,$note);
             $order=$this->get($id);$this->notify($order,$next);

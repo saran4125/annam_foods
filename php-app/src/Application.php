@@ -39,6 +39,7 @@ final class Application {
             redirect($path . '/' . ($query ? '?' . $query : ''));
         }
         if ($path === '/healthz') { $this->db->one('SELECT 1'); header('Content-Type: application/json'); echo '{"status":"ok","application":"annam-php"}'; return; }
+        Inventory::ensure($this->db);
         $this->store = new Store($this->db);
         if($path==='/readyz'){$pulse=$this->db->one("SELECT updated_at>CURRENT_TIMESTAMP-INTERVAL '5 minutes' AS fresh FROM operations_workerpulse WHERE tenant_id=? AND name='php-cron'",[$this->store->id()]);$ok=is_writable(Media::root())&&(getenv('REQUIRE_CRON')!=='1'||($pulse['fresh']??false));http_response_code($ok?200:503);header('Content-Type: application/json');echo json_encode(['status'=>$ok?'ready':'not_ready']);return;}
         $this->user = Security::user($this->db, $this->store);

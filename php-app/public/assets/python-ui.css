@@ -61,3 +61,5 @@
 /* Cart shares the reference layout; quantities submit server-priced updates. */
 .python-ui .php-cart-page{padding-top:48px}.python-ui .php-cart-page .page-intro{margin-bottom:32px}.python-ui .php-cart-page .line-meal{font-size:.85rem;color:var(--ink-2)}.python-ui .php-cart-page .pincode-box .php-success{background:none;padding:0}.python-ui .php-cart-page [data-pincode-feedback]:empty{display:none}.python-ui .php-cart-page .checkout-row .btn{width:100%;justify-content:center}.python-ui .php-cart-page .qty-form button:disabled{opacity:.4;cursor:default}
 @media(max-width:600px){.python-ui .php-cart-page{padding-top:28px}.python-ui .php-cart-page .dish-title{flex-wrap:wrap}.python-ui .php-cart-page .line-meal{display:none}}
+
+[data-quantity-fields][hidden]{display:none}.o-check small{display:block;font-weight:400;color:var(--ink-3)}

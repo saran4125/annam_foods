@@ -24,6 +24,13 @@ final class ParityRoutes {
         if(preg_match('~^/manage/categories/(\d+)/items/(.*)$~',$path,$m)){$category=(new Resources($this->store))->get('categories',(int)$m[1]);$base='/manage/categories/'.$category['id'].'/items/';$suffix=$m[2];}
         elseif(str_starts_with($path,$base))$suffix=substr($path,strlen($base));else return false;
         if($suffix==='menu/')return false;
+        if(preg_match('~^(\d+)/quantity/$~',$suffix,$m)){
+            $item=$this->store->item((int)$m[1]);$this->assertCategory($category,$item);$inventory=new Inventory($this->store);$slots=$this->store->slots();$meal=$item['fulfilment']==='scheduled';$date=$meal?Store::date((string)($_POST['date']??$_GET['date']??date('Y-m-d'))):null;
+            $assigned=$this->store->db->one('SELECT slot_id FROM catalog_menuschedule WHERE tenant_id=? AND item_id=? ORDER BY slot_id LIMIT 1',[$this->store->id(),$item['id']]);$slotId=$meal?(int)($_POST['slot_id']??$_GET['slot_id']??$assigned['slot_id']??$slots[0]['id']??0):null;if($meal)$this->store->slot($slotId);
+            $return_url=$this->back($category?$base:'/manage/dishes/?kind='.$item['fulfilment']);$error='';$values=[];
+            if($method==='POST'){try{$inventory->configure((int)$item['id'],$date,$slotId,!empty($_POST['track_quantity']),$_POST['quantity']??null,(string)($_POST['operation']??'set'),(int)($_POST['stock_revision']??-1));$_SESSION['notice']='Quantity tracking saved.';redirect($return_url);}catch(HttpError $e){if(!in_array($e->status,[409,422],true))throw $e;http_response_code($e->status);$error=$e->getMessage();if($e->status===422)$values=$_POST;}}
+            $state=$inventory->state($item,$date,$slotId);$this->view('quantity',compact('item','meal','date','slotId','slots','return_url','state','error','values'));return true;
+        }
         if(preg_match('~^(\d+)/(stock|toggle|archive)/$~',$suffix,$m)){
             if($method!=='POST')throw new HttpError(405,'Use the action form.');$item=$this->store->item((int)$m[1]);$this->assertCategory($category,$item);
             if($m[2]==='stock'){if(!in_array($_POST['enabled']??null,['0','1'],true))throw new HttpError(422,'Refresh the item list before changing stock.');$this->store->setItemFlag((int)$item['id'],'in_stock',$_POST['enabled']==='1');}
@@ -46,7 +53,7 @@ final class ParityRoutes {
     }
     private function assertCategory(?array $category,array $item):void {if($category&&!in_array((int)$item['category_id'],$this->store->family((int)$category['id']),true))throw new HttpError(404,'Item not found in this category.');}
     public function categories():array {
-        $categories=$this->store->categories();$children=[];foreach($categories as $c)if($c['active'])$children[$c['parent_id']][]=(int)$c['id'];$family=function(int $id)use($children){$seen=[$id=>true];$todo=[$id];while($todo){$parent=array_pop($todo);foreach($children[$parent]??[] as $child)if(!isset($seen[$child])){$seen[$child]=true;$todo[]=$child;}}return array_keys($seen);};$counts=$this->store->db->rows("SELECT category_id,COUNT(*) AS total,COUNT(*) FILTER(WHERE active AND in_stock) AS website FROM catalog_menuitem WHERE tenant_id=? GROUP BY category_id",[$this->store->id()]);$map=[];foreach($counts as $row)$map[$row['category_id']]=$row;
+        $inventory=new Inventory($this->store);$categories=$this->store->categories();$children=[];foreach($categories as $c)if($c['active'])$children[$c['parent_id']][]=(int)$c['id'];$family=function(int $id)use($children){$seen=[$id=>true];$todo=[$id];while($todo){$parent=array_pop($todo);foreach($children[$parent]??[] as $child)if(!isset($seen[$child])){$seen[$child]=true;$todo[]=$child;}}return array_keys($seen);};$counts=$this->store->db->rows("SELECT i.category_id,COUNT(*) AS total,COUNT(*) FILTER(WHERE i.active AND i.in_stock AND NOT EXISTS(SELECT 1 FROM catalog_inventorybucket v WHERE v.tenant_id=i.tenant_id AND v.item_id=i.id AND v.slot_id IS NULL AND v.tracked AND v.remaining=0 AND i.fulfilment='courier')) AS website FROM catalog_menuitem i WHERE i.tenant_id=? GROUP BY i.category_id",[$this->store->id()]);$map=[];foreach($counts as $row)$map[$row['category_id']]=$row;
         foreach($categories as &$category){$category['total']=$category['website']=0;foreach($family((int)$category['id']) as $id){$category['total']+=(int)($map[$id]['total']??0);$category['website']+=(int)($map[$id]['website']??0);}}unset($category);return $categories;
     }
 }

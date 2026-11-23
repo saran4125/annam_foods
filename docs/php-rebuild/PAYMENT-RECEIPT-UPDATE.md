@@ -1,3 +1,23 @@
+# Optional quantity tracking — 23 November 2026
+
+Quantity tracking is off by default. Open the Quantity control for any dish or
+shop item, turn it on, and set the available quantity or add stock. Shop stock
+is shared; meals use the selected meal/date. Manual bills without a delivery
+date use today. Saved orders reserve once, unpaid orders included. Payment and
+invoice actions do not deduct again; cancellations restore once. At zero,
+ordering stops until stock is added.
+
+Merge the code-only Hostinger update. Inventory tables are added automatically;
+keep the existing SQLite database, installation.json, .env and uploaded media.
+Do not replace the database or rerun demo seeding. No live deployment is included.
+
+Validation: 81 PHP behavioural checks on SQLite and PostgreSQL, concurrent
+last-unit/retry/invoice checks,
+desktop/mobile quantity-editor checks and all 546 PostgreSQL reference tests.
+See MANAGEMENT-PARITY.md for the flow.
+
+---
+
 # Checkout areas sharing a pincode — 23 November 2026
 
 One matching delivery area is automatic. When a pincode covers multiple active

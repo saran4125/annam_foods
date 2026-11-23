@@ -5,7 +5,7 @@ namespace Annam;
 /** Additive compatibility upgrade for a restored database. No Python is needed. */
 final class Schema {
     public static function ensure(Database $db): void {
-        if($db->isSqlite()){$db->schemaScript(file_get_contents(ANNAM_ROOT.'/resources/sqlite-schema.sql'));return;}
+        if($db->isSqlite()){$db->schemaScript(file_get_contents(ANNAM_ROOT.'/resources/sqlite-schema.sql'));Inventory::ensure($db);return;}
         $db->transaction(function()use($db){
             $db->one("SELECT pg_advisory_xact_lock(hashtext('annam-php-parity-v2'))");
             foreach([
@@ -27,7 +27,7 @@ final class Schema {
                 "CREATE UNIQUE INDEX IF NOT EXISTS php_courier_provider_order ON payments_courierpayment(tenant_id,provider_order_id) WHERE provider_order_id<>''",
                 "CREATE UNIQUE INDEX IF NOT EXISTS php_courier_provider_payment ON payments_courierpayment(tenant_id,payment_id) WHERE payment_id<>''",
                 "CREATE INDEX IF NOT EXISTS idx_order_recent ON orders_order(tenant_id,placed_at DESC)"
-            ] as $sql)$db->rows($sql);
+            ] as $sql)$db->rows($sql);Inventory::ensure($db);
         });
     }
 }
