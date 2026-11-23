@@ -50,7 +50,7 @@ instance still resets ephemeral SQLite data.
 - Store/checkout/billing settings saves; report filters, cancellation toggle, CSV and invalid date/range handling.
 - Inbox 30-contact/50-message pagination, search, older-page polling pause, fresh-message polling, mark-read and prefilled billing handoff; offline sending remains disabled.
 - Desktop/mobile manual/COD booking through delivery, confirmed collection, immutable invoice and PDF download.
-- 74 PHP behavioral checks and 546 PostgreSQL reference tests pass.
+- 75 PHP behavioral checks and 546 PostgreSQL reference tests pass.
 
 ## Simple menu reactivation
 
@@ -107,8 +107,7 @@ any provider charge. Production choices and live-payment requirements are unchan
 Local Chromium verified adding, visible +/- before/after reload, delivery details,
 review and final disposable test order creation.
 
-Checkout no longer shows a delivery-area dropdown. The pincode resolves delivery
-automatically; an area previously selected in the cart is retained only while
+Checkout hides the delivery-area dropdown when the pincode has one matching area; multiple matching areas require a customer choice. an area previously selected in the cart is retained only while
 the checkout pincode matches that cart pincode. Editing the pincode drops that
 old area selection. Ambiguous pincodes still require the cart's area choice;
 checkout never guesses a charge or bypasses serviceability.
@@ -177,3 +176,21 @@ restart, and verifies missing databases fail rather than reimporting defaults.
 Run with PHP_PREVIEW_TEST_ENV=/private/test.env python php-app/tests/preview_stock_persistence.py
 after building Dockerfile.render-php with PHP_PREVIEW_TEST_IMAGE set to its tag.
 The test creates its own volume and containers and removes them afterwards.
+
+## Shared pincodes at customer checkout
+
+Delivery areas with the same pincode can retain different charges. Checkout
+filters active tenant-scoped areas by pincode and all meals in the cart. One
+matching area is automatic; multiple matches show a required area selector with
+each delivery charge. Selecting an area updates the server-derived fee and
+estimated total. Changing the pincode discards the prior selection.
+
+The read-only /checkout/delivery/ endpoint uses the same delivery rules; foreign,
+inactive, wrong-pincode and unsupported-meal areas cannot be selected. Contact
+and order placement still run the authoritative server quote with current fees,
+minimums and taxes. JavaScript requests are abortable/read-only and stale results
+are ignored. With JS off, submission shows matching areas and preserves the
+customer's form until a choice is made. International shop postcodes remain
+supported. Tested mobile/desktop, both fees, automatic single area, pincode
+changes, required selection and non-JS review. 75 PHP checks and 546 reference
+tests pass. This code-only Hostinger update preserves database/configuration/media.

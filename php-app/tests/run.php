@@ -355,6 +355,18 @@ try {
         $store->setItemFlag($id,'in_stock',false);$resources->save('dishes',$id,$input);check(!$store->item($id)['in_stock'],'Detail edit reset latest out-of-stock value');
         $resources->save('dishes',$id,$input+['in_stock'=>1]);check((bool)$store->item($id)['in_stock'],'Explicit stock change ignored');
     });
+    test('checkout offers only matching delivery areas and recalculates each selected charge',function()use($store,$resources,$slot,$tomorrow,$otherStore){
+        $saved=$_SESSION['cart']??null;
+        try{
+            unset($_SESSION['cart']);$id=$resources->save('dishes',null,['name'=>'Area choice meal','fulfilment'=>'scheduled','price'=>'200','active'=>1,'in_stock'=>1]);$store->saveMenu($tomorrow,$slot,[$id],$store->menuRevision($tomorrow,$slot));Cart::add($store,['item_id'=>$id,'slot_id'=>$slot,'date'=>$tomorrow,'quantity'=>1]);
+            $a=$resources->save('zones',null,['area_name'=>'Area A','pincode'=>'600077','delivery_fee'=>'10','min_order'=>'100','slot_keys'=>['lunch'],'active'=>1]);$b=$resources->save('zones',null,['area_name'=>'Area B','pincode'=>'600077','delivery_fee'=>'30','min_order'=>'100','slot_keys'=>['lunch'],'active'=>1]);
+            $resources->save('zones',null,['area_name'=>'Hidden area','pincode'=>'600077','delivery_fee'=>'1','min_order'=>'0','slot_keys'=>['lunch'],'active'=>0]);$resources->save('zones',null,['area_name'=>'Dinner area','pincode'=>'600077','delivery_fee'=>'1','min_order'=>'0','slot_keys'=>['dinner'],'active'=>1]);
+            $foreign=(new Resources($otherStore))->save('zones',null,['area_name'=>'Private area','pincode'=>'600077','delivery_fee'=>'1','min_order'=>'0','slot_keys'=>['lunch'],'active'=>1]);
+            $checkout=new Annam\Checkout($store);$choices=$checkout->delivery('600077');check(count($choices['areas'])===2&&!$choices['eligible']&&$choices['fee']===null,'Ambiguous pincode auto-selected or exposed ineligible areas');
+            check($checkout->delivery('600077',$a)['fee']===1000&&$checkout->delivery('600077',$b)['fee']===3000,'Area delivery charge ignored');check(!$checkout->delivery('600077',$foreign)['eligible'],'Foreign zone accepted');
+            $single=$resources->save('zones',null,['area_name'=>'Only area','pincode'=>'600078','delivery_fee'=>'20','min_order'=>'100','slot_keys'=>['lunch'],'active'=>1]);$choice=$checkout->delivery('600078');check($choice['eligible']&&$choice['selected']===$single&&$choice['fee']===2000,'Single area not automatic');check(!$checkout->delivery('600078',$a)['eligible'],'Old area accepted after pincode change');check(!$checkout->delivery('123')['eligible'],'Invalid pincode accepted');
+        }finally{if($saved===null)unset($_SESSION['cart']);else $_SESSION['cart']=$saved;}
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

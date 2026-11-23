@@ -14,6 +14,18 @@ final class Checkout {
         $zoneId=$input['zone_id']??$savedArea; $result['zone_id']=empty($zoneId)?null:(int)$zoneId;$result['payment_method']=(string)($input['payment_method']??'online');
         if(!isset($this->choices()[$result['payment_method']]))throw new HttpError(422,'Choose an available payment method.');return $result;
     }
+    public function delivery(string $pin,?int $area=null,string $country='India'):array {
+        $cart=Cart::quote($this->store);$service=new Delivery($this->store);$meal=($cart['cart']['kind']??'')==='scheduled';
+        $areas=strcasecmp($country,'India')===0?$service->areas($pin,$meal?$cart['meal_keys']:['snacks']):[];
+        $result=['areas'=>array_map(fn($row)=>['id'=>(int)$row['id'],'name'=>$row['area_name'],'fee'=>Money::parse($row['delivery_fee']),'minimum'=>Money::parse($row['min_order'])],$areas),'selected'=>null,'fee'=>null,'subtotal'=>$cart['subtotal'],'eligible'=>false,'error'=>''];
+        if(!$pin)return $result;
+        if(strcasecmp($country,'India')===0&&!preg_match('/^[1-9][0-9]{5}$/D',$pin)){$result['error']='Enter a valid six-digit pincode.';return $result;}
+        if(!$meal&&!$areas){$result['eligible']=true;return $result;}
+        if(!$area&&count($areas)===1)$area=(int)$areas[0]['id'];
+        try{$quote=$service->local($pin,$meal?$cart['meal_keys']:['snacks'],$cart['subtotal'],$area);$result['selected']=(int)$quote['zone']['id'];$result['fee']=$quote['fee'];$result['eligible']=true;}
+        catch(HttpError $error){if($error->status!==422)throw $error;$result['error']=$error->getMessage();}
+        return $result;
+    }
     public function choices(): array {
         $result=[];$test=!empty($this->store->config['features']['checkout_test_mode']);
         $mode=$test?'test':'live';

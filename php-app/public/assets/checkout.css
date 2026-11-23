@@ -9,3 +9,5 @@
 @media(max-width:760px){.php-checkout-page{padding-top:24px}.php-checkout-page .checkout-card{padding:20px}.php-checkout-page .checkout-fields{gap:18px}.php-checkout-page .checkout-field-wide{grid-column:auto}}
 
 body:has(.php-checkout-page) .wa-float{display:none}
+
+[data-checkout-area][hidden],[data-delivery-feedback]:empty{display:none}

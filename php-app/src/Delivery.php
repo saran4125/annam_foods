@@ -28,6 +28,11 @@ final class Delivery {
         if(in_array('breakfast',$missing,true))return self::BREAKFAST;
         return in_array('dinner',$missing,true)?'Dinner delivery is not available for your pincode.':'This food category is not available for your pincode.';
     }
+    public function areas(string $pin,array $keys):array {
+        if(!preg_match('/^[1-9][0-9]{5}$/D',$pin))return [];
+        $rows=$this->store->db->rows('SELECT id,area_name,pincode,delivery_fee,min_order,slot_keys FROM delivery_deliveryzone WHERE tenant_id=? AND active AND pincode=? ORDER BY area_name,id',[$this->store->id(),$pin]);
+        return array_values(array_filter($rows,fn($row)=>!array_diff($keys,json_decode($row['slot_keys'],true)?:['breakfast','lunch','dinner','snacks'])));
+    }
     public function local(string $pin,array $keys,int $subtotal,?int $area=null):array {
         self::combination($keys);if(!preg_match('/^[1-9][0-9]{5}$/D',$pin))throw new HttpError(422,'Enter a valid six-digit pincode.');
         if($message=$this->restriction($pin,$keys,$area))throw new HttpError(422,$message);

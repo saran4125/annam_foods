@@ -21,10 +21,14 @@ final class Workflow {
     private static function json(array $data): void {header('Content-Type: application/json');echo json_encode($data,JSON_THROW_ON_ERROR);}
     public function publicRoute(string $path,string $method): bool {
         $checkout=new Checkout($this->store);
+        if($path==='/checkout/delivery/'){
+            if($method!=='GET')throw new HttpError(405,'GET required.');
+            header('Cache-Control: no-store');self::json($checkout->delivery(trim((string)($_GET['pincode']??'')),empty($_GET['zone_id'])?null:(int)$_GET['zone_id'],(string)($_GET['country']??'India')));return true;
+        }
         if($path==='/checkout/'){
             $form_error='';
             if($method==='POST'){try{$review=$checkout->review($_POST);$this->view('checkout-review',$review);return true;}catch(HttpError $error){if($error->status!==422)throw $error;$form_error=$error->getMessage();http_response_code(422);}}
-            $quote=Cart::quote($this->store);if(!$quote['lines'])redirect('/cart/');$choices=$checkout->choices();$areas=$this->store->db->rows('SELECT id,area_name,pincode FROM delivery_deliveryzone WHERE tenant_id=? AND active ORDER BY area_name',[$this->store->id()]);$this->view('checkout',compact('quote','choices','areas','form_error'));return true;
+            $quote=Cart::quote($this->store);if(!$quote['lines'])redirect('/cart/');$choices=$checkout->choices();$pin=(string)($_POST['pincode']??($_SESSION['cart']['pincode']??''));$chosen=($pin===($_SESSION['cart']['pincode']??null)?($_SESSION['cart']['zone_id']??null):null);if(array_key_exists('zone_id',$_POST))$chosen=$_POST['zone_id'];$deliveryState=$checkout->delivery($pin,$chosen?(int)$chosen:null,(string)($_POST['country']??'India'));$this->view('checkout',compact('quote','choices','deliveryState','form_error'));return true;
         }
         if($path==='/checkout/place/'&&$method==='POST'){$reference=(string)($_POST['reference']??'');$placed=$checkout->place($reference);if($placed['payment_mode']==='online'&&!in_array($placed['payment_status'],['paid','refunded'],true)){try{(new Payments($this->store))->start((int)$placed['id']);}catch(HttpError|ProviderError $error){$_SESSION['notice']='Payment setup is pending. Retry from this order; do not place another order.';}}redirect('/checkout/complete/'.$reference.'/');}
         if(preg_match('~^/checkout/complete/([a-f0-9-]{32,36})/(updates/|bill/download/|summary/download/|test-receipt/download/|pay/|payment/|verify/|status/|bill/|courier-pay/|courier-verify/|courier-payment/)?$~',$path,$match)){

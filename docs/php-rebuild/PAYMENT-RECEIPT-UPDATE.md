@@ -1,3 +1,21 @@
+# Checkout areas sharing a pincode — 23 November 2026
+
+One matching delivery area is automatic. When a pincode covers multiple active
+areas serving the cart's meals, checkout asks the customer to choose and shows
+each charge. The chosen fee and estimated total update automatically. Changing
+the pincode clears the previous area. Final review validates the selection and
+prices again on the server, including with JavaScript disabled.
+
+In Delivery areas, create each area as a separate entry with the same pincode
+and its own name, charge, minimum and supported meals. No schema migration or
+replacement database is required. Preserve database, configuration and media
+when merging this Hostinger code update.
+
+75 PHP checks and 546 reference tests passed, plus desktop/mobile and no-JS
+browser acceptance of the two different fees and final review totals.
+
+---
+
 # Persistent stock update — 23 November 2026
 
 The latest saved product stock value is preserved when editing other product
