@@ -442,6 +442,11 @@ try {
     test('shop products use Shop and invalid or foreign meal assignments are rejected',function()use($store,$resources,$otherItem){
         $catalog=new Annam\Catalog($store);$id=$resources->save('dishes',null,['name'=>'Shop starter item','price'=>'90','fulfilment'=>'courier','active'=>1,'in_stock'=>1]);$catalog->assign($id,[]);$item=$store->item($id);$category=$resources->get('categories',(int)$item['category_id']);check($category['slug']==='shop'&&$catalog->meals($item)===[],'Shop defaults incorrect');expectError(fn()=>$catalog->assign($otherItem,['breakfast']),404);expectError(fn()=>$catalog->assign($id,[['lunch']]),422);
     });
+    test('main receipt presentation keeps exact decimals and deduplicated snapshot addresses',function(){
+        $invoice=['seller'=>['name'=>'Frozen seller','logo_url'=>'','gst_mode'=>'unregistered'],'buyer'=>['delivery_address'=>['line1'=>'Test street','line2'=>'TEST STREET','city'=>'Chennai','state'=>'Tamil Nadu','pincode'=>'600004','country'=>'India']],'lines'=>[['description'=>'Frozen dish','quantity'=>8,'unit_price'=>'15','taxable'=>'120','tax'=>'0','discount'=>'0']],'payment_mode'=>'manual','kind'=>'bill'];$before=$invoice;
+        $bill=Annam\ReceiptPresentation::details($invoice,['payment_received'=>true,'payment_refunded'=>false,'settlement_reference'=>'fixture','amount_due'=>'0.00']);
+        check($bill['lines'][0]['unit_price']==='15.00'&&$bill['lines'][0]['amount']==='120.00','Receipt decimals differ from main');check($bill['address_lines']===['Test street','Chennai, Tamil Nadu, 600004'],'Receipt address differs from main');check($bill['payment_label']==='Manual payment'&&$invoice===$before,'Presentation changed frozen values');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

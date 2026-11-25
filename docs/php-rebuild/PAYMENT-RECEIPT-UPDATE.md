@@ -1,3 +1,29 @@
+# Exact main-branch receipt layout — 25 November 2026
+
+Copied `static/css/receipt.css` unchanged from Python main commit
+`87239dd44df9d3b64c50e22895e376b8c164fcdf`, and translated
+`templates/billing/_invoice_body.html` directly into PHP. The presentation
+adapter preserves frozen invoice values and matches Python address, payment,
+discount, tax, delivery-note and two-decimal amount formatting.
+
+Normal browser Download PDF links now export the authorized invoice's actual
+DOM using the copied print rules. Print / Save PDF uses the browser's print
+renderer. The browser download is an image-based A4 PDF; print retains text.
+The existing authenticated server PDF remains the no-JavaScript/error fallback
+and uses its separate TCPDF renderer. No order, payment, numbering or invoice
+snapshot data is rewritten by this presentation update.
+
+Validated identical receipt pixels against the main Django template at 900px,
+390px and A4 print widths, plus an authenticated one-page PDF download. Full
+PostgreSQL reference suite: 546 passed. PHP behavioral checks: 88 passed.
+
+The export dependency is locally bundled html2pdf.js 0.14.0 (MIT), from the
+npm package of that exact version; license is retained in
+`php-app/resources/vendor/html2pdf/LICENSE`. No invoice is sent to an external
+PDF service.
+
+---
+
 # Four-category item library — 25 November 2026
 
 Categories starts with Breakfast, Lunch, Dinner and Shop, with custom categories

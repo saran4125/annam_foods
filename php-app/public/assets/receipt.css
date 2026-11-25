@@ -62,5 +62,3 @@
  .af-receipt-legal{margin-top:6px;padding-top:6px}
  .bill-actions{display:none!important}
 }
-.af-receipt-unpaid{background:#fff1d6;color:#855600}.af-receipt-refunded{background:#eeeaf4;color:#62516c}.bill-actions{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin:20px auto 32px;padding:0 16px}.bill-actions a,.bill-actions button{font:600 14px Arial,sans-serif;display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border:1px solid #d9cdbf;border-radius:10px;background:#fff;color:#241c17;text-decoration:none;cursor:pointer}.bill-actions button{background:#ff8507;border-color:#ff8507}@media print{.bill-actions{display:none!important}}
-.af-receipt-due{margin:10px 0!important;text-align:center;color:#855600}
