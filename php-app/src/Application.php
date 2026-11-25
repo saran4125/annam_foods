@@ -101,7 +101,7 @@ final class Application {
                 $category = $this->db->one('SELECT * FROM catalog_menucategory WHERE tenant_id=? AND slug=? AND active', [$this->store->id(), $match[1]]) ?? throw new HttpError(404, 'Category not found.');
             }
             $query = trim((string)($_GET['q'] ?? ''));
-            $result=$this->store->pageItems('courier',$query,$category?(int)$category['id']:null,(int)($_GET['page']??1),36,['active'=>true,'in_stock'=>true],'',(string)($_GET['sort']??'featured'));$products=$result['records'];$total=$result['total'];$page=$result['page'];$this->render('shop',compact('products','category','query','total','page')); return;
+            $result=$this->store->pageItems('courier',$query,$category&&$category['slug']!=='shop'?(int)$category['id']:null,(int)($_GET['page']??1),36,['active'=>true,'in_stock'=>true],'',(string)($_GET['sort']??'featured'));$products=$result['records'];$total=$result['total'];$page=$result['page'];$this->render('shop',compact('products','category','query','total','page')); return;
         }
         if (preg_match('~^/item/(\d+)/$~', $path, $match)) {
             $item = $this->store->item((int)$match[1]);
@@ -140,7 +140,7 @@ final class Application {
             $this->render('dashboard', compact('items', 'date', 'menus'), true); return;
         }
         if ($path === '/manage/dishes/menu/') {
-            $slots = $this->store->slots();
+            $slots = array_values(array_filter($this->store->slots(),fn($mealSlot)=>isset(Catalog::MEALS[$mealSlot['key']])));
             $date = Store::date((string)($_POST['date'] ?? $_GET['date'] ?? date('Y-m-d')));
             $slotId = (int)($_POST['slot_id'] ?? $_GET['slot_id'] ?? ($slots[0]['id'] ?? 0));
             $slot = $this->store->slot($slotId);
@@ -151,7 +151,7 @@ final class Application {
             }
             $entries = $this->store->menu($date, $slotId, true);
             $selected = array_column(array_filter($entries, fn($i) => $i['available'] && ($i['in_stock'] ?? true)), 'id');
-            $items = $this->store->items('scheduled'); $revision = $this->store->menuRevision($date, $slotId);
+            $items = array_values(array_filter($this->store->items('scheduled'),fn($item)=>in_array($slot['key'],(new Catalog($this->store))->meals($item),true)||in_array($item['id'],$selected))); $revision = $this->store->menuRevision($date, $slotId);
             $this->render('daily-menu', compact('date', 'slots', 'slot', 'slotId', 'selected', 'items', 'revision'), true); return;
         }
         if ($path === '/manage/settings/') {
@@ -173,7 +173,7 @@ final class Application {
             $record = $id ? $resources->get($key, $id) : ['active' => true, 'is_veg' => true, 'sort' => 0, 'price' => '0', 'delivery_fee' => '0', 'min_order' => '0', 'fulfilment' => $_GET['kind'] ?? 'scheduled'];
             $form_error='';
             if ($method === 'POST') {
-                try{$resources->save($key, $id, $_POST, $_FILES); $_SESSION['notice'] = 'Saved successfully.'; redirect('/manage/' . $key . '/');}
+                try{$resources->save($key, $id, $_POST, $_FILES); $_SESSION['notice'] = 'Saved successfully.'; redirect('/manage/' . $key . '/'.($key==='categories'?'?category_view=custom':''));}
                 catch(HttpError|\InvalidArgumentException $error){if($error instanceof HttpError&&$error->status!==422)throw $error;$form_error=$error->getMessage();http_response_code(422);$record=array_replace($record,$_POST);}
             }
             $this->render('resource-edit', compact('key', 'spec', 'id', 'record','form_error'), true); return;

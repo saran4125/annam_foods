@@ -72,7 +72,9 @@ final class Store {
             else{$where.=' AND i.'.$field.'=?';$params[]=(bool)$filters[$field];}
         }
         if($meal){
-            if($meal==='unassigned'){
+            if(isset(Catalog::MEALS[$meal])){$where.=' AND '.Catalog::condition($meal);}
+            elseif($meal==='unassigned'){
+                $where.=' AND NOT ('.implode(' OR ',array_map(fn($key)=>Catalog::condition($key),array_keys(Catalog::MEALS))).')';
                 $where.=" AND NOT EXISTS(SELECT 1 FROM catalog_menuschedule m WHERE m.tenant_id=i.tenant_id AND m.item_id=i.id) AND NOT EXISTS(SELECT 1 FROM catalog_menucategory c JOIN catalog_slot s ON s.key=c.slug AND s.tenant_id=c.tenant_id WHERE c.id=i.category_id AND c.tenant_id=i.tenant_id)";
             }else{
                 $where.=" AND (EXISTS(SELECT 1 FROM catalog_menuschedule m JOIN catalog_slot s ON s.id=m.slot_id AND s.tenant_id=m.tenant_id WHERE m.tenant_id=i.tenant_id AND m.item_id=i.id AND s.key=?) OR EXISTS(SELECT 1 FROM catalog_menucategory c WHERE c.id=i.category_id AND c.tenant_id=i.tenant_id AND c.slug=?))";

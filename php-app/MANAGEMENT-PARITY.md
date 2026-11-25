@@ -1,3 +1,32 @@
+## Four starting categories and one shared dish
+
+A new catalog starts with Breakfast, Lunch, Dinner and Shop. Existing installs
+receive only missing defaults once, without deleting imported or custom
+categories. Clients can add more categories and use existing category deletion.
+Main categories opens with the four defaults, including empty ones. Custom
+categories keeps additional/imported categories accessible; All categories
+shows both. New custom categories return to the Custom categories tab.
+
+Use Categories as the full item library. Open Breakfast/Lunch/Dinner to add a
+meal dish, or Shop to add a shop product. On the item form select Meals or Shop
+products. For a meal, select any combination of Breakfast, Lunch and Dinner.
+The same item ID, price, photo and product details are reused across its meals;
+stock tracking still uses each meal/date as documented below. A custom category
+can organise items without restricting those meal assignments.
+
+Use Dishes & products for daily availability: choose Meals, the meal and date,
+then Choose dishes and save. Assignment alone never publishes a dish. Saved
+menus, historical orders, inventory quantities and legacy weekly schedules are
+preserved when the master assignment changes. Existing selected dated dishes
+remain visible so staff can review/remove them explicitly.
+
+Shop contains all shop products, including products organised in custom shop
+categories. New assignments use namespaced tags in the existing JSON tags
+column, preserve other tags, and require no replacement database. Existing items
+fall back to their current schedules/category until explicitly reviewed.
+
+---
+
 ## Optional quantity tracking
 
 Every existing and new dish/product starts with quantity tracking off. In

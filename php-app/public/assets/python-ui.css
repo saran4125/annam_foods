@@ -74,3 +74,5 @@
 .python-ui .php-shop-page>.tabs-scroll{margin-bottom:24px;padding:3px 0}
 .python-ui .php-shop-page>.shop-tools{margin-bottom:32px;row-gap:14px}
 @media(max-width:600px){.python-ui .php-shop-page>.tabs-scroll{margin-bottom:18px}.python-ui .php-shop-page>.shop-tools{margin-bottom:24px}}
+
+.o-body [data-meal-assignment] .o-check{margin:0}.o-body [data-meal-assignment] .o-btn-row{gap:10px}.o-body [data-meal-assignment][hidden]{display:none}

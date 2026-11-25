@@ -1,3 +1,26 @@
+# Four-category item library — 25 November 2026
+
+Categories starts with Breakfast, Lunch, Dinner and Shop, with custom categories
+still available under Custom categories. Main categories opens with the four
+defaults only. Missing defaults are added once; existing categories and data
+are kept. Categories shows the whole item library; Dishes & products manages
+meal/date availability and stock.
+
+Create a meal dish once and choose any combination of Breakfast, Lunch and
+Dinner. The same dish appears in those libraries and daily pickers. Shop opens
+the Shop products form. Master assignment does not publish a menu or rewrite
+saved schedules. Billing uses the same meal assignments. Existing stock,
+photos, product tags, orders and bill snapshots are preserved.
+
+Validation: 87 PHP checks on SQLite and PostgreSQL, 546 reference tests, and
+browser checks for the four defaults, a shared three-meal item, billing groups,
+independent Breakfast/Lunch daily selections and desktop/mobile forms.
+
+Merge code while keeping the existing database, configuration and media.
+See MANAGEMENT-PARITY.md for the client workflow.
+
+---
+
 # Shop control spacing — 25 November 2026
 
 Category tabs now have a 24px gap above the search/sort controls, with 32px

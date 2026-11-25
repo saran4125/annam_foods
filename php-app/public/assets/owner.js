@@ -110,3 +110,6 @@
 })();
 
 (()=>{const form=document.querySelector('[data-quantity-editor]');if(!form)return;const toggle=form.querySelector('[data-quantity-toggle]'),fields=form.querySelector('[data-quantity-fields]');const update=()=>{fields.hidden=!toggle.checked;};toggle.addEventListener('change',update);update();})();
+
+// Master meal membership does not turn on daily availability.
+(()=>{const type=document.querySelector('select[name="fulfilment"]'),meals=document.querySelector('[data-meal-assignment]');if(!type||!meals)return;const refresh=()=>{meals.hidden=type.value==='courier';};type.addEventListener('change',refresh);refresh();})();

@@ -425,6 +425,23 @@ try {
             $_SESSION=['checkout_browser'=>bin2hex(random_bytes(16))];check($checkout->recentOrder()===null,'Other browser saw recent order');expectError(fn()=>$checkout->guest($last),404);
         }finally{$_SESSION=$session;$_COOKIE=$cookies;}
     });
+    test('four starter categories are created once and permit custom categories',function()use($store,$resources){
+        $catalog=new Annam\Catalog($store);$catalog->defaults();$before=$store->db->rows('SELECT id,slug FROM catalog_menucategory WHERE tenant_id=? ORDER BY id',[$store->id()]);$catalog->defaults();check($before===$store->db->rows('SELECT id,slug FROM catalog_menucategory WHERE tenant_id=? ORDER BY id',[$store->id()]),'Defaults duplicated');
+        foreach(Annam\Catalog::DEFAULTS as $key=>$name)check($store->db->one('SELECT id FROM catalog_menucategory WHERE tenant_id=? AND slug=?',[$store->id(),$key])!==null,'Default category missing');
+        $custom=$resources->save('categories',null,['name'=>'Extra category','slug'=>'extra-category','active'=>1]);check($resources->get('categories',$custom)['name']==='Extra category','Custom categories blocked');
+    });
+    test('one dish belongs to all three meal libraries without publishing a daily menu',function()use($store,$resources){
+        $catalog=new Annam\Catalog($store);$catalog->defaults();$id=$resources->save('dishes',null,['name'=>'Shared meal library dish','price'=>'90','fulfilment'=>'scheduled','active'=>1,'in_stock'=>1]);$catalog->assign($id,['breakfast','lunch','dinner']);
+        check($catalog->meals($store->item($id))===['breakfast','lunch','dinner'],'Multi-meal assignment lost');
+        foreach(Annam\Catalog::MEALS as $key=>$label){check($store->pageItems('scheduled','Shared meal library dish',null,1,10,[],$key)['total']===1,'Dish missing in meal library');$slot=$store->db->one('SELECT id FROM catalog_slot WHERE tenant_id=? AND key=?',[$store->id(),$key]);check(!in_array($id,array_column($store->menu(date('Y-m-d',strtotime('+2 days')),(int)$slot['id']),'id')),'Catalog assignment published dish');}
+        check(!$store->db->one('SELECT id FROM catalog_menuschedule WHERE tenant_id=? AND item_id=?',[$store->id(),$id]),'Assignment rewrote schedules');
+    });
+    test('meal library changes preserve saved menus stock and other item tags',function()use($store,$resources,$slot){
+        $catalog=new Annam\Catalog($store);$id=$resources->save('dishes',null,['name'=>'Keep daily selection','price'=>'90','fulfilment'=>'scheduled','active'=>1,'in_stock'=>1,'featured'=>1]);$catalog->assign($id,['lunch','dinner']);$date=date('Y-m-d',strtotime('+3 days'));$store->saveMenu($date,$slot,[$id],$store->menuRevision($date,$slot));$before=$store->db->rows('SELECT * FROM catalog_menuschedule WHERE tenant_id=? AND item_id=?',[$store->id(),$id]);$catalog->assign($id,['breakfast']);check($before===$store->db->rows('SELECT * FROM catalog_menuschedule WHERE tenant_id=? AND item_id=?',[$store->id(),$id]),'Saved menus changed');check(in_array('featured',json_decode($store->item($id)['tags'],true),true),'Other tags lost');check($store->pageItems('scheduled','Keep daily selection',null,1,10,[],'lunch')['total']===0,'Old dated schedule overrode explicit library membership');
+    });
+    test('shop products use Shop and invalid or foreign meal assignments are rejected',function()use($store,$resources,$otherItem){
+        $catalog=new Annam\Catalog($store);$id=$resources->save('dishes',null,['name'=>'Shop starter item','price'=>'90','fulfilment'=>'courier','active'=>1,'in_stock'=>1]);$catalog->assign($id,[]);$item=$store->item($id);$category=$resources->get('categories',(int)$item['category_id']);check($category['slug']==='shop'&&$catalog->meals($item)===[],'Shop defaults incorrect');expectError(fn()=>$catalog->assign($otherItem,['breakfast']),404);expectError(fn()=>$catalog->assign($id,[['lunch']]),422);
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }
