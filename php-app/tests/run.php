@@ -400,6 +400,19 @@ try {
     test('inventory settings cannot edit another store and do not rewrite past meal stock',function()use($store,$resources,$otherItem,$otherSlot,$slot){
         $inv=new Annam\Inventory($store);expectError(fn()=>$inv->configure($otherItem,null,null,true,5,'set',0),404);$id=$resources->save('dishes',null,['name'=>'Inventory scope','fulfilment'=>'scheduled','price'=>'100','active'=>1,'in_stock'=>1]);expectError(fn()=>$inv->configure($id,date('Y-m-d'),$otherSlot,true,5,'set',0),404);expectError(fn()=>$inv->configure($id,date('Y-m-d',strtotime('-1 day')),$slot,true,5,'set',0),422);
     });
+    test('category deletion preserves products stock and child categories and rejects another store',function()use($store,$resources,$other){
+        $parent=$resources->save('categories',null,['name'=>'Delete fixture','slug'=>'delete-fixture','active'=>1]);
+        $child=$resources->save('categories',null,['name'=>'Kept child','slug'=>'kept-child','active'=>1]);
+        $store->db->rows('UPDATE catalog_menucategory SET parent_id=? WHERE tenant_id=? AND id=?',[$parent,$store->id(),$child]);
+        $item=$resources->save('dishes',null,['name'=>'Kept product','fulfilment'=>'courier','price'=>'125','category_id'=>$parent,'active'=>1,'in_stock'=>1]);
+        $inv=new Annam\Inventory($store);$inv->configure($item,null,null,true,9,'set',0);
+        $foreign=insert($store->db,'catalog_menucategory',['tenant_id'=>$other,'name'=>'Foreign category','slug'=>'foreign-delete','description'=>'','image'=>'','sort'=>0,'active'=>true,'parent_id'=>null]);
+        expectError(fn()=>$resources->deleteCategory($foreign),404);
+        $resources->deleteCategory($parent);expectError(fn()=>$resources->get('categories',$parent),404);
+        $saved=$store->item($item);check($saved['category_id']===null&&$saved['in_stock']&&$saved['stock_quantity']===9,'Product or stock lost');
+        check($resources->get('categories',$child)['parent_id']===null,'Child category lost');
+        check($store->db->one('SELECT id FROM catalog_menucategory WHERE tenant_id=? AND id=?',[$other,$foreign])!==null,'Foreign category changed');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

@@ -17,6 +17,16 @@ final class ParityRoutes {
             elseif(($_POST['action']??'')==='paid'){if(empty($_POST['received']))throw new HttpError(422,'Confirm courier payment was received.');$service->confirm((int)$m[1],(string)($_POST['reference']??''),$actor);}else throw new HttpError(422,'Choose a valid courier action.');redirect('/manage/orders/'.$m[1].'/');
         }
         if($path==='/manage/courier-notices/release/'){Settings::owner($this->user);if($method!=='POST')throw new HttpError(405,'POST required.');if(($_POST['confirmed']??'')!=='yes')throw new HttpError(422,'Confirm that the customer and team templates have been approved.');$count=(new Courier($this->store))->release();$_SESSION['notice']=$count.' courier notices queued.';redirect('/manage/checkout-settings/');}
+        if(preg_match('~^/manage/categories/(\d+)/delete/$~',$path,$m)){
+            $resources=new Resources($this->store);$category=$resources->get('categories',(int)$m[1]);
+            if($method==='POST'){
+                if(($_POST['confirmed']??'')!=='yes')throw new HttpError(422,'Confirm category deletion.');
+                $resources->deleteCategory((int)$category['id']);$_SESSION['notice']='Category deleted. Its dishes, products and subcategories were kept.';redirect('/manage/categories/?category_view=all');
+            }
+            $itemCount=(int)$this->store->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem WHERE tenant_id=? AND category_id=?',[$this->store->id(),$category['id']])['n'];
+            $childCount=(int)$this->store->db->one('SELECT COUNT(*) AS n FROM catalog_menucategory WHERE tenant_id=? AND parent_id=?',[$this->store->id(),$category['id']])['n'];
+            $this->view('category-delete',compact('category','itemCount','childCount'));return true;
+        }
         if($path==='/manage/categories/'){
             $categories=$this->categories();$scope=$_GET['category_view']??'populated';$query=trim((string)($_GET['q']??''));$records=array_values(array_filter($categories,fn($c)=>($scope==='all'||($scope==='empty'?$c['total']===0:$c['total']>0))&&(!$query||mb_stripos($c['name'],$query)!==false)));$this->view('categories',compact('records','categories','scope','query'));return true;
         }

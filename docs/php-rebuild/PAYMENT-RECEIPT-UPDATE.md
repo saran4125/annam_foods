@@ -1,3 +1,13 @@
+# Category deletion — 25 November 2026
+
+Categories now show a Delete icon beside Edit. The confirmation screen explains
+that products are kept without a category and child categories become separate
+categories. Cancel keeps everything unchanged. Only a confirmed, CSRF-protected
+POST deletes the category; all updates are scoped to the signed-in store.
+Products, inventory balances, saved daily menus and order/bill snapshots remain.
+
+---
+
 # Simpler dish and shop forms — 25 November 2026
 
 Removed Verified pack size and Internal review notes from meal and shop

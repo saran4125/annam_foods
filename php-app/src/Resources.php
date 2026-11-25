@@ -100,6 +100,14 @@ final class Resources {
         $field = $key === 'pages' ? 'published' : 'active';
         $this->store->db->rows('UPDATE ' . $spec['table'] . ' SET ' . $field . '=NOT ' . $field . ' WHERE tenant_id=? AND id=?', [$this->store->id(), $id]);
     }
+    public function deleteCategory(int $id):void {
+        $this->store->db->transaction(function()use($id){
+            $this->store->lock();$this->get('categories',$id);
+            $this->store->db->rows('UPDATE catalog_menuitem SET category_id=NULL WHERE tenant_id=? AND category_id=?',[$this->store->id(),$id]);
+            $this->store->db->rows('UPDATE catalog_menucategory SET parent_id=NULL WHERE tenant_id=? AND parent_id=?',[$this->store->id(),$id]);
+            $this->store->db->rows('DELETE FROM catalog_menucategory WHERE tenant_id=? AND id=?',[$this->store->id(),$id]);
+        });
+    }
     public function removeFromSale(string $key, int $id): void {
         $spec = self::definition($key); $this->get($key, $id);
         $field = $key === 'pages' ? 'published' : 'active';
