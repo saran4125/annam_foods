@@ -1,3 +1,21 @@
+# Confirmation page parity refinements — 25 November 2026
+
+Confirmation now uses Awaiting payment for pending orders, the reference
+1.55:1 columns and spacing, compact payment copy and paired View/Download
+actions. Checkout navigation matches Home / Daily menu / Shop; About us remains
+available on the other storefront pages. Custom payment instructions appear
+once. Payment-awaiting prompts disappear when live receipt updates report paid,
+refunded or cancelled state.
+
+Unissued orders have View order summary and an orange Download order summary
+PDF action. The preview is an inline PDF with the same browser ownership checks
+as the download. When an invoice is issued, polling swaps the summary actions
+for View invoice / Download invoice PDF. No invoice is allocated by viewing.
+Desktop/mobile checks cover both action states, payment updates, column widths,
+summary PDF preview and denial from another browser.
+
+---
+
 # Branded recovery pages — 25 November 2026
 
 Session-expired and other error pages now use the website logo, warm cream
