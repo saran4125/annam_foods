@@ -413,6 +413,18 @@ try {
         check($resources->get('categories',$child)['parent_id']===null,'Child category lost');
         check($store->db->one('SELECT id FROM catalog_menucategory WHERE tenant_id=? AND id=?',[$other,$foreign])!==null,'Foreign category changed');
     });
+    test('recent cart order shows the latest owned order and never another browser',function()use($store,$resources){
+        $session=$_SESSION;$cookies=$_COOKIE;try{
+            $_COOKIE=[];$_SESSION=['checkout_browser'=>bin2hex(random_bytes(16))];$key=$_SESSION['checkout_browser'];$checkout=new Annam\Checkout($store);$orders=new Annam\Orders($store);
+            $item=$resources->save('dishes',null,['name'=>'Recent order product','price'=>'120','fulfilment'=>'courier','active'=>1,'in_stock'=>1]);
+            $quote=Annam\Pricing::totals([Annam\Pricing::line($store->item($item),1)],0,$store->profile())+['kind'=>'courier','zone'=>[]];$details=['name'=>'Recent customer','phone'=>'9876543219','payment_method'=>'manual','line1'=>'Test street','city'=>'Chennai','pincode'=>'600005'];
+            check($checkout->recentOrder()===null,'New browser saw an order');
+            $first=bin2hex(random_bytes(16));$orders->create($quote,$details,'web:'.$key.':'.$first);$last=bin2hex(random_bytes(16));$order=$orders->create($quote,$details,'web:'.$key.':'.$last);
+            $orders->create($quote,$details,'web:'.bin2hex(random_bytes(16)).':'.bin2hex(random_bytes(16)));
+            $recent=$checkout->recentOrder();check($recent['reference']===$last&&$recent['order']['id']===$order['id'],'Latest owned order was not shown');
+            $_SESSION=['checkout_browser'=>bin2hex(random_bytes(16))];check($checkout->recentOrder()===null,'Other browser saw recent order');expectError(fn()=>$checkout->guest($last),404);
+        }finally{$_SESSION=$session;$_COOKIE=$cookies;}
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

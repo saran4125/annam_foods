@@ -1,3 +1,18 @@
+# Recent order in the empty cart — 25 November 2026
+
+The PHP empty cart shows Your recent order with its order number, order and
+payment status, items, total and receipt link, matching the Python storefront.
+The lookup supports both signed PHP guest identity and a verified migrated
+Django browser session, scoped to the current store. Other browsers cannot
+view the order. The signed guest cookie also restores access after PHP session
+expiry; no customer login is required.
+
+Orders from the separate Python deployment do not automatically transfer to
+PHP. The order must exist in this site's database and belong to the current
+browser. Erasing temporary preview storage also removes its order history.
+
+---
+
 # Downloaded PDF receipt design — 25 November 2026
 
 Server-generated invoice and order-summary PDFs now share the receipt design

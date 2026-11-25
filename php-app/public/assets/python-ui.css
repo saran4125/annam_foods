@@ -63,3 +63,9 @@
 @media(max-width:600px){.python-ui .php-cart-page{padding-top:28px}.python-ui .php-cart-page .dish-title{flex-wrap:wrap}.python-ui .php-cart-page .line-meal{display:none}}
 
 [data-quantity-fields][hidden]{display:none}.o-check small{display:block;font-weight:400;color:var(--ink-3)}
+
+/* Empty-cart order recovery follows the Python storefront. */
+.python-ui .recent-order{margin:24px 0 0;max-width:100%;overflow-wrap:anywhere}
+.python-ui .recent-order h2{margin:0 0 18px;font-size:clamp(24px,3vw,30px)}
+.python-ui .recent-order p{line-height:1.7}
+.python-ui .recent-order .btn{margin-top:8px}

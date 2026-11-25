@@ -92,10 +92,16 @@ final class Checkout {
         return $key;
     }
     public function recent(): ?string {
-        $browser=$this->browser(false);if(!$browser)return null;
-        $row=$this->store->db->one('SELECT external_ref FROM orders_order WHERE tenant_id=? AND external_ref LIKE ? ORDER BY placed_at DESC,id DESC LIMIT 1',[$this->store->id(),'web:'.$browser.':%']);
-        if(!$row)return null;$reference=substr($row['external_ref'],strrpos($row['external_ref'],':')+1);
-        return preg_match('/^[a-f0-9]{32}$/D',$reference)?$reference:null;
+        $keys=array_values(array_unique(array_filter([$this->browser(false),LegacySession::browser($this->store->id())],fn($key)=>is_string($key)&&preg_match('/^[a-f0-9]{32}$/D',$key))));
+        if(!$keys)return null;
+        $conditions=implode(' OR ',array_fill(0,count($keys),'external_ref LIKE ?'));
+        $rows=$this->store->db->rows('SELECT external_ref FROM orders_order WHERE tenant_id=? AND ('.$conditions.') ORDER BY placed_at DESC,id DESC LIMIT 10',[$this->store->id(),...array_map(fn($key)=>'web:'.$key.':%',$keys)]);
+        foreach($rows as $row){$reference=substr($row['external_ref'],strrpos($row['external_ref'],':')+1);if(preg_match('/^[a-f0-9]{32}$/D',$reference))return $reference;}
+        return null;
+    }
+    public function recentOrder():?array {
+        $reference=$this->recent();if(!$reference)return null;
+        try{return ['reference'=>$reference,'order'=>$this->guest($reference)];}catch(HttpError $error){if($error->status!==404)throw $error;return null;}
     }
     public function guest(string $reference): array {
         $ref=str_replace('-','',$reference);if(!preg_match('/^[a-f0-9]{32}$/D',$ref))throw new HttpError(404,'Order not found.');
