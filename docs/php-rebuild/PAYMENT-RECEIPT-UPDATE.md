@@ -1,3 +1,12 @@
+# Shop control spacing — 25 November 2026
+
+Category tabs now have a 24px gap above the search/sort controls, with 32px
+between those controls and the product grid. Mobile uses 18px and 24px gaps.
+The change is scoped to shop/category pages; category scrolling, searching,
+sorting and product ordering remain unchanged.
+
+---
+
 # Confirmation page parity refinements — 25 November 2026
 
 Confirmation now uses Awaiting payment for pending orders, the reference

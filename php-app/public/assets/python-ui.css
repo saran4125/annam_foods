@@ -69,3 +69,8 @@
 .python-ui .recent-order h2{margin:0 0 18px;font-size:clamp(24px,3vw,30px)}
 .python-ui .recent-order p{line-height:1.7}
 .python-ui .recent-order .btn{margin-top:8px}
+
+/* Separate shop category pills, search controls and the product shelf. */
+.python-ui .php-shop-page>.tabs-scroll{margin-bottom:24px;padding:3px 0}
+.python-ui .php-shop-page>.shop-tools{margin-bottom:32px;row-gap:14px}
+@media(max-width:600px){.python-ui .php-shop-page>.tabs-scroll{margin-bottom:18px}.python-ui .php-shop-page>.shop-tools{margin-bottom:24px}}
