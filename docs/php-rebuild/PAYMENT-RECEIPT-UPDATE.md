@@ -1,3 +1,11 @@
+# Simpler dish and shop forms — 25 November 2026
+
+Removed Verified pack size and Internal review notes from meal and shop
+add/edit forms. Existing stored values are preserved when saving other details.
+This is a code update; keep the existing database, configuration and media.
+
+---
+
 # Compact form toggles — 25 November 2026
 
 Switch, label and On/Off state now stay together in a compact control across
