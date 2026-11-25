@@ -17,7 +17,14 @@ final class Application {
         }
     }
     private static function error(string $message): void {
-        echo '<!doctype html><meta charset="utf-8"><title>Annam Foods</title><main style="font:18px system-ui;max-width:640px;margin:80px auto;padding:24px"><h1>Annam Foods</h1><p>' . e($message) . '</p><p><a href="javascript:history.back()">Go back</a> · <a href="/">Home</a></p></main>';
+        $status=http_response_code()?:500;$expired=str_contains(strtolower($message),'session expired');
+        $path=parse_url($_SERVER['REQUEST_URI']??'/',PHP_URL_PATH)?:'/';
+        $management=str_starts_with($path,'/manage/');$billing=str_starts_with($path,'/billing/');
+        $recovery=$management?'/manage/login/':($billing?'/billing/login/':(str_starts_with($path,'/checkout')?'/checkout/':'/'));
+        $logo=ANNAM_ROOT.'/resources/public-files/brand/annam-bill-logo.png';
+        $logoData=is_readable($logo)?'data:image/png;base64,'.base64_encode(file_get_contents($logo)):'';
+        header('Content-Type: text/html; charset=utf-8');header('Cache-Control: private, no-store');
+        require ANNAM_ROOT.'/views/error.php';
     }
     private function handle(): void {
         if(Installation::pending()){Installation::handle();return;}

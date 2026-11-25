@@ -1,3 +1,18 @@
+# Branded recovery pages — 25 November 2026
+
+Session-expired and other error pages now use the website logo, warm cream
+background, display typography, rounded card and orange primary action. Checkout
+session errors offer Return to checkout and View cart via safe GET links, with
+a reminder to check an existing recent order before placing another one.
+Management/billing session errors return to their own login. Not-found pages
+link back to the menu. CSRF checks, status codes and escaped messages remain.
+
+The fallback does not depend on a working database: its logo is embedded from
+the bundled brand file. Desktop/mobile checks cover the 403 session response,
+404 response, loaded logo, recovery links and horizontal overflow.
+
+---
+
 # Three checkout pages matched to Python — 25 November 2026
 
 Delivery details now use the same field order, full-width street/locality,
