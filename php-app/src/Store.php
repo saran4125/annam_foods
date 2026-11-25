@@ -53,7 +53,7 @@ final class Store {
     public static function json(array $row, array $fields): array { foreach($fields as $f) $row[$f]=is_string($row[$f]??null)?json_decode($row[$f],true,512,JSON_THROW_ON_ERROR):($row[$f]??[]);return $row; }
     public static function uuid(): string { $hex=bin2hex(random_bytes(16));return substr($hex,0,8).'-'.substr($hex,8,4).'-4'.substr($hex,13,3).'-'.dechex((hexdec($hex[16])&3)|8).substr($hex,17,3).'-'.substr($hex,20); }
     public function name(): string { return $this->config['brand_name'] ?: $this->tenant['name']; }
-    public function slots(): array { return $this->db->rows('SELECT * FROM catalog_slot WHERE tenant_id=? AND active ORDER BY sort,key', [$this->id()]); }
+    public function slots(): array { return $this->db->rows('SELECT * FROM catalog_slot WHERE tenant_id=? AND active AND key NOT IN (\'snack\',\'snacks\') ORDER BY sort,key', [$this->id()]); }
     public function slot(int $id): array { return $this->db->one('SELECT * FROM catalog_slot WHERE tenant_id=? AND id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Meal not found.'); }
     public function items(string $kind = '', string $query = '', ?int $category = null): array {
         $sql = 'SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id WHERE i.tenant_id=?';

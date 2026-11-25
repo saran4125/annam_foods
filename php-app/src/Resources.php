@@ -32,13 +32,14 @@ final class Resources {
     public function list(string $key): array {
         $spec = self::definition($key);
         $order = match ($key) { 'zones' => 'pincode,area_name', 'slots' => 'sort,key', 'pages', 'banners' => 'sort,title', default => 'sort,name' };
-        return $this->store->db->rows('SELECT * FROM ' . $spec['table'] . ' WHERE tenant_id=? ORDER BY ' . $order, [$this->store->id()]);
+        return $this->store->db->rows('SELECT * FROM ' . $spec['table'] . ' WHERE tenant_id=?' . ($key==='slots'?" AND key NOT IN ('snack','snacks')":'') . ' ORDER BY ' . $order, [$this->store->id()]);
     }
     public function get(string $key, int $id): array {
         $spec = self::definition($key);
         return $this->store->db->one('SELECT * FROM ' . $spec['table'] . ' WHERE tenant_id=? AND id=?', [$this->store->id(), $id]) ?? throw new HttpError(404, 'Record not found.');
     }
     public function save(string $key, ?int $id, array $input, array $files = []): int {
+        if($key==='slots'&&in_array(strtolower(trim((string)($input['key']??''))),['snack','snacks'],true))throw new HttpError(422,'Snacks are shop products, not a meal time.');
         $spec = self::definition($key);
         $existing = $id ? $this->get($key, $id) : [];
         $values = [];

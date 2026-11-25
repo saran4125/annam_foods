@@ -1,3 +1,12 @@
+# Remove Snacks meal time — 25 November 2026
+
+Removed the legacy Snacks slot from meal-time management and active meal
+selectors, and removed Snacks from delivery-area meal checkboxes. New Snacks
+meal times are rejected. Existing slot rows remain for historical order and
+schedule references; shop snack products and historical invoices are unchanged.
+
+---
+
 # Clear catalog pagination — 25 November 2026
 
 Dishes & products and category item lists now show Page X of Y, an orange
