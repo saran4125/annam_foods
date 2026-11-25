@@ -1,3 +1,20 @@
+# Compact form toggles — 25 November 2026
+
+Switch, label and On/Off state now stay together in a compact control across
+management and billing forms. Long labels wrap within the available space;
+controls retain a minimum 46px height. Daily-menu dish cards keep their name
+and price columns. Checkbox submission and stored settings are unchanged.
+
+Upload the code-only Hostinger update while preserving the existing database,
+.env, installation.json and uploaded media. Asset URLs include content hashes,
+so browsers request the new CSS after upload. No live deployment is included.
+
+Checked 29 visible switches at both desktop and mobile widths across resource,
+store, checkout, payment, report and billing forms, including click behaviour
+and horizontal overflow. All 546 PostgreSQL reference tests passed.
+
+---
+
 # Optional quantity tracking — 23 November 2026
 
 Quantity tracking is off by default. Open the Quantity control for any dish or

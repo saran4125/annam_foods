@@ -415,3 +415,13 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 .o-day-dish strong{flex-shrink:0}
 .billing-ui .b-remove.o-choice-toggle{padding-top:0;align-self:center;min-height:44px}
 @media(max-width:600px){.o-check{padding:14px;gap:10px}.o-toggle-copy b{font-size:14px}.o-toggle-state{padding:3px 8px}.o-day-dish{flex-wrap:wrap}.o-day-dish>span:not(.o-switch-ui){flex-basis:calc(100% - 60px)}.o-day-dish strong{margin-left:54px}}
+
+/* Form switches stay beside their label instead of stretching across a card. */
+.o-body .o-check:not(.o-day-dish),.o-body .php-switch-row{display:flex;width:fit-content;max-width:min(100%,560px);min-height:46px;box-sizing:border-box;align-items:center;justify-self:start;align-self:start;gap:10px;padding:9px 12px}
+.o-body .o-check:not(.o-day-dish)>.o-toggle-copy{flex:0 1 auto}
+.o-body .o-check:not(.o-day-dish)>span:not(.o-switch-ui):not(.o-toggle-state),.o-body .o-check:not(.o-day-dish)>b,.o-body .php-switch-row>span{min-width:0;overflow-wrap:anywhere}
+.o-body .o-check:not(.o-day-dish) .o-toggle-state,.o-body .php-switch-row .php-switch-state{flex:0 0 auto;margin-left:0;white-space:nowrap}
+.o-body .o-check:not(:has(.o-toggle-state)):has(input[type=checkbox])::after{content:'Off';flex:0 0 auto;margin-left:0;padding:3px 8px;background:var(--rule);border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.o-body .o-check:not(:has(.o-toggle-state)):has(input:checked)::after{content:'On';background:#dff1e6;color:#16733a}
+/* Dish selectors remain grid cards so names and prices retain their columns. */
+.o-body .o-day-dish::after{margin-left:auto}
