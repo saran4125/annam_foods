@@ -37,6 +37,5 @@ $store->db->transaction(function()use($store,$resources){
    foreach($ids as $id)$store->db->rows("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'date',?,NULL,TRUE,NULL,0,NULL)",[$store->id(),$id,$slot['id'],$menu['date']]);
   }
  }
- if(!$store->db->one("SELECT id FROM catalog_slot WHERE tenant_id=? AND key='snacks'",[$store->id()]))$resources->save('slots',null,['key'=>'snacks','label'=>'Snacks','order_cutoff'=>'23:59:00','order_opens_at'=>'00:00:00','order_days_before'=>1,'delivery_from'=>'09:00:00','delivery_to'=>'21:00:00','sort'=>3,'active'=>1]);
 });
 unlink($marker);echo "Reviewed public catalog and dated breakfast/lunch/dinner menus seeded. No live orders or customer history copied.\n";

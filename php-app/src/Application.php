@@ -45,7 +45,7 @@ final class Application {
             $query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
             redirect($path . '/' . ($query ? '?' . $query : ''));
         }
-        if ($path === '/healthz') { $this->db->one('SELECT 1'); header('Content-Type: application/json'); echo '{"status":"ok","application":"annam-php"}'; return; }
+        if ($path === '/healthz') { $this->db->one('SELECT 1'); header('Content-Type: application/json'); $health=['status'=>'ok','application'=>'annam-php']; $revision=getenv('RENDER_GIT_COMMIT')?:''; if(preg_match('/^[a-f0-9]{40}$/D',$revision))$health['revision']=$revision; echo json_encode($health); return; }
         Inventory::ensure($this->db);
         $this->store = new Store($this->db);
         if($path==='/readyz'){$pulse=$this->db->one("SELECT updated_at>CURRENT_TIMESTAMP-INTERVAL '5 minutes' AS fresh FROM operations_workerpulse WHERE tenant_id=? AND name='php-cron'",[$this->store->id()]);$ok=is_writable(Media::root())&&(getenv('REQUIRE_CRON')!=='1'||($pulse['fresh']??false));http_response_code($ok?200:503);header('Content-Type: application/json');echo json_encode(['status'=>$ok?'ready':'not_ready']);return;}

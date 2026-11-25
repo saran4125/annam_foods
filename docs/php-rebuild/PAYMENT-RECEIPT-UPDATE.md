@@ -1,3 +1,13 @@
+# Fresh preview startup fix — 25 November 2026
+
+Removed the retired Snacks slot creation from the Render fresh-catalog seed.
+The previous deployment rejected that seed through the new meal-time validator
+before Apache could start. Existing databases are still preserved on startup. Health checks include the
+public Render commit SHA when available, so deployment success can be verified
+without confusing an older healthy deployment with the new release.
+
+---
+
 # Remove Snacks meal time — 25 November 2026
 
 Removed the legacy Snacks slot from meal-time management and active meal
