@@ -1,3 +1,18 @@
+# Downloaded PDF receipt design — 25 November 2026
+
+Server-generated invoice and order-summary PDFs now share the receipt design
+from the Python bill: rounded outer border, compact seller and customer details,
+subtle separators, item detail lines, a highlighted total and centred footer.
+The Download PDF action uses this design without requiring browser print.
+
+Unissued orders remain labelled Order summary / not a tax invoice. Issued bills
+use immutable invoice snapshots and the current paid, unpaid or refunded state;
+this layout change does not issue bills, allocate numbers or mark orders paid.
+Long orders continue onto framed pages. Simulated-payment receipts remain
+clearly marked TEST and do not become invoices.
+
+---
+
 # Category deletion — 25 November 2026
 
 Categories now show a Delete icon beside Edit. The confirmation screen explains
