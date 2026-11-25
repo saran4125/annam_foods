@@ -1,0 +1,2 @@
+<?php declare(strict_types=1); namespace Annam; ?>
+<ul class="checkout-lines"><?php foreach($checkoutLines as $line):?><li><div><strong><?= e($line['name']) ?></strong><?php if(!empty($line['meal_key'])&&$line['meal_key']!=='snacks'):?><small><?= e(ucfirst($line['meal_key'])) ?></small><?php endif;?><small><?= e($line['quantity']) ?> × <?= money((string)$line['unit_price']) ?></small></div><b><?= money((string)$line['line_total']) ?></b></li><?php endforeach;?></ul>

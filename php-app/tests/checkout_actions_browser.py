@@ -19,6 +19,6 @@ with sync_playwright() as p:
   for y in [0,500,10000]:
    page.evaluate('(y)=>scrollTo(0,y)',y);box=action.bounding_box();assert box and box['y']>=0 and box['y']+box['height']<=height
   for k,v in dict(name='ZIP browser test',phone='9876543210',line1='Test address',city='Chennai').items():page.locator('[name='+k+']').fill(v)
-  page.locator('[name=payment_method]').select_option('manual');action.click();page.get_by_role('button',name='Place TEST / manual order').click();page.wait_for_url('**/checkout/complete/**');assert page.locator('[data-payment-status]').is_visible();assert not errors,errors;c.close()
+  page.locator('[name=payment_method]').select_option('manual');action.click();page.get_by_role('button',name='Place order ·').click();page.wait_for_url('**/checkout/complete/**');assert page.locator('[data-payment-status]').is_visible();assert not errors,errors;c.close()
  browser.close()
 print('PASS ZIP desktop/mobile automatic pincode, invalid pin, manual retry without navigation, prefilled checkout, fixed actions and disposable order')

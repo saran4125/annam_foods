@@ -1,3 +1,20 @@
+# Three checkout pages matched to Python — 25 November 2026
+
+Delivery details now use the same field order, full-width street/locality,
+helper card and estimated-total panel as the reference. Review uses the same
+item lines, delivery-address section, final-total card and fixed Place order
+action. Edit delivery details restores this browser's unexpired review values.
+Order received shares the item/address layout and total card, with truthful
+payment state, existing receipt actions and a Contact the kitchen link.
+
+Shared delivery-area selection, server-side repricing, payment verification,
+invoice availability and recent-order ownership remain in effect. Unissued
+orders offer an order summary; the design does not mark pending orders paid.
+Desktop/mobile browser checks covered details, review, edit/back, place order,
+confirmation and recent-order access without horizontal overflow.
+
+---
+
 # Recent order in the empty cart — 25 November 2026
 
 The PHP empty cart shows Your recent order with its order number, order and
