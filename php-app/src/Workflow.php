@@ -21,6 +21,10 @@ final class Workflow {
     private static function json(array $data): void {header('Content-Type: application/json');echo json_encode($data,JSON_THROW_ON_ERROR);}
     public function publicRoute(string $path,string $method): bool {
         $checkout=new Checkout($this->store);
+        if($path==='/checkout/address/'){
+            if($method!=='GET')throw new HttpError(405,'GET required.');
+            header('Cache-Control: private, no-store');self::json(['address'=>$checkout->savedAddress(trim((string)($_GET['pincode']??'')),(string)($_GET['country']??'India'))]);return true;
+        }
         if($path==='/checkout/delivery/'){
             if($method!=='GET')throw new HttpError(405,'GET required.');
             header('Cache-Control: no-store');self::json($checkout->delivery(trim((string)($_GET['pincode']??'')),empty($_GET['zone_id'])?null:(int)$_GET['zone_id'],(string)($_GET['country']??'India')));return true;
@@ -29,6 +33,7 @@ final class Workflow {
             $form_error='';
             if($method==='POST'){try{$review=$checkout->review($_POST);$this->view('checkout-review',$review);return true;}catch(HttpError $error){if($error->status!==422)throw $error;$form_error=$error->getMessage();http_response_code(422);}}
             $form_values=$_POST;if($method==='GET'&&preg_match('/^[a-f0-9]{32}$/D',(string)($_GET['edit']??''))){$saved=$_SESSION['checkout_reviews'][$_GET['edit']]??null;if($saved&&$saved['expires']>time())$form_values=$saved['details'];}
+            if($method==='GET'&&!$form_values){$saved=$checkout->savedAddress((string)($_SESSION['cart']['pincode']??''));if($saved)$form_values=$saved;}
             $quote=Cart::quote($this->store);if(!$quote['lines'])redirect('/cart/');$choices=$checkout->choices();$pin=(string)($form_values['pincode']??($_SESSION['cart']['pincode']??''));$chosen=($pin===($_SESSION['cart']['pincode']??null)?($_SESSION['cart']['zone_id']??null):null);if(array_key_exists('zone_id',$form_values))$chosen=$form_values['zone_id'];$deliveryState=$checkout->delivery($pin,$chosen?(int)$chosen:null,(string)($form_values['country']??'India'));$this->view('checkout',compact('quote','choices','deliveryState','form_error','form_values'));return true;
         }
         if($path==='/checkout/place/'&&$method==='POST'){$reference=(string)($_POST['reference']??'');$placed=$checkout->place($reference);if($placed['payment_mode']==='online'&&!in_array($placed['payment_status'],['paid','refunded'],true)){try{(new Payments($this->store))->start((int)$placed['id']);}catch(HttpError|ProviderError $error){$_SESSION['notice']='Payment setup is pending. Retry from this order; do not place another order.';}}redirect('/checkout/complete/'.$reference.'/');}

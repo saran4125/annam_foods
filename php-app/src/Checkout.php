@@ -14,6 +14,16 @@ final class Checkout {
         $zoneId=$input['zone_id']??$savedArea; $result['zone_id']=empty($zoneId)?null:(int)$zoneId;$result['payment_method']=(string)($input['payment_method']??'online');
         if(!isset($this->choices()[$result['payment_method']]))throw new HttpError(422,'Choose an available payment method.');return $result;
     }
+    /** Addresses are retrieved only from orders owned by this signed browser. */
+    public function savedAddress(string $pin,string $country='India'): ?array {
+        if(!preg_match('/^[1-9][0-9]{5}$/D',$pin)||strcasecmp($country,'India')!==0)return null;
+        $key=$this->browser(false);if(!$key)return null;
+        $rows=$this->store->db->rows('SELECT address FROM orders_order WHERE tenant_id=? AND external_ref LIKE ? ORDER BY placed_at DESC,id DESC LIMIT 100',[$this->store->id(),'web:'.$key.':%']);
+        foreach($rows as $row){$address=json_decode($row['address'],true);if(!is_array($address)||($address['pincode']??'')!==$pin||strcasecmp($address['country']??'India',$country)!==0||!empty($address['fulfilment']))continue;
+            $saved=array_intersect_key($address,array_flip(['line1','line2','city','landmark','state','country','pincode']));
+            return $saved+['name'=>$address['recipient_name']??'','phone'=>$address['phone']??'','email'=>$address['email']??''];
+        }return null;
+    }
     public function delivery(string $pin,?int $area=null,string $country='India'):array {
         $cart=Cart::quote($this->store);$service=new Delivery($this->store);$meal=($cart['cart']['kind']??'')==='scheduled';
         $areas=strcasecmp($country,'India')===0?$service->areas($pin,$meal?$cart['meal_keys']:['snacks']):[];

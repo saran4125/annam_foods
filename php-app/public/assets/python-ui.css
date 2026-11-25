@@ -76,3 +76,11 @@
 @media(max-width:600px){.python-ui .php-shop-page>.tabs-scroll{margin-bottom:18px}.python-ui .php-shop-page>.shop-tools{margin-bottom:24px}}
 
 .o-body [data-meal-assignment] .o-check{margin:0}.o-body [data-meal-assignment] .o-btn-row{gap:10px}.o-body [data-meal-assignment][hidden]{display:none}
+
+.php-shop-page .shop-category-scroll{display:flex;align-items:center;gap:10px;margin-bottom:24px;min-width:0}
+.php-shop-page .shop-category-scroll .tabs-scroll{flex:1;min-width:0;margin:0}
+.php-shop-page .category-arrow{flex:0 0 42px;width:42px;height:42px;border:1px solid #dccdbe;border-radius:50%;background:#fff;color:#1a1410;font:700 23px/1 system-ui;cursor:pointer}
+.php-shop-page .category-arrow:disabled{opacity:.35;cursor:default}
+.php-shop-page .category-arrow:focus-visible{outline:3px solid #ff8507;outline-offset:2px}
+.php-shop-page .category-arrow[hidden]{display:none}
+@media(max-width:600px){.php-shop-page .shop-category-scroll{gap:6px;margin-bottom:18px}.php-shop-page .category-arrow{flex-basis:36px;width:36px;height:36px}}

@@ -1,3 +1,26 @@
+# Repeat checkout addresses and delivery refresh — 25 November 2026
+
+The same signed guest browser can reuse its latest placed-order address for
+an exact Indian pincode. Other pincodes need their own address. Only this
+browser's tenant-scoped orders are searched; there is no public lookup by
+phone or pincode. The signed guest cookie lasts 30 days. Address fields remain
+editable, and saved area IDs/payment methods are never restored automatically.
+
+Changing pincode clears address fields, area choice, delivery estimate and
+continuation state immediately. A fresh scoped delivery check enables review
+only when eligible; multiple areas require a new selection. Stale responses
+cannot replace newer results. Review and placement independently revalidate
+coverage, area and totals; a charge change after review requires another review.
+
+Verified an actual local repeat order, address restoration after session loss,
+browser/tenant isolation, changed pincode and area charges, unsupported pincode,
+mobile layout and final charge-change rejection. PHP behavioral checks: 89.
+
+Also added the requested left/right arrows to Shop category tabs. Arrows scroll
+the category strip and disable at its edges; touch scrolling remains available.
+
+---
+
 # Fresh preview startup fix — 25 November 2026
 
 Removed the retired Snacks slot creation from the Render fresh-catalog seed.

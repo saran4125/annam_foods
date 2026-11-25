@@ -121,6 +121,13 @@ try {
     });
     $review=$checkout->review($details);$placed=$checkout->place($review['reference']);
     test('duplicate checkout submission returns one order after the cart is cleared',function()use($checkout,$review,$placed,$db,$tenant,$item,$tomorrow){$again=$checkout->place($review['reference']);check($again['id']===$placed['id'],'Duplicate order');check(!isset($_SESSION['cart']),'Cart not cleared');check((int)$db->one('SELECT count(*) AS n FROM orders_order WHERE tenant_id=?',[$tenant])['n']===1,'Unexpected order count');check((int)$db->one("SELECT qty_sold FROM catalog_menuschedule WHERE tenant_id=? AND item_id=? AND on_date=? AND mode='date'",[$tenant,$item,$tomorrow])['qty_sold']===4,'Stock was not reserved exactly once');});
+    test('saved checkout addresses belong to this browser and exact pincode only',function()use($checkout,$placed,$store,$db,$otherStore){
+        $saved=$checkout->savedAddress('600011');check($saved&&$saved['line1']==='Test street'&&$saved['name']==='PHP test customer','Placed address not restored');
+        check($checkout->savedAddress('600012')===null&&$checkout->savedAddress('600011','USA')===null,'Different pincode or country reused address');
+        check((new Annam\Checkout($otherStore))->savedAddress('600011')===null,'Cross-tenant address exposed');
+        $browser=$_SESSION['checkout_browser'];$_SESSION['checkout_browser']=bin2hex(random_bytes(16));check($checkout->savedAddress('600011')===null,'Different browser received address');$_SESSION['checkout_browser']=$browser;
+        $address=$placed['address'];$changed=$address;$changed['line1']='New address for same pincode';$db->rows('UPDATE orders_order SET address=? WHERE tenant_id=? AND id=?',[json_encode($changed),$store->id(),$placed['id']]);check($checkout->savedAddress('600011')['line1']===$changed['line1'],'Latest saved address not used');$db->rows('UPDATE orders_order SET address=? WHERE tenant_id=? AND id=?',[json_encode($address),$store->id(),$placed['id']]);
+    });
     test('guest receipts require the originating browser',function()use($checkout,$review,$placed){check($checkout->guest($review['reference'])['id']===$placed['id'],'Receipt missing');$browser=$_SESSION['checkout_browser'];unset($_SESSION['checkout_browser']);expectError(fn()=>$checkout->guest($review['reference']),404);$_SESSION['checkout_browser']=$browser;});
     test('order snapshots survive catalog edits',function()use($db,$tenant,$item,$orders,$placed){$db->rows('UPDATE catalog_menuitem SET price=? WHERE tenant_id=? AND id=?',['777.77',$tenant,$item]);check($orders->get($placed['id'])['total']===$placed['total'],'Snapshot changed');});
     test('unpaid bills cannot consume invoice numbers',function()use($billing,$placed,$db,$tenant){expectError(fn()=>$billing->issue($placed['id']),422);check((int)$db->one('SELECT count(*) AS n FROM billing_invoicesequence WHERE tenant_id=?',[$tenant])['n']===0,'Number consumed');});
@@ -355,7 +362,7 @@ try {
         $store->setItemFlag($id,'in_stock',false);$resources->save('dishes',$id,$input);check(!$store->item($id)['in_stock'],'Detail edit reset latest out-of-stock value');
         $resources->save('dishes',$id,$input+['in_stock'=>1]);check((bool)$store->item($id)['in_stock'],'Explicit stock change ignored');
     });
-    test('checkout offers only matching delivery areas and recalculates each selected charge',function()use($store,$resources,$slot,$tomorrow,$otherStore){
+    test('checkout offers only matching delivery areas and recalculates each selected charge',function()use($store,$resources,$slot,$tomorrow,$otherStore,$details){
         $saved=$_SESSION['cart']??null;
         try{
             unset($_SESSION['cart']);$id=$resources->save('dishes',null,['name'=>'Area choice meal','fulfilment'=>'scheduled','price'=>'200','active'=>1,'in_stock'=>1]);$store->saveMenu($tomorrow,$slot,[$id],$store->menuRevision($tomorrow,$slot));Cart::add($store,['item_id'=>$id,'slot_id'=>$slot,'date'=>$tomorrow,'quantity'=>1]);
@@ -365,6 +372,11 @@ try {
             $checkout=new Annam\Checkout($store);$choices=$checkout->delivery('600077');check(count($choices['areas'])===2&&!$choices['eligible']&&$choices['fee']===null,'Ambiguous pincode auto-selected or exposed ineligible areas');
             check($checkout->delivery('600077',$a)['fee']===1000&&$checkout->delivery('600077',$b)['fee']===3000,'Area delivery charge ignored');check(!$checkout->delivery('600077',$foreign)['eligible'],'Foreign zone accepted');
             $single=$resources->save('zones',null,['area_name'=>'Only area','pincode'=>'600078','delivery_fee'=>'20','min_order'=>'100','slot_keys'=>['lunch'],'active'=>1]);$choice=$checkout->delivery('600078');check($choice['eligible']&&$choice['selected']===$single&&$choice['fee']===2000,'Single area not automatic');check(!$checkout->delivery('600078',$a)['eligible'],'Old area accepted after pincode change');check(!$checkout->delivery('123')['eligible'],'Invalid pincode accepted');
+            $input=array_replace($details,['pincode'=>'600077','zone_id'=>$a]);$r=$checkout->review($input);check($r['quote']['delivery_fee']===1000,'First pincode charge missing');
+            $input['pincode']='600078';expectError(fn()=>$checkout->review($input),422);$input['zone_id']=$single;$r=$checkout->review($input);check($r['quote']['delivery_fee']===2000,'Changed pincode reused old charge');
+            $store->db->rows('UPDATE delivery_deliveryzone SET delivery_fee=? WHERE tenant_id=? AND id=?',['25.00',$store->id(),$single]);expectError(fn()=>$checkout->place($r['reference']),409);
+            $input['pincode']='699999';$input['zone_id']=null;expectError(fn()=>$checkout->review($input),422);
+
         }finally{if($saved===null)unset($_SESSION['cart']);else $_SESSION['cart']=$saved;}
     });
     test('quantity tracking defaults off and stock edits enforce revisions and exact nonnegative units',function()use($store,$resources){
