@@ -425,3 +425,15 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 .o-body .o-check:not(:has(.o-toggle-state)):has(input:checked)::after{content:'On';background:#dff1e6;color:#16733a}
 /* Dish selectors remain grid cards so names and prices retain their columns. */
 .o-body .o-day-dish::after{margin-left:auto}
+
+/* Keep the current catalog page and both navigation directions unmistakable. */
+.o-pagination{display:flex;flex-direction:column;align-items:center;gap:12px;margin:24px 0}
+.o-pagination-summary{margin:0;color:var(--ink-3);font-size:14px}
+.o-pagination-summary strong{color:var(--ink)}
+.o-pagination-controls{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px}
+.o-pagination .o-btn{min-width:44px;min-height:44px;justify-content:center}
+.o-pagination .o-btn.is-selected{background:var(--brand);border-color:var(--brand);color:var(--on-brand);font-weight:800;box-shadow:0 0 0 3px rgba(255,138,0,.18)}
+.o-pagination .o-btn.is-disabled{opacity:.45;cursor:default;pointer-events:none}
+.o-pagination-gap{padding:0 2px;color:var(--ink-3)}
+.o-pagination-direction{gap:8px}
+@media(max-width:480px){.o-pagination-controls{gap:6px}.o-pagination .o-btn{padding:10px 12px}.o-pagination-direction{order:1}.o-pagination-direction:first-child{margin-left:15%}.o-pagination-direction:last-child{margin-right:15%}}

@@ -1,3 +1,12 @@
+# Clear catalog pagination — 25 November 2026
+
+Dishes & products and category item lists now show Page X of Y, an orange
+current-page highlight, Previous/Next arrow links, and ellipses between skipped
+pages. Boundary arrows are disabled, and navigation preserves active filters.
+Controls wrap on small screens and identify the current page for screen readers.
+
+---
+
 # Exact main-branch receipt layout — 25 November 2026
 
 Copied `static/css/receipt.css` unchanged from Python main commit
