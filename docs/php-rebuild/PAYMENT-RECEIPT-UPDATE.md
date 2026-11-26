@@ -1,3 +1,17 @@
+# Automatic numbered positions — 26 November 2026
+
+Display order now inserts at a unique numbered position and shifts the other
+dishes automatically. Moving down closes the old gap. Breakfast, Lunch, Dinner
+and Shop are independent lists; a shared dish keeps its other meal positions.
+The additive display_positions map supersedes duplicate-number timestamp ties.
+Existing sort values remain a fallback until an explicit save normalizes the
+lists. Changes use a store transaction/lock; failed saves roll back every shift.
+Stock/order updates do not reorder dishes. Browser tests confirm shifted form
+numbers and customer order in both versions; native tests cover insertion,
+moving both ways, separate meal positions and rollback on both databases.
+
+---
+
 # Equal display-order numbers — 26 November 2026
 
 For dishes/products with the same numeric Display order, the most recently saved

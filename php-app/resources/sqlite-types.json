@@ -133,7 +133,8 @@
     "admin_notes": "TEXT",
     "in_stock": "BOOLEAN",
     "weight": "TEXT",
-    "sort_priority": "INTEGER"
+    "sort_priority": "INTEGER",
+    "display_positions": "JSON_TEXT"
   },
   "catalog_menuschedule": {
     "id": "INTEGER",

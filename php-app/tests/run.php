@@ -467,7 +467,7 @@ try {
         $ids=[$id];for($n=0;$n<4;$n++)$ids[]=$resources->save('dishes',null,['name'=>'Stable rank fixture','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category,'sort'=>7]);
         foreach(['featured','price','-price','name'] as $sort){$found=[];for($page=1;$page<=3;$page++)$found=array_merge($found,array_column($store->pageItems('courier','',$category,$page,2,[],'',$sort)['records'],'id'));$expected=$sort==='featured'?[$ids[0],...array_reverse(array_slice($ids,1))]:$ids;check(array_map('intval',$found)===$expected,'Unstable or overlapping product pages');}
     });
-    test('latest explicit display assignment wins equal numbers and stock writes preserve it',function()use($store,$resources){
+    test('inserting at an occupied number shifts peers and stock writes preserve positions',function()use($store,$resources){
         $category=$resources->save('categories',null,['name'=>'Recent rank fixture','slug'=>'recent-rank-fixture','sort'=>1,'active'=>1]);
         $values=['fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category,'sort'=>1];
         $a=$resources->save('dishes',null,['name'=>'Alphabet first',...$values]);$b=$resources->save('dishes',null,['name'=>'Z newest assignment',...$values]);
@@ -477,6 +477,25 @@ try {
         $priority=$store->item($b)['sort_priority'];$resources->save('dishes',$b,['name'=>'Z newest assignment','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category]);
         check($read()===[$a,$b]&&$store->item($b)['sort_priority']===$priority,'Unrelated edit changed position');
         $store->db->rows('UPDATE catalog_menuitem SET in_stock=false WHERE tenant_id=? AND id=?',[$store->id(),$a]);check($read()===[$a,$b],'Stock update changed display priority');
+    });
+    test('numbered insertion shifts shop peers and meal positions remain independent',function()use($store,$resources){
+        $values=['fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1];$ids=[];
+        foreach(['A','B','C'] as $n=>$name)$ids[]=$resources->save('dishes',null,['name'=>'Position '.$name,'sort'=>$n+1,...$values]);
+        $read=function($ids,$group)use($store){return array_map(fn($id)=>Annam\DisplayOrder::position($store->item($id),$group),$ids);};
+        check($read($ids,'shop')===[1,2,3],'Initial positions not numbered');
+        $insert=$resources->save('dishes',null,['name'=>'Inserted at two','sort'=>2,...$values]);
+        check($read([$ids[0],$insert,$ids[1],$ids[2]],'shop')===[1,2,3,4],'Insertion did not shift peers');
+        $resources->save('dishes',$ids[0],['name'=>'Position A','sort'=>4,...$values]);
+        check($read([$insert,$ids[1],$ids[2],$ids[0]],'shop')===[1,2,3,4],'Downward move left a gap');
+        $resources->save('dishes',$ids[0],['name'=>'Position A','sort'=>1,...$values]);
+        check($read([$ids[0],$insert,$ids[1],$ids[2]],'shop')===[1,2,3,4],'Upward move lost unique positions');
+        $shared=$resources->save('dishes',null,['name'=>'Position shared','sort'=>1,'fulfilment'=>'scheduled','price'=>'100','active'=>1,'in_stock'=>1,'meals_present'=>1,'meals'=>['breakfast','lunch'],'display_group'=>'breakfast']);
+        (new Annam\Catalog($store))->assign($shared,['breakfast','lunch']);$lunch=Annam\DisplayOrder::position($store->item($shared),'lunch');
+        $resources->save('dishes',$shared,['name'=>'Position shared','sort'=>2,'fulfilment'=>'scheduled','price'=>'100','active'=>1,'in_stock'=>1,'meals_present'=>1,'meals'=>['breakfast','lunch'],'display_group'=>'breakfast']);
+        check(Annam\DisplayOrder::position($store->item($shared),'lunch')===$lunch,'Breakfast move changed Lunch position');
+        $before=$read([$ids[0],$insert,$ids[1],$ids[2]],'shop');
+        try{$store->db->transaction(function()use($resources,$ids,$values){$resources->save('dishes',$ids[2],['name'=>'Position C','sort'=>1,...$values]);throw new RuntimeException('Rollback test');});}catch(RuntimeException $e){check($e->getMessage()==='Rollback test','Unexpected rollback error');}
+        check($read([$ids[0],$insert,$ids[1],$ids[2]],'shop')===$before,'Failed save retained shifted positions');
     });
     test('default category positions obey their saved display order',function()use($store,$resources){
         (new Annam\Catalog($store))->defaults();$shop=$store->db->one("SELECT id FROM catalog_menucategory WHERE tenant_id=? AND slug='shop'",[$store->id()]);$breakfast=$store->db->one("SELECT id FROM catalog_menucategory WHERE tenant_id=? AND slug='breakfast'",[$store->id()]);

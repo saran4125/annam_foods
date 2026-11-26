@@ -39,6 +39,13 @@ final class Resources {
         return $this->store->db->one('SELECT * FROM ' . $spec['table'] . ' WHERE tenant_id=? AND id=?', [$this->store->id(), $id]) ?? throw new HttpError(404, 'Record not found.');
     }
     public function save(string $key, ?int $id, array $input, array $files = []): int {
+        if($key==='dishes'&&array_key_exists('sort',$input))return $this->store->db->transaction(function()use($key,$id,$input,$files){
+            $this->store->lock();$previous=$id?$this->get($key,$id):[];$saved=$this->saveRecord($key,$id,$input,$files);
+            (new DisplayOrder($this->store))->move($saved,(int)$input['sort'],isset($input['display_group'])?(string)$input['display_group']:null,$previous,$input);return $saved;
+        });
+        return $this->saveRecord($key,$id,$input,$files);
+    }
+    private function saveRecord(string $key, ?int $id, array $input, array $files = []): int {
         if($key==='slots'&&in_array(strtolower(trim((string)($input['key']??''))),['snack','snacks'],true))throw new HttpError(422,'Snacks are shop products, not a meal time.');
         $spec = self::definition($key);
         $existing = $id ? $this->get($key, $id) : [];
@@ -77,7 +84,6 @@ final class Resources {
         if(isset($values['weight'])&&strlen($values['weight'])>100)throw new HttpError(422,'Pack size must be at most 100 characters.');
         if ($key === 'pages') $values['updated_at'] = date('c');
         if($key==='dishes'){
-            if(array_key_exists('sort',$input))$values['sort_priority']=(int)round(microtime(true)*1000000);
             $tags=$existing?json_decode($existing['tags'],true,64,JSON_THROW_ON_ERROR):[];$tags=array_values(array_filter($tags,fn($tag)=>$tag!=='featured'));if(!empty($input['featured']))$tags[]='featured';$values['tags']=json_encode($tags,JSON_THROW_ON_ERROR);
         }
         if ($id) {

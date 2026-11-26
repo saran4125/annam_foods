@@ -86,7 +86,7 @@ final class Application {
         if ($path === '/') {
             $slots = $this->store->slots(); $date = date('Y-m-d'); $menus = [];
             foreach ($slots as $slot) $menus[] = ['slot' => $slot, 'items' => $this->store->menu($date, (int)$slot['id'])];
-            $products=array_values(array_filter($this->store->items('courier'),fn($i)=>$i['active']&&($i['in_stock']??true)&&(!$i['quantity_tracked']||$i['stock_quantity']>0)));usort($products,fn($a,$b)=>[!in_array('featured',json_decode($a['tags'],true),true),$a['sort'],-$a['sort_priority'],$a['name'],$a['id']]<=>[!in_array('featured',json_decode($b['tags'],true),true),$b['sort'],-$b['sort_priority'],$b['name'],$b['id']]);$products=array_slice($products,0,12);
+            $products=array_values(array_filter($this->store->items('courier'),fn($i)=>$i['active']&&($i['in_stock']??true)&&(!$i['quantity_tracked']||$i['stock_quantity']>0)));usort($products,fn($a,$b)=>[!in_array('featured',json_decode($a['tags'],true),true),DisplayOrder::position($a,'shop'),-$a['sort_priority'],$a['name'],$a['id']]<=>[!in_array('featured',json_decode($b['tags'],true),true),DisplayOrder::position($b,'shop'),-$b['sort_priority'],$b['name'],$b['id']]);$products=array_slice($products,0,12);
             $banners = $this->db->rows('SELECT * FROM content_banner WHERE tenant_id=? AND active ORDER BY sort,id LIMIT 12', [$this->store->id()]);
             $this->render('home', compact('menus', 'products', 'banners', 'date')); return;
         }

@@ -166,6 +166,7 @@ CREATE TABLE IF NOT EXISTS "catalog_menuday" (
 
 CREATE TABLE IF NOT EXISTS "catalog_menuitem" (
   "sort_priority" INTEGER NOT NULL DEFAULT 0,
+  "display_positions" TEXT NOT NULL DEFAULT '{}',
   "id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "name" TEXT NOT NULL,
   "description" TEXT NOT NULL,
