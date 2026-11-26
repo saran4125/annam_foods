@@ -32,7 +32,7 @@ final class Resources {
     public function list(string $key): array {
         $spec = self::definition($key);
         $order = match ($key) { 'zones' => 'pincode,area_name', 'slots' => 'sort,key', 'pages', 'banners' => 'sort,title', default => 'sort,name' };
-        return $this->store->db->rows('SELECT * FROM ' . $spec['table'] . ' WHERE tenant_id=?' . ($key==='slots'?" AND key NOT IN ('snack','snacks')":'') . ' ORDER BY ' . $order, [$this->store->id()]);
+        return $this->store->db->rows('SELECT * FROM ' . $spec['table'] . ' WHERE tenant_id=?' . ($key==='slots'?" AND key NOT IN ('snack','snacks')":'') . ' ORDER BY ' . $order . ',id', [$this->store->id()]);
     }
     public function get(string $key, int $id): array {
         $spec = self::definition($key);
@@ -45,7 +45,7 @@ final class Resources {
         $values = [];
         foreach ($spec['fields'] as $field => $definition) {
             [$label, $type] = explode('|', $definition);
-            $raw = $input[$field] ?? (in_array($field,['weight','admin_notes'],true)?($existing[$field]??''):($field==='in_stock'?($id?($existing['in_stock']??true):true):($field==='order_opens_at'?'00:00:00':($field==='order_days_before'?'1':''))));
+            $raw = $input[$field] ?? (in_array($field,['weight','admin_notes','sort'],true)?($existing[$field]??''):($field==='in_stock'?($id?($existing['in_stock']??true):true):($field==='order_opens_at'?'00:00:00':($field==='order_days_before'?'1':''))));
             if ($type !== 'slots' && !is_scalar($raw)) throw new HttpError(422, 'Invalid ' . $label . '.');
             $raw = is_string($raw) ? trim($raw) : $raw;
             $value = match ($type) {

@@ -460,6 +460,18 @@ try {
         check($bill['lines'][0]['unit_price']==='15.00'&&$bill['lines'][0]['amount']==='120.00','Receipt decimals differ from main');check($bill['address_lines']===['Test street','Chennai, Tamil Nadu, 600004'],'Receipt address differs from main');check($bill['payment_label']==='Manual payment'&&$invoice===$before,'Presentation changed frozen values');
         $invoice['payment_mode']='cod';$invoice['buyer']['delivery_address']['fulfilment']='Collection';$cod=Annam\ReceiptPresentation::details($invoice,['payment_received'=>false,'payment_refunded'=>false]);check($cod['cash_on_delivery']&&!$cod['payment_received']&&$cod['collection']&&in_array('Test street',$cod['address_lines'],true),'COD label or collection address lost');
     });
+    test('saved display order survives partial edits and wins over category ordering',function()use($store,$resources){
+        $category=$resources->save('categories',null,['name'=>'Rank fixture','slug'=>'rank-fixture','sort'=>99,'active'=>1]);
+        $id=$resources->save('dishes',null,['name'=>'Saved rank item','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category,'sort'=>4]);
+        $resources->save('dishes',$id,['name'=>'Saved rank item edited','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category]);check((int)$store->item($id)['sort']===4,'Partial edit reset saved display order');
+        $ids=[$id];for($n=0;$n<4;$n++)$ids[]=$resources->save('dishes',null,['name'=>'Stable rank fixture','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category,'sort'=>7]);
+        foreach(['featured','price','-price','name'] as $sort){$found=[];for($page=1;$page<=3;$page++)$found=array_merge($found,array_column($store->pageItems('courier','',$category,$page,2,[],'',$sort)['records'],'id'));check(array_map('intval',$found)===$ids,'Unstable or overlapping product pages');}
+    });
+    test('default category positions obey their saved display order',function()use($store,$resources){
+        (new Annam\Catalog($store))->defaults();$shop=$store->db->one("SELECT id FROM catalog_menucategory WHERE tenant_id=? AND slug='shop'",[$store->id()]);$breakfast=$store->db->one("SELECT id FROM catalog_menucategory WHERE tenant_id=? AND slug='breakfast'",[$store->id()]);
+        $store->db->rows('UPDATE catalog_menucategory SET sort=? WHERE tenant_id=? AND id=?',[1,$store->id(),$shop['id']]);$store->db->rows('UPDATE catalog_menucategory SET sort=? WHERE tenant_id=? AND id=?',[20,$store->id(),$breakfast['id']]);
+        $categories=(new Annam\ParityRoutes($store,[],fn()=>null))->categories();$ids=array_map('intval',array_column($categories,'id'));check(array_search((int)$shop['id'],$ids,true)<array_search((int)$breakfast['id'],$ids,true),'Fixed category rank overrode saved order');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

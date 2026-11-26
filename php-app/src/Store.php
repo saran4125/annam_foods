@@ -61,7 +61,7 @@ final class Store {
         if ($kind) { $sql .= ' AND i.fulfilment=?'; $params[] = $kind; }
         if ($query) { $sql .= ' AND i.name ILIKE ?'; $params[] = '%' . $query . '%'; }
         if ($category) { $ids=$this->family($category);$sql.=' AND i.category_id IN ('.implode(',',array_fill(0,count($ids),'?')).')';array_push($params,...$ids); }
-        return (new Inventory($this))->decorate($this->db->rows($sql . ' ORDER BY i.sort,i.name', $params));
+        return (new Inventory($this))->decorate($this->db->rows($sql . ' ORDER BY i.sort,i.name,i.id', $params));
     }
     public function pageItems(string $kind,string $query,?int $category,int $page,int $size=30,array $filters=[],string $meal='',string $sort='featured'):array {
         $inventory=new Inventory($this);
@@ -81,13 +81,13 @@ final class Store {
                 array_push($params,$meal,$meal);
             }
         }
-        $order=match($sort){'price'=>'CAST(i.price AS DECIMAL) ASC,i.id','-price'=>'CAST(i.price AS DECIMAL) DESC,i.id','name'=>'i.name,i.id',default=>'i.sort,i.name,i.id'};$total=(int)$this->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem i'.$where,$params)['n'];$page=max(1,min($page,max(1,(int)ceil($total/$size))));$records=$this->db->rows('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id'.$where.' ORDER BY '.$order.' LIMIT '.$size.' OFFSET '.(($page-1)*$size),$params);$records=(new Inventory($this))->decorate($records);return compact('records','total','page');
+        $order=match($sort){'price'=>'CAST(i.price AS DECIMAL) ASC,i.name,i.id','-price'=>'CAST(i.price AS DECIMAL) DESC,i.name,i.id','name'=>'i.name,i.id',default=>'i.sort,i.name,i.id'};$total=(int)$this->db->one('SELECT COUNT(*) AS n FROM catalog_menuitem i'.$where,$params)['n'];$page=max(1,min($page,max(1,(int)ceil($total/$size))));$records=$this->db->rows('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id'.$where.' ORDER BY '.$order.' LIMIT '.$size.' OFFSET '.(($page-1)*$size),$params);$records=(new Inventory($this))->decorate($records);return compact('records','total','page');
     }
     public function item(int $id): array {
         $row=$this->db->one('SELECT i.*,c.name AS category_name FROM catalog_menuitem i LEFT JOIN catalog_menucategory c ON c.id=i.category_id AND c.tenant_id=i.tenant_id WHERE i.tenant_id=? AND i.id=?', [$this->id(), $id]) ?? throw new HttpError(404, 'Dish not found.');return (new Inventory($this))->decorate([$row])[0];
     }
     public function categories(): array {
-        $categories=$this->db->rows('SELECT * FROM catalog_menucategory WHERE tenant_id=? ORDER BY sort,name',[$this->id()]);
+        $categories=$this->db->rows('SELECT * FROM catalog_menucategory WHERE tenant_id=? ORDER BY sort,name,id',[$this->id()]);
         $photos=[];$children=[];
         foreach($this->db->rows("SELECT category_id,image FROM catalog_menuitem WHERE tenant_id=? AND image<>'' ORDER BY active DESC,in_stock DESC,sort,id",[$this->id()]) as $item)$photos[$item['category_id']]??=$item['image'];
         foreach($categories as $category)if($category['active'])$children[$category['parent_id']][]=$category['id'];
@@ -127,7 +127,7 @@ final class Store {
     public function menu(string $date,int $slotId,bool $includeUnavailable=false):array {
         $rows=(new Inventory($this))->decorate(array_values($this->effectiveMenuRows($date,$slotId)),$date,$slotId);
         $result=array_filter(array_values($rows),fn($r)=>$r['active']&&($includeUnavailable||($r['available']&&($r['in_stock']??true)&&(!$r['quantity_tracked']||$r['stock_quantity']>0)&&($r['qty_limit']===null||$r['qty_sold']<$r['qty_limit']))));
-        usort($result,fn($a,$b)=>[$a['sort'],$a['name']]<=>[$b['sort'],$b['name']]);return array_values($result);
+        usort($result,fn($a,$b)=>[$a['sort'],$a['name'],$a['id']]<=>[$b['sort'],$b['name'],$b['id']]);return array_values($result);
     }
     private function materializeMenu(string $date,int $slotId):void {
         if($this->db->one('SELECT id FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?',[$this->id(),$slotId,$date]))return;

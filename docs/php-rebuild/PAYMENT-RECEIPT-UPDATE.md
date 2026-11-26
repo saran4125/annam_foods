@@ -1,3 +1,19 @@
+# Display order consistency — 26 November 2026
+
+Saved item order now takes priority over category position. Equal ranks use
+name and unique ID so pagination stays stable. Category positions respect their
+saved order, including the four starter categories. Partial edits preserve rank.
+Home favourites stay grouped first, with numeric order inside each group rather
+than photo priority. Python also includes favourites beyond the first 60 items
+and includes all shop categories in the default Shop shelf.
+
+Validation: PHP SQLite and PostgreSQL native suites (91 checks); Python full
+PostgreSQL suite; local browser checks of both shop sort modes and Python's dated
+Breakfast edit followed by admin/customer menu reload. The reported Breakfast
+save failure could not be reproduced locally; its complete flow is now covered.
+
+---
+
 # COD invoice address and wording — 26 November 2026
 
 Issued invoices now show saved address lines even for collection bookings.
