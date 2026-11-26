@@ -83,6 +83,7 @@ class MenuItem(TenantOwnedModel):
     active = models.BooleanField(default=True)
     sort = models.PositiveSmallIntegerField(default=0)
     sort_priority = models.BigIntegerField(default=0, editable=False)
+    display_positions = models.JSONField(default=dict, blank=True, editable=False)
 
     class Meta(TenantOwnedModel.Meta):
         ordering = ["sort", "-sort_priority", "name", "pk"]

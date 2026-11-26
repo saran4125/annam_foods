@@ -293,7 +293,12 @@ def resource_list(request, key, *, category=None):
             tomorrow_url=day_base + '?' + urlencode({**base_params, 'date': tomorrow.isoformat()}),
             all_url=day_base + '?' + urlencode({**base_params, 'date': 'all'}))
     columns = [column for column in res.columns if not ((menu_ui.get('choose_url') or category is not None) and column[1] == 'category')]
-    if res.order_by:
+    if key == "dishes":
+        from apps.catalog.display_order import with_position
+        group = (menu["meal"] if menu and menu["kind"]=="scheduled" else "shop")
+        if category and category.slug in ("breakfast","lunch","dinner","shop"):group=category.slug
+        qs=with_position(qs,group).order_by("-active","display_position","-sort_priority","name","pk")
+    elif res.order_by:
         qs = qs.order_by(*res.order_by,"pk")
     query = request.GET.get("q", "").strip()[:80]
     if query and res.search:
@@ -395,6 +400,10 @@ def resource_edit(request, key, pk=None, *, category=None):
         kinds=set(MenuItem.objects.filter(category=category).values_list('fulfilment',flat=True))
         form_kwargs['initial']={'category':category.pk,'fulfilment':'scheduled' if category.slug in ('breakfast','lunch','dinner') or kinds=={'scheduled'} else 'courier','meals':[category.slug] if category.slug in ('breakfast','lunch','dinner') else []}
     form = res.form(request.POST or None, request.FILES or None, instance=obj, **form_kwargs)
+    if category is not None and category.slug in ("breakfast","lunch","dinner"):
+        from apps.catalog.models import Slot
+        form_kwargs["menu_slot"]=Slot.objects.filter(key=category.slug).first()
+        form = res.form(request.POST or None, request.FILES or None, instance=obj, **form_kwargs)
     if category is not None:
         form.fields['category'].disabled=True
         form.initial['category']=obj.category_id if obj else category.pk

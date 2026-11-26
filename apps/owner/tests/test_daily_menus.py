@@ -221,7 +221,7 @@ def test_breakfast_display_order_edit_reorders_saved_date_and_customer_menu(sign
     response=signed_in.post(url,{'name':a.name,'fulfilment':'scheduled','price':str(a.price),'category':'','active':'on','in_stock':'on','sort':'20','slot':grouped['breakfast'].pk,'membership_editor':'1','meals':['breakfast'],'day_available':'on','day_revision':'1'},HTTP_HOST=HOST)
     assert response.status_code==302
     with tenant_context(kitchens[0]):
-        a.refresh_from_db();assert a.sort==20
+        a.refresh_from_db();assert a.sort==3
         assert [entry.item.pk for entry in resolve_menu(DAY,grouped['breakfast'])]==[other.pk,a.pk]
     public=signed_in.get('/menu/',{'date':DAY.isoformat(),'slot':'breakfast'},HTTP_HOST=HOST)
     assert [entry.item.pk for entry in public.context['entries']]==[other.pk,a.pk]

@@ -87,7 +87,8 @@ def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = Fals
         if include_unavailable or entry.is_orderable:
             entries.append(entry)
 
-    entries.sort(key=lambda e: (e.item.sort, -e.item.sort_priority, e.item.name, e.item.pk))
+    from .display_order import position
+    entries.sort(key=lambda e: (position(e.item,slot.key), -e.item.sort_priority, e.item.name, e.item.pk))
     return entries
 
 
@@ -150,7 +151,7 @@ def open_slots(on_date: date_cls, now=None):
 # -- the shop: courier goods browsed by category ------------------------------
 
 SHOP_SORTS = {
-    "featured": ("sort", "-sort_priority", "name", "pk"),
+    "featured": ("display_position", "-sort_priority", "name", "pk"),
     "price": ("price", "name", "pk"),
     "-price": ("-price", "name", "pk"),
     "name": ("name", "pk"),
@@ -228,12 +229,14 @@ def search_shop(*, category=None, query="", sort="featured"):
 
         for word in query.split()[:5]:
             items = items.filter(Q(name__icontains=word) | Q(description__icontains=word))
-    return items.order_by(*SHOP_SORTS.get(sort, SHOP_SORTS["featured"]))
+    from .display_order import with_position
+    return with_position(items,"shop").order_by(*SHOP_SORTS.get(sort, SHOP_SORTS["featured"]))
 
 
 def popular_shop_items(limit=12):
     """Explicit home favourites first; saved display order within each group."""
-    items=list(shop_items().order_by('sort','-sort_priority','name','pk'))
+    from .display_order import with_position
+    items=list(with_position(shop_items(),'shop').order_by('display_position','-sort_priority','name','pk'))
     featured=[item for item in items if 'featured' in (item.tags or [])][:limit]
     selected={item.pk for item in featured}
     return featured+[item for item in items if item.pk not in selected][:max(0,limit-len(featured))]

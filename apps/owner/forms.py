@@ -78,13 +78,22 @@ class DishForm(StyledForm):
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
         help_texts = {"fulfilment": "Daily meal = cooked for a slot. Shop item = packed and shipped.",
                       "active": "Untick to hide it from the website (sold out, seasonal…).",
-                      "sort": "Lower numbers appear first in menus and the shop. For equal numbers, the most recently saved display order comes first. Home favourites remain grouped separately."}
+                      "sort": "Lower numbers appear first in menus and the shop. Choose a position from 1. Other dishes shift automatically within this meal or Shop. Home favourites remain grouped separately."}
 
     def __init__(self, *args, menu_slot=None, menu_date=None, **kwargs):
         self.legacy_schedule = bool(args and args[0] is not None and ('slot' in args[0] or 'weekdays' in args[0]) and args[0].get('membership_editor') != '1')
         self.menu_slot = menu_slot
         self.menu_date = menu_date
         super().__init__(*args, **kwargs)
+        self.original_sort = self.instance.sort if self.instance.pk else None
+        from apps.catalog.display_order import position
+        from apps.catalog.library import meal_keys
+        keys = ["shop"] if self.instance.fulfilment == "courier" else (meal_keys(self.instance) if self.instance.pk else [])
+        self.display_group = menu_slot.key if menu_slot else (keys[0] if keys else None)
+        if self.instance.pk and self.display_group:
+            self.initial["sort"] = max(1,position(self.instance,self.display_group))
+        self.fields["sort"].widget.attrs["min"] = 1
+        if not self.instance.pk:self.initial["sort"] = 1
         self.fields["fulfilment"].choices = [("scheduled", "Daily meal"), ("courier", "Shop item")]
         self.fields["category"].queryset = MenuCategory.objects.filter(
             models.Q(active=True) | models.Q(pk=self.instance.category_id)
@@ -141,9 +150,9 @@ class DishForm(StyledForm):
 
     @transaction.atomic
     def save(self, commit=True):
+        from apps.catalog.display_order import lock_store
+        lock_store()
         item = super().save(commit=False)
-        from apps.catalog.services import assign_display_priority
-        assign_display_priority(item)
         keys = self.cleaned_data.get('meals') or ([self.cleaned_data['slot'].key] if self.legacy_schedule and self.cleaned_data.get('slot') else [])
         if not self.legacy_schedule and not keys and item.fulfilment == 'scheduled' and item.category_id:
             from apps.catalog.library import MEALS
@@ -156,6 +165,8 @@ class DishForm(StyledForm):
         item.tags = tags
         item.save()
         self._sync_schedule(item)
+        from apps.catalog.display_order import move
+        move(item,self.cleaned_data["sort"],group=self.display_group,previous_sort=self.original_sort)
         return item
 
     def _sync_schedule(self, item):
