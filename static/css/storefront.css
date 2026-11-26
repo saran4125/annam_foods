@@ -1381,3 +1381,10 @@ h3{font-weight:600}
 
 /* Long kitchen names must leave room for the mobile checkout navigation. */
 @media(max-width:999px){.head-inner{grid-template-columns:minmax(0,1fr) auto}.brand{min-width:0;max-width:100%}.brand-name{min-width:0;overflow:hidden;text-overflow:ellipsis}.brand-mark,.brand-logo{flex-shrink:0}.brand-logo{max-width:90px}}
+
+.shop-category-scroll{display:flex;align-items:center;gap:10px;margin-bottom:24px;min-width:0}
+.shop-category-scroll .shelf-tabs{flex:1;min-width:0;overflow-x:auto;flex-wrap:nowrap;margin:0}
+.category-arrow{flex:0 0 42px;width:42px;height:42px;border:1px solid #dccdbe;border-radius:50%;background:#fff;color:#1a1410;font:700 23px/1 system-ui;cursor:pointer}
+.category-arrow:disabled{opacity:.35;cursor:default}.category-arrow[hidden]{display:none}
+.shop-tools{margin-top:24px;margin-bottom:32px}
+@media(max-width:600px){.shop-category-scroll{gap:6px}.category-arrow{flex-basis:36px;width:36px;height:36px}.shop-tools{margin-top:18px;margin-bottom:24px}}

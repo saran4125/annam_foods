@@ -60,6 +60,8 @@ class StyledForm(forms.ModelForm):
 
 class DishForm(StyledForm):
     featured = forms.BooleanField(required=False, help_text="Show in “Popular in the shop” on the home page.")
+    membership_editor = forms.CharField(initial='1',required=False,widget=forms.HiddenInput)
+    meals = forms.MultipleChoiceField(choices=[('breakfast','Breakfast'),('lunch','Lunch'),('dinner','Dinner')], required=False, widget=forms.CheckboxSelectMultiple, help_text='Choose every meal this dish belongs to. Select daily availability separately.')
     slot = forms.ModelChoiceField(queryset=Slot.all_tenants.none(), required=False,  # real queryset set per request
                                   help_text="Daily meals only: which meal this dish is served at.")
     weekdays = forms.TypedMultipleChoiceField(
@@ -69,7 +71,7 @@ class DishForm(StyledForm):
 
     class Meta(BaseMeta):
         model = MenuItem
-        fields = ["name", "category", "fulfilment", "price", "weight", "description", "image", "admin_notes", "in_stock",
+        fields = ["name", "category", "fulfilment", "price", "description", "image", "in_stock",
                   "is_veg", "active", "sort"]
         labels = {"fulfilment": "Type", "is_veg": "Vegetarian", "active": "On sale",
                   "sort": "Display order"}
@@ -78,6 +80,7 @@ class DishForm(StyledForm):
                       "active": "Untick to hide it from the website (sold out, seasonal…)."}
 
     def __init__(self, *args, menu_slot=None, menu_date=None, **kwargs):
+        self.legacy_schedule = bool(args and args[0] is not None and ('slot' in args[0] or 'weekdays' in args[0]) and args[0].get('membership_editor') != '1')
         self.menu_slot = menu_slot
         self.menu_date = menu_date
         super().__init__(*args, **kwargs)
@@ -99,6 +102,11 @@ class DishForm(StyledForm):
             self.fields["weekdays"].initial = [0, 1, 2, 3, 4, 5, 6]
             if menu_slot:
                 self.fields["slot"].initial = menu_slot.pk
+
+        from apps.catalog.library import meal_keys
+        self.fields['meals'].initial = meal_keys(self.instance) if self.instance.pk else ([menu_slot.key] if menu_slot else [])
+        self.fields['slot'].widget = forms.HiddenInput()
+        self.fields['weekdays'].widget = forms.MultipleHiddenInput()
 
         if menu_date:
             from apps.catalog.models import MenuDay
@@ -126,14 +134,20 @@ class DishForm(StyledForm):
 
     def clean(self):
         data = super().clean()
-        if data.get("fulfilment") == "scheduled" and (data.get("weekdays") or self.menu_date) and not data.get("slot"):
+        if data.get("fulfilment") == "scheduled" and (data.get("weekdays") or self.menu_date) and not data.get("slot") and self.menu_date:
             self.add_error("slot", "Choose the meal this dish is served at.")
         return data
 
     @transaction.atomic
     def save(self, commit=True):
         item = super().save(commit=False)
-        tags = [t for t in (item.tags or []) if t != "featured"]
+        keys = self.cleaned_data.get('meals') or ([self.cleaned_data['slot'].key] if self.legacy_schedule and self.cleaned_data.get('slot') else [])
+        if not self.legacy_schedule and not keys and item.fulfilment == 'scheduled' and item.category_id:
+            from apps.catalog.library import MEALS
+            keys = [item.category.slug] if item.category.slug in MEALS else []
+        tags = [t for t in (item.tags or []) if t != 'featured' and t != 'meals:assigned' and not t.startswith('meal:')]
+        if item.fulfilment == 'scheduled':
+            tags += ['meals:assigned'] + ['meal:' + key for key in keys]
         if self.cleaned_data.get("featured"):
             tags.append("featured")
         item.tags = tags
@@ -148,6 +162,8 @@ class DishForm(StyledForm):
             from apps.catalog.daily_menus import set_daily_availability
             set_daily_availability(slot=slot, on_date=self.menu_date, item=item,
                                    available=self.cleaned_data.get('day_available', False), revision=self.cleaned_data['day_revision'])
+            return
+        if not self.legacy_schedule:
             return
         weekly = MenuSchedule.objects.filter(item=item, mode=ScheduleMode.WEEKDAY)
         days = set(self.cleaned_data.get("weekdays") or [])
@@ -171,7 +187,7 @@ class DishForm(StyledForm):
 class CategoryForm(StyledForm):
     class Meta(BaseMeta):
         model = MenuCategory
-        fields = ["name", "slug", "description", "image", "sort", "active"]
+        fields = ["name", "slug", "description", "sort", "active"]
         labels = {"sort": "Display order", "active": "Visible"}
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
         help_texts = {"slug": "The web address, e.g. /shop/podi/. Leave blank to make one from the name."}
@@ -199,6 +215,7 @@ class CategoryForm(StyledForm):
 class SlotForm(StyledForm):
     def clean(self):
         data=super().clean()
+        if data.get('key') in ('snack','snacks'): self.add_error('key','Snacks are shop products, not a meal time.')
         if data.get('order_days_before')==0 and data.get('order_opens_at') and data.get('order_cutoff') and data['order_opens_at']>=data['order_cutoff']:
             self.add_error('order_opens_at','Same-day opening must be before the closing time.')
         return data
@@ -267,11 +284,12 @@ class ZoneForm(StyledForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        choices = [(s.key, s.label) for s in Slot.objects.all()]
+        choices = [(s.key, s.label) for s in Slot.objects.exclude(key__in=['snack','snacks'])]
+        choices.append(('snacks','Shop products'))
         known = {key for key, _ in choices}
         # Keep imported delivery types (e.g. snacks) editable even before their
         # menu slot is configured. Do not silently discard them on a zone edit.
-        choices.extend((key, key.replace('_', ' ').title()) for key in (self.instance.slot_keys or []) if key not in known)
+        choices.extend((key, key.replace('_', ' ').title()) for key in (self.instance.slot_keys or []) if key not in known and key not in ('snack','snacks'))
         self.fields["slot_keys"].choices = choices
 
     def clean_pincode(self):

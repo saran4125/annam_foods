@@ -8,6 +8,6 @@
 <h3>Your receipt</h3><p data-receipt-message>{% if order.payment_status == 'paid' %}Payment received. Your invoice will appear here when issued.{% else %}Payment confirmation is pending.{% endif %}</p>
 <a class="btn" data-invoice-view {% if customer_invoice %}href="{% url 'storefront:customer_bill' reference %}"{% else %}hidden{% endif %}>View invoice</a>
 <a class="btn btn-primary" data-invoice-download {% if customer_invoice %}href="{% url 'storefront:customer_pdf' reference %}"{% else %}hidden{% endif %} download>Download invoice PDF</a>
-</section><script src="{% static_v 'js/receipt.js' %}" defer></script>
+<a class="btn" data-order-summary data-pdf-source="{% url 'storefront:order_summary' reference %}" href="{% url 'storefront:order_summary_pdf' reference %}" {% if customer_invoice %}hidden{% endif %}>Download order summary PDF</a></section><script src="{% static_v 'js/receipt-export.js' %}" data-pdf-library="{% static_v 'js/html2pdf-0.14.0.bundle.min.js' %}" defer></script><script src="{% static_v 'js/receipt.js' %}" defer></script>
 {% if whatsapp_link %}<a class="btn btn-wa" href="{{ whatsapp_link }}" target="_blank" rel="noopener">Contact the kitchen</a>{% endif %}<p><a class="arrow-link" href="{% url 'storefront:home' %}">Back to the website →</a></p></aside></div>
 {% endblock %}

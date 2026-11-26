@@ -44,6 +44,7 @@ def save_daily_menu(*, slot, on_date, item_ids, revision):
     allowed = set(MenuItem.objects.filter(pk__in=ids, fulfilment='scheduled').values_list('pk', flat=True))
     if ids != allowed:
         raise ValidationError('Choose dishes from this store only.')
+    MenuItem.objects.filter(pk__in=ids).update(active=True)
     plan = _materialize(slot, on_date)
     dated = MenuSchedule.objects.filter(slot=slot, mode=ScheduleMode.DATE, on_date=on_date)
     dated.exclude(item_id__in=ids).update(available=False)

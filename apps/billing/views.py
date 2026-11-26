@@ -1,3 +1,4 @@
+from apps.orders.services import OrderError
 """Tenant-scoped staff billing portal, separate from store management."""
 from functools import wraps
 from uuid import uuid4
@@ -106,7 +107,7 @@ def new_order(request):
             form.add_error(None, "This form expired. Open New order again.")
         except (signing.BadSignature, KeyError):
             form.add_error(None, "Invalid order form. Open New order again.")
-        except (ValueError, ValidationError) as exc:
+        except (ValueError, ValidationError, OrderError) as exc:
             form.add_error(None, str(exc))
         else:
             messages.success(request, "Order saved. Confirm payment after receiving the full amount to issue its bill.")
@@ -173,6 +174,13 @@ def order_bill(request, pk):
 @staff_required
 def bill_detail(request, pk):
     invoice = get_object_or_404(Invoice.objects, pk=pk)
+    if request.GET.get('download') == '1':
+        from django.http import HttpResponse
+        from apps.billing.pdf import invoice_pdf
+        response=HttpResponse(invoice_pdf(invoice),content_type='application/pdf')
+        response['Content-Disposition']='attachment; filename="invoice.pdf"'
+        response['Cache-Control']='private, no-store'
+        return response
     return render(request, "owner/bill.html", {"invoice": invoice, "billing_portal": True, "portal_base": "billing/base.html"})
 
 

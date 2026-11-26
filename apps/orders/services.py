@@ -95,6 +95,10 @@ def price_lines(requested, *, delivery_date: date_cls, slot: Slot):
         entry = priced.get(want.item_id)
         if entry is None:
             raise ItemNotOnMenu(f"Item {want.item_id} is not on this menu.")
+        from apps.catalog.inventory import state
+        bucket = state(entry.item, delivery_date, slot)
+        if bucket and bucket.tracked and want.quantity > bucket.remaining:
+            raise OrderError(f'Not enough stock for {entry.item.name}. Available: {bucket.remaining}.')
         line_total = entry.price * want.quantity
         subtotal += line_total
         lines.append({
@@ -128,6 +132,10 @@ def price_courier_lines(requested):
         item = by_id.get(want.item_id)
         if item is None:
             raise ItemNotOnMenu(f"Item {want.item_id} is not an active courier item.")
+        from apps.catalog.inventory import state
+        bucket = state(item)
+        if bucket and bucket.tracked and want.quantity > bucket.remaining:
+            raise OrderError(f'Not enough stock for {item.name}. Available: {bucket.remaining}.')
         line_total = item.price * want.quantity
         subtotal += line_total
         lines.append({
@@ -279,6 +287,8 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
     else:
         raise OrderError("Could not allocate an order number. Please try again.")
 
+    from apps.catalog.inventory import reserve
+    reserve(order)
     OrderEvent.objects.create(
         tenant=tenant, order=order, from_status="",
         to_status=OrderStatus.PLACED, actor=f"customer:{channel}",
@@ -289,6 +299,7 @@ def create_order(tenant, *, customer: Customer, requested, slot: Slot | None = N
     return order
 
 
+@transaction.atomic
 def advance_status(order: Order, to_status: str, *, actor: str, note: str = "") -> Order:
     """Move an order forward, or cancel it. Anything else is refused.
 
@@ -303,6 +314,9 @@ def advance_status(order: Order, to_status: str, *, actor: str, note: str = "") 
             f"{order.order_no} cannot go from {order.status} to {to_status}."
         )
 
+    if to_status == OrderStatus.CANCELLED:
+        from apps.catalog.inventory import release
+        release(order)
     previous = order.status
     order.status = to_status
     fields = ["status"]

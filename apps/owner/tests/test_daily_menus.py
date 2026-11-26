@@ -120,6 +120,8 @@ def test_staff_can_choose_existing_dishes_and_save_day_without_duplicate_product
     assert page.status_code == 200
     assert set(page.context['form'].initial['items']) == {grouped['b'].pk, grouped['shared'].pk}
     assert grouped['shop'].pk not in page.context['form'].fields['items'].queryset.values_list('pk', flat=True)
+    with tenant_context(kitchens[0]):
+        grouped['unassigned'].tags=['meals:assigned','meal:breakfast'];grouped['unassigned'].save(update_fields=['tags'])
     response = signed_in.post(picker_url(), {'items': [grouped['unassigned'].pk], 'revision': 0}, HTTP_HOST=HOST)
     assert response.status_code == 302 and response['Location'] == menu_url()
     with tenant_context(kitchens[0]):

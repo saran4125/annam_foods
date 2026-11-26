@@ -25,13 +25,13 @@
   {% endif %}
 </header>
 
-<div class="shelf-bar" data-filters>
-  <div class="tabs shelf-tabs" role="list" aria-label="Shop categories">
+<div class="shelf-bar shop-category-scroll" data-filters data-category-scroll><button class="category-arrow" type="button" data-category-prev aria-label="Previous categories" hidden>←</button>
+  <nav class="tabs shelf-tabs" role="list" aria-label="Shop categories">
     <a role="listitem" class="tab{% if not category %} on{% endif %}" href="{% url 'storefront:shop' %}{% if query %}?q={{ query|urlencode }}{% endif %}"{% if not category %} aria-current="page"{% endif %}>All</a>
     {% for c in shelves %}
       <a role="listitem" class="tab{% if category and category.id == c.id or category.parent_id == c.id %} on{% endif %}" href="{% url 'storefront:shop_category' c.slug %}"{% if category.id == c.id %} aria-current="page"{% endif %}>{{ c.name }} <small>{{ c.item_count }}</small></a>
     {% endfor %}
-  </div>
+  </nav><button class="category-arrow" type="button" data-category-next aria-label="More categories" hidden>→</button>
 </div>
 
 {% if sub_shelves %}
@@ -86,3 +86,5 @@
 {% endif %}
 {% if page.has_other_pages %}<nav class="tabs" aria-label="Product pages">{% if page.has_previous %}<a class="tab" href="?{{ querystring }}&page={{ page.previous_page_number }}">← Previous</a>{% endif %}<span class="tab">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="tab" href="?{{ querystring }}&page={{ page.next_page_number }}">Next →</a>{% endif %}</nav>{% endif %}
 {% endblock %}
+
+{% block scripts %}<script src="{% static_v 'js/category-scroll.js' %}" defer></script>{% endblock %}

@@ -28,8 +28,10 @@ def checkout(request):
                 external_ref=external_ref(token_data), fulfilment='courier').exists()
         except OrderError:
             pass  # Normal checkout validation reports invalid review tokens.
-    form = CheckoutForm(request.POST or None, cart=cart, accepted_shop_order=accepted_shop_order,
-                        initial={'pincode': cart.pincode, 'zone_id': cart.zone_id or ''})
+    from .checkout import saved_address
+    initial={'pincode':cart.pincode,'zone_id':cart.zone_id or ''}
+    if request.method=='GET': initial.update(saved_address(request,cart.pincode) or {})
+    form = CheckoutForm(request.POST or None, cart=cart, accepted_shop_order=accepted_shop_order,initial=initial)
     if request.method == 'POST' and request.POST.get('action') == 'place':
         # Replays of an already accepted review work after the cart is cleared.
         # All contact fields are still validated; no previous customer details
@@ -70,3 +72,37 @@ def complete(request, reference):
     intent = PaymentIntent.objects.filter(order=order).first()
     return render(request, 'storefront/checkout_complete.html', {'order': order, 'courier_notice': COURIER_NOTICE, 'courier_charge':getattr(order,'courier_charge',None), 'courier_online_available': bool((request.tenant.config.checkout_settings or {}).get('courier_online_enabled')) and active_connection() is not None, 'receipt_adjustment': receipt_adjustment(order), 'payment_instructions': instructions, 'online': intent, 'reference': reference,
         'customer_invoice': Invoice.objects.filter(order=order).exclude(kind=InvoiceKind.CREDIT_NOTE).first()})
+
+
+@never_cache
+@require_http_methods(['GET'])
+def address_lookup(request):
+    from django.http import JsonResponse
+    from .checkout import saved_address
+    return JsonResponse({'address':saved_address(request,request.GET.get('pincode','').strip(),request.GET.get('country','India'))})
+
+
+@never_cache
+@require_http_methods(['GET'])
+def delivery_check(request):
+    from django.http import JsonResponse
+    from .checkout import delivery_estimate
+    try: area=int(request.GET.get('zone_id') or 0) or None
+    except ValueError: area=None
+    return JsonResponse(delivery_estimate(Cart(request),request.GET.get('pincode','').strip(),area,request.GET.get('country','India')))
+
+
+@never_cache
+@require_http_methods(['GET'])
+def order_summary(request, reference, download=False):
+    from apps.payments.views import guest_order
+    from django.http import HttpResponse
+    order=guest_order(request,reference)
+    if download:
+        from apps.billing.pdf import order_summary_pdf
+        response=HttpResponse(order_summary_pdf(order),content_type='application/pdf')
+        response['Content-Disposition']='attachment; filename="order-summary.pdf"'
+        return response
+    from apps.billing.presentation import logo_url
+    theme=request.tenant.config.theme or {}
+    return render(request,'storefront/order_summary.html',{'order':order,'reference':reference,'summary_logo':logo_url(theme.get('billing_logo_url') or theme.get('logo_url','')),'adjustment':receipt_adjustment(order)})

@@ -33,8 +33,6 @@ class CheckoutForm(forms.Form):
         self.fields['zone_id'].choices = [('', 'Choose your area')] + [(str(z.pk), f'{z.area_name} – ₹{z.delivery_fee:.2f}') for z in zones]
         self.multiple_areas = len(zones) > 1
         self.fields['zone_id'].required = self.multiple_areas
-        if not self.multiple_areas:
-            self.fields['zone_id'] = forms.CharField(required=False, widget=forms.HiddenInput())
         for field in self.fields.values():
             field.widget.attrs.setdefault('class', 'checkout-input')
 

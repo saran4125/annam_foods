@@ -139,11 +139,11 @@ def test_delete_and_toggle_stay_in_selected_group(signed_in, grouped, kitchens):
     response = signed_in.post(f'/manage/dishes/{item.pk}/delete/', {'next': target}, HTTP_HOST=HOST)
     assert response['Location'] == target
     with tenant_context(kitchens[0]):
-        assert not MenuItem.objects.filter(pk=item.pk).exists()
+        assert not MenuItem.objects.get(pk=item.pk).active
 
 
 def test_bad_meal_values_and_empty_catalog_have_safe_defaults(signed_in, kitchens):
     page = signed_in.get('/manage/dishes/?meal=not-real&type=bad', HTTP_HOST=HOST)
     assert page.status_code == 200
-    assert page.context['menu_ui']['selection']['meal'] == 'unassigned'
+    assert page.context['menu_ui']['selection']['meal'] == 'breakfast'
     assert not row_ids(page)

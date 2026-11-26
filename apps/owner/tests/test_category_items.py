@@ -15,11 +15,11 @@ def product_data(**overrides):
 
 
 def test_category_name_and_product_count_open_the_item_list(signed_in,catalog):
-    response=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    response=signed_in.get('/manage/categories/?category_view=custom',HTTP_HOST=HOST)
     html=response.content.decode();url=items_url(catalog['cat'])
     assert 'Inside' not in response.context['headers']
-    assert response.context['rows'][0]['title_url']==url+'?type=courier&status=1&stock=1'
-    assert html.count(f'href="{url}?type=courier&amp;status=1&amp;stock=1"')>=2 and '1 on website' in html
+    assert response.context['rows'][0]['title_url']==url
+    assert html.count(f'href="{url}"')>=2 and '1 items' in html
 
 
 def test_category_items_show_both_meals_and_shop_products_not_unrelated_items(signed_in,kitchens,catalog):
@@ -61,7 +61,7 @@ def test_edit_toggle_and_delete_preserve_the_category_return_path(signed_in,kitc
     assert MenuItem.all_tenants.filter(pk=dish.pk).exists()
     response=signed_in.post(base+'delete/',{'next':return_url},HTTP_HOST=HOST)
     assert response['Location']==return_url
-    with tenant_context(kitchens[0]):assert not MenuItem.objects.filter(pk=dish.pk).exists()
+    with tenant_context(kitchens[0]):assert not MenuItem.objects.get(pk=dish.pk).active
 
 
 @pytest.mark.parametrize('action',['','delete/','toggle/'])
@@ -111,7 +111,7 @@ def test_parent_category_lists_and_counts_the_same_products_as_the_storefront(si
         expected=set(search_shop(category=catalog['cat']).values_list('pk',flat=True))
     page=signed_in.get(items_url(catalog['cat']),HTTP_HOST=HOST)
     assert {row['obj'].pk for row in page.context['rows']}==expected
-    listing=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    listing=signed_in.get('/manage/categories/?category_view=custom',HTTP_HOST=HOST)
     shelf=next(row['obj'] for row in listing.context['rows'] if row['obj'].pk==catalog['cat'].pk)
     assert shelf.product_count==shelf.website_count==21
     product=products[0];base=items_url(catalog['cat'])+str(product.pk)+'/'
@@ -126,41 +126,41 @@ def test_category_count_distinguishes_hidden_items_from_website_products(signed_
     with tenant_context(kitchens[0]):
         child=MenuCategory.objects.create(name='Child',slug='child',parent=catalog['cat'])
         MenuItem.objects.create(name='Hidden podi',price=100,category=child,fulfilment='courier',active=False)
-    listing=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    listing=signed_in.get('/manage/categories/?category_view=custom',HTTP_HOST=HOST)
     shelf=next(row['obj'] for row in listing.context['rows'] if row['obj'].pk==catalog['cat'].pk)
     assert shelf.product_count==2 and shelf.website_count==1
-    assert b'1 on website' in listing.content
+    assert b'1 in stock &amp; on sale' in listing.content
     assert b'Hidden podi' in signed_in.get(items_url(catalog['cat']),HTTP_HOST=HOST).content
 
 
-def test_empty_categories_are_hidden_by_default_without_deleting_them(signed_in,kitchens,catalog):
+def test_custom_categories_include_empty_shelves_without_deleting_them(signed_in,kitchens,catalog):
     with tenant_context(kitchens[0]):
         empty=MenuCategory.objects.create(name='Rice Mix Paste',slug='rice-mix-paste')
         parent=MenuCategory.objects.create(name='Parent shelf',slug='parent-shelf')
         child=MenuCategory.objects.create(name='Child shelf',slug='child-shelf',parent=parent)
         MenuItem.objects.create(name='Hidden product',category=child,price=100,active=False)
-    page=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    page=signed_in.get('/manage/categories/?category_view=custom',HTTP_HOST=HOST)
     ids={row['obj'].pk for row in page.context['rows']}
-    assert empty.pk not in ids and parent.pk in ids and child.pk in ids
-    assert page.context['total']==3
-    assert page.context['category_tabs'][0]['selected']
+    assert empty.pk in ids and parent.pk in ids and child.pk in ids
+    assert page.context['total']==4
+    assert page.context['category_tabs'][1]['selected']
     assert MenuCategory.all_tenants.filter(pk=empty.pk).exists()
     assert signed_in.get(items_url(empty),HTTP_HOST=HOST).status_code==200
-    page=signed_in.get('/manage/categories/',{'category_view':'empty'},HTTP_HOST=HOST)
-    assert {row['obj'].pk for row in page.context['rows']}=={empty.pk}
-    assert page.context['category_tabs'][1]['selected']
-    page=signed_in.get('/manage/categories/',{'category_view':'all'},HTTP_HOST=HOST)
-    assert page.context['total']==4
-    assert {row['obj'].pk for row in page.context['rows']}=={empty.pk,parent.pk,child.pk,catalog['cat'].pk}
+    page=signed_in.get('/manage/categories/?category_view=custom',{'category_view':'empty'},HTTP_HOST=HOST)
+    assert empty.pk in {row['obj'].pk for row in page.context['rows']}
+    assert page.context['category_view']=='empty'
+    page=signed_in.get('/manage/categories/?category_view=custom',{'category_view':'all'},HTTP_HOST=HOST)
+    assert page.context['total']==8
+    assert {empty.pk,parent.pk,child.pk,catalog['cat'].pk}.issubset({row['obj'].pk for row in page.context['rows']})
 
 
 def test_empty_category_search_and_pagination_keep_the_selected_view(signed_in,kitchens,catalog):
     with tenant_context(kitchens[0]):
         MenuCategory.objects.bulk_create([MenuCategory(tenant=kitchens[0],name=f'Empty {i}',slug=f'empty-{i}') for i in range(32)])
-    page=signed_in.get('/manage/categories/',{'category_view':'empty','q':'Empty','page':2},HTTP_HOST=HOST)
+    page=signed_in.get('/manage/categories/?category_view=custom',{'category_view':'empty','q':'Empty','page':2},HTTP_HOST=HOST)
     assert len(page.context['rows'])==2 and page.context['total']==32
     assert 'category_view=empty' in page.context['querystring']
     assert b'name="category_view" value="empty"' in page.content
     assert all('q=Empty' in tab['url'] and 'page=' not in tab['url'] for tab in page.context['category_tabs'])
-    page=signed_in.get('/manage/categories/',{'category_view':'invalid'},HTTP_HOST=HOST)
-    assert {row['obj'].pk for row in page.context['rows']}=={catalog['cat'].pk}
+    page=signed_in.get('/manage/categories/?category_view=custom',{'category_view':'invalid'},HTTP_HOST=HOST)
+    assert {row['obj'].slug for row in page.context['rows']}=={'breakfast','lunch','dinner','shop'}

@@ -95,3 +95,29 @@ def test_guest_recent_order_survives_loss_of_session_but_not_a_different_browser
     stranger.cookies[cookie_name] = client.cookies[cookie_name].value + 'tampered'
     assert b'View your recent order' not in stranger.get('/cart/', HTTP_HOST=HOST).content
     assert stranger.get(url, HTTP_HOST=HOST).status_code == 404
+
+
+def test_pending_order_summary_is_private_and_allocates_no_invoice(client,kitchen,menu):
+    url=place(client,menu)
+    before=InvoiceSequence.all_tenants.filter(tenant=kitchen).count()
+    page=client.get(url+'summary/',HTTP_HOST=HOST)
+    pdf=client.get(url+'summary/download/',HTTP_HOST=HOST)
+    assert page.status_code==200 and b'not a tax invoice' in page.content
+    assert pdf.status_code==200 and pdf.content.startswith(b'%PDF-')
+    assert Client().get(url+'summary/',HTTP_HOST=HOST).status_code==404
+    with tenant_context(kitchen):
+        assert not Invoice.objects.exists() and InvoiceSequence.objects.count()==before
+        assert Order.objects.get().payment_status=='pending'
+
+
+def test_issued_unpaid_cod_invoice_is_downloadable_without_confirming_payment(client,kitchen,menu):
+    url=place(client,menu)
+    with tenant_context(kitchen):
+        order=Order.objects.get();order.payment_mode='cod';order.payment_status='cod_pending';order.save(update_fields=['payment_mode','payment_status'])
+        profile=kitchen.billing_profile;profile.address='Seller street';profile.state='Tamil Nadu';profile.state_code='33';profile.fssai_no='12345678901234';profile.save()
+        invoice=issue_bill(order,allow_unpaid=True)
+    state=client.get(url+'status/',HTTP_HOST=HOST).json()
+    assert not state['paid'] and state['invoice_url'] and state['download_url']
+    assert client.get(state['download_url'],HTTP_HOST=HOST).content.startswith(b'%PDF-')
+    with tenant_context(kitchen):
+        order.refresh_from_db();assert order.payment_status=='cod_pending' and Invoice.objects.count()==1

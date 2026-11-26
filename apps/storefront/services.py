@@ -106,6 +106,10 @@ def add_item(cart, tenant, *, item_id: int, delta: int, slot_key: str,
     if after < 0 or after > MAX_LINE_QUANTITY:
         return BAD_QUANTITY
 
+    if delta > 0:
+        from apps.catalog.inventory import state
+        bucket=state(entry.item,delivery_date,slot)
+        if bucket and bucket.tracked and after>bucket.remaining: return SOLD_OUT
     if not cart.slot_key or cart.is_courier or cart.is_empty:
         cart.set_context(slot_key,delivery_date)
     cart.add(item_id,delta,slot_key)
@@ -145,5 +149,9 @@ def add_courier_item(cart, tenant, *, item_id: int, delta: int):
     if after < 0 or after > MAX_LINE_QUANTITY:
         return BAD_QUANTITY
 
+    if delta > 0:
+        from apps.catalog.inventory import state
+        bucket=state(item)
+        if not item.in_stock or (bucket and bucket.tracked and after>bucket.remaining): return SOLD_OUT
     cart.add(item_id, delta, "snacks")
     return OK

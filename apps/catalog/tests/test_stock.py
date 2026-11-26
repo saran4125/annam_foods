@@ -54,4 +54,5 @@ def test_global_stock_respects_date_menu_availability_and_preserves_internal_not
         assert entry.sold_out and not entry.is_orderable
         with pytest.raises(ItemNotOnMenu):price_lines([RequestedLine(item.pk,1)],delivery_date=date(2026,10,31),slot=catalog['slot'])
     edit=signed_in.get(f'/manage/dishes/{item.pk}/',HTTP_HOST=HOST)
-    assert 'in_stock' in edit.context['form'].fields and 'admin_notes' in edit.context['form'].fields
+    assert 'in_stock' in edit.context['form'].fields and 'admin_notes' not in edit.context['form'].fields
+    item.refresh_from_db();assert item.admin_notes=='Private stock review' and item.weight=='200 gm'

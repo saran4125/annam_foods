@@ -1,3 +1,5 @@
+import os
+import re
 from django.conf import settings
 from django.db import connection, DatabaseError
 from django.http import JsonResponse
@@ -13,7 +15,10 @@ def healthz(request):
             cursor.fetchone()
     except DatabaseError:
         return JsonResponse({"status": "unavailable"}, status=503)
-    return JsonResponse({"status": "ok"})
+    result={'status':'ok'}
+    revision=os.environ.get('RENDER_GIT_COMMIT','')
+    if re.fullmatch(r'[a-f0-9]{40}',revision):result['revision']=revision
+    return JsonResponse(result)
 
 
 urlpatterns = [

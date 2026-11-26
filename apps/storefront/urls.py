@@ -7,6 +7,10 @@ from apps.payments import views as payment_views
 app_name = "storefront"
 
 urlpatterns = [
+    path("checkout/complete/<uuid:reference>/summary/",checkout_views.order_summary,name="order_summary"),
+    path("checkout/complete/<uuid:reference>/summary/download/",checkout_views.order_summary,{"download":True},name="order_summary_pdf"),
+    path("checkout/address/",checkout_views.address_lookup,name="address_lookup"),
+    path("checkout/delivery/",checkout_views.delivery_check,name="delivery_check"),
     path("checkout/complete/<uuid:reference>/courier/pay/",courier_views.begin,name="courier_begin"),
     path("checkout/complete/<uuid:reference>/courier/pay/view/",courier_views.payment,name="courier_payment"),
     path("checkout/complete/<uuid:reference>/courier/verify/",courier_views.verify,name="courier_verify"),

@@ -1,4 +1,6 @@
 {% extends "base.html" %}{% load storefront_extras %}
 {% block title %}Bill {{ invoice.number }} · {{ storefront_brand_name }}{% endblock %}
 {% block extra_head %}<link rel="stylesheet" href="{% static_v 'css/receipt.css' %}"><style>@media print{.site-head,.site-foot,.ticker,.wa-float{display:none!important}.wrap{width:100%;max-width:none;margin:0;padding:0}body{background:#fff}}</style>{% endblock %}
-{% block content %}<div class="bill-actions"><a href="{% url 'storefront:checkout_complete' reference %}">← Back to your order</a><button class="btn" onclick="window.print()">Print / Save as PDF</button></div>{% include "billing/_invoice_body.html" %}{% endblock %}
+{% block content %}<div class="bill-actions"><a href="{% url 'storefront:checkout_complete' reference %}">← Back to your order</a><a class="btn" data-pdf-source="{{ request.path }}" href="{% url 'storefront:customer_pdf' reference %}">Download PDF</a><button class="btn" onclick="window.print()">Print / Save as PDF</button></div>{% include "billing/_invoice_body.html" %}{% endblock %}
+
+{% block scripts %}<script src="{% static_v 'js/receipt-export.js' %}" data-pdf-library="{% static_v 'js/html2pdf-0.14.0.bundle.min.js' %}" defer></script>{% endblock %}

@@ -6,7 +6,7 @@
     <h2>{{ invoice.seller.name }}</h2>
     {% if bill.tagline %}<p class="af-receipt-tagline">{{ bill.tagline }}</p>{% endif %}
     {% if invoice.kind != 'bill' %}<h3 class="af-document-title">{{ invoice.get_kind_display }}</h3>{% endif %}
-    {% if bill.is_credit %}<span class="af-receipt-badge af-receipt-credit">Credit note issued</span>{% elif bill.payment_refunded %}<span class="af-receipt-badge">Payment refunded</span>{% elif bill.payment_received %}<span class="af-receipt-badge">✓ Payment received</span>{% else %}<span class="af-receipt-badge">UNPAID — payment not received</span>{% endif %}
+    {% if bill.is_credit %}<span class="af-receipt-badge af-receipt-credit">Credit note issued</span>{% elif bill.payment_refunded %}<span class="af-receipt-badge">Payment refunded</span>{% elif bill.payment_received %}<span class="af-receipt-badge">✓ Payment received</span>{% elif bill.cash_on_delivery %}<span class="af-receipt-badge">Cash on delivery</span>{% else %}<span class="af-receipt-badge">UNPAID — payment not received</span>{% endif %}
   </header>
   <dl class="af-receipt-meta">
     <div><dt>{{ invoice.get_kind_display }} number</dt><dd>{{ invoice.number }}</dd></div>
@@ -21,7 +21,7 @@
     {% if invoice.buyer.business_name %}<p>{{ invoice.buyer.business_name }}</p>{% endif %}
     {% if invoice.buyer.billing_address %}<p>{{ invoice.buyer.billing_address|linebreaksbr }}</p>{% endif %}
     {% if invoice.buyer.gstin %}<p>GSTIN: {{ invoice.buyer.gstin }}</p>{% endif %}
-    {% if bill.collection %}<p class="af-fulfilment">Collection</p>{% elif bill.address_lines %}<p class="af-delivery-address">{% for line in bill.address_lines %}{{ line }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+    {% if bill.collection %}<p class="af-fulfilment">Collection</p>{% endif %}{% if bill.address_lines %}<p class="af-delivery-address">{% for line in bill.address_lines %}{{ line }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
     {% if bill.delivery_date %}<p class="af-delivery-date">{% if bill.collection %}Collection{% else %}Delivery{% endif %}: {{ bill.delivery_date|date:"j M Y" }}</p>{% endif %}
   </section>
   <table class="af-receipt-items">
@@ -41,7 +41,7 @@
     <div><dt>Round off</dt><dd>₹{{ invoice.round_off|floatformat:2 }}</dd></div>
   </dl>
   <div class="af-receipt-total"><span>{% if bill.is_credit %}Credit total{% elif bill.payment_received %}Total paid{% else %}Total payable{% endif %}</span><strong>₹{{ invoice.total|floatformat:2 }}</strong></div>
-  {% if bill.issued_unpaid and not bill.payment_received and not bill.payment_refunded %}<p class="af-receipt-notice"><strong>Amount due: ₹{{ bill.amount_due|floatformat:2 }}. Payment has not been received.</strong></p>{% endif %}
+  {% if bill.issued_unpaid and not bill.payment_received and not bill.payment_refunded %}<p class="af-receipt-notice"><strong>Amount due: ₹{{ bill.amount_due|floatformat:2 }}. {% if bill.cash_on_delivery %}Cash on delivery.{% else %}Payment has not been received.{% endif %}</strong></p>{% endif %}
   {% if not bill.is_credit %}<p class="af-receipt-notice">{% if invoice.buyer.courier_deferred %}Courier charges are not included in this food bill. They are confirmed and payable separately after dispatch.{% else %}Delivery fees shown above are included in the total {% if bill.payment_received %}paid{% else %}payable{% endif %}.{% endif %}</p>{% endif %}
   <p class="af-receipt-words">{{ invoice.amount_words }}</p>
   <div class="af-receipt-payment">

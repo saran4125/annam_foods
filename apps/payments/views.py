@@ -180,8 +180,6 @@ def customer_pdf(request, reference):
     from apps.billing.models import Invoice, InvoiceKind
     from apps.billing.pdf import invoice_pdf, test_receipt_pdf
     order = guest_order(request, reference)
-    if order.payment_status not in ('paid', 'refunded'):
-        raise Http404
     intent = PaymentIntent.objects.filter(order=order).first()
     if intent and intent.mode == 'test':
         if intent.state != 'captured' or order.payment_status != 'paid':

@@ -120,17 +120,18 @@ def test_toggle_takes_a_dish_off_sale(signed_in, kitchens, catalog):
         assert MenuItem.objects.get(pk=catalog["dish"].pk).active is False
 
 
-def test_category_in_use_is_not_deleted(signed_in, kitchens, catalog):
+def test_category_delete_keeps_products_and_unfiles_them(signed_in, kitchens, catalog):
     r = signed_in.post(f"/manage/categories/{catalog['cat'].pk}/delete/", HTTP_HOST=HOST)
     assert r.status_code == 302
     with tenant_context(kitchens[0]):
-        assert MenuCategory.objects.filter(pk=catalog["cat"].pk).exists()
+        assert not MenuCategory.objects.filter(pk=catalog["cat"].pk).exists()
+        assert MenuItem.objects.get(pk=catalog["dish"].pk).category_id is None
 
 
 def test_delete_a_dish(signed_in, kitchens, catalog):
     signed_in.post(f"/manage/dishes/{catalog['dish'].pk}/delete/", HTTP_HOST=HOST)
     with tenant_context(kitchens[0]):
-        assert not MenuItem.objects.filter(pk=catalog["dish"].pk).exists()
+        assert not MenuItem.objects.get(pk=catalog["dish"].pk).active
 
 
 def test_settings_update_brand_and_hero(signed_in, kitchens):

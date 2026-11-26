@@ -33,7 +33,7 @@ def _document(title, paragraphs, rows):
 def invoice_pdf(invoice):
     bill = receipt_details(invoice)
     seller, buyer = invoice.seller, invoice.buyer
-    details = [('Payment received' if bill['payment_received'] else 'Payment refunded' if bill['payment_refunded'] else 'UNPAID — PAYMENT NOT RECEIVED'), seller.get('name'), seller.get('address'),
+    details = [('Payment received' if bill['payment_received'] else 'Payment refunded' if bill['payment_refunded'] else 'Cash on delivery' if bill['cash_on_delivery'] else 'UNPAID — PAYMENT NOT RECEIVED'), seller.get('name'), seller.get('address'),
                f"{seller.get('state', '')} · State code {seller.get('state_code', '')}",
                f"GSTIN: {seller.get('gstin', '')} · FSSAI: {seller.get('fssai_no', '')}",
                f'Issued: {invoice.issued_at:%d %b %Y}',
@@ -56,7 +56,7 @@ def invoice_pdf(invoice):
                  ('Round off', f'₹{invoice.round_off:.2f}'), ('Total paid' if bill['payment_received'] else 'Total payable', f'₹{invoice.total:.2f}'),
                  (invoice.amount_words, '')])
     if bill['issued_unpaid'] and not bill['payment_received'] and not bill['payment_refunded']:
-        rows.append(('Amount due — payment not received', f"₹{bill['amount_due']:.2f}"))
+        rows.append(('Amount due — cash on delivery' if bill['cash_on_delivery'] else 'Amount due — payment not received', f"₹{bill['amount_due']:.2f}"))
     if buyer.get('courier_deferred'):
         rows.append(('Courier charges are payable separately after dispatch.', ''))
     if seller.get('gst_mode') == 'composition':
@@ -71,3 +71,10 @@ def test_receipt_pdf(order):
     rows.extend([('Delivery', f'₹{order.delivery_fee}'), ('Simulated total', f'₹{order.total}')])
     return _document('TEST / SIMULATED PAYMENT / NOT AN INVOICE',
                      [order.order_no, order.buyer_name, 'No real money collected. No financial invoice number allocated.'], rows)
+
+
+def order_summary_pdf(order):
+    rows=[('Items','Amount')]+[(f"{line['name']} · {line['quantity']} × ₹{line['unit_price']}",f"₹{line['line_total']}") for line in order.items]
+    rows += [('Items subtotal',f'₹{order.subtotal}'),('Delivery',f'₹{order.delivery_fee}'),('Order total',f'₹{order.total}')]
+    address=', '.join(str(order.address.get(k) or '') for k in ('line1','line2','city','state','country','pincode') if order.address.get(k))
+    return _document('ORDER SUMMARY — NOT A TAX INVOICE',[order.order_no,order.address.get('recipient_name',''),order.address.get('phone',''),address,'This summary does not confirm payment.'],rows)

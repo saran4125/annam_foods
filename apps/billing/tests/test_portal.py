@@ -242,7 +242,7 @@ def test_manual_payment_website_order_can_be_marked_for_collection(signed_in, ki
     with tenant_context(kitchens[0]):
         order=Order.objects.get();order.channel='web';order.save(update_fields=['channel'])
     page=signed_in.get(f'/billing/orders/{order.pk}/',HTTP_HOST=HOST)
-    assert b'Payment not received' in page.content and b'value="collect_on_delivery"' in page.content
+    assert b'Cash on delivery' in page.content and b'value="collect_on_delivery"' in page.content
     signed_in.post(f'/billing/orders/{order.pk}/payment/',{'action':'collect_on_delivery'},HTTP_HOST=HOST)
     order.refresh_from_db()
     assert order.payment_mode=='cod' and order.payment_status=='cod_pending' and order.status=='placed'

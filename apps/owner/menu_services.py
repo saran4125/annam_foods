@@ -10,7 +10,7 @@ from apps.catalog.services import meal_carries_forward
 
 def menu_selection(params):
     kind = 'courier' if params.get('type') == 'courier' else 'scheduled'
-    slots = list(Slot.objects.all())
+    slots = list(Slot.objects.exclude(key__in=['snack','snacks']))
     keys = {slot.key: slot for slot in slots}
     requested = params.get('meal', '')
     raw_date = params.get('date', timezone.localdate().isoformat())
@@ -31,12 +31,16 @@ def menu_items(selection):
     if selection['kind'] == 'courier':
         return items
     if selection['slot'] is None:
-        return items.filter(schedule__isnull=True).exclude(category__slug__in=[slot.key for slot in selection['slots']])
+        from apps.catalog.library import for_meal, MEALS
+        assigned=set()
+        for key in MEALS: assigned.update(for_meal(items,key).values_list('pk',flat=True))
+        return items.exclude(pk__in=assigned)
     if selection['on_date']:
         from apps.catalog.services import resolve_menu
         entries = resolve_menu(selection['on_date'], selection['slot'], include_unavailable=True, include_inactive=True)
         return items.filter(pk__in=[entry.item.pk for entry in entries if entry.available])
-    return items.filter(Q(schedule__slot=selection['slot']) | Q(category__slug=selection['slot'].key)).distinct()
+    from apps.catalog.library import for_meal
+    return for_meal(items, selection['slot'].key)
 
 
 def menu_group_counts(on_date=None):
@@ -44,13 +48,15 @@ def menu_group_counts(on_date=None):
     counts = dict(items.values('fulfilment').annotate(total=Count('pk')).values_list('fulfilment', 'total'))
     if not on_date:
         per_slot = {slot.pk: items.filter(fulfilment='scheduled').filter(
-            Q(schedule__slot=slot) | Q(category__slug=slot.key)).distinct().count() for slot in Slot.objects.all()}
+            Q(schedule__slot=slot) | Q(category__slug=slot.key)).distinct().count() for slot in Slot.objects.exclude(key__in=['snack','snacks'])}
     if on_date:
         from apps.catalog.services import resolve_menu
-        per_slot = {slot.pk: sum(entry.available for entry in resolve_menu(on_date, slot, include_unavailable=True, include_inactive=True)) for slot in Slot.objects.all()}
-    return {'meals': counts.get('scheduled', 0), 'other': counts.get('courier', 0),
-            'unassigned': items.filter(fulfilment='scheduled', schedule__isnull=True).exclude(
-                category__slug__in=Slot.objects.values_list('key', flat=True)).count(), 'slots': per_slot}
+        per_slot = {slot.pk: sum(entry.available for entry in resolve_menu(on_date, slot, include_unavailable=True, include_inactive=True)) for slot in Slot.objects.exclude(key__in=['snack','snacks'])}
+    from apps.catalog.library import for_meal, MEALS
+    assigned=set()
+    for key in MEALS: assigned.update(for_meal(items.filter(fulfilment='scheduled'),key).values_list('pk',flat=True))
+    return {'meals': counts.get('scheduled',0),'other':counts.get('courier',0),'unassigned':items.filter(fulfilment='scheduled').exclude(pk__in=assigned).count(),'slots':per_slot}
+
 
 
 def menu_categories(items):

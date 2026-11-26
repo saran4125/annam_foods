@@ -11,7 +11,7 @@
 {% if menu_ui %}
 <nav class="o-catalog-groups" aria-label="Product groups">
   <a href="{{ menu_ui.meals_url }}"{% if menu_ui.selection.kind == 'scheduled' %} class="is-selected" aria-current="page"{% endif %}><svg class="o-ic" aria-hidden="true"><use href="#o-dish"/></svg><span>Meals</span><b>{{ menu_ui.counts.meals }}</b></a>
-  <a href="{{ menu_ui.other_url }}"{% if menu_ui.selection.kind == 'courier' %} class="is-selected" aria-current="page"{% endif %}><svg class="o-ic" aria-hidden="true"><use href="#o-bag"/></svg><span>Other items</span><b>{{ menu_ui.counts.other }}</b></a>
+  <a href="{{ menu_ui.other_url }}"{% if menu_ui.selection.kind == 'courier' %} class="is-selected" aria-current="page"{% endif %}><svg class="o-ic" aria-hidden="true"><use href="#o-bag"/></svg><span>Shop products</span><b>{{ menu_ui.counts.other }}</b></a>
 </nav>
 {% if menu_ui.selection.kind == 'scheduled' %}
 <nav class="o-meal-groups" aria-label="Meals">
@@ -36,7 +36,7 @@
 
 {% if res.search or filters %}
 <form class="o-tools" method="get">
-  {% if category_tabs %}<input type="hidden" name="category_view" value="{% for tab in category_tabs %}{% if tab.selected %}{{ tab.value }}{% endif %}{% endfor %}">{% endif %}
+  {% if category_tabs %}<input type="hidden" name="category_view" value="{{ category_view }}">{% endif %}
   {% if menu_ui %}<input type="hidden" name="type" value="{{ menu_ui.selection.kind }}">{% if menu_ui.selection.kind == 'scheduled' %}<input type="hidden" name="meal" value="{{ menu_ui.selection.meal }}"><input type="hidden" name="date" value="{% if menu_ui.selection.on_date %}{{ menu_ui.selection.on_date|date:'Y-m-d' }}{% else %}all{% endif %}">{% endif %}{% endif %}
   {% if res.search %}
   <label class="o-search">
@@ -59,7 +59,7 @@
 {% if rows %}
 <div class="o-table-wrap" data-reveal>
 <table class="o-table">
-  <thead><tr>{% for h in headers %}<th scope="col">{{ h }}</th>{% endfor %}<th scope="col"><span class="o-sr">Actions</span></th></tr></thead>
+  <thead><tr>{% for h in headers %}<th scope="col">{{ h }}</th>{% endfor %}{% if res.key == "dishes" %}<th scope="col">Quantity</th>{% endif %}<th scope="col"><span class="o-sr">Actions</span></th></tr></thead>
   <tbody data-stagger>
   {% for row in rows %}
     {% with edit_url=row.edit_url %}
@@ -69,8 +69,8 @@
         {% if c.kind == "image" or c.kind == "image-wide" %}
           <a class="o-thumb{% if c.kind == 'image-wide' %} o-thumb-wide{% endif %}" href="{{ row.title_url|default:edit_url }}" tabindex="-1" aria-hidden="true">{% if c.value %}<img src="{{ c.value.url }}" alt="" loading="lazy">{% else %}<svg class="o-ic"><use href="#o-image"/></svg>{% endif %}</a>
         {% elif c.kind == "title" %}<a class="o-row-title" href="{{ row.title_url|default:edit_url }}">{{ c.value }}</a>{% if menu_ui.choose_url and not row.obj.active %}<small class="o-muted">Hidden globally — edit to enable</small>{% endif %}
-        {% if res.key == "dishes" and row.obj.admin_notes %}<small class="o-sub">{{ row.obj.admin_notes|truncatechars:110 }}</small>{% endif %}
-        {% elif c.kind == "count" %}<a href="{{ row.items_url }}" aria-label="View {{ c.value }} items in {{ row.obj.name }}">{% if row.obj.website_count %}{{ row.obj.website_count }} on website{% else %}{{ c.value }} items{% endif %}</a>{% if row.obj.website_count and row.obj.website_count != c.value %}<small class="o-sub"><a href="{{ row.all_items_url }}">{{ c.value }} total including hidden items</a></small>{% endif %}
+
+        {% elif c.kind == "count" %}<a href="{{ row.items_url }}">{{ c.value }} items</a><small class="o-sub">{{ row.obj.website_count }} in stock &amp; on sale</small>
         {% elif c.kind == "money" %}₹{{ c.value|money }}
         {% elif c.kind == "time" %}{{ c.value|time:"g:i A" }}
         {% elif c.kind == "bool" %}{% if c.value %}Yes{% else %}<span class="o-muted">No</span>{% endif %}
@@ -86,6 +86,7 @@
         {% else %}{{ c.value|default:"—" }}{% endif %}
       </td>
       {% endfor %}
+      {% if res.key == 'dishes' %}<td><a class="o-btn" href="{{ row.quantity_url }}">{% if row.obj.quantity_tracked %}{{ row.obj.stock_quantity }} available · {% if row.obj.stock_quantity == 0 %}Sold out{% else %}On{% endif %}{% elif row.obj.fulfilment == 'scheduled' and not menu_ui.choose_url %}Set daily quantity{% else %}Track quantity · Off{% endif %}</a></td>{% endif %}
       <td class="o-cell-actions">
         <a class="o-icon-btn" href="{{ edit_url }}" aria-label="{% if res.key == 'categories' %}Edit category {{ row.obj }}{% else %}Edit {{ row.obj }}{% endif %}"><svg class="o-ic"><use href="#o-edit"/></svg></a>
         <a class="o-icon-btn o-danger" href="{{ row.delete_url }}" aria-label="{% if menu_ui.choose_url %}Remove {{ row.obj }} from this date{% else %}Delete {{ row.obj }}{% endif %}"><svg class="o-ic"><use href="#o-trash"/></svg></a>
@@ -100,7 +101,7 @@
 {% if page.has_other_pages %}
 <nav class="o-pager" aria-label="Pages">
   {% if page.has_previous %}<a class="o-btn" href="?{{ querystring }}&page={{ page.previous_page_number }}">← Previous</a>{% endif %}
-  <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>{% for n in page_numbers %}{% if n == page.number %}<span class="o-btn is-selected" aria-current="page">{{ n }}</span>{% else %}<a class="o-btn" href="?{{ querystring }}&page={{ n }}" aria-label="Page {{ n }}">{{ n }}</a>{% endif %}{% endfor %}
   {% if page.has_next %}<a class="o-btn" href="?{{ querystring }}&page={{ page.next_page_number }}">Next →</a>{% endif %}
 </nav>
 {% endif %}

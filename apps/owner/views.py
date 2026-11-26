@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 from urllib.parse import urlencode
 
+from apps.catalog.library import category_items
 from apps.messaging.models import OutboundMessage
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -220,34 +221,36 @@ def dashboard(request):
 @owner_required
 def resource_list(request, key, *, category=None):
     res = _resource(key)
+    from apps.catalog.library import ensure_defaults, DEFAULTS, category_items
+    if key in ('categories','dishes'):
+        ensure_defaults()
     qs = res.model.objects.all()
+    if key == 'meals':
+        qs = qs.exclude(key__in=['snack','snacks'])
     category_tabs = []
     if key == 'categories':
-        # Count the same category family used by the public shop, not just
-        # products assigned directly to the parent category.
-        category_counts = dict(MenuItem.objects.values('category_id').annotate(n=Count('pk')).values_list('category_id', 'n'))
-        families=category_families(list(qs))
-        category_totals = {pk: sum(category_counts.get(child, 0) for child in ids) for pk,ids in families.items()}
-        online_counts=dict(shop_items().order_by().values('category_id').annotate(n=Count('pk')).values_list('category_id','n'))
-        website_totals={pk:sum(online_counts.get(child,0) for child in ids) for pk,ids in families.items()}
-        populated = [pk for pk, count in category_totals.items() if count]
-        selected_view = request.GET.get('category_view', 'populated')
-        if selected_view not in ('populated', 'empty', 'all'):
-            selected_view = 'populated'
-        for value, label, count in [('populated', 'With items', len(populated)),
-                                    ('empty', 'Empty categories', len(category_totals)-len(populated)),
-                                    ('all', 'All categories', len(category_totals))]:
-            params = request.GET.copy()
-            params.pop('page', None)
-            params['category_view'] = value
-            category_tabs.append({'value': value, 'label': label, 'count': count, 'selected': selected_view == value,
-                                  'url': reverse('owner:list', args=['categories']) + '?' + params.urlencode()})
-        if selected_view == 'populated':
-            qs = qs.filter(pk__in=populated)
-        elif selected_view == 'empty':
-            qs = qs.exclude(pk__in=populated)
+        from apps.catalog.library import MEALS, meal_keys
+        shelves=list(qs)
+        families=category_families(shelves)
+        library=list(MenuItem.objects.select_related('category').prefetch_related('schedule__slot'))
+        memberships={item.pk:set(meal_keys(item)) for item in library}
+        category_totals={};website_totals={};category_images={}
+        for shelf in shelves:
+            members=[item for item in library if (shelf.slug in MEALS and shelf.slug in memberships[item.pk]) or (shelf.slug=='shop' and item.fulfilment=='courier') or (shelf.slug not in DEFAULTS and item.category_id in families[shelf.pk])]
+            category_totals[shelf.pk]=len(members)
+            website_totals[shelf.pk]=sum(item.active and item.in_stock for item in members)
+            category_images[shelf.pk]=next((item.image for item in members if item.image),None)
+        selected_view = request.GET.get('category_view', 'main')
+        if selected_view not in ('main','custom','all','empty','populated'): selected_view='main'
+        for value, label, selected_qs in [('main','Main categories',qs.filter(slug__in=DEFAULTS)),('custom','Custom categories',qs.exclude(slug__in=DEFAULTS)),('all','All categories',qs)]:
+            params=request.GET.copy();params.pop('page',None);params['category_view']=value
+            category_tabs.append({'value':value,'label':label,'count':selected_qs.count(),'selected':selected_view==value,'url':reverse('owner:list',args=['categories'])+'?'+params.urlencode()})
+        if selected_view == 'main': qs=qs.filter(slug__in=DEFAULTS)
+        elif selected_view == 'custom': qs=qs.exclude(slug__in=DEFAULTS)
+        elif selected_view == 'empty': qs=qs.filter(pk__in=[pk for pk,n in category_totals.items() if not n])
+        elif selected_view == 'populated': qs=qs.filter(pk__in=[pk for pk,n in category_totals.items() if n])
     if category is not None:
-        qs = qs.filter(category_id__in=category_family_ids(category))
+        qs = category_items(category)
     menu, menu_ui = None, {}
     if key == "dishes" and category is None:
         from .menu_services import menu_selection, menu_items, menu_group_counts, menu_categories
@@ -270,7 +273,7 @@ def resource_list(request, key, *, category=None):
                          "url": group_url("scheduled", "unassigned"), "selected": menu["meal"] == "unassigned"})
         menu_ui = {"selection": menu, "counts": counts, "tabs": tabs,
                    "meals_url": group_url("scheduled"), "other_url": group_url("courier"),
-                   "title": "Other items" if menu["kind"] == "courier" else menu["label"],
+                   "title": "Shop products" if menu["kind"] == "courier" else menu["label"],
                    "categories": list(menu_categories(qs))}
         if menu['kind'] == 'scheduled' and menu['slot'] and menu['on_date']:
             from apps.catalog.models import MenuDay
@@ -332,6 +335,8 @@ def resource_list(request, key, *, category=None):
         for shelf in page:
             shelf.product_count = category_totals[shelf.pk]
             shelf.website_count = website_totals[shelf.pk]
+            if not shelf.image:
+                shelf.image=category_images[shelf.pk]
     rows = [{"obj": o, "cells": [_cell(o, a, k) for _, a, k in columns],
              "edit_url": action_url("owner:edit", o.pk), "delete_url": action_url("owner:delete", o.pk),
              "stock_url": reverse("owner:stock", args=[o.pk]) if key == "dishes" else "",
@@ -340,9 +345,14 @@ def resource_list(request, key, *, category=None):
         for row in rows:
             row['items_url'] = reverse('owner:category_items',args=[row['obj'].pk])
             row['all_items_url'] = row['items_url']
-            if row['obj'].website_count:
-                row['items_url'] += '?type=courier&status=1&stock=1'
             row['title_url'] = row['items_url']
+    if key == 'dishes':
+        from apps.catalog.inventory import decorate
+        for row in rows:
+            decorate(row['obj'], menu['on_date'] if menu else None, menu['slot'] if menu else None)
+            params={'next':return_url}
+            if menu and menu['slot'] and menu['on_date']: params.update(date=menu['on_date'].isoformat(),meal=menu['slot'].key)
+            row['quantity_url']=reverse('owner:quantity',args=[row['obj'].pk])+'?'+urlencode(params)
     if menu and menu['on_date'] and menu['slot'] and menu['kind'] == 'scheduled':
         entries = {e.item.pk: e for e in resolve_menu(menu['on_date'], menu['slot'], include_unavailable=True, include_inactive=True)}
         for row in rows:
@@ -352,11 +362,12 @@ def resource_list(request, key, *, category=None):
     params = request.GET.copy()
     params.pop("page", None)
     return render(request, "owner/list.html", {
-        "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui, "category": category, "category_tabs": category_tabs,
+        "res": res, "rows": rows, "page": page, "query": query, "filters": filter_ui, "category": category, "category_tabs": category_tabs, "category_view": selected_view if key=='categories' else '',
         "category_edit_url": reverse("owner:edit",args=["categories",category.pk])+"?"+urlencode({"next":return_url}) if category else "",
         "menu_ui": menu_ui, "new_url": action_url("owner:new"),
         "add_label": "Add item" if category else (("Add item" if menu["kind"] == "courier" else "Add meal" if menu["meal"] == "unassigned" else "Add " + menu["label"].lower() + " dish") if menu else "Add " + res.singular),
         "headers": [('Available this day' if label == 'On sale' and menu_ui.get('choose_url') else label) for label, _, _ in columns], "querystring": params.urlencode(),
+        "page_numbers": sorted({1,page.number,*([page.number-1] if page.has_previous() else []),*([page.number+1] if page.has_next() else []),page.paginator.num_pages}),
         "toggle_field": TOGGLE_FIELDS.get(key), "total": qs.count(),
     })
 
@@ -364,7 +375,7 @@ def resource_list(request, key, *, category=None):
 @owner_required
 def resource_edit(request, key, pk=None, *, category=None):
     res = _resource(key)
-    obj = get_object_or_404(res.model, pk=pk, **({'category_id__in':category_family_ids(category)} if category else {})) if pk else None
+    obj = get_object_or_404(res.model, pk=pk, **({'pk__in':category_items(category).values('pk')} if category else {})) if pk else None
     return_url = _safe_next(request, reverse("owner:category_items",args=[category.pk]) if category else reverse("owner:list", args=[key]))
     form_kwargs = {}
     menu = None
@@ -382,7 +393,7 @@ def resource_edit(request, key, pk=None, *, category=None):
             form_kwargs["initial"] = {"fulfilment": menu["kind"]}
     if category is not None and obj is None:
         kinds=set(MenuItem.objects.filter(category=category).values_list('fulfilment',flat=True))
-        form_kwargs['initial']={'category':category.pk,'fulfilment':'scheduled' if kinds=={'scheduled'} else 'courier'}
+        form_kwargs['initial']={'category':category.pk,'fulfilment':'scheduled' if category.slug in ('breakfast','lunch','dinner') or kinds=={'scheduled'} else 'courier','meals':[category.slug] if category.slug in ('breakfast','lunch','dinner') else []}
     form = res.form(request.POST or None, request.FILES or None, instance=obj, **form_kwargs)
     if category is not None:
         form.fields['category'].disabled=True
@@ -439,7 +450,17 @@ def resource_delete(request, key, pk, *, category=None):
             return redirect(return_url)
         name = str(obj)
         try:
-            obj.delete()
+            if key == 'categories':
+                from apps.catalog.library import remove_category
+                try:
+                    remove_category(obj)
+                except ValidationError as exc:
+                    messages.error(request,' '.join(exc.messages))
+                    return redirect(return_url)
+            elif key == 'dishes':
+                obj.active=False;obj.save(update_fields=['active'])
+            else:
+                obj.delete()
         except ProtectedError:
             messages.error(request, f"“{name}” is still in use (for example, products are filed under it). "
                                     "Move or delete those first, or just hide it.")
@@ -620,6 +641,13 @@ def order_payment(request, pk):
 def bill_detail(request, pk):
     from apps.billing.models import Invoice
     invoice = get_object_or_404(Invoice.objects.select_related("order"), pk=pk)
+    if request.GET.get('download') == '1':
+        from django.http import HttpResponse
+        from apps.billing.pdf import invoice_pdf
+        response=HttpResponse(invoice_pdf(invoice),content_type='application/pdf')
+        response['Content-Disposition']='attachment; filename="invoice.pdf"'
+        response['Cache-Control']='private, no-store'
+        return response
     return render(request, "owner/bill.html", {"invoice": invoice})
 
 
@@ -648,6 +676,8 @@ def daily_menu(request):
     entries = resolve_menu(selected['on_date'], selected['slot'], include_unavailable=True, include_inactive=True)
     form = forms.DailyMenuForm(request.POST if request.method == 'POST' else None,
         selected=[e.item.pk for e in entries if e.available], revision=plan.revision if plan else 0)
+    from apps.catalog.library import for_meal
+    form.fields['items'].queryset=for_meal(form.fields['items'].queryset,selected['slot'].key)
     return_url = reverse('owner:list', args=['dishes']) + '?' + urlencode({
         'type': 'scheduled', 'meal': selected['meal'], 'date': selected['on_date'].isoformat()})
     if request.method == 'POST' and form.is_valid():
@@ -671,3 +701,41 @@ def stock_toggle(request, pk):
     item.save(update_fields=['in_stock'])
     messages.success(request, f'“{item}” is now ' + ('in stock.' if item.in_stock else 'out of stock.'))
     return redirect(_safe_next(request, reverse('owner:list', args=['dishes'])))
+
+
+@owner_required
+def quantity(request, pk):
+    """Set optional remaining stock without replacing a daily menu."""
+    from datetime import date
+    from apps.catalog.inventory import state, configure
+    from apps.catalog.library import MEALS, meal_keys
+    from django import forms as django_forms
+    from django.utils import timezone
+    item=get_object_or_404(MenuItem,pk=pk)
+    slots=list(Slot.objects.filter(key__in=MEALS))
+    try:
+        on_date=date.fromisoformat(request.POST.get('date') or request.GET.get('date') or timezone.localdate().isoformat())
+    except ValueError:
+        raise Http404('Choose a valid date.')
+    assigned=meal_keys(item)
+    key=request.POST.get('meal') or request.GET.get('meal') or (assigned[0] if assigned else slots[0].key if slots else '')
+    slot=next((s for s in slots if s.key==key),None) if item.fulfilment=='scheduled' else None
+    if item.fulfilment=='scheduled' and not slot: raise Http404('Choose a meal.')
+    row=state(item,on_date,slot)
+    class QuantityForm(django_forms.Form):
+        tracked=django_forms.BooleanField(required=False,label='Track quantity')
+        operation=django_forms.ChoiceField(choices=[('set','Set available quantity'),('add','Add stock')])
+        quantity=django_forms.IntegerField(min_value=0,max_value=1000000000,required=False)
+        revision=django_forms.IntegerField(min_value=0,widget=django_forms.HiddenInput)
+    form=QuantityForm(request.POST or None,initial={'tracked':bool(row and row.tracked),'quantity':row.remaining if row else 0,'revision':row.revision if row else 0})
+    for field in form.fields.values():
+        if not isinstance(field.widget,django_forms.CheckboxInput):field.widget.attrs.setdefault('class','o-input')
+    back=_safe_next(request,reverse('owner:list',args=['dishes']))
+    if request.method=='POST' and form.is_valid():
+        try:
+            configure(item,on_date=on_date,slot=slot,tracked=form.cleaned_data['tracked'],quantity=form.cleaned_data['quantity'] or 0,operation=form.cleaned_data['operation'],revision=form.cleaned_data['revision'])
+        except ValidationError as exc: form.add_error(None,exc)
+        else:
+            messages.success(request,'Quantity saved. Orders reduce it once; cancellations restore reserved units once.')
+            return redirect(back)
+    return render(request,'owner/quantity.html',{'item':item,'form':form,'slots':slots,'slot':slot,'on_date':on_date,'return_url':back})

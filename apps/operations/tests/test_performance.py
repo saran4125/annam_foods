@@ -7,12 +7,12 @@ from apps.tenancy.models import TenantConfig
 
 
 def test_staff_category_queries_do_not_grow_with_each_category(signed_in,kitchens,catalog):
-    with CaptureQueriesContext(connection) as baseline:signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    with CaptureQueriesContext(connection) as baseline:signed_in.get('/manage/categories/?category_view=custom',HTTP_HOST=HOST)
     with tenant_context(kitchens[0]):
         for i in range(20):
             category=MenuCategory.objects.create(name=f'Group {i}',slug=f'group-{i}')
             MenuItem.objects.create(name=f'Product {i}',category=category,price=100,fulfilment='courier')
-    with CaptureQueriesContext(connection) as grown:response=signed_in.get('/manage/categories/',HTTP_HOST=HOST)
+    with CaptureQueriesContext(connection) as grown:response=signed_in.get('/manage/categories/?category_view=custom',HTTP_HOST=HOST)
     assert response.context['total']==21 and len(grown)<=len(baseline)+2
 
 

@@ -72,6 +72,8 @@ def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = Fals
     for item_id, row in chosen.items():
         if row.item.fulfilment != "scheduled" or (not row.item.active and not include_inactive):
             continue
+        from .inventory import decorate
+        decorate(row.item, on_date, slot)
         inherited = row.mode == ScheduleMode.DATE and row.on_date != on_date
         sold_out = (row.qty_limit is not None and row.qty_limit <= 0) if inherited else row.is_sold_out
         entry = MenuEntry(
@@ -79,7 +81,7 @@ def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = Fals
             slot=row.slot,
             price=row.effective_price,
             available=row.available,
-            sold_out=sold_out or not row.item.in_stock,
+            sold_out=sold_out or not row.item.in_stock or (row.item.quantity_tracked and row.item.stock_quantity == 0),
             source=row.mode,
         )
         if include_unavailable or entry.is_orderable:
@@ -122,7 +124,7 @@ def current_customer_slot(*, now=None):
     Tomorrow supports advance orders for any active meal.
     """
     now = now or timezone.localtime()
-    return Slot.objects.filter(active=True, order_cutoff__gt=now.time()).order_by(
+    return Slot.objects.exclude(key__in=['snack','snacks']).filter(active=True, order_cutoff__gt=now.time()).order_by(
         'order_cutoff', 'sort', 'key').first()
 
 
@@ -140,7 +142,7 @@ def open_slots(on_date: date_cls, now=None):
     """Slots still accepting orders for a date, in display order."""
     return [
         s
-        for s in Slot.objects.filter(active=True)
+        for s in Slot.objects.exclude(key__in=['snack','snacks']).filter(active=True)
         if slot_is_open(s, on_date, now=now)
     ]
 
@@ -157,7 +159,7 @@ SHOP_SORTS = {
 
 def shop_items():
     """Every courier item currently on sale, whatever its category."""
-    return MenuItem.objects.filter(active=True, in_stock=True, fulfilment="courier").select_related("category")
+    return MenuItem.objects.filter(active=True, in_stock=True, fulfilment="courier").exclude(inventorybucket__tracked=True,inventorybucket__remaining=0).select_related("category")
 
 
 def shop_categories():

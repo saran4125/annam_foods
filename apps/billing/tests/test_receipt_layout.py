@@ -139,3 +139,21 @@ def test_dedicated_bill_logo_is_snapshotted_without_changing_the_website_logo(bi
     assert 'src="/media/brand/annam-bill-logo.png"' in html
     config.refresh_from_db()
     assert config.theme['logo_url'] == '/media/website-original.png'
+
+
+@pytest.mark.django_db
+def test_cod_collection_invoice_shows_saved_address_without_marking_paid(billing_order):
+    from apps.orders.models import PaymentMode, PaymentStatus
+    tenant,order=billing_order
+    order.payment_mode=PaymentMode.COD;order.payment_status=PaymentStatus.COD_PENDING
+    order.address={'fulfilment':'Collection','line1':'8/21 Test lane','city':'Chennai','pincode':'600005'}
+    order.save()
+    with tenant_context(tenant):
+        invoice=issue_bill(order,allow_unpaid=True)
+        before=dict(invoice.buyer)
+        html=render_to_string('billing/_invoice_body.html',{'invoice':invoice})
+        assert '8/21 Test lane' in html and 'Cash on delivery' in html
+        assert 'UNPAID — payment not received' not in html
+        assert 'Total payable' in html
+        order.refresh_from_db();invoice.refresh_from_db()
+        assert order.payment_status==PaymentStatus.COD_PENDING and invoice.buyer==before

@@ -385,7 +385,8 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
         item = MenuItem.objects.filter(pk=item_id,active=True,in_stock=True).first()
         if item is None:
             raise ValueError('An item is unavailable. Reload the form and choose active items.')
-        assigned = set(MenuSchedule.objects.filter(item=item).values_list('slot__key',flat=True))
+        from apps.catalog.library import meal_keys
+        assigned = set(meal_keys(item))
         if meal and item.fulfilment=='courier' and meal!='snacks':
             raise ValueError('Packed Snacks products must use the Snacks food category.')
         if meal and assigned and item.fulfilment=='scheduled' and meal not in assigned:
@@ -456,6 +457,8 @@ def create_staff_order(tenant, *, name, phone, channel, payment_mode, requested,
             continue
     else:
         raise ValueError("Could not allocate an order number. Please try again.")
+    from apps.catalog.inventory import reserve
+    reserve(order)
     OrderEvent.objects.create(order=order, to_status=order.status, actor=actor[:60],
                               note="Booking entered by staff in billing portal.")
     if snapshot.get("courier_deferred"):
@@ -472,8 +475,8 @@ def staff_catalog():
     result = []
     for item in MenuItem.objects.filter(active=True,in_stock=True).select_related("category").prefetch_related(
             Prefetch("schedule", queryset=schedules, to_attr="billing_schedules")).order_by("name"):
-        groups = sorted({row.slot.key for row in item.billing_schedules
-                         if row.slot.key in ("breakfast", "lunch", "dinner", "snacks")}) if item.fulfilment == "scheduled" else ["snacks"]
+        from apps.catalog.library import meal_keys
+        groups = meal_keys(item) if item.fulfilment == 'scheduled' else ['snacks']
         result.append({"id": item.pk, "name": item.name, "price": str(item.price),
                        "category": item.category.name if item.category else "", "groups": groups or ["other"]})
     return result

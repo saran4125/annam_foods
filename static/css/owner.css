@@ -415,3 +415,13 @@ select.o-input{appearance:none;padding-right:36px;cursor:pointer;
 .o-day-dish strong{flex-shrink:0}
 .billing-ui .b-remove.o-choice-toggle{padding-top:0;align-self:center;min-height:44px}
 @media(max-width:600px){.o-check{padding:14px;gap:10px}.o-toggle-copy b{font-size:14px}.o-toggle-state{padding:3px 8px}.o-day-dish{flex-wrap:wrap}.o-day-dish>span:not(.o-switch-ui){flex-basis:calc(100% - 60px)}.o-day-dish strong{margin-left:54px}}
+
+/* Compact switches and unmistakable current-page navigation. */
+.o-form .o-check{width:fit-content;max-width:100%;display:inline-flex;gap:12px;padding:10px 14px;align-items:center;justify-content:flex-start}
+.o-form .o-check .o-toggle-state{margin-left:8px}
+.o-pager{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:24px 0}
+.o-pager .is-selected{background:var(--brand);color:var(--on-brand);border-color:var(--brand);box-shadow:0 0 0 3px #ff850730;font-weight:800}
+
+.o-body .o-check:not(.o-day-dish){width:fit-content;max-width:100%;display:inline-flex;justify-content:flex-start;align-items:center;gap:12px;padding:10px 14px}
+.o-body .o-check .o-toggle-copy{flex:0 1 auto}
+.o-body .o-check .o-toggle-state{margin-left:8px}

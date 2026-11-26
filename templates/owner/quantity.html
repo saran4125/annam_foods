@@ -1,0 +1,8 @@
+{% extends 'owner/base.html' %}{% load storefront_extras %}
+{% block heading %}<h1>Available quantity</h1>{% endblock %}
+{% block content %}<a class="o-crumb" href="{{ return_url }}">← Back to dishes &amp; products</a>
+{% if slot %}<form method="get" class="o-tools"><input type="hidden" name="next" value="{{ return_url }}"><label class="o-field">Meal<select class="o-input" name="meal">{% for s in slots %}<option value="{{ s.key }}"{% if s.pk == slot.pk %} selected{% endif %}>{{ s.label }}</option>{% endfor %}</select></label><label class="o-field">Date<input class="o-input" type="date" name="date" value="{{ on_date|date:'Y-m-d' }}"></label><button class="o-btn">View quantity</button></form>{% endif %}
+<form method="post" class="o-card o-form">{% csrf_token %}<h2>{{ item.name }}</h2>{{ form.non_field_errors }}<input type="hidden" name="next" value="{{ return_url }}">{% if slot %}<input type="hidden" name="meal" value="{{ slot.key }}"><input type="hidden" name="date" value="{{ on_date|date:'Y-m-d' }}"><p>Stock applies only to {{ slot.label }} on {{ on_date|date:'j M Y' }}. Other dates have separate quantities.</p>{% endif %}
+{{ form.revision }}{% with f=form.tracked %}{% include 'owner/_field.html' %}{% endwith %}<div data-quantity-fields>{% with f=form.operation %}{% include 'owner/_field.html' %}{% endwith %}{% with f=form.quantity %}{% include 'owner/_field.html' %}{% endwith %}</div><p>Tracking off means no quantity limit. At zero this item is sold out. Saved orders reduce stock; cancelled orders restore it.</p><button class="o-btn o-btn-primary">Save quantity</button></form>{% endblock %}
+
+{% block scripts %}<script src="{% static_v 'js/quantity.js' %}" defer></script>{% endblock %}

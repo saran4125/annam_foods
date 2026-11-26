@@ -1,0 +1,1 @@
+(()=>{const input=document.querySelector('[name=tracked]'),fields=document.querySelector('[data-quantity-fields]');if(!input||!fields)return;const update=()=>{fields.hidden=!input.checked;};input.addEventListener('change',update);update();})();

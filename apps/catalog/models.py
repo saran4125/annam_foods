@@ -193,3 +193,29 @@ class CatalogSyncRun(TenantOwnedModel):
 
     class Meta(TenantOwnedModel.Meta):
         constraints = [models.UniqueConstraint(fields=['tenant', 'version'], name='unique_catalog_sync_version')]
+
+
+class InventoryBucket(TenantOwnedModel):
+    """Optional stock: one shop bucket, or a separate bucket per meal/date."""
+    item = models.ForeignKey(MenuItem, on_delete=models.PROTECT)
+    bucket_key = models.CharField(max_length=120)
+    slot = models.ForeignKey(Slot, null=True, blank=True, on_delete=models.PROTECT)
+    on_date = models.DateField(null=True, blank=True)
+    tracked = models.BooleanField(default=False)
+    remaining = models.PositiveIntegerField(default=0)
+    revision = models.PositiveIntegerField(default=1)
+
+    class Meta(TenantOwnedModel.Meta):
+        constraints = [models.UniqueConstraint(fields=['tenant', 'bucket_key'], name='uniq_inventory_bucket')]
+
+
+class StockReservation(TenantOwnedModel):
+    order = models.ForeignKey('orders.Order', on_delete=models.PROTECT)
+    reservation_key = models.CharField(max_length=120)
+    bucket = models.ForeignKey(InventoryBucket, null=True, blank=True, on_delete=models.PROTECT)
+    schedule = models.ForeignKey(MenuSchedule, null=True, blank=True, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField()
+    released = models.BooleanField(default=False)
+
+    class Meta(TenantOwnedModel.Meta):
+        constraints = [models.UniqueConstraint(fields=['tenant', 'order', 'reservation_key'], name='uniq_order_stock_reservation')]

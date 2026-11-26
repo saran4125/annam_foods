@@ -5,6 +5,8 @@
 {% block content %}
 <link rel="stylesheet" href="{% static_v 'css/receipt.css' %}">
 <style>@media print{.o-side,.o-top,.o-flashes,.o-skip,.o-scrim{display:none!important}.o-shell,main,.o-main{margin:0!important;padding:0!important}.o-main>*{animation:none!important}body{background:#fff}}</style>
-<div class="bill-actions"><a href="{% if billing_portal %}{% url 'billing:order' invoice.order_id %}{% else %}{% url 'owner:order' invoice.order_id %}{% endif %}">Back to order</a><button class="o-btn" onclick="window.print()">Print / Save as PDF</button></div>
+<div class="bill-actions"><a href="{% if billing_portal %}{% url 'billing:order' invoice.order_id %}{% else %}{% url 'owner:order' invoice.order_id %}{% endif %}">Back to order</a><a class="o-btn" href="?download=1" data-pdf-source="{{ request.path }}">Download PDF</a><button class="o-btn" onclick="window.print()">Print / Save as PDF</button></div>
 {% include "billing/_invoice_body.html" %}
 {% endblock %}
+
+{% block scripts %}<script src="{% static_v 'js/receipt-export.js' %}" data-pdf-library="{% static_v 'js/html2pdf-0.14.0.bundle.min.js' %}" defer></script>{% endblock %}

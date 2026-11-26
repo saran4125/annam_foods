@@ -89,6 +89,7 @@ def receipt_details(invoice):
     return {**invoice_payment(invoice), 'logo_url': logo_url(image), 'tagline': tagline, 'delivery_date': delivery_date,
             'address_lines': address_lines,
             'collection': address.get('fulfilment') == 'Collection',
+            'cash_on_delivery': invoice.payment_mode == PaymentMode.COD,
             'lines': lines, 'discount': discount, 'payment_label': payment,
             'is_credit': invoice.kind == 'credit_note',
             'tax_registered': seller.get('gst_mode') == 'regular'}

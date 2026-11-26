@@ -158,3 +158,40 @@ def place_checkout(request, cart, details, token):
 def receipt_adjustment(order):
     """Display the remainder of the frozen total without repricing an old order."""
     return order.total - order.subtotal - order.delivery_fee
+
+
+def saved_address(request, pincode, country='India'):
+    """Never look up another customer's address by their pincode or phone."""
+    import re
+    if not re.fullmatch(r'[1-9][0-9]{5}', pincode or '') or country.casefold() != 'india':
+        return None
+    browser = browser_key(request, create=False)
+    if not browser:
+        return None
+    for address in Order.objects.filter(external_ref__startswith=f'web:{browser}:').order_by('-placed_at','-pk').values_list('address',flat=True)[:100]:
+        if address.get('pincode') != pincode or address.get('country','India').casefold() != country.casefold() or address.get('fulfilment'):
+            continue
+        return {**{key: address.get(key,'') for key in ('line1','line2','city','landmark','state','country','pincode')},
+                'name':address.get('recipient_name',''),'phone':address.get('phone',''),'email':address.get('email','')}
+    return None
+
+
+def delivery_estimate(cart, pincode, area=None, country='India'):
+    from apps.delivery.policies import eligible_zones, select_zone
+    from .cart import Cart
+    keys=cart.slot_keys or ['snacks']
+    areas=list(eligible_zones(pincode,keys)) if country.casefold()=='india' else []
+    subtotal=sum((line.line_total for line in cart.lines()),Decimal('0'))
+    result={'areas':[{'id':z.pk,'name':z.area_name,'fee':int(z.delivery_fee*100),'minimum':int(z.min_order*100)} for z in areas], 'selected':None,'fee':None,'subtotal':int(subtotal*100),'eligible':False,'error':''}
+    if not pincode: return result
+    if cart.is_courier and not areas:
+        result['eligible']=True
+        return result
+    if not area and len(areas)==1: area=areas[0].pk
+    try:
+        zone=select_zone(pincode,keys,zone_id=area)
+        if subtotal<zone.min_order: raise OrderError(f'Minimum food value is ₹{zone.min_order:.2f}.')
+        result.update(selected=zone.pk,fee=int(zone.delivery_fee*100),eligible=True)
+    except (OrderError,ValueError) as error:
+        result['error']=str(error)
+    return result

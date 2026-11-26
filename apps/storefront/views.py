@@ -87,7 +87,7 @@ def home(request):
     design = appearance["storefront_design"]
     tenant = request.tenant
     today = timezone.localdate()
-    slots = list(Slot.objects.filter(active=True))
+    slots = list(Slot.objects.exclude(key__in=['snack','snacks']).filter(active=True))
     highlights = []
     for slot in slots:
         entries = resolve_menu(today, slot)[:6]  # the menu board lists up to six per meal
@@ -197,7 +197,7 @@ def menu(request):
         if raw_date == d.isoformat():
             chosen_date = d
 
-    slots = list(Slot.objects.filter(active=True))
+    slots = list(Slot.objects.exclude(key__in=['snack','snacks']).filter(active=True))
     if not slots:
         return render(
             request, "storefront/menu.html",
@@ -376,7 +376,7 @@ def _about_context(tenant):
     ]
     return {
         "gallery": picks, "meals": meals, "numbers": [r for r in stats if r[0]],
-        "hero_picks": (meals[:1] + picks[:2])[:3], "slots": list(Slot.objects.filter(active=True)),
+        "hero_picks": (meals[:1] + picks[:2])[:3], "slots": list(Slot.objects.exclude(key__in=['snack','snacks']).filter(active=True)),
     }
 
 
@@ -486,10 +486,4 @@ def csrf_failure(request, reason=""):
     if request.path.startswith("/cart/") and request.tenant is not None:
         messages.error(request, "That page was out of date. Please try again.")
         return redirect("storefront:cart")
-    return HttpResponseForbidden(
-        "<!doctype html><meta charset=utf-8><title>Please reload</title>"
-        "<body style=\"font:16px system-ui;max-width:32rem;margin:4rem auto;padding:0 1rem\">"
-        "<h1>That page was out of date</h1><p>Please go back, reload the page, and try again.</p>"
-        "<p><a href=\"/\">Back to the home page</a></p></body>",
-        content_type="text/html",
-    )
+    return render(request,'storefront/session_expired.html',status=403)
