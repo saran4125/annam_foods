@@ -132,7 +132,8 @@
     "tax_rate": "DECIMAL_TEXT",
     "admin_notes": "TEXT",
     "in_stock": "BOOLEAN",
-    "weight": "TEXT"
+    "weight": "TEXT",
+    "sort_priority": "INTEGER"
   },
   "catalog_menuschedule": {
     "id": "INTEGER",

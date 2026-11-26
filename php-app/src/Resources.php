@@ -31,7 +31,7 @@ final class Resources {
     public static function definition(string $key): array { return self::DEFINITIONS[$key] ?? throw new HttpError(404, 'Page not found.'); }
     public function list(string $key): array {
         $spec = self::definition($key);
-        $order = match ($key) { 'zones' => 'pincode,area_name', 'slots' => 'sort,key', 'pages', 'banners' => 'sort,title', default => 'sort,name' };
+        $order = match ($key) { 'zones' => 'pincode,area_name', 'slots' => 'sort,key', 'pages', 'banners' => 'sort,title', 'dishes' => 'sort,sort_priority DESC,name', default => 'sort,name' };
         return $this->store->db->rows('SELECT * FROM ' . $spec['table'] . ' WHERE tenant_id=?' . ($key==='slots'?" AND key NOT IN ('snack','snacks')":'') . ' ORDER BY ' . $order . ',id', [$this->store->id()]);
     }
     public function get(string $key, int $id): array {
@@ -77,6 +77,7 @@ final class Resources {
         if(isset($values['weight'])&&strlen($values['weight'])>100)throw new HttpError(422,'Pack size must be at most 100 characters.');
         if ($key === 'pages') $values['updated_at'] = date('c');
         if($key==='dishes'){
+            if(array_key_exists('sort',$input))$values['sort_priority']=(int)round(microtime(true)*1000000);
             $tags=$existing?json_decode($existing['tags'],true,64,JSON_THROW_ON_ERROR):[];$tags=array_values(array_filter($tags,fn($tag)=>$tag!=='featured'));if(!empty($input['featured']))$tags[]='featured';$values['tags']=json_encode($tags,JSON_THROW_ON_ERROR);
         }
         if ($id) {

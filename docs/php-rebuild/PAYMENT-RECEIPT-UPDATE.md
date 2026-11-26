@@ -1,3 +1,15 @@
+# Equal display-order numbers — 26 November 2026
+
+For dishes/products with the same numeric Display order, the most recently saved
+number wins. Re-saving rank 1 moves that dish ahead of other rank-1 dishes. Lower
+numbers still precede higher numbers. A dedicated sort_priority value is changed
+only by an explicit Display order submission, never by stock/order updates.
+Existing records retain a stable fallback until their display order is saved.
+The additive schema upgrade supports both SQLite and PostgreSQL; Python main
+has the matching Django migration, ordering and form behavior.
+
+---
+
 # Display order consistency — 26 November 2026
 
 Saved item order now takes priority over category position. Equal ranks use

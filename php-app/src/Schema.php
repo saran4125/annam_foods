@@ -5,12 +5,13 @@ namespace Annam;
 /** Additive compatibility upgrade for a restored database. No Python is needed. */
 final class Schema {
     public static function ensure(Database $db): void {
-        if($db->isSqlite()){$db->schemaScript(file_get_contents(ANNAM_ROOT.'/resources/sqlite-schema.sql'));Inventory::ensure($db);return;}
+        if($db->isSqlite()){$db->schemaScript(file_get_contents(ANNAM_ROOT.'/resources/sqlite-schema.sql'));if(!in_array('sort_priority',array_column($db->rows('PRAGMA table_info(catalog_menuitem)'),'name'),true))$db->rows('ALTER TABLE catalog_menuitem ADD COLUMN sort_priority INTEGER NOT NULL DEFAULT 0');Inventory::ensure($db);return;}
         $db->transaction(function()use($db){
             $db->one("SELECT pg_advisory_xact_lock(hashtext('annam-php-parity-v2'))");
             foreach([
                 "ALTER TABLE payments_refund ADD COLUMN IF NOT EXISTS processed_at timestamptz",
                 "ALTER TABLE payments_paymentintent ADD COLUMN IF NOT EXISTS captured_at timestamptz",
+                "ALTER TABLE catalog_menuitem ADD COLUMN IF NOT EXISTS sort_priority bigint NOT NULL DEFAULT 0",
                 "ALTER TABLE catalog_menuitem ADD COLUMN IF NOT EXISTS in_stock boolean NOT NULL DEFAULT true",
                 "ALTER TABLE catalog_menuitem ADD COLUMN IF NOT EXISTS weight varchar(100) NOT NULL DEFAULT ''",
                 "ALTER TABLE catalog_menuitem ADD COLUMN IF NOT EXISTS admin_notes text NOT NULL DEFAULT ''",

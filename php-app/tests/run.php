@@ -465,7 +465,18 @@ try {
         $id=$resources->save('dishes',null,['name'=>'Saved rank item','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category,'sort'=>4]);
         $resources->save('dishes',$id,['name'=>'Saved rank item edited','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category]);check((int)$store->item($id)['sort']===4,'Partial edit reset saved display order');
         $ids=[$id];for($n=0;$n<4;$n++)$ids[]=$resources->save('dishes',null,['name'=>'Stable rank fixture','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category,'sort'=>7]);
-        foreach(['featured','price','-price','name'] as $sort){$found=[];for($page=1;$page<=3;$page++)$found=array_merge($found,array_column($store->pageItems('courier','',$category,$page,2,[],'',$sort)['records'],'id'));check(array_map('intval',$found)===$ids,'Unstable or overlapping product pages');}
+        foreach(['featured','price','-price','name'] as $sort){$found=[];for($page=1;$page<=3;$page++)$found=array_merge($found,array_column($store->pageItems('courier','',$category,$page,2,[],'',$sort)['records'],'id'));$expected=$sort==='featured'?[$ids[0],...array_reverse(array_slice($ids,1))]:$ids;check(array_map('intval',$found)===$expected,'Unstable or overlapping product pages');}
+    });
+    test('latest explicit display assignment wins equal numbers and stock writes preserve it',function()use($store,$resources){
+        $category=$resources->save('categories',null,['name'=>'Recent rank fixture','slug'=>'recent-rank-fixture','sort'=>1,'active'=>1]);
+        $values=['fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category,'sort'=>1];
+        $a=$resources->save('dishes',null,['name'=>'Alphabet first',...$values]);$b=$resources->save('dishes',null,['name'=>'Z newest assignment',...$values]);
+        $read=fn()=>array_map('intval',array_column($store->pageItems('courier','',$category,1,30)['records'],'id'));
+        check($read()===[$b,$a],'Newest rank lost to alphabetical order');
+        $resources->save('dishes',$a,['name'=>'Alphabet first',...$values]);check($read()===[$a,$b],'Resaving equal rank did not move item first');
+        $priority=$store->item($b)['sort_priority'];$resources->save('dishes',$b,['name'=>'Z newest assignment','fulfilment'=>'courier','price'=>'100','active'=>1,'in_stock'=>1,'category_id'=>$category]);
+        check($read()===[$a,$b]&&$store->item($b)['sort_priority']===$priority,'Unrelated edit changed position');
+        $store->db->rows('UPDATE catalog_menuitem SET in_stock=false WHERE tenant_id=? AND id=?',[$store->id(),$a]);check($read()===[$a,$b],'Stock update changed display priority');
     });
     test('default category positions obey their saved display order',function()use($store,$resources){
         (new Annam\Catalog($store))->defaults();$shop=$store->db->one("SELECT id FROM catalog_menucategory WHERE tenant_id=? AND slug='shop'",[$store->id()]);$breakfast=$store->db->one("SELECT id FROM catalog_menucategory WHERE tenant_id=? AND slug='breakfast'",[$store->id()]);
