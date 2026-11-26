@@ -82,7 +82,7 @@ RESOURCES = {
             "stock": ("Stock", lambda: [("1", "In stock"), ("0", "Out of stock")], "in_stock"),
             "status": ("Status", lambda: [("1", "On sale"), ("0", "Hidden")], "active"),
         },
-        order_by=("-active", "category__sort", "sort", "name"), icon="dish",
+        order_by=("-active", "sort", "name"), icon="dish",
     ),
     "categories": Resource(
         "categories", MenuCategory, forms.CategoryForm, "Categories", "category", plural="categories",
@@ -294,7 +294,7 @@ def resource_list(request, key, *, category=None):
             all_url=day_base + '?' + urlencode({**base_params, 'date': 'all'}))
     columns = [column for column in res.columns if not ((menu_ui.get('choose_url') or category is not None) and column[1] == 'category')]
     if res.order_by:
-        qs = qs.order_by(*res.order_by)
+        qs = qs.order_by(*res.order_by,"pk")
     query = request.GET.get("q", "").strip()[:80]
     if query and res.search:
         cond = Q()

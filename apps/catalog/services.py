@@ -87,7 +87,7 @@ def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = Fals
         if include_unavailable or entry.is_orderable:
             entries.append(entry)
 
-    entries.sort(key=lambda e: (e.item.sort, e.item.name))
+    entries.sort(key=lambda e: (e.item.sort, e.item.name, e.item.pk))
     return entries
 
 
@@ -150,10 +150,10 @@ def open_slots(on_date: date_cls, now=None):
 # -- the shop: courier goods browsed by category ------------------------------
 
 SHOP_SORTS = {
-    "featured": ("category__sort", "sort", "name"),
-    "price": ("price", "name"),
-    "-price": ("-price", "name"),
-    "name": ("name",),
+    "featured": ("sort", "name", "pk"),
+    "price": ("price", "name", "pk"),
+    "-price": ("-price", "name", "pk"),
+    "name": ("name", "pk"),
 }
 
 
@@ -168,7 +168,7 @@ def shop_categories():
     A parent shelf (Pakshanams) counts the goods on its child shelves
     (Murukku, Chips...), because that is how a customer reads it."""
     categories = list(
-        MenuCategory.objects.filter(active=True).exclude(slug="").select_related("parent")
+        MenuCategory.objects.filter(active=True).exclude(slug="").select_related("parent").order_by("sort","name","pk")
     )
     counts = {}
     for category_id in shop_items().values_list("category_id", flat=True):
@@ -182,8 +182,9 @@ def shop_categories():
         totals[top.id] = totals.get(top.id, 0) + counts.get(c.id, 0)
     shelves = []
     for c in categories:
-        if c.parent_id is None and totals.get(c.id):
-            c.item_count = totals[c.id]
+        count=sum(counts.values()) if c.slug=='shop' else totals.get(c.id,0)
+        if (c.parent_id is None or c.slug=='shop') and count:
+            c.item_count = count
             shelves.append(c)
     return shelves
 
@@ -219,7 +220,7 @@ def shop_subcategories(category):
 def search_shop(*, category=None, query="", sort="featured"):
     """Shop listing: optional shelf, free-text search, a known sort order."""
     items = shop_items()
-    if category is not None:
+    if category is not None and category.slug != 'shop':
         items = items.filter(category_id__in=category_family_ids(category))
     query = (query or "").strip()[:80]
     if query:
@@ -228,3 +229,11 @@ def search_shop(*, category=None, query="", sort="featured"):
         for word in query.split()[:5]:
             items = items.filter(Q(name__icontains=word) | Q(description__icontains=word))
     return items.order_by(*SHOP_SORTS.get(sort, SHOP_SORTS["featured"]))
+
+
+def popular_shop_items(limit=12):
+    """Explicit home favourites first; saved display order within each group."""
+    items=list(shop_items().order_by('sort','name','pk'))
+    featured=[item for item in items if 'featured' in (item.tags or [])][:limit]
+    selected={item.pk for item in featured}
+    return featured+[item for item in items if item.pk not in selected][:max(0,limit-len(featured))]

@@ -208,3 +208,20 @@ def test_breakfast_picker_starts_from_the_last_saved_menu_and_saved_edits_contin
     with tenant_context(tenant):
         assert ids(DAY, grouped['breakfast']) == {grouped['b'].pk}
         assert ids(DAY + timedelta(days=2), grouped['breakfast']) == {grouped['shared'].pk}
+
+
+def test_breakfast_display_order_edit_reorders_saved_date_and_customer_menu(signed_in, grouped, kitchens, monkeypatch):
+    monkeypatch.setattr("apps.storefront.views._dates",lambda:[(DAY,"Test date")])
+    with tenant_context(kitchens[0]):
+        a=grouped['b']
+        a.sort=1;a.save(update_fields=['sort'])
+        other=MenuItem.objects.create(name='Second breakfast rank',price=70,sort=9,fulfilment='scheduled',in_stock=True)
+        save_daily_menu(slot=grouped['breakfast'],on_date=DAY,item_ids=[a.pk,other.pk],revision=0)
+    url=f'/manage/dishes/{a.pk}/?'+urlencode({'type':'scheduled','meal':'breakfast','date':DAY.isoformat()})
+    response=signed_in.post(url,{'name':a.name,'fulfilment':'scheduled','price':str(a.price),'category':'','active':'on','in_stock':'on','sort':'20','slot':grouped['breakfast'].pk,'membership_editor':'1','meals':['breakfast'],'day_available':'on','day_revision':'1'},HTTP_HOST=HOST)
+    assert response.status_code==302
+    with tenant_context(kitchens[0]):
+        a.refresh_from_db();assert a.sort==20
+        assert [entry.item.pk for entry in resolve_menu(DAY,grouped['breakfast'])]==[other.pk,a.pk]
+    public=signed_in.get('/menu/',{'date':DAY.isoformat(),'slot':'breakfast'},HTTP_HOST=HOST)
+    assert [entry.item.pk for entry in public.context['entries']]==[other.pk,a.pk]

@@ -77,7 +77,8 @@ class DishForm(StyledForm):
                   "sort": "Display order"}
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
         help_texts = {"fulfilment": "Daily meal = cooked for a slot. Shop item = packed and shipped.",
-                      "active": "Untick to hide it from the website (sold out, seasonal…)."}
+                      "active": "Untick to hide it from the website (sold out, seasonal…).",
+                      "sort": "Lower numbers appear first in menus and the shop. Items with equal numbers are alphabetical. Home favourites remain grouped separately."}
 
     def __init__(self, *args, menu_slot=None, menu_date=None, **kwargs):
         self.legacy_schedule = bool(args and args[0] is not None and ('slot' in args[0] or 'weekdays' in args[0]) and args[0].get('membership_editor') != '1')
@@ -190,7 +191,7 @@ class CategoryForm(StyledForm):
         fields = ["name", "slug", "description", "sort", "active"]
         labels = {"sort": "Display order", "active": "Visible"}
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
-        help_texts = {"slug": "The web address, e.g. /shop/podi/. Leave blank to make one from the name."}
+        help_texts = {"slug": "The web address, e.g. /shop/podi/. Leave blank to make one from the name.", "sort":"Lower numbers show this category earlier."}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

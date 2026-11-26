@@ -116,11 +116,8 @@ def home(request):
     shelves, popular = [], []
     if _shop_enabled(tenant):
         shelves = shop_categories()
-        items = list(shop_items().order_by("category__sort", "sort", "name")[:60])
-        items.sort(key=lambda i: not i.image)  # photographed goods first; stable otherwise
-        # Owner-tagged favourites first, topped up from the catalog to a full row.
-        picked = [i for i in items if "featured" in (i.tags or [])][:12]
-        popular = picked + [i for i in items if i not in picked][:12 - len(picked)]  # 12 fills 2, 3, 4 or 6 columns
+        from apps.catalog.services import popular_shop_items
+        popular = popular_shop_items()
     tiles, spotlight, hero = _split_home_sections(tenant.config.home_sections)
     if spotlight or design.get('content', {}).get('spotlight.title') or design.get('images', {}).get('spotlight'):
         spotlight = dict(spotlight or {'title': appearance['storefront_copy']['spotlight.title'], 'link': reverse('storefront:menu')})
@@ -354,7 +351,7 @@ def _about_context(tenant):
     """Photos and numbers for the About page, read from the live catalog."""
     picks, seen_shelves = [], set()
     if _shop_enabled(tenant):
-        for item in shop_items().exclude(image="").order_by("category__sort", "sort", "name"):
+        for item in shop_items().exclude(image="").order_by("sort", "name", "pk"):
             if item.category_id not in seen_shelves:
                 seen_shelves.add(item.category_id)
                 picks.append(item)
@@ -432,7 +429,7 @@ def shop(request, slug=None):
             "items": items, "page":page, "item_total":page.paginator.count, "querystring":params.urlencode(),
             "query": query.strip(),
             "sort": sort,
-            "sorts": [("featured", "Featured"), ("price", "Price: low to high"),
+            "sorts": [("featured", "Display order"), ("price", "Price: low to high"),
                       ("-price", "Price: high to low"), ("name", "Name")],
             "cart": cart,
             "cart_quantities": cart.items if cart.is_courier else {},
@@ -455,7 +452,7 @@ def item_detail(request, pk):
             top, depth = top.parent, depth + 1
         related = list(
             shop_items().filter(category_id__in=category_family_ids(top))
-            .exclude(pk=item.pk).exclude(image="").order_by("sort", "name")[:4]
+            .exclude(pk=item.pk).exclude(image="").order_by("sort", "name", "pk")[:4]
         )
     cart = Cart(request)
     return render(
