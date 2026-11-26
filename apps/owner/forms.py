@@ -78,7 +78,7 @@ class DishForm(StyledForm):
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
         help_texts = {"fulfilment": "Daily meal = cooked for a slot. Shop item = packed and shipped.",
                       "active": "Untick to hide it from the website (sold out, seasonal…).",
-                      "sort": "Lower numbers appear first in menus and the shop. Items with equal numbers are alphabetical. Home favourites remain grouped separately."}
+                      "sort": "Lower numbers appear first in menus and the shop. For equal numbers, the most recently saved display order comes first. Home favourites remain grouped separately."}
 
     def __init__(self, *args, menu_slot=None, menu_date=None, **kwargs):
         self.legacy_schedule = bool(args and args[0] is not None and ('slot' in args[0] or 'weekdays' in args[0]) and args[0].get('membership_editor') != '1')
@@ -142,6 +142,8 @@ class DishForm(StyledForm):
     @transaction.atomic
     def save(self, commit=True):
         item = super().save(commit=False)
+        from apps.catalog.services import assign_display_priority
+        assign_display_priority(item)
         keys = self.cleaned_data.get('meals') or ([self.cleaned_data['slot'].key] if self.legacy_schedule and self.cleaned_data.get('slot') else [])
         if not self.legacy_schedule and not keys and item.fulfilment == 'scheduled' and item.category_id:
             from apps.catalog.library import MEALS

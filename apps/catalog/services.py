@@ -87,7 +87,7 @@ def resolve_menu(on_date: date_cls, slot: Slot, include_unavailable: bool = Fals
         if include_unavailable or entry.is_orderable:
             entries.append(entry)
 
-    entries.sort(key=lambda e: (e.item.sort, e.item.name, e.item.pk))
+    entries.sort(key=lambda e: (e.item.sort, -e.item.sort_priority, e.item.name, e.item.pk))
     return entries
 
 
@@ -150,7 +150,7 @@ def open_slots(on_date: date_cls, now=None):
 # -- the shop: courier goods browsed by category ------------------------------
 
 SHOP_SORTS = {
-    "featured": ("sort", "name", "pk"),
+    "featured": ("sort", "-sort_priority", "name", "pk"),
     "price": ("price", "name", "pk"),
     "-price": ("-price", "name", "pk"),
     "name": ("name", "pk"),
@@ -233,7 +233,13 @@ def search_shop(*, category=None, query="", sort="featured"):
 
 def popular_shop_items(limit=12):
     """Explicit home favourites first; saved display order within each group."""
-    items=list(shop_items().order_by('sort','name','pk'))
+    items=list(shop_items().order_by('sort','-sort_priority','name','pk'))
     featured=[item for item in items if 'featured' in (item.tags or [])][:limit]
     selected={item.pk for item in featured}
     return featured+[item for item in items if item.pk not in selected][:max(0,limit-len(featured))]
+
+
+def assign_display_priority(item):
+    """Record an explicit display-order save, separately from stock/status writes."""
+    from time import time_ns
+    item.sort_priority = time_ns() // 1000

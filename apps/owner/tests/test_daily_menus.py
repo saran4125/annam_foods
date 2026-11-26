@@ -225,3 +225,26 @@ def test_breakfast_display_order_edit_reorders_saved_date_and_customer_menu(sign
         assert [entry.item.pk for entry in resolve_menu(DAY,grouped['breakfast'])]==[other.pk,a.pk]
     public=signed_in.get('/menu/',{'date':DAY.isoformat(),'slot':'breakfast'},HTTP_HOST=HOST)
     assert [entry.item.pk for entry in public.context['entries']]==[other.pk,a.pk]
+
+
+def test_latest_saved_breakfast_rank_wins_ties_without_stock_updates_moving_it(signed_in, grouped, kitchens, monkeypatch):
+    monkeypatch.setattr('apps.storefront.views._dates',lambda:[(DAY,'Test date')])
+    with tenant_context(kitchens[0]):
+        first=grouped['b']
+        other=MenuItem.objects.create(name='Z newer dish',price=70,sort=1,fulfilment='scheduled',in_stock=True)
+        save_daily_menu(slot=grouped['breakfast'],on_date=DAY,item_ids=[first.pk,other.pk],revision=0)
+    def save_rank(item,revision):
+        url=f'/manage/dishes/{item.pk}/?'+urlencode({'type':'scheduled','meal':'breakfast','date':DAY.isoformat()})
+        response=signed_in.post(url,{'name':item.name,'fulfilment':'scheduled','price':str(item.price),'category':'','active':'on','in_stock':'on','sort':'1','slot':grouped['breakfast'].pk,'membership_editor':'1','meals':['breakfast'],'day_available':'on','day_revision':revision},HTTP_HOST=HOST)
+        assert response.status_code==302
+    save_rank(first,1)
+    save_rank(other,2)
+    with tenant_context(kitchens[0]):
+        assert [entry.item.pk for entry in resolve_menu(DAY,grouped['breakfast'])]==[other.pk,first.pk]
+        first.refresh_from_db();priority=first.sort_priority
+        first.in_stock=False;first.save(update_fields=['in_stock'])
+        first.in_stock=True;first.save(update_fields=['in_stock'])
+        first.refresh_from_db();assert first.sort_priority==priority
+    save_rank(first,3)
+    public=signed_in.get('/menu/',{'date':DAY.isoformat(),'slot':'breakfast'},HTTP_HOST=HOST)
+    assert [entry.item.pk for entry in public.context['entries']]==[first.pk,other.pk]

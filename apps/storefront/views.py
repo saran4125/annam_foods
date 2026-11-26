@@ -351,7 +351,7 @@ def _about_context(tenant):
     """Photos and numbers for the About page, read from the live catalog."""
     picks, seen_shelves = [], set()
     if _shop_enabled(tenant):
-        for item in shop_items().exclude(image="").order_by("sort", "name", "pk"):
+        for item in shop_items().exclude(image="").order_by("sort", "-sort_priority", "name", "pk"):
             if item.category_id not in seen_shelves:
                 seen_shelves.add(item.category_id)
                 picks.append(item)
@@ -452,7 +452,7 @@ def item_detail(request, pk):
             top, depth = top.parent, depth + 1
         related = list(
             shop_items().filter(category_id__in=category_family_ids(top))
-            .exclude(pk=item.pk).exclude(image="").order_by("sort", "name", "pk")[:4]
+            .exclude(pk=item.pk).exclude(image="").order_by("sort", "-sort_priority", "name", "pk")[:4]
         )
     cart = Cart(request)
     return render(

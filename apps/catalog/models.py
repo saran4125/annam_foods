@@ -82,9 +82,10 @@ class MenuItem(TenantOwnedModel):
     tags = models.JSONField(default=list, blank=True)
     active = models.BooleanField(default=True)
     sort = models.PositiveSmallIntegerField(default=0)
+    sort_priority = models.BigIntegerField(default=0, editable=False)
 
     class Meta(TenantOwnedModel.Meta):
-        ordering = ["sort", "name"]
+        ordering = ["sort", "-sort_priority", "name", "pk"]
         constraints = [models.UniqueConstraint(fields=["tenant", "retailer_id"], name="uniq_tenant_retailer_id")]
 
     def __str__(self):

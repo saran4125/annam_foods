@@ -82,7 +82,7 @@ RESOURCES = {
             "stock": ("Stock", lambda: [("1", "In stock"), ("0", "Out of stock")], "in_stock"),
             "status": ("Status", lambda: [("1", "On sale"), ("0", "Hidden")], "active"),
         },
-        order_by=("-active", "sort", "name"), icon="dish",
+        order_by=("-active", "sort", "-sort_priority", "name"), icon="dish",
     ),
     "categories": Resource(
         "categories", MenuCategory, forms.CategoryForm, "Categories", "category", plural="categories",
