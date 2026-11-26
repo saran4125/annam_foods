@@ -1,7 +1,7 @@
 /* Export the actual copied receipt DOM, so browser downloads use the print design. */
 (()=>{
   const scriptURL=document.currentScript?.src||location.href;
-  const libraryURL=new URL('html2pdf-0.14.0.bundle.min.js',scriptURL).href;
+  const libraryURL=document.currentScript?.dataset.pdfLibrary||new URL('html2pdf-0.14.0.bundle.min.js',scriptURL).href;
   let exporting=false;
   document.addEventListener('click',async event=>{
     const link=event.target.closest('a[data-pdf-source],a[data-invoice-download]');
@@ -13,7 +13,10 @@
     const frame=document.createElement('iframe');frame.setAttribute('aria-hidden','true');frame.tabIndex=-1;
     Object.assign(frame.style,{position:'fixed',left:'-10000px',top:'0',width:'794px',height:'1123px',border:'0'});
     try{
-      const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=reject;});frame.src=url.href;document.body.append(frame);await loaded;
+      const response=await fetch(url.href,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw Error('Receipt unavailable');
+      const parsed=new DOMParser().parseFromString(await response.text(),'text/html'),sourceReceipt=parsed.querySelector('.af-receipt');if(!sourceReceipt)throw Error('Receipt unavailable');
+      const css=[...parsed.querySelectorAll('link[rel="stylesheet"]')].filter(link=>{const href=new URL(link.getAttribute('href'),url);return href.origin===location.origin&&/\/receipt(?:\.[a-f0-9]+)?\.css$/i.test(href.pathname);}).map(link=>link.outerHTML).join('');
+      const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=reject;});frame.srcdoc='<!doctype html><html><head><meta charset="utf-8">'+css+'</head><body>'+sourceReceipt.outerHTML+'</body></html>';document.body.append(frame);await loaded;
       const doc=frame.contentDocument,win=frame.contentWindow,receipt=doc.querySelector('.af-receipt');if(!receipt)throw Error('Receipt unavailable');
       // Apply the original main-branch print rules without duplicating or restyling them.
       const printRules=[];for(const sheet of doc.styleSheets){try{for(const rule of sheet.cssRules){if(rule.type===4&&rule.conditionText==='print')for(const child of rule.cssRules)if(child.type!==6)printRules.push(child.cssText);}}catch{}}

@@ -5,7 +5,7 @@
     <h2><?= e($seller['name']) ?></h2>
     <?php if($bill['tagline']):?><p class="af-receipt-tagline"><?= e($bill['tagline']) ?></p><?php endif;?>
     <?php if($invoice['kind']!=='bill'):?><h3 class="af-document-title"><?= e($kind) ?></h3><?php endif;?>
-    <?php if($bill['is_credit']):?><span class="af-receipt-badge af-receipt-credit">Credit note issued</span><?php elseif($bill['payment_refunded']):?><span class="af-receipt-badge">Payment refunded</span><?php elseif($bill['payment_received']):?><span class="af-receipt-badge">✓ Payment received</span><?php else:?><span class="af-receipt-badge">UNPAID — payment not received</span><?php endif;?>
+    <?php if($bill['is_credit']):?><span class="af-receipt-badge af-receipt-credit">Credit note issued</span><?php elseif($bill['payment_refunded']):?><span class="af-receipt-badge">Payment refunded</span><?php elseif($bill['payment_received']):?><span class="af-receipt-badge">✓ Payment received</span><?php elseif($bill['cash_on_delivery']):?><span class="af-receipt-badge">Cash on delivery</span><?php else:?><span class="af-receipt-badge">UNPAID — payment not received</span><?php endif;?>
   </header>
   <dl class="af-receipt-meta">
     <div><dt><?= e($kind) ?> number</dt><dd><?= e($invoice['number']) ?></dd></div>
@@ -20,7 +20,7 @@
     <?php if($buyer['business_name']??''):?><p><?= e($buyer['business_name']) ?></p><?php endif;?>
     <?php if($buyer['billing_address']??''):?><p><?= nl2br(e($buyer['billing_address'])) ?></p><?php endif;?>
     <?php if($buyer['gstin']??''):?><p>GSTIN: <?= e($buyer['gstin']) ?></p><?php endif;?>
-    <?php if($bill['collection']):?><p class="af-fulfilment">Collection</p><?php elseif($bill['address_lines']):?><p class="af-delivery-address"><?= e(implode(', ',$bill['address_lines'])) ?></p><?php endif;?>
+    <?php if($bill['collection']):?><p class="af-fulfilment">Collection</p><?php endif;?><?php if($bill['address_lines']):?><p class="af-delivery-address"><?= e(implode(', ',$bill['address_lines'])) ?></p><?php endif;?>
     <?php if($bill['delivery_date']):?><p class="af-delivery-date"><?= $bill['collection']?'Collection':'Delivery' ?>: <?= e(date('j M Y',strtotime($bill['delivery_date']))) ?></p><?php endif;?>
   </section>
   <table class="af-receipt-items">
@@ -40,7 +40,7 @@
     <div><dt>Round off</dt><dd>₹<?= e(Money::signedDecimal(Money::signedParse((string)$invoice['round_off']))) ?></dd></div>
   </dl>
   <div class="af-receipt-total"><span><?= $bill['is_credit']?'Credit total':($bill['payment_received']?'Total paid':'Total payable') ?></span><strong><?= e(ReceiptPresentation::amount($invoice['total'])) ?></strong></div>
-  <?php if($bill['issued_unpaid']&&!$bill['payment_received']&&!$bill['payment_refunded']):?><p class="af-receipt-notice"><strong>Amount due: <?= e(ReceiptPresentation::amount($bill['amount_due'])) ?>. Payment has not been received.</strong></p><?php endif;?>
+  <?php if($bill['issued_unpaid']&&!$bill['payment_received']&&!$bill['payment_refunded']):?><p class="af-receipt-notice"><strong>Amount due: <?= e(ReceiptPresentation::amount($bill['amount_due'])) ?>. <?= $bill['cash_on_delivery']?'Cash on delivery.':'Payment has not been received.' ?></strong></p><?php endif;?>
   <?php if(!$bill['is_credit']):?><p class="af-receipt-notice"><?= !empty($buyer['courier_deferred'])?'Courier charges are not included in this food bill. They are confirmed and payable separately after dispatch.':'Delivery fees shown above are included in the total '.($bill['payment_received']?'paid':'payable').'.' ?></p><?php endif;?>
   <p class="af-receipt-words"><?= e($invoice['amount_words']) ?></p>
   <div class="af-receipt-payment">

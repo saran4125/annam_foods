@@ -458,6 +458,7 @@ try {
         $invoice=['seller'=>['name'=>'Frozen seller','logo_url'=>'','gst_mode'=>'unregistered'],'buyer'=>['delivery_address'=>['line1'=>'Test street','line2'=>'TEST STREET','city'=>'Chennai','state'=>'Tamil Nadu','pincode'=>'600004','country'=>'India']],'lines'=>[['description'=>'Frozen dish','quantity'=>8,'unit_price'=>'15','taxable'=>'120','tax'=>'0','discount'=>'0']],'payment_mode'=>'manual','kind'=>'bill'];$before=$invoice;
         $bill=Annam\ReceiptPresentation::details($invoice,['payment_received'=>true,'payment_refunded'=>false,'settlement_reference'=>'fixture','amount_due'=>'0.00']);
         check($bill['lines'][0]['unit_price']==='15.00'&&$bill['lines'][0]['amount']==='120.00','Receipt decimals differ from main');check($bill['address_lines']===['Test street','Chennai, Tamil Nadu, 600004'],'Receipt address differs from main');check($bill['payment_label']==='Manual payment'&&$invoice===$before,'Presentation changed frozen values');
+        $invoice['payment_mode']='cod';$invoice['buyer']['delivery_address']['fulfilment']='Collection';$cod=Annam\ReceiptPresentation::details($invoice,['payment_received'=>false,'payment_refunded'=>false]);check($cod['cash_on_delivery']&&!$cod['payment_received']&&$cod['collection']&&in_array('Test street',$cod['address_lines'],true),'COD label or collection address lost');
     });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";

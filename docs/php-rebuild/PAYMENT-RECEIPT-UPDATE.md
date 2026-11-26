@@ -1,3 +1,15 @@
+# COD invoice address and wording — 26 November 2026
+
+Issued invoices now show saved address lines even for collection bookings.
+Unsettled COD documents say Cash on delivery and retain their amount due;
+manual/online unpaid and paid/refunded states keep their own labels. Financial
+snapshots, numbers and payment flags are unchanged. Browser export fetches only
+the authorized receipt markup into an isolated print frame, so it also works
+with Django's unchanged frame protections. Native PDF includes the same address
+and COD wording. Matching fixes and rebuilt features are ported to Python main.
+
+---
+
 # Repeat checkout addresses and delivery refresh — 25 November 2026
 
 The same signed guest browser can reuse its latest placed-order address for

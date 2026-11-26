@@ -53,19 +53,20 @@ final class InvoicePdf {
     private static function customer(array $buyer):string {
         $address=$buyer['delivery_address']??[];$html='<b>'.e($buyer['name']??'').'</b><br>'.e($buyer['phone']??'');
         foreach(['business_name','billing_address','gstin'] as $key)if(!empty($buyer[$key]))$html.='<br>'.nl2br(e($buyer[$key]));
-        $html.='<br>'.e(($address['fulfilment']??'')==='Collection'?'Collection':implode(', ',array_unique(array_filter(array_map(fn($k)=>$address[$k]??'', ['line1','line2','landmark','area','city','state','country','pincode'])))));
+        if(($address['fulfilment']??'')==='Collection')$html.='<br>Collection';
+        $html.='<br>'.e(implode(', ',array_unique(array_filter(array_map(fn($k)=>$address[$k]??'', ['line1','line2','landmark','area','city','state','country','pincode'])))));
         if(!empty($buyer['delivery_date']))$html.='<br>Delivery: '.e(date('j M Y',strtotime($buyer['delivery_date'])));return $html;
     }
     public static function invoice(array $invoice, ?array $payment=null): string {
         $payment??=['payment_received'=>($invoice['buyer']['payment_status_at_issue']??'paid')!=='unpaid','payment_refunded'=>false,'amount_due'=>$invoice['total'],'settlement_reference'=>$invoice['payment_ref']];
         $seller=$invoice['seller'];$buyer=$invoice['buyer'];$credit=$invoice['kind']==='credit_note';$regular=($seller['gst_mode']??'')==='regular';$refunded=!empty($payment['payment_refunded']);
-        $badge=$credit?'CREDIT NOTE ISSUED':($refunded?'PAYMENT REFUNDED':($payment['payment_received']?'✓ PAYMENT RECEIVED':'UNPAID — PAYMENT NOT RECEIVED'));
+        $badge=$credit?'CREDIT NOTE ISSUED':($refunded?'PAYMENT REFUNDED':($payment['payment_received']?'✓ PAYMENT RECEIVED':($invoice['payment_mode']==='cod'?'CASH ON DELIVERY':'UNPAID — PAYMENT NOT RECEIVED')));
         $kind=['bill'=>'Bill','tax_invoice'=>'Tax invoice','bill_of_supply'=>'Bill of supply','credit_note'=>'Credit note'][$invoice['kind']]??'Bill';
         $meta=[$kind.' number'=>$invoice['number'],'Issued'=>date('j M Y, g:i A',strtotime($invoice['issued_at'])),'Order / meal'=>($buyer['order_no']??'').(!empty($buyer['slot'])?' · '.$buyer['slot']:'')];
         if($credit&&!empty($payment['original_number']))$meta['Original bill']=$payment['original_number'];$lines=[];
         foreach($invoice['lines'] as $line){$detail=e($line['quantity'].' × ₹'.$line['unit_price']);if(!empty($line['sac']))$detail.=' · SAC / HSN: '.e($line['sac']);if($regular)$detail.='<br>Taxable: ₹'.e($line['taxable']).' · GST '.e($line['tax_rate']).'%: ₹'.e($line['tax']);if(Money::parse((string)($line['discount']??'0')))$detail.='<br>Discount: ₹'.e($line['discount']);$lines[]=['name'=>$line['description'],'detail'=>$detail,'amount'=>Money::decimal(Money::parse($line['taxable'])+Money::parse($line['tax']))];}
         $totals=[$regular?'Taxable value':'Subtotal'=>$invoice['taxable']];if($regular)foreach(['cgst','sgst','igst'] as $key)$totals[strtoupper($key)]=$invoice[$key];$totals['Round off']=$invoice['round_off'];
-        $notes='';if(!$credit&&!$payment['payment_received']&&!$refunded)$notes.='<p><b>Amount due: ₹'.e($payment['amount_due']).' — payment not received</b></p>';
+        $notes='';if(!$credit&&!$payment['payment_received']&&!$refunded)$notes.='<p><b>Amount due: ₹'.e($payment['amount_due']).($invoice['payment_mode']==='cod'?' — cash on delivery</b></p>':' — payment not received</b></p>');
         if(!$credit)$notes.='<p align="center" style="font-size:7.5pt;color:#807166">Payment: '.e(['manual'=>'Manual payment','cod'=>'Cash on delivery','online'=>'Online payment'][$invoice['payment_mode']]??$invoice['payment_mode']).'</p>';
         $reference=$credit?$invoice['payment_ref']:$payment['settlement_reference'];if($reference!=='')$notes.='<p align="center" style="font-size:7.5pt;color:#807166">'.($credit?'Reason':'Reference').': '.e($reference).'</p>';
         if($buyer['courier_deferred']??false)$notes.='<p>Courier charges are payable separately after dispatch.</p>';
