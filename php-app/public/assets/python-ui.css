@@ -84,3 +84,8 @@
 .php-shop-page .category-arrow:focus-visible{outline:3px solid #ff8507;outline-offset:2px}
 .php-shop-page .category-arrow[hidden]{display:none}
 @media(max-width:600px){.php-shop-page .shop-category-scroll{gap:6px;margin-bottom:18px}.php-shop-page .category-arrow{flex-basis:36px;width:36px;height:36px}}
+
+/* Keep the shop close to the header, especially on phones. */
+.python-ui .php-shop-page.php-store-section{padding-top:24px}
+.php-shop-page>.page-intro{margin-top:0;margin-bottom:24px}
+@media(max-width:600px){.python-ui .php-shop-page.php-store-section{padding-top:16px}.php-shop-page>.page-intro{margin-bottom:18px}.php-shop-page .section-kicker{margin-bottom:8px}}
