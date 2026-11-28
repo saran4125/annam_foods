@@ -1388,3 +1388,7 @@ h3{font-weight:600}
 .category-arrow:disabled{opacity:.35;cursor:default}.category-arrow[hidden]{display:none}
 .shop-tools{margin-top:24px;margin-bottom:32px}
 @media(max-width:600px){.shop-category-scroll{gap:6px}.category-arrow{flex-basis:36px;width:36px;height:36px}.shop-tools{margin-top:18px;margin-bottom:24px}}
+
+/* Compact shop heading: category names already appear in the page title. */
+.shop-head .page-intro{margin-top:24px;margin-bottom:24px}
+@media(max-width:600px){.shop-head .page-intro{margin-top:16px;margin-bottom:18px}.shop-head .section-kicker{margin-bottom:8px}}

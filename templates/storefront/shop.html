@@ -4,14 +4,7 @@
 {% block description %}{% if category.description %}{{ category.description|truncatechars:150 }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block content %}
 
-<nav class="crumbs" aria-label="Breadcrumb">
-  <a href="{% url 'storefront:home' %}">Home</a><span aria-hidden="true">/</span>
-  {% if category %}
-    <a href="{% url 'storefront:shop' %}">Shop</a><span aria-hidden="true">/</span>
-    {% if category.parent and category.parent.slug %}<a href="{% url 'storefront:shop_category' category.parent.slug %}">{{ category.parent.name }}</a><span aria-hidden="true">/</span>{% endif %}
-    <span aria-current="page">{{ category.name }}</span>
-  {% else %}<span aria-current="page">Shop</span>{% endif %}
-</nav>
+
 
 <header class="shop-head">
   <div class="page-intro">
