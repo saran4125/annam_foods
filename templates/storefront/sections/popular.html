@@ -30,7 +30,8 @@
       <h3>{{ e.item.name }}</h3>
       <div class="dish-buy">
         <span class="price">₹{{ e.price|money }}</span>
-        {% if ordering_enabled %}
+        {% if e.sold_out %}<span class="pill pill-shut" data-stock-status>Out of stock</span>
+        {% elif ordering_enabled %}
         <a class="btn btn-add" href="{% url 'storefront:menu' %}?slot={{ e.slot.key }}">Choose</a>
         {% else %}<span class="pill">Ordering unavailable</span>{% endif %}
       </div>

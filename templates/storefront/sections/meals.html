@@ -23,7 +23,7 @@ but quieter, with a link to order tomorrow’s menu.{% endcomment %}
         {% for e in h.entries %}
         <li>
           <span class="meal-dish-img">{% if e.item.image %}<img src="{{ e.item.image.url }}" alt="" width="64" height="64" loading="lazy">{% else %}<span class="dish-tile tile-{{ e.item.name|tile_tint }}">{{ e.item.name|slice:":1"|upper }}</span>{% endif %}</span>
-          <span class="meal-dish-name"><span class="veg{% if not e.item.is_veg %} veg-no{% endif %}" aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>{{ e.item.name }}</span>
+          <span class="meal-dish-name"><span class="veg{% if not e.item.is_veg %} veg-no{% endif %}" aria-label="{% if e.item.is_veg %}Vegetarian{% else %}Non-vegetarian{% endif %}"></span>{{ e.item.name }}{% if e.sold_out %} <small class="pill pill-shut" data-stock-status>Out of stock</small>{% endif %}</span>
           <span class="meal-dish-price">₹{{ e.price|money }}</span>
         </li>
         {% endfor %}

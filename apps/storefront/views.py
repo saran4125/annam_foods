@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 
 from apps.catalog.models import MenuCategory, MenuItem, Slot
 from apps.catalog.services import (
-    SHOP_SORTS, category_family_ids, resolve_menu, search_shop, shop_categories,
+    SHOP_SORTS, category_family_ids, published_menu, resolve_menu, search_shop, shop_categories,
     shop_items, customer_slot_is_open, shop_subcategories,
 )
 from apps.content.models import Page
@@ -90,7 +90,7 @@ def home(request):
     slots = list(Slot.objects.exclude(key__in=['snack','snacks']).filter(active=True))
     highlights = []
     for slot in slots:
-        entries = resolve_menu(today, slot)[:6]  # the menu board lists up to six per meal
+        entries = published_menu(today, slot)[:6]  # the menu board lists up to six per meal
         if entries:
             highlights.append(
                 {"slot": slot, "entries": entries, "open": customer_slot_is_open(slot, today)}
@@ -212,7 +212,7 @@ def menu(request):
         # a breakfast menu at 1pm is a closed door as a landing page.
         chosen_slot = next((s for s in slots if slot_states[s.key]), slots[0])
 
-    entries = resolve_menu(chosen_date, chosen_slot)
+    entries = published_menu(chosen_date, chosen_slot)
     is_open = customer_slot_is_open(chosen_slot, chosen_date)
 
     # Browsing the menu must never touch the cart (FIX-05): reading another

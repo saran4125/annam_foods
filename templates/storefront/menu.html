@@ -74,7 +74,8 @@
       {% if e.item.description %}<p>{{ e.item.description }}</p>{% endif %}
       <div class="dish-buy" data-buy>
         <span class="price">₹{{ e.price|money }}</span>
-        {% if ordering_enabled and slot_open and tenant.can_take_orders %}
+        {% if e.sold_out %}<span class="pill pill-shut" data-stock-status>Out of stock</span>
+        {% elif ordering_enabled and slot_open and tenant.can_take_orders %}
           {% with qty=cart_quantities|dictkey:e.item.id %}
           <form method="post" action="{% url 'storefront:cart_add' %}" data-cart-form data-name="{{ e.item.name }}"{% if qty %} class="is-added"{% endif %}>
             {% csrf_token %}

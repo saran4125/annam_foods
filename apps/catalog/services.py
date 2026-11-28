@@ -246,3 +246,8 @@ def assign_display_priority(item):
     """Record an explicit display-order save, separately from stock/status writes."""
     from time import time_ns
     item.sort_priority = time_ns() // 1000
+
+
+def published_menu(on_date, slot):
+    """Display scheduled dishes, including sold out; keep removed rows hidden."""
+    return [entry for entry in resolve_menu(on_date,slot,include_unavailable=True) if entry.available]
