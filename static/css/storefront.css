@@ -1400,3 +1400,18 @@ h3{font-weight:600}
 .shop-pagination .page-status{font-size:.9rem;font-weight:600;white-space:nowrap;text-align:center}
 .shop-pagination [aria-disabled="true"]{opacity:.4;cursor:default}
 @media(max-width:600px){.shop-pagination{gap:8px;margin:24px auto}.shop-pagination .tab{min-width:0;padding:10px 12px;font-size:.85rem}.shop-pagination .page-status{font-size:.8rem}}
+
+/* Keep section boundaries compact without squeezing their content. */
+[data-home-section] :is(.feature,.story-band,.stats,.closing,.spotlight,.offers){margin-top:32px}
+[data-home-section] .section-head{margin-top:32px;margin-bottom:20px}
+[data-home-section] .story-band{padding-top:24px;padding-bottom:24px}
+[data-home-section] .feature{padding-top:32px;padding-bottom:32px}
+[data-home-section] .closing-main{padding-top:32px;padding-bottom:24px}
+.menu-page-intro{margin:24px 0}
+.menu-page-intro+.filters{margin-top:0;margin-bottom:20px}
+@media(max-width:600px){
+[data-home-section] :is(.feature,.story-band,.stats,.closing,.spotlight,.offers){margin-top:24px}
+[data-home-section] .section-head{margin-top:24px;margin-bottom:16px}
+[data-home-section] .feature,[data-home-section] .closing-main{padding-top:24px;padding-bottom:24px}
+.menu-page-intro{margin:16px 0 20px}
+}
