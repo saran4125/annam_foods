@@ -502,6 +502,22 @@ try {
         $store->db->rows('UPDATE catalog_menucategory SET sort=? WHERE tenant_id=? AND id=?',[1,$store->id(),$shop['id']]);$store->db->rows('UPDATE catalog_menucategory SET sort=? WHERE tenant_id=? AND id=?',[20,$store->id(),$breakfast['id']]);
         $categories=(new Annam\ParityRoutes($store,[],fn()=>null))->categories();$ids=array_map('intval',array_column($categories,'id'));check(array_search((int)$shop['id'],$ids,true)<array_search((int)$breakfast['id'],$ids,true),'Fixed category rank overrode saved order');
     });
+    test('public menus keep sold out scheduled dishes and hide removed or archived rows on each date',function()use($store,$resources){
+        $slot=$resources->save('slots',null,['label'=>'Visibility fixture','key'=>'visibility-test','sort'=>9,'active'=>1,'order_cutoff'=>'23:59:59']);
+        $item=$resources->save('dishes',null,['name'=>'Visible sold out fixture','fulfilment'=>'scheduled','price'=>'100','active'=>1,'in_stock'=>0,'sort'=>1]);
+        $removed=$resources->save('dishes',null,['name'=>'Removed stock fixture','fulfilment'=>'scheduled','price'=>'100','active'=>1,'in_stock'=>0,'sort'=>1]);
+        foreach([date('Y-m-d'),date('Y-m-d',strtotime('+1 day'))] as $day){
+            $store->setDayAvailability($day,$slot,$item,true,0);$store->setDayAvailability($day,$slot,$removed,false,1);
+            check($store->menu($day,$slot)===[],'Sold out became orderable');$shown=$store->publishedMenu($day,$slot);
+            check(count($shown)===1&&(int)$shown[0]['id']===$item&&Store::soldOut($shown[0]),'Published stock visibility differs by date');
+        }
+        $store->db->rows('UPDATE catalog_menuitem SET in_stock=true WHERE tenant_id=? AND id=?',[$store->id(),$item]);
+        $next=date('Y-m-d',strtotime('+1 day'));(new Annam\Inventory($store))->configure($item,$next,$slot,true,0,'set',0);
+        check(!Store::soldOut($store->publishedMenu(date('Y-m-d'),$slot)[0]),'Tomorrow stock leaked into today');
+        check(Store::soldOut($store->publishedMenu($next,$slot)[0])&&$store->menu($next,$slot)===[],'Zero quantity disappeared or became orderable');
+        $store->db->rows('UPDATE catalog_menuitem SET active=false WHERE tenant_id=? AND id=?',[$store->id(),$item]);
+        check($store->publishedMenu($next,$slot)===[],'Archived item reappeared');
+    });
     Annam\Http::$transport=null;
     echo "$passed behavioural tests passed. All fixture records rolled back.\n";
 } finally { $pdo->rollBack(); }

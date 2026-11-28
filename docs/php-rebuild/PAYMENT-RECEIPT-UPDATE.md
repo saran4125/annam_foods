@@ -1,3 +1,18 @@
+# Sold-out dishes stay visible — 28 November 2026
+
+Home meal previews and customer menus use the published date menu: active,
+selected dishes remain visible with an Out of stock label when stock is off,
+tracked quantity is zero or a daily limit is exhausted. Their ordering controls
+are absent. Removed/archived rows remain hidden. Dated quantities remain separate
+for today/tomorrow; strict cart/order checks are unchanged. Scheduled card links
+keep the meal/date context rather than linking sold-out dishes to a 404 page.
+
+Validation: native SQLite/PostgreSQL tests, full Python branch checks and local
+Chromium checks on home plus today's/tomorrow's menus at desktop/mobile widths.
+Matching Python main changes use the same published-versus-orderable distinction.
+
+---
+
 # Automatic numbered positions — 26 November 2026
 
 Display order now inserts at a unique numbered position and shifts the other

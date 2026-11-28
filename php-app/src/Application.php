@@ -85,14 +85,14 @@ final class Application {
         if ($method !== 'GET' && $path !== '/cart/') throw new HttpError(405, 'Method not allowed.');
         if ($path === '/') {
             $slots = $this->store->slots(); $date = date('Y-m-d'); $menus = [];
-            foreach ($slots as $slot) $menus[] = ['slot' => $slot, 'items' => $this->store->menu($date, (int)$slot['id'])];
+            foreach ($slots as $slot) $menus[] = ['slot' => $slot, 'items' => $this->store->publishedMenu($date, (int)$slot['id'])];
             $products=array_values(array_filter($this->store->items('courier'),fn($i)=>$i['active']&&($i['in_stock']??true)&&(!$i['quantity_tracked']||$i['stock_quantity']>0)));usort($products,fn($a,$b)=>[!in_array('featured',json_decode($a['tags'],true),true),DisplayOrder::position($a,'shop'),-$a['sort_priority'],$a['name'],$a['id']]<=>[!in_array('featured',json_decode($b['tags'],true),true),DisplayOrder::position($b,'shop'),-$b['sort_priority'],$b['name'],$b['id']]);$products=array_slice($products,0,12);
             $banners = $this->db->rows('SELECT * FROM content_banner WHERE tenant_id=? AND active ORDER BY sort,id LIMIT 12', [$this->store->id()]);
             $this->render('home', compact('menus', 'products', 'banners', 'date')); return;
         }
         if ($path === '/menu/') {
             $date = Store::date((string)($_GET['date'] ?? date('Y-m-d'))); $menus = [];
-            foreach ($this->store->slots() as $slot) $menus[] = ['slot' => $slot, 'items' => $this->store->menu($date, (int)$slot['id'], true)];
+            foreach ($this->store->slots() as $slot) $menus[] = ['slot' => $slot, 'items' => $this->store->publishedMenu($date, (int)$slot['id'])];
             $this->render('menu', compact('menus', 'date')); return;
         }
         if (preg_match('~^/shop/(?:([a-z0-9-]+)/)?$~', $path, $match)) {

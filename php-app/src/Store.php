@@ -130,6 +130,13 @@ final class Store {
         $result=array_filter(array_values($rows),fn($r)=>$r['active']&&($includeUnavailable||($r['available']&&($r['in_stock']??true)&&(!$r['quantity_tracked']||$r['stock_quantity']>0)&&($r['qty_limit']===null||$r['qty_sold']<$r['qty_limit']))));
         $group=$this->slot($slotId)['key'];usort($result,fn($a,$b)=>DisplayOrder::compare($a,$b,$group));return array_values($result);
     }
+    /** Customer-visible menu includes sold-out dishes but excludes removed rows. */
+    public function publishedMenu(string $date,int $slotId):array {
+        return array_values(array_filter($this->menu($date,$slotId,true),fn($row)=>(bool)$row['available']));
+    }
+    public static function soldOut(array $row):bool {
+        return !($row['in_stock']??true)||(!empty($row['quantity_tracked'])&&$row['stock_quantity']<=0)||(isset($row['qty_limit'])&&$row['qty_sold']>=$row['qty_limit']);
+    }
     private function materializeMenu(string $date,int $slotId):void {
         if($this->db->one('SELECT id FROM catalog_menuday WHERE tenant_id=? AND slot_id=? AND on_date=?',[$this->id(),$slotId,$date]))return;
         foreach($this->effectiveMenuRows($date,$slotId) as $r)if($r['mode']!=='date'||$r['source_date']!==$date)$this->db->rows("INSERT INTO catalog_menuschedule(tenant_id,item_id,slot_id,mode,on_date,weekday,available,qty_limit,qty_sold,price_override) VALUES(?,?,?,'date',?,NULL,?,?,?,?)",[$this->id(),$r['id'],$slotId,$date,$r['available'],$r['qty_limit'],$r['qty_sold'],$r['price_override']]);
