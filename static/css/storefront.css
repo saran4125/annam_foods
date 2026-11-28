@@ -1392,3 +1392,11 @@ h3{font-weight:600}
 /* Compact shop heading: category names already appear in the page title. */
 .shop-head .page-intro{margin-top:24px;margin-bottom:24px}
 @media(max-width:600px){.shop-head .page-intro{margin-top:16px;margin-bottom:18px}.shop-head .section-kicker{margin-bottom:8px}}
+
+/* Balanced product pagination, independent of category tabs. */
+.shop-pagination{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;max-width:480px;margin:32px auto}
+.shop-pagination .page-previous{justify-self:end}.shop-pagination .page-next{justify-self:start}
+.shop-pagination .tab{min-height:44px;min-width:104px;justify-content:center;white-space:nowrap;box-sizing:border-box}
+.shop-pagination .page-status{font-size:.9rem;font-weight:600;white-space:nowrap;text-align:center}
+.shop-pagination [aria-disabled="true"]{opacity:.4;cursor:default}
+@media(max-width:600px){.shop-pagination{gap:8px;margin:24px auto}.shop-pagination .tab{min-width:0;padding:10px 12px;font-size:.85rem}.shop-pagination .page-status{font-size:.8rem}}
